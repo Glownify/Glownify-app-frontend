@@ -45,7 +45,7 @@ export default function AppNavigator() {
         tabBarShowLabel: false,
         tabBarStyle: {
           // Optional: Add some padding if the dot gets cut off
-          height: 60,
+          height: 70,
           paddingBottom: 5, 
           paddingTop: 5,
         },
@@ -72,7 +72,7 @@ export default function AppNavigator() {
 
           return (
             <View style={styles.iconContainer}>
-              <Icon name={iconName} size={24} color={color} />
+              <Icon name={iconName} size={26} color={color} />
               {showBadge && <View style={styles.badge} />}
               {showActiveDot && <View style={styles.activeDot} />}
             </View>
@@ -96,7 +96,7 @@ export default function AppNavigator() {
 const styles = StyleSheet.create({
   iconContainer: {
     width: 24,
-    height: 24,
+    height: 28,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative', // Needed for absolute positioning of children
