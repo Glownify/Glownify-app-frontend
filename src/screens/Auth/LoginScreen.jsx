@@ -20,6 +20,7 @@ export default function LoginScreen({navigation}) {
   const handleLogin = () => {
     // simulate login success
     login({ name: 'John Doe', email });
+    console.log('Logging in with:', { email, password });
   };
 
   return (

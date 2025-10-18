@@ -16,18 +16,20 @@ export default function RootNavigator() {
   const [loading, setLoading] = useState(true);
   const [isFirstLaunch, setIsFirstLaunch] = useState(false);
 
+  console.log('Current User:', user);
+
   useEffect(() => {
     const checkLaunch = async () => {
       try {
         const hasLaunched = await AsyncStorage.getItem('hasLaunched');
-        // if (hasLaunched === null) {
-        //   setIsFirstLaunch(true);
-        //   await AsyncStorage.setItem('hasLaunched', 'true');
-        // } else {
-        //   setIsFirstLaunch(false);
-        // }
-        await AsyncStorage.removeItem('hasLaunched'); 
-      setIsFirstLaunch(true);
+        if (hasLaunched === null) {
+          setIsFirstLaunch(true);
+          await AsyncStorage.setItem('hasLaunched', 'true');
+        } else {
+          setIsFirstLaunch(false);
+        }
+        // await AsyncStorage.removeItem('hasLaunched'); 
+      // setIsFirstLaunch(true);
       } catch (error) {
         console.error('Launch check failed', error);
       } finally {
