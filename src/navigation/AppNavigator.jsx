@@ -6,14 +6,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
 import ShopDetailsScreen from '../screens/UserScreens/ShopDetailsScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
+import NearbyListScreen from '../screens/UserScreens/NearbyListScreen';
+import SearchScreen from '../screens/UserScreens/SearchScreen';
 
 // --- Placeholder Screens for the new tabs ---
 // You can replace these with your actual screens
-const ExploreScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Explore Screen</Text>
-  </View>
-);
+
 const CalendarScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
     <Text>Calendar Screen</Text>
@@ -33,6 +31,7 @@ function HomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeMain" component={HomeScreen} />
+      <Stack.Screen name="SearchScreen" component={SearchScreen} />
     </Stack.Navigator>
   );
 }
@@ -57,7 +56,7 @@ export default function AppNavigator() {
           if (route.name === 'HomeTab') {
             iconName = focused ? 'home' : 'home-outline';
             showActiveDot = focused;
-          } else if (route.name === 'ExploreTab') {
+          } else if (route.name === 'NearbySaloonTab') {
             iconName = focused ? 'compass' : 'compass-outline';
           } else if (route.name === 'CalendarTab') {
             iconName = focused ? 'calendar' : 'calendar-outline';
@@ -83,7 +82,7 @@ export default function AppNavigator() {
       })}
     >
       <Tab.Screen name="HomeTab" component={HomeStack} />
-      <Tab.Screen name="ExploreTab" component={ExploreScreen} />
+      <Tab.Screen name="NearbySaloonTab" component={NearbyListScreen} />
       <Tab.Screen name="CalendarTab" component={CalendarScreen} />
       <Tab.Screen name="MessagesTab" component={MessagesScreen} />
       {/* Using your ShopDetailsScreen for the Profile tab */}
