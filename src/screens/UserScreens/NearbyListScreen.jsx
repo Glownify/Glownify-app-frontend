@@ -22,7 +22,7 @@ const salonData = [
     reviews: '2.7k',
     discount: '-58%',
     distance: '5.1km',
-    image: require('../../assets/image.png'), // Using placeholder
+    image: require('../../assets/nearby.png'), // Using placeholder
   },
   {
     id: '2',
@@ -33,7 +33,7 @@ const salonData = [
     reviews: '2.8k',
     discount: '-58%',
     distance: '5.1km',
-    image: require('../../assets/image.png'), // Using placeholder
+    image: require('../../assets/nearby.png'), // Using placeholder
   },
   {
     id: '3',
@@ -44,7 +44,7 @@ const salonData = [
     reviews: '1.7k',
     discount: '-58%',
     distance: '5.1km',
-    image: require('../../assets/image.png'), // Using placeholder
+    image: require('../../assets/nearby.png'), // Using placeholder
   },
   {
     id: '4',
@@ -55,7 +55,7 @@ const salonData = [
     reviews: '3.1k',
     discount: '-58%',
     distance: '5.1km',
-    image: require('../../assets/image.png'), // Using placeholder
+    image: require('../../assets/nearby.png'), // Using placeholder
   },
 ];
 
@@ -67,7 +67,7 @@ const SalonCard = ({ item }) => (
       <Image source={item.image} style={styles.cardImage} />
       {/* Favorite Icon */}
       <TouchableOpacity style={styles.heartIcon}>
-        <Icon name="heart" size={18} color="#E53935" />
+        <Icon name="heart" size={18} color="#ED4C5C" />
       </TouchableOpacity>
       {/* Distance Tag */}
       <View style={styles.distanceTag}>
@@ -86,13 +86,14 @@ const SalonCard = ({ item }) => (
       {/* Footer part of content */}
       <View style={styles.cardFooter}>
         <View style={styles.ratingContainer}>
-          <Icon name="star" size={16} color="#FFC107" />
+          <Icon name="star" size={18} color="#FFC107" />
           <Text style={styles.ratingText}>
-            {item.rating} ({item.reviews})
+            {item.rating}
           </Text>
+          <Text style={styles.reviewText}>({item.reviews})</Text>
         </View>
         <View style={styles.discountContainer}>
-          <Icon name="pricetag-outline" size={16} color="#3498db" />
+          <Icon name="pricetag" size={16} color="#156778" />
           <Text style={styles.discountText}>{item.discount}</Text>
         </View>
       </View>
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600', // Semi-bold
-    color: '#1F2937',
+    color: '#111111',
   },
   filterContainer: {
     paddingVertical: 10,
@@ -201,10 +202,11 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: 14,
-    color: '#4A4A4A', // Darker grey text
+    fontWeight: '400',
+    color: '#111111', // Darker grey text
   },
   filterTextActive: {
-    color: '#0288D1', // Blue text
+    color: '#156778', // Blue text
     fontWeight: '600',
   },
   cardContainer: {
@@ -227,7 +229,8 @@ const styles = StyleSheet.create({
   cardImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 12, // Apply border radius to the image
+    borderTopLeftRadius: 12, // Apply border radius to the image
+    borderBottomLeftRadius: 12,
   },
   heartIcon: {
     position: 'absolute',
@@ -240,35 +243,36 @@ const styles = StyleSheet.create({
   distanceTag: {
     position: 'absolute',
     bottom: 10,
-    left: 10,
-    backgroundColor: '#FEEBC8', // Light orange as in image
-    paddingVertical: 4,
+    left: 0,
+    backgroundColor: '#FFF9E5', // Light orange as in image
+    paddingVertical: 6,
     paddingHorizontal: 8,
-    borderRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopRightRadius: 12,
   },
   distanceText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#DD6B20', // Dark orange text
+    color: '#F98600', // Dark orange text
   },
   cardContent: {
     flex: 1, // Take up remaining space
-    padding: 12,
+    padding: 14,
     justifyContent: 'space-between', // Space content vertically
   },
   cardCategories: {
-    fontSize: 12,
-    color: '#6B7280',
+    fontSize: 13,
+    color: '#156778',
   },
   cardTitle: {
-    fontSize: 17, // Slightly smaller for horizontal card
+    fontSize: 18, // Slightly smaller for horizontal card
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: '#111111',
     marginVertical: 2,
   },
   cardLocation: {
-    fontSize: 12,
-    color: '#6B7280',
+    fontSize: 13,
+    color: '#50555C',
   },
   cardFooter: {
     flexDirection: 'row',
@@ -281,9 +285,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ratingText: {
-    marginLeft: 4,
-    fontSize: 12,
-    color: '#1F2937',
+    marginLeft: 6,
+    fontSize: 14,
+    color: '#111111',
+    fontWeight: '600',
+  },
+  reviewText: {
+    marginLeft: 6,
+    fontSize: 14,
   },
   discountContainer: {
     flexDirection: 'row',
@@ -292,8 +301,7 @@ const styles = StyleSheet.create({
   },
   discountText: {
     marginLeft: 4,
-    fontSize: 12,
-    color: '#3498db', // Blue text to match icon
-    fontWeight: '600',
+    fontSize: 14,
+    color: '#111111', // Blue text to match icon
   },
 });
