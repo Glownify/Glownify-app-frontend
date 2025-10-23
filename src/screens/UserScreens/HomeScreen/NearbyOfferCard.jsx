@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 
 const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, discount }) => {
+  const navigation = useNavigation();
   const [imgSource, setImgSource] = useState(
     typeof imageUrl === 'string' ? { uri: imageUrl } : imageUrl
   );
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('ShopDetails')}
+      activeOpacity={0.8}
+    >
       <TouchableOpacity style={styles.heartButton}>
         <Ionicons name="heart-outline" size={20} color="#EF4444" />
       </TouchableOpacity>
@@ -31,7 +37,7 @@ const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, d
         </View>
         {discount && <Text style={styles.discount}>{discount}</Text>}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

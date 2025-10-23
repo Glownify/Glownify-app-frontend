@@ -1,17 +1,16 @@
 // src/navigation/AppNavigator.js
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native'; // Import View and StyleSheet
+import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
-import ShopDetailsScreen from '../screens/UserScreens/ShopDetailsScreen';
+import ShopDetailsScreen from '../screens/UserScreens/ShopDetails/ShopDetailsScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import NearbyListScreen from '../screens/UserScreens/NearbyListScreen';
 import SearchScreen from '../screens/UserScreens/SearchScreen';
 
 // --- Placeholder Screens for the new tabs ---
-// You can replace these with your actual screens
-
 const CalendarScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
     <Text>Calendar Screen</Text>
@@ -32,6 +31,7 @@ function HomeStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
+      <Stack.Screen name="ShopDetails" component={ShopDetailsScreen} />
     </Stack.Navigator>
   );
 }
@@ -43,9 +43,8 @@ export default function AppNavigator() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          // Optional: Add some padding if the dot gets cut off
           height: 70,
-          paddingBottom: 5, 
+          paddingBottom: 5,
           paddingTop: 5,
         },
         tabBarIcon: ({ focused, color, size }) => {
@@ -61,10 +60,8 @@ export default function AppNavigator() {
           } else if (route.name === 'CalendarTab') {
             iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'MessagesTab') {
-            // Using chatbubble-ellipses as it's a good match for the image
             iconName = focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline';
-            // Hardcoding badge for demo. In a real app, this would come from state.
-            showBadge = true; 
+            showBadge = true;
           } else if (route.name === 'ProfileTab') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -77,28 +74,43 @@ export default function AppNavigator() {
             </View>
           );
         },
-        tabBarActiveTintColor: '#156778', // Your active color
+        tabBarActiveTintColor: '#156778',
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name="HomeTab" component={HomeStack} />
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeStack}
+        options={({ route }) => ({
+          tabBarStyle: ((route) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
+            // Hide tab bar on ShopDetails and SearchScreen
+            if (routeName === 'ShopDetails' || routeName === 'SearchScreen') {
+              return { display: 'none' };
+            }
+            return {
+              height: 70,
+              paddingBottom: 5,
+              paddingTop: 5,
+            };
+          })(route),
+        })}
+      />
       <Tab.Screen name="NearbySaloonTab" component={NearbyListScreen} />
       <Tab.Screen name="CalendarTab" component={CalendarScreen} />
       <Tab.Screen name="MessagesTab" component={MessagesScreen} />
-      {/* Using your ShopDetailsScreen for the Profile tab */}
       <Tab.Screen name="ProfileTab" component={ShopDetailsScreen} />
     </Tab.Navigator>
   );
 }
 
-// Add this StyleSheet
 const styles = StyleSheet.create({
   iconContainer: {
     width: 24,
     height: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative', // Needed for absolute positioning of children
+    position: 'relative',
   },
   badge: {
     position: 'absolute',
@@ -107,16 +119,16 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: 'orange', // Matches the image
+    backgroundColor: 'orange',
     borderWidth: 1,
-    borderColor: '#fff', // Optional: white border like in many apps
+    borderColor: '#fff',
   },
   activeDot: {
     position: 'absolute',
-    bottom: -10, // Position it below the icon
+    bottom: -10,
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#156778', // Match the active tint color
+    backgroundColor: '#156778',
   },
 });
