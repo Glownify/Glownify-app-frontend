@@ -292,7 +292,10 @@ export default function ShopDetailsScreen({ navigation }) {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.bookButton}>
+          <TouchableOpacity
+            style={styles.bookButton}
+            onPress={() => navigation.navigate('Booking')}
+          >
             <Text style={styles.bookButtonText}>Book Now</Text>
           </TouchableOpacity>
         </View>
