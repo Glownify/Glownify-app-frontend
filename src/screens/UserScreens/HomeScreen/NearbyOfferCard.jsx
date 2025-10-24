@@ -12,7 +12,7 @@ const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, d
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate('ShopDetails')}
+      onPress={() => navigation.navigate('ShopDetailsSummary')}
       activeOpacity={0.8}
     >
       <TouchableOpacity style={styles.heartButton}>

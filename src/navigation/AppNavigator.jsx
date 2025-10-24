@@ -5,11 +5,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
-import ShopDetailsScreen from '../screens/UserScreens/ShopDetails/ShopDetailsScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import NearbyListScreen from '../screens/UserScreens/NearbyListScreen';
 import BookingScreen from '../screens/UserScreens/Bookings/BookingScreen';
 import SearchScreen from '../screens/UserScreens/SearchScreen';
+import ShopDetailsSummaryScreen from '../screens/UserScreens/ShopDetails/ShopDetailsSummaryScreen';
+import ShopDetailsFullScreen from '../screens/UserScreens/ShopDetails/ShopDetailsFullScreen';
+import ServiceDetailsScreen from '../screens/UserScreens/ServiceDetails/ServiceDetailsScreen';
 
 // --- Placeholder Screens for the new tabs ---
 const CalendarScreen = () => (
@@ -22,6 +24,11 @@ const MessagesScreen = () => (
     <Text>Messages Screen</Text>
   </View>
 );
+const ProfileScreen = () => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Text>Profile Screen</Text>
+  </View>
+);
 // --- End of Placeholder Screens ---
 
 const Tab = createBottomTabNavigator();
@@ -32,7 +39,9 @@ function HomeStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
-      <Stack.Screen name="ShopDetails" component={ShopDetailsScreen} />
+      <Stack.Screen name="ShopDetailsSummary" component={ShopDetailsSummaryScreen} />
+      <Stack.Screen name="ShopDetailsFull" component={ShopDetailsFullScreen} />
+      <Stack.Screen name="ServiceDetails" component={ServiceDetailsScreen} />
       <Stack.Screen name="Booking" component={BookingScreen} />
     </Stack.Navigator>
   );
@@ -86,8 +95,12 @@ export default function AppNavigator() {
         options={({ route }) => ({
           tabBarStyle: ((route) => {
             const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
-            // Hide tab bar on ShopDetails and SearchScreen
-            if (routeName === 'ShopDetails' || routeName === 'SearchScreen') {
+            // Hide tab bar on these screens
+            if (routeName === 'ShopDetailsSummary' ||
+                routeName === 'ShopDetailsFull' ||
+                routeName === 'ServiceDetails' ||
+                routeName === 'Booking' ||
+                routeName === 'SearchScreen') {
               return { display: 'none' };
             }
             return {
@@ -101,7 +114,7 @@ export default function AppNavigator() {
       <Tab.Screen name="NearbySaloonTab" component={NearbyListScreen} />
       <Tab.Screen name="CalendarTab" component={CalendarScreen} />
       <Tab.Screen name="MessagesTab" component={MessagesScreen} />
-      <Tab.Screen name="ProfileTab" component={ShopDetailsScreen} />
+      <Tab.Screen name="ProfileTab" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
