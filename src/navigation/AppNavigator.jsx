@@ -10,6 +10,7 @@ import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
 import ShopDetailsScreen from '../screens/UserScreens/ShopDetails/ShopDetailsScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import NearbyListScreen from '../screens/UserScreens/NearbyListScreen';
+import BookingScreen from '../screens/UserScreens/Bookings/BookingScreen';
 import SearchScreen from '../screens/UserScreens/SearchScreen';
 import MessageScreen from '../screens/UserScreens/MessageScreen';
 import NotificationScreen from '../screens/UserScreens/NotificationScreen';
@@ -31,6 +32,7 @@ function HomeStack() {
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
       <Stack.Screen name="ShopDetails" component={ShopDetailsScreen} />
+      <Stack.Screen name="Booking" component={BookingScreen} />
     </Stack.Navigator>
   );
 }
