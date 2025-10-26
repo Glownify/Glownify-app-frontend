@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ServiceCard from './ServiceCard';
 import SpecialistCard from './SpecialistCard';
@@ -113,12 +113,13 @@ console.log('Reviews Data:', JSON.stringify(shopData.reviews, null, 2));
 
 export default function ShopDetailsScreen({ navigation }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: 'transparent' }]} edges={[]}>
       <View style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
             <Icon name="arrow-back" size={24} color="#156778" />
           </TouchableOpacity>

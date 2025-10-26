@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width, height } = Dimensions.get('window');
 
 export default function ShopDetailsSummaryScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
+
   const shopData = {
     name: 'Plush Beauty Lounge',
     address: '360 Stillwater Rd, Palm City, FL 34990',
@@ -20,18 +22,18 @@ export default function ShopDetailsSummaryScreen({ navigation }) {
     rating: 4.7,
     reviews: '2.7k',
     discount: '-58% (6 pax available)',
-    image: require('../../../assets/featuredSaloon.png'),
+    image: require('../../../assets/shopBg.png'),
     status: 'OPEN',
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: 'transparent' }]} edges={[]}>
       <View style={styles.container}>
         {/* Background Image */}
         <Image source={shopData.image} style={styles.backgroundImage} />
 
-        {/* Header Icons */}
-        <View style={styles.header}>
+        {/* Header */}
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.headerButton}
@@ -106,7 +108,6 @@ export default function ShopDetailsSummaryScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#E5E7EB',
   },
   container: {
     flex: 1,
@@ -114,12 +115,15 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     width: width,
-    height: height * 0.6,
+    height: height,
     resizeMode: 'cover',
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
   header: {
     position: 'absolute',
-    top: 16,
+    top: 0,
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -141,7 +145,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 50,
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -234,8 +238,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 16,
-    marginBottom: 20,
+    marginTop: 30,
+    marginBottom: 10,
   },
   viewMoreText: {
     fontSize: 14,
