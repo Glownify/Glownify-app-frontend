@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { StatusBar } from 'react-native/types_generated/index';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,7 +28,7 @@ export default function ShopDetailsSummaryScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: 'transparent' }]} edges={[]}>
+    <SafeAreaView style={styles.safeArea} edges={[]}>
       <View style={styles.container}>
         {/* Background Image */}
         <Image source={shopData.image} style={styles.backgroundImage} />

@@ -14,7 +14,7 @@ import ServiceCard from './ServiceCard';
 import SpecialistCard from './SpecialistCard';
 import ReviewCard from './ReviewCard';
 
-const { width } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 // Mock Data
 const shopData = {
@@ -354,9 +354,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: width,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    zIndex: 10,
+
   },
   headerButton: {
     width: 40,
@@ -371,12 +375,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   imageGallery: {
-    height: 250,
+    height: 200,
     position: 'relative',
   },
   galleryImage: {
     width: width,
-    height: 250,
+    height: 200,
     resizeMode: 'cover',
   },
   imageIndicators: {
