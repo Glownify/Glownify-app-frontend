@@ -9,7 +9,7 @@ const SalonCard = ({ imageUrl, category, name, address, rating, reviews }) => {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate('ShopDetails')}
+      onPress={() => navigation.navigate('ShopDetailsSummary')}
       activeOpacity={0.8}
     >
       <TouchableOpacity style={styles.heartButton}>

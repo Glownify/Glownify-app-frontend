@@ -226,6 +226,39 @@ export default function ShopDetailsScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
+            {/* Service Filter Tabs */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.filterTabsContainer}
+            >
+              <TouchableOpacity
+                style={[styles.filterTab, styles.filterTabActive]}
+                activeOpacity={0.7}
+              >
+                <View style={styles.filterIconContainer}>
+                  <Icon name="cut-outline" size={20} color="#156778" />
+                </View>
+                <Text style={[styles.filterTabText, styles.filterTabTextActive]}>
+                  Haircut
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.filterTab} activeOpacity={0.7}>
+                <View style={styles.filterIconContainer}>
+                  <Icon name="happy-outline" size={20} color="#6B7280" />
+                </View>
+                <Text style={styles.filterTabText}>Facial</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.filterTab} activeOpacity={0.7}>
+                <View style={styles.filterIconContainer}>
+                  <Icon name="hand-left-outline" size={20} color="#6B7280" />
+                </View>
+                <Text style={styles.filterTabText}>Nails</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
             {shopData.services.map((service) => (
               <ServiceCard key={service.id} service={service} />
             ))}
@@ -526,5 +559,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+
+  filterTabsContainer: {
+    marginBottom: 16,
+  },
+  filterTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginRight: 12,
+  },
+  filterTabActive: {
+    backgroundColor: '#E1F5FA',
+    borderColor: '#156778',
+  },
+  filterIconContainer: {
+    marginRight: 8,
+  },
+  filterTabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6B7280',
+  },
+  filterTabTextActive: {
+    color: '#156778',
+    fontWeight: '600',
   },
 });
