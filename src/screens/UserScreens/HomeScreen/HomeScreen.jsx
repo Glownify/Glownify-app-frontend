@@ -1,11 +1,10 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import HomeHeader from '../../../components/HomeHeader';
 import SectionHeader from '../../../components/SectionHeader';
-import SalonCard from './SaloonCard';
+import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../../context/AuthContext';
 import LinearGradient from 'react-native-linear-gradient';
 
 import HaircutIcon from '../../../assets/categoryIcons/haircut.svg';
@@ -16,10 +15,15 @@ import SpaIcon from '../../../assets/categoryIcons/spa.svg';
 import WaxingIcon from '../../../assets/categoryIcons/waxing.svg';
 import MakeupIcon from '../../../assets/categoryIcons/makeup.svg';
 import MassageIcon from '../../../assets/categoryIcons/massage.svg';
+import { useSelector } from 'react-redux';
+import { LocationContext } from '../../../components/LocationProvider';
 
 
 export default function HomeScreen({ navigation }) {
-  const { user, logout } = useAuth();
+  const { location, loading } = useContext(LocationContext);
+
+  const user = useSelector((state) => state.auth.user);
+
   const categories = [
     { icon: HaircutIcon, label: 'Haircut' },
     { icon: NailsIcon, label: 'Nails' },
@@ -33,18 +37,18 @@ export default function HomeScreen({ navigation }) {
 
   // Mock data for followed salons - replace with your actual data
   const followedSalons = [
-    { id: '1', imageUrl: require('../../../assets/saloonfollow.png') },
-    { id: '2', imageUrl: require('../../../assets/saloonfollow.png') },
-    { id: '3', imageUrl: require('../../../assets/saloonfollow.png') },
-    { id: '4', imageUrl: require('../../../assets/saloonfollow.png') },
-    { id: '5', imageUrl: require('../../../assets/saloonfollow.png') },
-    { id: '6', imageUrl: require('../../../assets/saloonfollow.png') },
+    { id: '1', imageUrl: require('../../../assets/salonfollow.png') },
+    { id: '2', imageUrl: require('../../../assets/salonfollow.png') },
+    { id: '3', imageUrl: require('../../../assets/salonfollow.png') },
+    { id: '4', imageUrl: require('../../../assets/salonfollow.png') },
+    { id: '5', imageUrl: require('../../../assets/salonfollow.png') },
+    { id: '6', imageUrl: require('../../../assets/salonfollow.png') },
   ];
 
   const featuredSalons = [
     {
       id: '1',
-      imageUrl: require('../../../assets/featuredSaloon.png'),
+      imageUrl: require('../../../assets/featuredSalon.png'),
       category: 'Hair • Facial',
       name: 'Salon de Elegance',
       address: '800 35th Ave #2, Point City...',
@@ -53,7 +57,7 @@ export default function HomeScreen({ navigation }) {
     },
     {
       id: '2',
-      imageUrl: require('../../../assets/featuredSaloon.png'),
+      imageUrl: require('../../../assets/featuredSalon.png'),
       category: 'Hair • Color',
       name: 'Plum Beauty Lounge',
       address: '5007 Imperial Hwy...',
@@ -62,7 +66,7 @@ export default function HomeScreen({ navigation }) {
     },
     {
       id: '3',
-      imageUrl: require('../../../assets/featuredSaloon.png'),
+      imageUrl: require('../../../assets/featuredSalon.png'),
       category: 'Spa • Massage',
       name: 'Zen Glow Studio',
       address: 'Hitech City, Hyderabad',
@@ -78,6 +82,17 @@ export default function HomeScreen({ navigation }) {
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Header */}
           <HomeHeader user={user} navigation={navigation} />
+
+           {/* Display user location */}
+          {loading ? (
+  <Text>Fetching location...</Text>
+) : location ? (
+  <Text>
+    Your Location: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+  </Text>
+) : (
+  <Text>Location unavailable</Text>
+)}
 
           {/* --- Promo Banner --- */}
           <View style={styles.promoContainer}>
@@ -160,7 +175,7 @@ export default function HomeScreen({ navigation }) {
           <SectionHeader title="Nearby Offers" />
           <View style={{ paddingHorizontal: 16, paddingBottom: 20 }}>
             <NearbyOfferCard
-              imageUrl={require('../../../assets/featuredSaloon.png')}
+              imageUrl={require('../../../assets/featuredSalon.png')}
               category="Hair • Facial"
               name="Maroon's Luxury Salon"
               address="Kukatpally, Hyderabad"

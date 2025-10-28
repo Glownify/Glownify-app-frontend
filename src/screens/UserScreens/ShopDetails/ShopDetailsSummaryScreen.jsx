@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { StatusBar } from 'react-native/types_generated/index';
 
 const { width, height } = Dimensions.get('window');
 

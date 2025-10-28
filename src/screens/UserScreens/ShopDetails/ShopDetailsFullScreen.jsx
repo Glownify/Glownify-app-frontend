@@ -25,10 +25,10 @@ const shopData = {
   reviews: '12k',
   views: '12k',
   images: [
-    require('../../../assets/featuredSaloon.png'),
-    require('../../../assets/featuredSaloon.png'),
-    require('../../../assets/featuredSaloon.png'),
-    require('../../../assets/featuredSaloon.png'),
+    require('../../../assets/featuredSalon.png'),
+    require('../../../assets/featuredSalon.png'),
+    require('../../../assets/featuredSalon.png'),
+    require('../../../assets/featuredSalon.png'),
   ],
   about: 'Looking for your career? Plush Beauty Lounge, they accept men as well as women. Our beauty treatment focuses on hair and skin, ensuring that if is shallots its skin, it matters to us.',
   openingHours: [
@@ -45,7 +45,7 @@ const shopData = {
       duration: '1.5 hour',
       description: 'A clean cut does is a shorter hairstyle Spec 1',
       discount: '-20%',
-      image: require('../../../assets/featuredSaloon.png'),
+      image: require('../../../assets/featuredSalon.png'),
     },
     {
       id: '2',
@@ -54,7 +54,7 @@ const shopData = {
       duration: '1.5 hour',
       description: 'The haircut is a women\'s hairstyle that is cut short...',
       discount: null,
-      image: require('../../../assets/featuredSaloon.png'),
+      image: require('../../../assets/featuredSalon.png'),
     },
     {
       id: '3',
@@ -63,7 +63,7 @@ const shopData = {
       duration: '1 hour',
       description: 'A layered hair is a hairstyle that gives the illusion of...',
       discount: null,
-      image: require('../../../assets/featuredSaloon.png'),
+      image: require('../../../assets/featuredSalon.png'),
     },
     {
       id: '4',
@@ -72,20 +72,20 @@ const shopData = {
       duration: '2.5 hour',
       description: 'There are a lot of variations between which...',
       discount: '-5%',
-      image: require('../../../assets/featuredSaloon.png'),
+      image: require('../../../assets/featuredSalon.png'),
     },
   ],
   specialists: [
-    { id: '1', name: 'Ronald', image: require('../../../assets/featuredSaloon.png') },
-    { id: '2', name: 'Merry', image: require('../../../assets/featuredSaloon.png') },
-    { id: '3', name: 'Bella', image: require('../../../assets/featuredSaloon.png') },
-    { id: '4', name: 'Joseph', image: require('../../../assets/featuredSaloon.png') },
+    { id: '1', name: 'Ronald', image: require('../../../assets/featuredSalon.png') },
+    { id: '2', name: 'Merry', image: require('../../../assets/featuredSalon.png') },
+    { id: '3', name: 'Bella', image: require('../../../assets/featuredSalon.png') },
+    { id: '4', name: 'Joseph', image: require('../../../assets/featuredSalon.png') },
   ],
   reviews: [
     {
       id: '1',
       userName: 'Jennie Whang',
-      userImage: require('../../../assets/featuredSaloon.png'),
+      userImage: require('../../../assets/featuredSalon.png'),
       rating: 4,
       date: '2 days ago',
       comment: 'The place was clean, great service, staff are friendly. I will certainly recommend to my friends and visit again! :)',
@@ -93,7 +93,7 @@ const shopData = {
     {
       id: '2',
       userName: 'Nathalie',
-      userImage: require('../../../assets/featuredSaloon.png'),
+      userImage: require('../../../assets/featuredSalon.png'),
       rating: 5,
       date: '1 weeks ago',
       comment: 'Very nice service from the specialist. I always going here for my treatment.',
@@ -101,7 +101,7 @@ const shopData = {
     {
       id: '3',
       userName: 'Julia Martha',
-      userImage: require('../../../assets/featuredSaloon.png'),
+      userImage: require('../../../assets/featuredSalon.png'),
       rating: 4,
       date: '2 weeks ago',
       comment: 'This is my favourite place to treat my hair :)',

@@ -15,11 +15,11 @@ import TimeSlot from './TimeSlot';
 
 // Mock Data
 const specialists = [
-  { id: '1', name: 'Ronald', image: require('../../../assets/featuredSaloon.png') },
-  { id: '2', name: 'Merry', image: require('../../../assets/featuredSaloon.png') },
-  { id: '3', name: 'Bella', image: require('../../../assets/featuredSaloon.png') },
-  { id: '4', name: 'Joseph', image: require('../../../assets/featuredSaloon.png') },
-  { id: '5', name: 'Sarah', image: require('../../../assets/featuredSaloon.png') },
+  { id: '1', name: 'Ronald', image: require('../../../assets/featuredSalon.png') },
+  { id: '2', name: 'Merry', image: require('../../../assets/featuredSalon.png') },
+  { id: '3', name: 'Bella', image: require('../../../assets/featuredSalon.png') },
+  { id: '4', name: 'Joseph', image: require('../../../assets/featuredSalon.png') },
+  { id: '5', name: 'Sarah', image: require('../../../assets/featuredSalon.png') },
 ];
 
 const timeSlots = [

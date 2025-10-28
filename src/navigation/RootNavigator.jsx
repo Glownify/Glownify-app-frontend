@@ -1,22 +1,21 @@
-// src/navigation/RootNavigator.js
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth } from '../context/AuthContext';
 import SplashScreen from '../screens/SplashScreen';
 import OnboardingNavigator from './OnboardingNavigator';
 import AuthNavigator from './AuthNavigator';
 import AppNavigator from './AppNavigator';
+import SalonNavigator from './SalonNavigator';
+import { useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
-  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [isFirstLaunch, setIsFirstLaunch] = useState(false);
 
-  console.log('Current User:', user);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const checkLaunch = async () => {
@@ -28,12 +27,10 @@ export default function RootNavigator() {
         } else {
           setIsFirstLaunch(false);
         }
-        // await AsyncStorage.removeItem('hasLaunched'); 
-      // setIsFirstLaunch(true);
       } catch (error) {
         console.error('Launch check failed', error);
       } finally {
-        setTimeout(() => setLoading(false), 2000); // splash 2s
+        setTimeout(() => setLoading(false), 1500); // splash 1.5s
       }
     };
     checkLaunch();
@@ -48,10 +45,16 @@ export default function RootNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isFirstLaunch ? (
           <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
-        ) : user ? (
-          <Stack.Screen name="App" component={AppNavigator} />
-        ) : (
+        ) : !user ? (
           <Stack.Screen name="Auth" component={AuthNavigator} />
+        ) : user.role === 'superadmin' ? (
+          <Stack.Screen name="SuperAdmin" component={SuperAdminNavigator} />
+        ) : user.role === 'salon_owner' ? (
+          <Stack.Screen name="Salon" component={SalonNavigator} />
+        ) : user.role === 'independent_beautician' ? (
+          <Stack.Screen name="Independent" component={IndependentNavigator} />
+        ) : (
+          <Stack.Screen name="App" component={AppNavigator} /> // default user
         )}
       </Stack.Navigator>
     </NavigationContainer>

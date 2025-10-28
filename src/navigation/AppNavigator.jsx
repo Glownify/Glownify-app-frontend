@@ -103,7 +103,7 @@ export default function AppNavigator() {
           if (route.name === 'HomeTab') {
             iconName = focused ? 'home' : 'home-outline';
             showActiveDot = focused;
-          } else if (route.name === 'NearbySaloonTab') {
+          } else if (route.name === 'NearbySalonTab') {
             iconName = focused ? 'compass' : 'compass-outline';
           } else if (route.name === 'CalendarTab') {
             iconName = focused ? 'calendar' : 'calendar-outline';
@@ -150,7 +150,7 @@ export default function AppNavigator() {
           })(route),
         })}
       />
-      <Tab.Screen name="NearbySaloonTab" component={NearbyListScreen} />
+      <Tab.Screen name="NearbySalonTab" component={NearbyListScreen} />
       <Tab.Screen name="CalendarTab" component={CalendarScreen} />
       <Tab.Screen name="MessagesTab" component={MessagesTopTabNavigator} />
       <Tab.Screen name="ProfileTab" component={ProfileScreen} />

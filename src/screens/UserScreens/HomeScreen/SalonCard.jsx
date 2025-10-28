@@ -18,7 +18,7 @@ const SalonCard = ({ imageUrl, category, name, address, rating, reviews }) => {
       <Image
         source={imageUrl}
         style={styles.image}
-        defaultSource={require('../../../assets/featuredSaloon.png')}
+        defaultSource={require('../../../assets/featuredSalon.png')}
       />
       <View style={styles.info}>
         <Text style={styles.category}>{category}</Text>

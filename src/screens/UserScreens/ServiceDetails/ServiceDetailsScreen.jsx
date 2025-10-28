@@ -16,7 +16,7 @@ export default function ServiceDetailsScreen({ navigation }) {
     duration: '2.5 hours service',
     price: 2500,
     discount: '-20%',
-    image: require('../../../assets/featuredSaloon.png'),
+    image: require('../../../assets/featuredSalon.png'),
     about: 'A blunt cut bob is a shorter hairstyle that\'s cut into a straight line at the ends. Bobs have proven themselves to be transcending the hair world by continuing to be a top hairstyle year after year. They can be customized to fit your preferences, are low maintenance and look good with many outfits.',
   };
 

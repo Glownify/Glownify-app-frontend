@@ -23,7 +23,7 @@ const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, d
         source={imgSource}
         style={styles.image}
         resizeMode="cover"
-        onError={() => setImgSource(require('../../../assets/featuredSaloon.png'))}
+        onError={() => setImgSource(require('../../../assets/featuredSalon.png'))}
       />
 
       <View style={styles.info}>
