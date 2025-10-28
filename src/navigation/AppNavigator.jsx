@@ -1,40 +1,88 @@
 // src/navigation/AppNavigator.js
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native'; // Import View and StyleSheet
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'; // <-- NEW IMPORT
 import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
-import ShopDetailsScreen from '../screens/UserScreens/ShopDetailsScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import NearbyListScreen from '../screens/UserScreens/NearbyListScreen';
+import BookingScreen from '../screens/UserScreens/Bookings/BookingScreen';
 import SearchScreen from '../screens/UserScreens/SearchScreen';
+import MessageScreen from '../screens/UserScreens/MessageScreen';
+import NotificationScreen from '../screens/UserScreens/NotificationScreen';
+import ShopDetailsSummaryScreen from '../screens/UserScreens/ShopDetails/ShopDetailsSummaryScreen';
+import ShopDetailsFullScreen from '../screens/UserScreens/ShopDetails/ShopDetailsFullScreen';
+import ServiceDetailsScreen from '../screens/UserScreens/ServiceDetails/ServiceDetailsScreen';
+import ProfileScreen from '../screens/UserScreens/ProfileScreen';
 
 // --- Placeholder Screens for the new tabs ---
-// You can replace these with your actual screens
-
 const CalendarScreen = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
     <Text>Calendar Screen</Text>
   </View>
 );
-const MessagesScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Messages Screen</Text>
-  </View>
-);
-// --- End of Placeholder Screens ---
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const TopTab = createMaterialTopTabNavigator(); // <-- NEW NAVIGATOR
 
 function HomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
+      <Stack.Screen name="ShopDetailsSummary" component={ShopDetailsSummaryScreen} />
+      <Stack.Screen name="ShopDetailsFull" component={ShopDetailsFullScreen} />
+      <Stack.Screen name="ServiceDetails" component={ServiceDetailsScreen} />
+      <Stack.Screen name="Booking" component={BookingScreen} />
     </Stack.Navigator>
   );
 }
+
+// --- NEW TOP TAB NAVIGATOR COMPONENT ---
+// This component will be rendered when you tap the "MessagesTab"
+function MessagesTopTabNavigator() {
+  return (
+    // SafeAreaView pushes the content below the phone's status bar (like "9:41")
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <TopTab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: '#156778', // Your app's active color
+          tabBarInactiveTintColor: 'gray',
+          tabBarLabelStyle: {
+            textTransform: 'none', // As seen in image (not all caps)
+            fontSize: 16,
+            fontWeight: '600',
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: '#156778', // Line under the active tab
+            height: 2.5,
+          },
+          tabBarStyle: {
+            backgroundColor: 'white', // BG color of the tab bar itself
+            elevation: 0, // Remove shadow on Android
+            shadowOpacity: 0, // Remove shadow on iOS
+          },
+        }}
+      >
+        <TopTab.Screen
+          name="Message"
+          component={MessageScreen}
+          options={{ title: 'Messages' }} // Title shown on the tab
+        />
+        <TopTab.Screen
+          name="Notification"
+          component={NotificationScreen}
+          options={{ title: 'Notification' }} // Title shown on the tab
+        />
+      </TopTab.Navigator>
+    </SafeAreaView>
+  );
+}
+// --- END OF NEW TOP TAB NAVIGATOR ---
 
 export default function AppNavigator() {
   return (
@@ -43,9 +91,8 @@ export default function AppNavigator() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          // Optional: Add some padding if the dot gets cut off
           height: 70,
-          paddingBottom: 5, 
+          paddingBottom: 5,
           paddingTop: 5,
         },
         tabBarIcon: ({ focused, color, size }) => {
@@ -56,14 +103,13 @@ export default function AppNavigator() {
           if (route.name === 'HomeTab') {
             iconName = focused ? 'home' : 'home-outline';
             showActiveDot = focused;
-          } else if (route.name === 'NearbySaloonTab') {
+          } else if (route.name === 'NearbySalonTab') {
             iconName = focused ? 'compass' : 'compass-outline';
           } else if (route.name === 'CalendarTab') {
             iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'MessagesTab') {
-            // Using chatbubble-ellipses as it's a good match for the image
             iconName = focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline';
-            // Hardcoding badge for demo. In a real app, this would come from state.
+            // We set the dot to be orange like in your screenshot
             showBadge = true; 
           } else if (route.name === 'ProfileTab') {
             iconName = focused ? 'person' : 'person-outline';
@@ -72,51 +118,72 @@ export default function AppNavigator() {
           return (
             <View style={styles.iconContainer}>
               <Icon name={iconName} size={26} color={color} />
-              {showBadge && <View style={styles.badge} />}
+              {/* Updated badge style to match the small orange dot */}
+              {showBadge && !focused && <View style={styles.badge} />}
               {showActiveDot && <View style={styles.activeDot} />}
             </View>
           );
         },
-        tabBarActiveTintColor: '#156778', // Your active color
+        tabBarActiveTintColor: '#156778',
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name="HomeTab" component={HomeStack} />
-      <Tab.Screen name="NearbySaloonTab" component={NearbyListScreen} />
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeStack}
+        options={({ route }) => ({
+          tabBarStyle: ((route) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
+            // Hide tab bar on these screens
+            if (routeName === 'ShopDetailsSummary' ||
+                routeName === 'ShopDetailsFull' ||
+                routeName === 'ServiceDetails' ||
+                routeName === 'Booking' ||
+                routeName === 'SearchScreen') {
+              return { display: 'none' };
+            }
+            return {
+              height: 70,
+              paddingBottom: 5,
+              paddingTop: 5,
+            };
+          })(route),
+        })}
+      />
+      <Tab.Screen name="NearbySalonTab" component={NearbyListScreen} />
       <Tab.Screen name="CalendarTab" component={CalendarScreen} />
-      <Tab.Screen name="MessagesTab" component={MessagesScreen} />
-      {/* Using your ShopDetailsScreen for the Profile tab */}
-      <Tab.Screen name="ProfileTab" component={ShopDetailsScreen} />
+      <Tab.Screen name="MessagesTab" component={MessagesTopTabNavigator} />
+      <Tab.Screen name="ProfileTab" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
 
-// Add this StyleSheet
 const styles = StyleSheet.create({
   iconContainer: {
-    width: 24,
+    // Made container slightly wider to accommodate the badge
+    width: 30, 
     height: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative', // Needed for absolute positioning of children
+    position: 'relative',
   },
   badge: {
     position: 'absolute',
-    top: -4,
-    right: -6,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'orange', // Matches the image
+    top: 0, // Positioned top-right of the icon
+    right: 0,
+    width: 8, // Made smaller to match image
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'orange', // Color from your image
     borderWidth: 1,
-    borderColor: '#fff', // Optional: white border like in many apps
+    borderColor: '#fff',
   },
   activeDot: {
     position: 'absolute',
-    bottom: -10, // Position it below the icon
+    bottom: -10,
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#156778', // Match the active tint color
+    backgroundColor: '#156778',
   },
 });

@@ -1,39 +1,153 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../../api/axiosInstance';
 
-const initialState = {
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  loading: false,
-  error: null,
-};
+// -------------------- THUNKS --------------------
 
+// 1️⃣ Login user
+export const loginUser = createAsyncThunk(
+  'auth/loginUser',
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post('/auth/login', { email, password });
+      const { token, user } = res.data;
+
+      await AsyncStorage.setItem('token', token);
+      return { user, token };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Login failed');
+    }
+  }
+);
+
+// 2️⃣ Forgot password (send OTP)
+export const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post('/auth/forgot-password', { email });
+      return res.data.message;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to send OTP');
+    }
+  }
+);
+
+// 3️⃣ Verify OTP
+export const verifyOTP = createAsyncThunk(
+  'auth/verifyOTP',
+  async ({ email, otp }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post('/auth/verify-otp', { email, otp });
+      return res.data.message;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Invalid or expired OTP');
+    }
+  }
+);
+
+// 4️⃣ Reset password
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async ({ email, newPassword }, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post('/auth/reset-password', { email, newPassword });
+      return res.data.message;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to reset password');
+    }
+  }
+);
+
+// -------------------- SLICE --------------------
 const authSlice = createSlice({
-  name: "auth",
-  initialState,
+  name: 'auth',
+  initialState: {
+    user: null,
+    token: null,
+    loading: false,
+    error: null,
+    forgotPasswordMessage: null,
+    otpVerified: false,
+    resetPasswordMessage: null,
+  },
   reducers: {
-    loginStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    loginSuccess: (state, action) => {
-      state.loading = false;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.isAuthenticated = true;
-    },
-    loginFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
     logout: (state) => {
       state.user = null;
       state.token = null;
-      state.isAuthenticated = false;
-      state.error = null;
+      AsyncStorage.removeItem('token');
     },
+    clearAuthState: (state) => {
+      state.loading = false;
+      state.error = null;
+      state.forgotPasswordMessage = null;
+      state.otpVerified = false;
+      state.resetPasswordMessage = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Login
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Forgot password
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.forgotPasswordMessage = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.forgotPasswordMessage = action.payload;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Verify OTP
+      .addCase(verifyOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.otpVerified = false;
+      })
+      .addCase(verifyOTP.fulfilled, (state, action) => {
+        state.loading = false;
+        state.otpVerified = true;
+      })
+      .addCase(verifyOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Reset password
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.resetPasswordMessage = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.resetPasswordMessage = action.payload;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
+export const { logout, clearAuthState } = authSlice.actions;
 export default authSlice.reducer;

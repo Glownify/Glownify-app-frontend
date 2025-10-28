@@ -1,30 +1,38 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 
-const SalonCard = ({ imageUrl, category, name, address, rating, reviews }) => (
-  <View style={styles.card}>
-    <TouchableOpacity style={styles.heartButton}>
-      <Ionicons name="heart-outline" size={20} color="#EF4444" />
-    </TouchableOpacity>
-    <Image
-      source={imageUrl}
-      style={styles.image}
-      defaultSource={require('../../../assets/featuredSaloon.png')}
-    //   onError={(e) => (e.nativeEvent.target.src = 'https://placehold.co/300x200')}
-    />
-    <View style={styles.info}>
-      <Text style={styles.category}>{category}</Text>
-      <Text style={styles.name} numberOfLines={1}>{name}</Text>
-      <Text style={styles.address} numberOfLines={1}>{address}</Text>
-      <View style={styles.ratingRow}>
-        <Ionicons name="star" size={14} color="#FACC15" />
-        <Text style={styles.rating}>{rating}</Text>
-        <Text style={styles.reviews}>({reviews})</Text>
+const SalonCard = ({ imageUrl, category, name, address, rating, reviews }) => {
+  const navigation = useNavigation();
+
+  return (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('ShopDetailsSummary')}
+      activeOpacity={0.8}
+    >
+      <TouchableOpacity style={styles.heartButton}>
+        <Ionicons name="heart-outline" size={20} color="#EF4444" />
+      </TouchableOpacity>
+      <Image
+        source={imageUrl}
+        style={styles.image}
+        defaultSource={require('../../../assets/featuredSalon.png')}
+      />
+      <View style={styles.info}>
+        <Text style={styles.category}>{category}</Text>
+        <Text style={styles.name} numberOfLines={1}>{name}</Text>
+        <Text style={styles.address} numberOfLines={1}>{address}</Text>
+        <View style={styles.ratingRow}>
+          <Ionicons name="star" size={14} color="#FACC15" />
+          <Text style={styles.rating}>{rating}</Text>
+          <Text style={styles.reviews}>({reviews})</Text>
+        </View>
       </View>
-    </View>
-  </View>
-);
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   card: {
