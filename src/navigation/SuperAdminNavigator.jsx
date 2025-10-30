@@ -1,14 +1,118 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { View, Text, StyleSheet } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+// --- Screens ---
 import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboard';
 
-const Stack = createNativeStackNavigator();
+const SuperAdminProfileScreen = () => (
+  <SafeAreaView style={styles.center}>
+    <Text style={styles.text}>Profile Screen (Static)</Text>
+  </SafeAreaView>
+);
 
+const ManageSalonsScreen = () => (
+  <SafeAreaView style={styles.center}>
+    <Text style={styles.text}>Manage Salons Screen (Static)</Text>
+  </SafeAreaView>
+);
+
+const ManageUsersScreen = () => (
+  <SafeAreaView style={styles.center}>
+    <Text style={styles.text}>Manage Users Screen (Static)</Text>
+  </SafeAreaView>
+);
+
+const SuperAdminNotificationsScreen = () => (
+  <SafeAreaView style={styles.center}>
+    <Text style={styles.text}>Notifications Screen (Static)</Text>
+  </SafeAreaView>
+);
+
+
+const Tab = createBottomTabNavigator();
+
+// --- Main Super Admin Tab Navigator ---
 export default function SuperAdminNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="AdminDashboard" component={SuperAdminDashboard} />
-      {/* add more screens */}
-    </Stack.Navigator>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          height: 70,
+          paddingBottom: 5,
+          paddingTop: 5,
+        },
+        tabBarIcon: ({ focused, color }) => {
+          let iconName;
+          let showActiveDot = false;
+
+          switch (route.name) {
+            case 'SuperDashboard':
+              iconName = focused ? 'grid' : 'grid-outline';
+              showActiveDot = focused;
+              break;
+            case 'ManageSalons':
+              iconName = focused ? 'business' : 'business-outline';
+              break;
+            case 'ManageUsers':
+              iconName = focused ? 'people' : 'people-outline';
+              break;
+            case 'SuperNotifications':
+              iconName = focused ? 'notifications' : 'notifications-outline';
+              break;
+            case 'SuperProfile':
+              iconName = focused ? 'person' : 'person-outline';
+              break;
+          }
+
+          return (
+            <View style={styles.iconContainer}>
+              <Icon name={iconName} size={26} color={color} />
+              {showActiveDot && <View style={styles.activeDot} />}
+            </View>
+          );
+        },
+        tabBarActiveTintColor: '#156778',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
+      <Tab.Screen name="SuperDashboard" component={SuperAdminDashboard} />
+      <Tab.Screen name="ManageSalons" component={ManageSalonsScreen} />
+      <Tab.Screen name="ManageUsers" component={ManageUsersScreen} />
+      <Tab.Screen name="SuperNotifications" component={SuperAdminNotificationsScreen} />
+      <Tab.Screen name="SuperProfile" component={SuperAdminProfileScreen} />
+    </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    width: 30,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  activeDot: {
+    position: 'absolute',
+    bottom: -10,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#156778',
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  text: {
+    fontSize: 18,
+    color: '#156778',
+    fontWeight: '600',
+  },
+});
