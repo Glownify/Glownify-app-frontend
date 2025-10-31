@@ -6,23 +6,14 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
 
-// Real screen for dashboard
+// Real screens
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
+import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
+
+import AddSpecialistScreen from '../screens/SalonAdminScreens/Specialists/AddSpecialistScreen';
 
 const Tab = createBottomTabNavigator();
 
-// --- Simple static components for placeholder tabs ---
-const SalonBookingsScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Bookings Screen (Static)</Text>
-  </SafeAreaView>
-);
-
-const AddSpecialistScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Add Specialist Screen (Static)</Text>
-  </SafeAreaView>
-);
 
 const SalonNotificationsScreen = () => (
   <SafeAreaView style={styles.center}>
