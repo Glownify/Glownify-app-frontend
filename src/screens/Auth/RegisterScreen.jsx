@@ -140,6 +140,16 @@ export default function RegisterScreen({navigation}) {
           Already have an account? <Text onPress={() => navigation.navigate('Login')} style={styles.signInLink}>Sign In</Text>
         </Text>
       </TouchableOpacity>
+
+      {/* Are You a Service Provider? */}
+<TouchableOpacity
+  style={styles.providerContainer}
+  onPress={() => navigation.navigate('SelectAdminType')}
+>
+  <Text style={styles.providerText}>Are You a Service Provider?</Text>
+  <Text style={styles.providerLink}>Register as Admin</Text>
+</TouchableOpacity>
+
     </View>
   );
 }
@@ -229,6 +239,32 @@ const styles = StyleSheet.create({
     color: '#1E90FF', // Brighter blue
     fontWeight: '600',
   },
+
+  providerContainer: {
+  marginTop: 20,
+  backgroundColor: '#E8F6F9', // Light teal background
+  paddingVertical: 15,
+  borderRadius: 25,
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.05,
+  shadowRadius: 3,
+  elevation: 2,
+},
+
+providerText: {
+  fontSize: 15,
+  color: '#156778',
+  fontWeight: '600',
+},
+
+providerLink: {
+  fontSize: 16,
+  color: '#1E90FF',
+  fontWeight: 'bold',
+  marginTop: 3,
+},
   joinNowButton: {
     backgroundColor: '#156778', // Teal color
     paddingVertical: 18,
