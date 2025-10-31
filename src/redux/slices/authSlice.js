@@ -13,9 +13,27 @@ export const loginUser = createAsyncThunk(
       const { token, user } = res.data;
 
       await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('user', JSON.stringify(user));
       return { user, token };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Login failed');
+    }
+  }
+);
+
+// ✅ Auto-login when app restarts
+export const loadUserFromStorage = createAsyncThunk(
+  "auth/loadUserFromStorage",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const userData = await AsyncStorage.getItem("user");
+      if (token && userData) {
+        return { token, user: JSON.parse(userData) };
+      }
+      return rejectWithValue("No user found");
+    } catch (error) {
+      return rejectWithValue("Failed to load user");
     }
   }
 );
@@ -76,6 +94,7 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       AsyncStorage.removeItem('token');
+      AsyncStorage.removeItem('user');
     },
     clearAuthState: (state) => {
       state.loading = false;
@@ -100,6 +119,19 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+       // load from storage
+      .addCase(loadUserFromStorage.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(loadUserFromStorage.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+      })
+      .addCase(loadUserFromStorage.rejected, (state) => {
+        state.loading = false;
       })
 
       // Forgot password

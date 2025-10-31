@@ -7,12 +7,7 @@ import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategorie
 
 // --- Screens ---
 import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboard';
-
-const SuperAdminProfileScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Profile Screen (Static)</Text>
-  </SafeAreaView>
-);
+import SuperAdminProfileScreen from '../screens/SuperAdminScreens/SuperAdminProfileScreen';
 
 const ManageUsersScreen = () => (
   <SafeAreaView style={styles.center}>
@@ -20,11 +15,6 @@ const ManageUsersScreen = () => (
   </SafeAreaView>
 );
 
-const SuperAdminNotificationsScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Notifications Screen (Static)</Text>
-  </SafeAreaView>
-);
 
 
 const Tab = createBottomTabNavigator();
