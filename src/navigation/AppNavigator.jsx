@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs'; // <-- NEW IMPORT
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import NearbyListScreen from '../screens/UserScreens/NearbyListScreen';
@@ -17,17 +17,11 @@ import ShopDetailsSummaryScreen from '../screens/UserScreens/ShopDetails/ShopDet
 import ShopDetailsFullScreen from '../screens/UserScreens/ShopDetails/ShopDetailsFullScreen';
 import ServiceDetailsScreen from '../screens/UserScreens/ServiceDetails/ServiceDetailsScreen';
 import ProfileScreen from '../screens/UserScreens/ProfileScreen';
-
-// --- Placeholder Screens for the new tabs ---
-const CalendarScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Calendar Screen</Text>
-  </View>
-);
+import UserBookingsScreen from '../screens/UserScreens/BookingScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
-const TopTab = createMaterialTopTabNavigator(); // <-- NEW NAVIGATOR
+const TopTab = createMaterialTopTabNavigator();
 
 function HomeStack() {
   return (
@@ -42,47 +36,44 @@ function HomeStack() {
   );
 }
 
-// --- NEW TOP TAB NAVIGATOR COMPONENT ---
-// This component will be rendered when you tap the "MessagesTab"
+// --- TOP TAB NAVIGATOR COMPONENT ---
 function MessagesTopTabNavigator() {
   return (
-    // SafeAreaView pushes the content below the phone's status bar (like "9:41")
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <TopTab.Navigator
         screenOptions={{
-          tabBarActiveTintColor: '#156778', // Your app's active color
+          tabBarActiveTintColor: '#156778',
           tabBarInactiveTintColor: 'gray',
           tabBarLabelStyle: {
-            textTransform: 'none', // As seen in image (not all caps)
+            textTransform: 'none',
             fontSize: 16,
             fontWeight: '600',
           },
           tabBarIndicatorStyle: {
-            backgroundColor: '#156778', // Line under the active tab
+            backgroundColor: '#156778',
             height: 2.5,
           },
           tabBarStyle: {
-            backgroundColor: 'white', // BG color of the tab bar itself
-            elevation: 0, // Remove shadow on Android
-            shadowOpacity: 0, // Remove shadow on iOS
+            backgroundColor: 'white',
+            elevation: 0,
+            shadowOpacity: 0,
           },
         }}
       >
         <TopTab.Screen
           name="Message"
           component={MessageScreen}
-          options={{ title: 'Messages' }} // Title shown on the tab
+          options={{ title: 'Messages' }}
         />
         <TopTab.Screen
           name="Notification"
           component={NotificationScreen}
-          options={{ title: 'Notification' }} // Title shown on the tab
+          options={{ title: 'Notification' }}
         />
       </TopTab.Navigator>
     </SafeAreaView>
   );
 }
-// --- END OF NEW TOP TAB NAVIGATOR ---
 
 export default function AppNavigator() {
   return (
@@ -105,12 +96,11 @@ export default function AppNavigator() {
             showActiveDot = focused;
           } else if (route.name === 'NearbySalonTab') {
             iconName = focused ? 'compass' : 'compass-outline';
-          } else if (route.name === 'CalendarTab') {
-            iconName = focused ? 'calendar' : 'calendar-outline';
+         } else if (route.name === 'BookingsTab') {
+           iconName = focused ? 'clipboard' : 'clipboard-outline';
           } else if (route.name === 'MessagesTab') {
             iconName = focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline';
-            // We set the dot to be orange like in your screenshot
-            showBadge = true; 
+            showBadge = true;
           } else if (route.name === 'ProfileTab') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -118,7 +108,6 @@ export default function AppNavigator() {
           return (
             <View style={styles.iconContainer}>
               <Icon name={iconName} size={26} color={color} />
-              {/* Updated badge style to match the small orange dot */}
               {showBadge && !focused && <View style={styles.badge} />}
               {showActiveDot && <View style={styles.activeDot} />}
             </View>
@@ -134,7 +123,6 @@ export default function AppNavigator() {
         options={({ route }) => ({
           tabBarStyle: ((route) => {
             const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
-            // Hide tab bar on these screens
             if (routeName === 'ShopDetailsSummary' ||
                 routeName === 'ShopDetailsFull' ||
                 routeName === 'ServiceDetails' ||
@@ -151,7 +139,7 @@ export default function AppNavigator() {
         })}
       />
       <Tab.Screen name="NearbySalonTab" component={NearbyListScreen} />
-      <Tab.Screen name="CalendarTab" component={CalendarScreen} />
+      <Tab.Screen name="BookingsTab" component={UserBookingsScreen} />
       <Tab.Screen name="MessagesTab" component={MessagesTopTabNavigator} />
       <Tab.Screen name="ProfileTab" component={ProfileScreen} />
     </Tab.Navigator>
@@ -160,8 +148,7 @@ export default function AppNavigator() {
 
 const styles = StyleSheet.create({
   iconContainer: {
-    // Made container slightly wider to accommodate the badge
-    width: 30, 
+    width: 30,
     height: 28,
     justifyContent: 'center',
     alignItems: 'center',
@@ -169,12 +156,12 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: 0, // Positioned top-right of the icon
+    top: 0,
     right: 0,
-    width: 8, // Made smaller to match image
+    width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'orange', // Color from your image
+    backgroundColor: 'orange',
     borderWidth: 1,
     borderColor: '#fff',
   },
