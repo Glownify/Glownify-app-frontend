@@ -7,6 +7,7 @@ import OnboardingNavigator from './OnboardingNavigator';
 import AuthNavigator from './AuthNavigator';
 import AppNavigator from './AppNavigator';
 import SalonNavigator from './SalonNavigator';
+import SuperAdminNavigator from './SuperAdminNavigator';
 import { useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
@@ -47,7 +48,7 @@ export default function RootNavigator() {
           <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
         ) : !user ? (
           <Stack.Screen name="Auth" component={AuthNavigator} />
-        ) : user.role === 'superadmin' ? (
+        ) : user.role === 'super_admin' ? (
           <Stack.Screen name="SuperAdmin" component={SuperAdminNavigator} />
         ) : user.role === 'salon_owner' ? (
           <Stack.Screen name="Salon" component={SalonNavigator} />

@@ -2,6 +2,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ManageSalonsScreen from '../screens/SuperAdminScreens/ManageSalonsScreen';
+import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategoriesScreen';
 
 // --- Screens ---
 import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboard';
@@ -9,12 +11,6 @@ import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboar
 const SuperAdminProfileScreen = () => (
   <SafeAreaView style={styles.center}>
     <Text style={styles.text}>Profile Screen (Static)</Text>
-  </SafeAreaView>
-);
-
-const ManageSalonsScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Manage Salons Screen (Static)</Text>
   </SafeAreaView>
 );
 
@@ -60,8 +56,8 @@ export default function SuperAdminNavigator() {
             case 'ManageUsers':
               iconName = focused ? 'people' : 'people-outline';
               break;
-            case 'SuperNotifications':
-              iconName = focused ? 'notifications' : 'notifications-outline';
+            case 'ManageCategories':
+              iconName = focused ? 'pricetag' : 'pricetag-outline';
               break;
             case 'SuperProfile':
               iconName = focused ? 'person' : 'person-outline';
@@ -82,7 +78,7 @@ export default function SuperAdminNavigator() {
       <Tab.Screen name="SuperDashboard" component={SuperAdminDashboard} />
       <Tab.Screen name="ManageSalons" component={ManageSalonsScreen} />
       <Tab.Screen name="ManageUsers" component={ManageUsersScreen} />
-      <Tab.Screen name="SuperNotifications" component={SuperAdminNotificationsScreen} />
+      <Tab.Screen name="ManageCategories" component={ManageCategoriesScreen} />
       <Tab.Screen name="SuperProfile" component={SuperAdminProfileScreen} />
     </Tab.Navigator>
   );
