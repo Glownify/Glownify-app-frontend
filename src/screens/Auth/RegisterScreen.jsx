@@ -22,10 +22,16 @@ export default function RegisterScreen({navigation}) {
   const [mobileNumber, setMobileNumber] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [selectedCountryCode, setSelectedCountryCode] = useState('+01'); // Default country code
+  const [selectedCountryCode, setSelectedCountryCode] = useState('+91'); // Default country code
 
   const dispatch = useDispatch();
 const { signUpLoading, error } = useSelector((state) => state.auth);
+
+const countryFlags = {
+  '+91': 'https://flagcdn.com/w20/in.png',
+  '+01': 'https://flagcdn.com/w20/us.png',
+  '+44': 'https://flagcdn.com/w20/gb.png',
+};
 
   const handleRegister = async () => {
   if (!name || !email || !mobileNumber || !password) {
@@ -78,35 +84,37 @@ const { signUpLoading, error } = useSelector((state) => state.auth);
         </View>
 
         {/* Mobile Number Input with Country Code */}
-        <View style={styles.inputWrapper}>
-          {/* Country Code Picker */}
-          <View style={styles.countryCodeContainer}>
-            <Image
-              source={{ uri: 'https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/images/US.svg' }} // Placeholder flag, you might want to use a local asset or a more robust library
-              style={styles.flagIcon}
-            />
-            <Picker
-              selectedValue={selectedCountryCode}
-              onValueChange={(itemValue, itemIndex) => setSelectedCountryCode(itemValue)}
-              style={styles.picker}
-              itemStyle={styles.pickerItem} // Apply style to picker items
-            >
-              <Picker.Item label="+01" value="+01" />
-              <Picker.Item label="+91" value="+91" />
-              <Picker.Item label="+44" value="+44" />
-              {/* Add more country codes as needed */}
-            </Picker>
-            <Feather name="chevron-down" size={16} color="#888" style={styles.pickerArrow} />
-          </View>
-          <TextInput
-            style={[styles.input, styles.mobileInput]}
-            placeholder="Mobile number"
-            placeholderTextColor="#999"
-            value={mobileNumber}
-            onChangeText={setMobileNumber}
-            keyboardType="phone-pad"
-          />
-        </View>
+      <View style={styles.inputWrapper}>
+  {/* Flag + code container */}
+  <View style={styles.countryCodeContainer}>
+    <Image
+      source={{ uri: countryFlags[selectedCountryCode] }}
+      style={styles.flagIcon}
+    />
+    <Text style={styles.countryCodeText}>{selectedCountryCode}</Text>
+
+    {/* Picker */}
+    <Picker
+      selectedValue={selectedCountryCode}
+      onValueChange={(itemValue) => setSelectedCountryCode(itemValue)}
+      style={styles.picker}
+    >
+      <Picker.Item label="+91" value="+91" />
+      <Picker.Item label="+01" value="+01" />
+      <Picker.Item label="+44" value="+44" />
+    </Picker>
+  </View>
+
+  {/* Mobile number input */}
+  <TextInput
+    style={[styles.input, styles.mobileInput]}
+    placeholder="Mobile number"
+    placeholderTextColor="#999"
+    value={mobileNumber}
+    onChangeText={setMobileNumber}
+    keyboardType="phone-pad"
+  />
+</View>
 
         {/* Password Input */}
         <View style={styles.inputWrapper}>
@@ -172,7 +180,7 @@ const { signUpLoading, error } = useSelector((state) => state.auth);
       {/* Are You a Service Provider? */}
 <TouchableOpacity
   style={styles.providerContainer}
-  onPress={() => navigation.navigate('SelectAdminType')}
+  onPress={() => navigation.navigate('RoleSelection')}
 >
   <Text style={styles.providerText}>Are You a Service Provider?</Text>
   <Text style={styles.providerLink}>Register as Admin</Text>
@@ -231,6 +239,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 10, // Space between picker and mobile input
   },
+ countryCodeText: {
+  fontSize: 16,
+  fontWeight: '500',
+  marginHorizontal: 5,
+  color: '#333',
+},
   flagIcon: {
     width: 24,
     height: 24,
@@ -240,7 +254,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   picker: {
-    width: 65, // Adjust width to fit content
+    width: 40, // Adjust width to fit content
     height: 50, // Match inputWrapper height for vertical alignment
     color: '#333',
     paddingVertical: 0,
