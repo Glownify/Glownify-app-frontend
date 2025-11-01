@@ -3,6 +3,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
 
 // -------------------- THUNKS --------------------
+// 0️⃣ Signup user
+export const signupUser = createAsyncThunk(
+  "auth/signupUser",
+  async ({ name, email, phone, password }, { rejectWithValue }) => {
+    console.log("Signup data:", { name, email, phone, password });
+    try {
+      const res = await axiosInstance.post("/auth/signup", {
+        name,
+        email,
+        phone,
+        password,
+      });
+      const { user, token} = res.data;
+      await AsyncStorage.setItem("token", token);
+      await AsyncStorage.setItem("user", JSON.stringify(user));
+      return { user, token }; // assuming your backend returns { user, token, message }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Signup failed");
+    }
+  }
+);
 
 // 1️⃣ Login user
 export const loginUser = createAsyncThunk(
@@ -84,6 +105,7 @@ const authSlice = createSlice({
     user: null,
     token: null,
     loading: false,
+    signUpLoading: false,
     error: null,
     forgotPasswordMessage: null,
     otpVerified: false,
@@ -106,6 +128,21 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+
+    // Signup
+.addCase(signupUser.pending, (state) => {
+  state.signUpLoading = true;
+  state.error = null;
+})
+.addCase(signupUser.fulfilled, (state, action) => {
+  state.signUpLoading = false;
+  state.user = action.payload.user;
+  state.token = action.payload.token;
+})
+.addCase(signupUser.rejected, (state, action) => {
+  state.signUpLoading = false;
+  state.error = action.payload;
+})
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;

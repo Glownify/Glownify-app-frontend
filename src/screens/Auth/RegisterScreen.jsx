@@ -7,9 +7,14 @@ import {
   StyleSheet,
   Image,
   StatusBar,
+  Alert,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { Picker } from '@react-native-picker/picker'; // For the country code picker
+import { useDispatch, useSelector } from "react-redux";
+import { signupUser } from '../../redux/slices/authSlice';
+import Loader from '../../components/Loader';
+import ErrorMessage from '../../components/ErrorMessage';
 
 export default function RegisterScreen({navigation}) {
   const [name, setName] = useState('');
@@ -19,10 +24,21 @@ export default function RegisterScreen({navigation}) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [selectedCountryCode, setSelectedCountryCode] = useState('+01'); // Default country code
 
-  const handleRegister = () => {
-    console.log('Registering with:', { name, email, mobileNumber, password });
-    // Add your registration logic here
-  };
+  const dispatch = useDispatch();
+const { signUpLoading, error } = useSelector((state) => state.auth);
+
+  const handleRegister = async () => {
+  if (!name || !email || !mobileNumber || !password) {
+    Alert.alert("Error", "Please fill all fields");
+    return;
+  }
+  try {
+    await dispatch(signupUser({ name, email, phone: mobileNumber, password })).unwrap();
+    Alert.alert("Success", "Account created successfully");
+  } catch (error) {
+    Alert.alert("Signup Failed", error);
+  }
+};
 
   return (
     <View style={styles.container}>
@@ -117,10 +133,22 @@ export default function RegisterScreen({navigation}) {
         By signing up you agree to our <Text style={styles.linkText}>Term of use and privacy {'\n'}notice</Text>
       </Text>
 
-      {/* Join Now Button */}
-      <TouchableOpacity style={styles.joinNowButton} onPress={handleRegister}>
-        <Text style={styles.joinNowText}>Join Now</Text>
+       {/* Join Now Button */}
+      <TouchableOpacity
+        style={[styles.joinNowButton, signUpLoading && { opacity: 0.6 }]}
+        onPress={handleRegister}
+        disabled={signUpLoading}
+      >
+        {signUpLoading ? (
+          <Loader />
+        ) : (
+          <Text style={styles.joinNowText}>Join Now</Text>
+        )}
       </TouchableOpacity>
+
+      {error && (
+        <ErrorMessage message={error} />
+      )}
 
       {/* Divider */}
       <Text style={styles.orText}>or</Text>
