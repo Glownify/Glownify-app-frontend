@@ -7,36 +7,44 @@ import OnboardingNavigator from './OnboardingNavigator';
 import AuthNavigator from './AuthNavigator';
 import AppNavigator from './AppNavigator';
 import SalonNavigator from './SalonNavigator';
-import { useSelector } from 'react-redux';
+import SuperAdminNavigator from './SuperAdminNavigator';
+import { useSelector, useDispatch } from 'react-redux';
+import { loadUserFromStorage } from '../redux/slices/authSlice';
 
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
-  const [loading, setLoading] = useState(true);
+  const [checkingLaunch, setCheckingLaunch] = useState(true);
   const [isFirstLaunch, setIsFirstLaunch] = useState(false);
+  const dispatch = useDispatch();
 
-  const { user } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector((state) => state.auth);
 
+// ✅ Check first launch (for onboarding)
   useEffect(() => {
     const checkLaunch = async () => {
       try {
         const hasLaunched = await AsyncStorage.getItem('hasLaunched');
-        if (hasLaunched === null) {
+        if (!hasLaunched) {
           setIsFirstLaunch(true);
           await AsyncStorage.setItem('hasLaunched', 'true');
-        } else {
-          setIsFirstLaunch(false);
         }
-      } catch (error) {
-        console.error('Launch check failed', error);
+      } catch (err) {
+        console.error('Launch check failed', err);
       } finally {
-        setTimeout(() => setLoading(false), 1500); // splash 1.5s
+        setCheckingLaunch(false);
       }
     };
     checkLaunch();
   }, []);
 
-  if (loading) {
+    // ✅ Load stored user/token on app startup
+  useEffect(() => {
+    dispatch(loadUserFromStorage());
+  }, [dispatch]);
+
+  // ✅ Show splash while checking launch or loading auth state
+  if (checkingLaunch || loading) {
     return <SplashScreen />;
   }
 
@@ -47,7 +55,7 @@ export default function RootNavigator() {
           <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
         ) : !user ? (
           <Stack.Screen name="Auth" component={AuthNavigator} />
-        ) : user.role === 'superadmin' ? (
+        ) : user.role === 'super_admin' ? (
           <Stack.Screen name="SuperAdmin" component={SuperAdminNavigator} />
         ) : user.role === 'salon_owner' ? (
           <Stack.Screen name="Salon" component={SalonNavigator} />

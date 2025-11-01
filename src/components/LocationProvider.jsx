@@ -4,6 +4,8 @@ import { Alert, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service'; // ✅ updated library
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 // Create context
 export const LocationContext = createContext();
@@ -75,17 +77,19 @@ export default function LocationProvider({ children }) {
 
   // Send location to backend
   const sendLocationToBackend = async (coords) => {
-    try {
-      // Example API call
-      // await fetch('https://your-backend.com/api/save-location', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ latitude: coords.latitude, longitude: coords.longitude }),
-      // });
-      console.log('Location sent to backend:', coords);
-    } catch (e) {
-      console.log('Error sending location to backend', e);
-    }
+    // try {
+    //   const response = await axiosInstance.post('/user/update-location', {
+    //     latitude: coords.latitude,
+    //     longitude: coords.longitude,
+    //   });
+    //   if (response.data.success) {
+    //     console.log(response.data.message);
+    //     console.log('Location sent to backend:', coords);
+    //   }
+    // } catch (e) {
+    //   console.log('Error sending location to backend', e);
+    // }
+    console.log('Location sent to backend:', coords);
   };
 
   useEffect(() => {
