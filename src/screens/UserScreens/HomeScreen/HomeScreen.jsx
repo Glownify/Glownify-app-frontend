@@ -170,7 +170,6 @@ export default function HomeScreen({ navigation }) {
             ))}
           </ScrollView>
 
-
           {/* Nearby Offers */}
           <SectionHeader title="Nearby Offers" />
           <View style={{ paddingHorizontal: 16, paddingBottom: 20 }}>

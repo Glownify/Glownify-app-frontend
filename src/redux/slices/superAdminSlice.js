@@ -16,6 +16,18 @@ export const fetchAllSaloons = createAsyncThunk(
   }
 );
 
+export const fetchAllUsers = createAsyncThunk(
+  "superAdmin/fetchAllUsers",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get("/super-admin/get-all-users");
+      return res.data.users;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Error fetching users");
+    }
+  }
+);
+
 // 🔹 CATEGORIES
 export const fetchAllCategories = createAsyncThunk(
   "superAdmin/fetchAllCategories",
@@ -108,6 +120,7 @@ const superAdminSlice = createSlice({
   name: "superAdmin",
   initialState: {
     saloons: [],
+    users: [],
     categories: [],
     offers: [],
     loading: false,
@@ -129,6 +142,19 @@ const superAdminSlice = createSlice({
         state.saloons = action.payload;
       })
       .addCase(fetchAllSaloons.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // USERS
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users = action.payload;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

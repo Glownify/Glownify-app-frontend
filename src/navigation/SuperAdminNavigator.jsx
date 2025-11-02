@@ -8,13 +8,7 @@ import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategorie
 // --- Screens ---
 import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboard';
 import SuperAdminProfileScreen from '../screens/SuperAdminScreens/SuperAdminProfileScreen';
-
-const ManageUsersScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Manage Users Screen (Static)</Text>
-  </SafeAreaView>
-);
-
+import ManageUsersScreen from '../screens/SuperAdminScreens/ManageUsersScreen';
 
 
 const Tab = createBottomTabNavigator();

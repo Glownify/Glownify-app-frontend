@@ -172,7 +172,7 @@ export default function ManageCategoriesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 12 },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 12 },
   categoryCard: {
     flexDirection: "row",
     alignItems: "center",
