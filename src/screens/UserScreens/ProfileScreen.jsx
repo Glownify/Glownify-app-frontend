@@ -93,8 +93,17 @@ export default function UserProfileScreen({ navigation }) {
   const { user } = useSelector((state) => state.auth);
 
   const handleMenuPress = (item) => {
-    Alert.alert(item.title, `${item.subtitle} - Coming soon!`);
-  };
+  switch (item.title) {
+    case 'Bookings':
+      navigation.navigate("HomeTab", { screen: "UserBookingsScreen" });
+      break;
+    case 'My Profile':
+      navigation.navigate("HomeTab", { screen: "ProfileEditScreen" });
+      break;
+    default:
+      Alert.alert(item.title, `${item.subtitle} - Coming soon!`);
+  }
+};
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [

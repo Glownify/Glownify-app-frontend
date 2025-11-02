@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { Picker } from '@react-native-picker/picker';
 
 const STEPS = {
   CONTACT: 1,
@@ -37,6 +38,8 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const [shopImages, setShopImages] = useState([null, null, null, null]);
   const [completeAddress, setCompleteAddress] = useState('');
   const [locationSet, setLocationSet] = useState(false);
+  const [salonCategory, setSalonCategory] = useState('');
+
 
   // Step 3: Verification
   const [idType, setIdType] = useState('');
@@ -272,6 +275,8 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
               keyboardType="phone-pad"
             />
 
+
+
             {/* Shop Information */}
             <Text style={[styles.label, { marginTop: 20 }]}>Shop Information</Text>
 
@@ -282,6 +287,26 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
               value={shopName}
               onChangeText={setShopName}
             />
+
+            {/* Salon Category */}
+            <Text style={styles.fieldLabel}>Salon Category *</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={salonCategory}
+                onValueChange={(value) => setSalonCategory(value)}
+                style={styles.picker}
+                dropdownIconColor="#7C5FED"
+                mode="dropdown"
+              >
+                <Picker.Item label="Select Category" value="" />
+                <Picker.Item label="Men Salon" value="men" />
+                <Picker.Item label="Women Salon" value="women" />
+                <Picker.Item label="Unisex Salon" value="unisex" />
+                <Picker.Item label="Beauty Parlour" value="beautyParlour" />
+                <Picker.Item label="Spa" value="spa" />
+                <Picker.Item label="Barbershop" value="barbershop" />
+              </Picker>
+            </View>
 
             {/* Partners Details (if Partnership) */}
             {ownershipType === 'partnership' && (
@@ -532,6 +557,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#fff',
     opacity: 0.9,
+  },
+  pickerContainer: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  picker: {
+    height: 50,
+    color: '#333',
   },
   stepIndicators: {
     flexDirection: 'row',

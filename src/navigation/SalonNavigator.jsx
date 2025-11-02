@@ -1,11 +1,11 @@
 // src/navigation/SalonNavigator.js
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { checkSubscription } from '../utils/CheckSubscription'; // your function
 import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
-
+import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotificationsScreen';
 // Real screens
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
 import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
@@ -14,15 +14,14 @@ import AddSpecialistScreen from '../screens/SalonAdminScreens/Specialists/AddSpe
 
 const Tab = createBottomTabNavigator();
 
-
-const SalonNotificationsScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Notifications Screen (Static)</Text>
-  </SafeAreaView>
-);
-
 // --- Main Salon Tab Navigator ---
-export default function SalonNavigator() {
+export default function SalonNavigator({ navigation }) {
+
+  //   // ✅ Check subscription on mount
+  useEffect(() => {
+    checkSubscription(navigation); // pass navigation so it can redirect if expired
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -65,13 +64,13 @@ export default function SalonNavigator() {
         },
         tabBarActiveTintColor: '#156778',
         tabBarInactiveTintColor: 'gray',
-      })}
-    >
+      })}>
       <Tab.Screen name="SalonDashboard" component={SalonAdminDashboard} />
       <Tab.Screen name="SalonBookings" component={SalonBookingsScreen} />
       <Tab.Screen name="AddSpecialist" component={AddSpecialistScreen} />
       <Tab.Screen name="SalonNotifications" component={SalonNotificationsScreen} />
       <Tab.Screen name="SalonProfile" component={SalonProfileScreen} />
+      
     </Tab.Navigator>
   );
 }

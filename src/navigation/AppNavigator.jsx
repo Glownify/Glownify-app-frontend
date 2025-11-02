@@ -8,7 +8,6 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
-import NearbyListScreen from '../screens/UserScreens/NearbyListScreen';
 import BookingScreen from '../screens/UserScreens/Bookings/BookingScreen';
 import SearchScreen from '../screens/UserScreens/SearchScreen';
 import MessageScreen from '../screens/UserScreens/MessageScreen';
@@ -18,6 +17,9 @@ import ShopDetailsFullScreen from '../screens/UserScreens/ShopDetails/ShopDetail
 import ServiceDetailsScreen from '../screens/UserScreens/ServiceDetails/ServiceDetailsScreen';
 import ProfileScreen from '../screens/UserScreens/ProfileScreen';
 import UserBookingsScreen from '../screens/UserScreens/BookingScreen';
+import AIBasedHairs from '../screens/UserScreens/AIBasedHairs';
+
+import ProfileEditScreen from '../screens/UserScreens/ProfileEditScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -32,6 +34,8 @@ function HomeStack() {
       <Stack.Screen name="ShopDetailsFull" component={ShopDetailsFullScreen} />
       <Stack.Screen name="ServiceDetails" component={ServiceDetailsScreen} />
       <Stack.Screen name="Booking" component={BookingScreen} />
+      <Stack.Screen name="UserBookingsScreen" component={UserBookingsScreen} />
+      <Stack.Screen name="ProfileEditScreen" component={ProfileEditScreen} />
     </Stack.Navigator>
   );
 }
@@ -94,8 +98,8 @@ export default function AppNavigator() {
           if (route.name === 'HomeTab') {
             iconName = focused ? 'home' : 'home-outline';
             showActiveDot = focused;
-          } else if (route.name === 'NearbySalonTab') {
-            iconName = focused ? 'compass' : 'compass-outline';
+          } else if (route.name === 'AIBasedHairs') {
+            iconName = focused ? 'qr-code' : 'qr-code-outline';
          } else if (route.name === 'BookingsTab') {
            iconName = focused ? 'clipboard' : 'clipboard-outline';
           } else if (route.name === 'MessagesTab') {
@@ -138,8 +142,8 @@ export default function AppNavigator() {
           })(route),
         })}
       />
-      <Tab.Screen name="NearbySalonTab" component={NearbyListScreen} />
       <Tab.Screen name="BookingsTab" component={UserBookingsScreen} />
+      <Tab.Screen name="AIBasedHairs" component={AIBasedHairs} />
       <Tab.Screen name="MessagesTab" component={MessagesTopTabNavigator} />
       <Tab.Screen name="ProfileTab" component={ProfileScreen} />
     </Tab.Navigator>
