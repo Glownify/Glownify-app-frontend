@@ -11,6 +11,7 @@ import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboar
 import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
 
 import AddSpecialistScreen from '../screens/SalonAdminScreens/Specialists/AddSpecialistScreen';
+import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -47,6 +48,9 @@ export default function SalonNavigator({ navigation }) {
             case 'AddSpecialist':
               iconName = focused ? 'person-add' : 'person-add-outline';
               break;
+            case 'ManageServices':
+              iconName = focused ? 'cut' : 'cut-outline';
+              break;
             case 'SalonNotifications':
               iconName = focused ? 'notifications' : 'notifications-outline';
               break;
@@ -68,9 +72,9 @@ export default function SalonNavigator({ navigation }) {
       <Tab.Screen name="SalonDashboard" component={SalonAdminDashboard} />
       <Tab.Screen name="SalonBookings" component={SalonBookingsScreen} />
       <Tab.Screen name="AddSpecialist" component={AddSpecialistScreen} />
+      <Tab.Screen name="ManageServices" component={ManageServicesScreen} />
       <Tab.Screen name="SalonNotifications" component={SalonNotificationsScreen} />
       <Tab.Screen name="SalonProfile" component={SalonProfileScreen} />
-      
     </Tab.Navigator>
   );
 }
