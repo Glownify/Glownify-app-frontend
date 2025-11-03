@@ -180,7 +180,10 @@ export default function IndependentRegistrationScreen({ navigation }) {
         {renderStepIndicator(3, 'Verification')}
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* STEP 1: PERSONAL INFORMATION */}
         {currentStep === STEPS.PERSONAL && (
           <View>
@@ -206,13 +209,14 @@ export default function IndependentRegistrationScreen({ navigation }) {
             <Text style={styles.photoLabel}>Upload your profile photo *</Text>
 
             {/* Full Name */}
+            <Text style={styles.label}>Full Name *</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter your full name"
               value={fullName}
               onChangeText={setFullName}
+              placeholderTextColor="#999"
             />
-            <Text style={styles.label}>Full Name *</Text>
 
             {/* Gender */}
             <Text style={styles.label}>Gender *</Text>
@@ -239,23 +243,26 @@ export default function IndependentRegistrationScreen({ navigation }) {
             </View>
 
             {/* Contact Number */}
+            <Text style={styles.label}>Contact Number *</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter WhatsApp number"
               value={contact}
               onChangeText={setContact}
               keyboardType="phone-pad"
+              placeholderTextColor="#999"
             />
-            <Text style={styles.label}>Contact Number *</Text>
 
             {/* Professional Experience */}
+            <Text style={styles.label}>Professional Experience *</Text>
             <TextInput
               style={styles.input}
-              placeholder="E.g., 5years"
+              placeholder="E.g., 5 years"
               value={experience}
               onChangeText={setExperience}
+              keyboardType="default"
+              placeholderTextColor="#999"
             />
-            <Text style={styles.label}>Professional Experience *</Text>
 
             {/* Next Button */}
             <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
@@ -420,6 +427,7 @@ export default function IndependentRegistrationScreen({ navigation }) {
               placeholder="Enter ID number"
               value={idNumber}
               onChangeText={setIdNumber}
+              placeholderTextColor="#999"
             />
 
             {/* Upload ID Proof */}
@@ -521,7 +529,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-    paddingBottom: 30,
+    paddingBottom: 40,
   },
   sectionTitle: {
     fontSize: 16,
@@ -574,8 +582,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     color: '#666',
-    marginBottom: 8,
-    marginTop: -8,
+    marginBottom: 6,
+    fontWeight: '600',
   },
   input: {
     backgroundColor: '#f0f0f0',
@@ -584,6 +592,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 14,
     marginBottom: 16,
+    color: '#333',
   },
   genderContainer: {
     flexDirection: 'row',
