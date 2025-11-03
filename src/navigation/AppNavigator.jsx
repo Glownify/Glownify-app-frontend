@@ -18,6 +18,7 @@ import ServiceDetailsScreen from '../screens/UserScreens/ServiceDetails/ServiceD
 import ProfileScreen from '../screens/UserScreens/ProfileScreen';
 import UserBookingsScreen from '../screens/UserScreens/BookingScreen';
 import AIBasedHairs from '../screens/UserScreens/AIBasedHairs';
+import SalonsListScreen from '../screens/UserScreens/SalonsListScreen';
 
 import ProfileEditScreen from '../screens/UserScreens/ProfileEditScreen';
 
@@ -36,6 +37,7 @@ function HomeStack() {
       <Stack.Screen name="Booking" component={BookingScreen} />
       <Stack.Screen name="UserBookingsScreen" component={UserBookingsScreen} />
       <Stack.Screen name="ProfileEditScreen" component={ProfileEditScreen} />
+      <Stack.Screen name="SalonsListScreen" component={SalonsListScreen} />
     </Stack.Navigator>
   );
 }

@@ -45,7 +45,7 @@ export default function HomeScreen({ navigation }) {
     { id: '6', imageUrl: require('../../../assets/salonfollow.png') },
   ];
 
-  const featuredSalons = [
+  const menSaloons = [
     {
       id: '1',
       imageUrl: require('../../../assets/featuredSalon.png'),
@@ -72,6 +72,48 @@ export default function HomeScreen({ navigation }) {
       address: 'Hitech City, Hyderabad',
       rating: '4.8',
       reviews: '1.2k',
+    },
+  ];
+
+  const beautyParlours = [
+    {
+      id: 'b1',
+      imageUrl: require('../../../assets/featuredSalon.png'),
+      category: 'Makeup • Spa',
+      name: 'Glow Beauty Lounge',
+      address: 'Banjara Hills, Hyderabad',
+      rating: '4.9',
+      reviews: '1.8k',
+    },
+    {
+      id: 'b2',
+      imageUrl: require('../../../assets/featuredSalon.png'),
+      category: 'Nails • Facial',
+      name: 'Charm Studio',
+      address: 'Kondapur, Hyderabad',
+      rating: '4.7',
+      reviews: '954',
+    },
+  ];
+
+  const homeServices = [
+    {
+      id: 'h1',
+      imageUrl: require('../../../assets/featuredSalon.png'),
+      category: 'Massage • Haircut',
+      name: 'Urban Spa at Home',
+      address: 'Madhapur, Hyderabad',
+      rating: '4.8',
+      reviews: '2.3k',
+    },
+    {
+      id: 'h2',
+      imageUrl: require('../../../assets/featuredSalon.png'),
+      category: 'Waxing • Facial',
+      name: 'HomeGlow Professionals',
+      address: 'Begumpet, Hyderabad',
+      rating: '4.6',
+      reviews: '1.1k',
     },
   ];
 
@@ -149,26 +191,69 @@ export default function HomeScreen({ navigation }) {
           </ScrollView>
 
 
-          {/* Featured Salons */}
-          <SectionHeader title="Featured Salon" />
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.featuredSalonContainer}
-          >
-            {featuredSalons.map((salon) => (
-              <View key={salon.id} style={styles.featuredSalonCard}>
-                <SalonCard
-                  imageUrl={salon.imageUrl}
-                  category={salon.category}
-                  name={salon.name}
-                  address={salon.address}
-                  rating={salon.rating}
-                  reviews={salon.reviews}
-                />
-              </View>
-            ))}
-          </ScrollView>
+          {/* Featured Salons - Men */}
+          <SectionHeader title="Men Salon" onPress={() => navigation.navigate('SalonsListScreen')} />
+<ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  style={styles.featuredSalonContainer}
+>
+  {menSaloons.map((salon) => (
+    <View key={salon.id} style={styles.featuredSalonCard}>
+      <SalonCard
+        imageUrl={salon.imageUrl}
+        category={salon.category}
+        name={salon.name}
+        address={salon.address}
+        rating={salon.rating}
+        reviews={salon.reviews}
+      />
+    </View>
+  ))}
+</ScrollView>
+
+{/* ✅ Beauty Parlour Section */}
+<SectionHeader title="Beauty Parlour" />
+<ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  style={styles.featuredSalonContainer}
+>
+  {beautyParlours.map((salon) => (
+    <View key={salon.id} style={styles.featuredSalonCard}>
+      <SalonCard
+        imageUrl={salon.imageUrl}
+        category={salon.category}
+        name={salon.name}
+        address={salon.address}
+        rating={salon.rating}
+        reviews={salon.reviews}
+      />
+    </View>
+  ))}
+</ScrollView>
+
+{/* ✅ Home Service Section */}
+<SectionHeader title="Home Service" />
+<ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  style={styles.featuredSalonContainer}
+>
+  {homeServices.map((salon) => (
+    <View key={salon.id} style={styles.featuredSalonCard}>
+      <SalonCard
+        imageUrl={salon.imageUrl}
+        category={salon.category}
+        name={salon.name}
+        address={salon.address}
+        rating={salon.rating}
+        reviews={salon.reviews}
+      />
+    </View>
+  ))}
+</ScrollView>
+
 
           {/* Nearby Offers */}
           <SectionHeader title="Nearby Offers" />

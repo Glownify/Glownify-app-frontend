@@ -104,7 +104,7 @@ const SalonCard = ({ item }) => (
 // --- Filter Categories ---
 const filters = ['Hair', 'Nails', 'Facial', 'Color'];
 
-export default function NearbyListScreen({ navigation }) {
+export default function SalonsListScreen({ navigation }) {
   const [activeFilter, setActiveFilter] = useState('Facial');
 
   return (
@@ -305,3 +305,4 @@ const styles = StyleSheet.create({
     color: '#111111', // Blue text to match icon
   },
 });
+
