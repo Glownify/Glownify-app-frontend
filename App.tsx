@@ -14,8 +14,8 @@ export default function App() {
     <Provider store={store}>
     <SafeAreaProvider>
       <LocationProvider>
-        <StatusBar barStyle="dark-content" />
-        {/* <StatusBar style="light" backgroundColor="#121212" /> */}
+        {/* <StatusBar barStyle="dark-content" /> */}
+        <StatusBar barStyle="light-content" backgroundColor="#156778" />
         <RootNavigator />
       </LocationProvider>
     </SafeAreaProvider>

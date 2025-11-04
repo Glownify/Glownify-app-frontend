@@ -1,109 +1,186 @@
-// src/navigation/SalonNavigator.js
-import React, {useEffect} from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { checkSubscription } from '../utils/CheckSubscription'; // your function
-import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
-import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotificationsScreen';
-// Real screens
+import { checkSubscription } from '../utils/CheckSubscription';
+
+// --- Screens ---
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
 import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
-
 import AddSpecialistScreen from '../screens/SalonAdminScreens/Specialists/AddSpecialistScreen';
 import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
+import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotificationsScreen';
+import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-// --- Main Salon Tab Navigator ---
-export default function SalonNavigator({ navigation }) {
+const colors = {
+  primary: '#156778',
+  white: '#FFFFFF',
+  inactive: '#E0E0E0',
+  badge: '#FFA500',
+};
 
-  //   // ✅ Check subscription on mount
+export default function SalonNavigator({ navigation }) {
   useEffect(() => {
-    checkSubscription(navigation); // pass navigation so it can redirect if expired
+    checkSubscription(navigation);
   }, []);
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          height: 70,
-          paddingBottom: 5,
-          paddingTop: 5,
-        },
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          let showActiveDot = false;
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.primary }}>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: {
+            height: 50,
+            backgroundColor: colors.primary,
+            borderTopWidth: 0,
+            elevation: 0,
+            paddingBottom: 5,
+            paddingTop: 5,
+          },
+        }}
+      >
+        {/* Dashboard */}
+        <Tab.Screen
+          name="SalonDashboard"
+          component={SalonAdminDashboard}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'grid' : 'grid-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
 
-          switch (route.name) {
-            case 'SalonDashboard':
-              iconName = focused ? 'grid' : 'grid-outline';
-              showActiveDot = focused;
-              break;
-            case 'SalonBookings':
-              iconName = focused ? 'calendar' : 'calendar-outline';
-              break;
-            case 'AddSpecialist':
-              iconName = focused ? 'person-add' : 'person-add-outline';
-              break;
-            case 'ManageServices':
-              iconName = focused ? 'cut' : 'cut-outline';
-              break;
-            case 'SalonNotifications':
-              iconName = focused ? 'notifications' : 'notifications-outline';
-              break;
-            case 'SalonProfile':
-              iconName = focused ? 'person' : 'person-outline';
-              break;
-          }
+        {/* Bookings */}
+        <Tab.Screen
+          name="SalonBookings"
+          component={SalonBookingsScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'calendar' : 'calendar-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
 
-          return (
-            <View style={styles.iconContainer}>
-              <Icon name={iconName} size={26} color={color} />
-              {showActiveDot && <View style={styles.activeDot} />}
-            </View>
-          );
-        },
-        tabBarActiveTintColor: '#156778',
-        tabBarInactiveTintColor: 'gray',
-      })}>
-      <Tab.Screen name="SalonDashboard" component={SalonAdminDashboard} />
-      <Tab.Screen name="SalonBookings" component={SalonBookingsScreen} />
-      <Tab.Screen name="AddSpecialist" component={AddSpecialistScreen} />
-      <Tab.Screen name="ManageServices" component={ManageServicesScreen} />
-      <Tab.Screen name="SalonNotifications" component={SalonNotificationsScreen} />
-      <Tab.Screen name="SalonProfile" component={SalonProfileScreen} />
-    </Tab.Navigator>
+        {/* Add Specialist */}
+        <Tab.Screen
+          name="AddSpecialist"
+          component={AddSpecialistScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'person-add' : 'person-add-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
+
+        {/* Manage Services */}
+        <Tab.Screen
+          name="ManageServices"
+          component={ManageServicesScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'cut' : 'cut-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
+
+        {/* Notifications */}
+        <Tab.Screen
+          name="SalonNotifications"
+          component={SalonNotificationsScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'notifications' : 'notifications-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+                {!focused && <View style={styles.badge} />}
+              </View>
+            ),
+          }}
+        />
+
+        {/* Profile */}
+        <Tab.Screen
+          name="SalonProfile"
+          component={SalonProfileScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'person' : 'person-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </SafeAreaView>
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   iconContainer: {
-    width: 30,
-    height: 28,
+    width: 50,
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
   },
-  activeDot: {
+  activeBar: {
     position: 'absolute',
-    bottom: -10,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#156778',
+    top: -10,
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.white,
   },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  text: {
-    fontSize: 18,
-    color: '#156778',
-    fontWeight: '600',
+  badge: {
+    position: 'absolute',
+    top: 2,
+    right: 12,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.badge,
+    borderWidth: 1,
+    borderColor: colors.white,
   },
 });

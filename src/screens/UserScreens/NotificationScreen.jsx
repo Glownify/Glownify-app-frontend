@@ -81,12 +81,13 @@ const NotificationItem = ({ item }) => (
   </TouchableOpacity>
 );
 
-export default function NotificationScreen() {
+export default function NotificationScreen({ navigation }) {
   // Group notifications by category
   const groupedNotifications = mockNotifications.reduce((acc, notification) => {
     (acc[notification.category] = acc[notification.category] || []).push(notification);
     return acc;
   }, {});
+  
 
   const renderSection = ({ item }) => (
     <View style={styles.sectionContainer}>
@@ -106,7 +107,17 @@ export default function NotificationScreen() {
   }));
 
   return (
-    <View style={styles.container}>
+     <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Icon name="chevron-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Notifications</Text>
+        <View style={{ width: 24 }} />
+      </View>
+
+      {/* Notifications List */}
       <FlatList
         data={sections}
         keyExtractor={(item) => item.category}
@@ -121,6 +132,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+   /* --- Header --- */
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#156778',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  backButton: {
+    padding: 8,
   },
   listContent: {
     paddingHorizontal: 20,

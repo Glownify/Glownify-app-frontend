@@ -163,7 +163,7 @@ export default function UserProfileScreen({ navigation }) {
   // If not logged in, show login prompt
   if (!user) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton}>
             <Icon name="chevron-back" size={24} color="#fff" />
@@ -185,12 +185,12 @@ export default function UserProfileScreen({ navigation }) {
             <Text style={styles.loginButtonText}>Sign In Now</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -230,7 +230,7 @@ export default function UserProfileScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   header: {
-    backgroundColor: '#7C5FED',
+    backgroundColor: '#156778',
     paddingHorizontal: 16,
     paddingVertical: 16,
     flexDirection: 'row',

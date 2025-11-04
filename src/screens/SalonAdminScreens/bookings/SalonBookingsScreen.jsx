@@ -153,7 +153,7 @@ export default function SalonBookingsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Bookings</Text>
         <Text style={styles.count}>{bookings.length} Total</Text>
@@ -169,7 +169,7 @@ export default function SalonBookingsScreen() {
           bookings.map(renderBookingCard)
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

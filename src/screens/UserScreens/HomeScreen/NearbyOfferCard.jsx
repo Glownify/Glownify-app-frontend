@@ -3,6 +3,20 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
+// Define colors for this component
+const colors = {
+  primary: '#156778',
+  white: '#FFFFFF',
+  text: '#1F2937',
+  textSecondary: '#6B7280',
+  star: '#FACC15',
+  like: '#EF4444',
+  likeBg: 'rgba(255, 255, 255, 0.9)',
+  discountBg: '#FEE2E2',
+  discountText: '#B91C1C',
+  border: '#E5E7EB',
+};
+
 const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, discount }) => {
   const navigation = useNavigation();
   const [imgSource, setImgSource] = useState(
@@ -15,27 +29,41 @@ const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, d
       onPress={() => navigation.navigate('ShopDetailsSummary')}
       activeOpacity={0.8}
     >
-      <TouchableOpacity style={styles.heartButton}>
-        <Ionicons name="heart-outline" size={20} color="#EF4444" />
-      </TouchableOpacity>
+      {/* --- IMAGE CONTAINER for positioning badges --- */}
+      <View style={styles.imageContainer}>
+        <Image
+          source={imgSource}
+          style={styles.image}
+          resizeMode="cover"
+          onError={() => setImgSource(require('../../../assets/featuredSalon.png'))}
+        />
+        
+        {/* --- REPOSITIONED HEART BUTTON ---
+            Moved onto the image for consistency with SalonCard
+        */}
+        <TouchableOpacity style={styles.heartButton}>
+          <Ionicons name="heart-outline" size={20} color={colors.like} />
+        </TouchableOpacity>
 
-      <Image
-        source={imgSource}
-        style={styles.image}
-        resizeMode="cover"
-        onError={() => setImgSource(require('../../../assets/featuredSalon.png'))}
-      />
+        {/* --- REPOSITIONED DISCOUNT TAG ---
+            Moved onto the image as a "badge" for a cleaner, modern look
+        */}
+        {discount && (
+          <View style={styles.discountBadge}>
+            <Text style={styles.discountText}>{discount}</Text>
+          </View>
+        )}
+      </View>
 
       <View style={styles.info}>
         <Text style={styles.category}>{category}</Text>
         <Text style={styles.name} numberOfLines={1}>{name}</Text>
         <Text style={styles.address} numberOfLines={1}>{address}</Text>
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={14} color="#FACC15" />
+          <Ionicons name="star" size={14} color={colors.star} />
           <Text style={styles.rating}>{rating}</Text>
           <Text style={styles.reviews}>({reviews})</Text>
         </View>
-        {discount && <Text style={styles.discount}>{discount}</Text>}
       </View>
     </TouchableOpacity>
   );
@@ -45,49 +73,56 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     borderRadius: 16,
-    backgroundColor: '#fff',
-    overflow: 'hidden',
+    backgroundColor: colors.white,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     elevation: 3,
-    marginBottom: 16,
+    // --- AESTHETIC TWEAKS ---
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden', // Important for rounded corners
+  },
+  imageContainer: {
+    width: 110, // Increased width slightly
+    height: 140, // Increased height slightly
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
   heartButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    zIndex: 10,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    top: 10,
+    right: 10, // Positioned inside the image container
+    zIndex: 1,
+    backgroundColor: colors.likeBg,
     borderRadius: 16,
     padding: 4,
   },
-  image: {
-    width: 100,
-    height: 120,
-    borderRadius: 12,
-    margin: 8,
-  },
   info: {
     flex: 1,
-    padding: 8,
+    padding: 12,
     justifyContent: 'center',
   },
   category: {
-    fontSize: 10,
-    color: '#6B7280',
+    fontSize: 11,
+    color: colors.primary,
     textTransform: 'uppercase',
     fontWeight: '600',
+    marginBottom: 2,
   },
   name: {
-    fontSize: 14,
+    fontSize: 16, // --- AESTHETIC TWEAK: Larger font ---
     fontWeight: '700',
-    color: '#111827',
-    marginTop: 2,
+    color: colors.text,
+    marginVertical: 2,
   },
   address: {
-    fontSize: 12,
-    color: '#6B7280',
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 4,
   },
   ratingRow: {
     flexDirection: 'row',
@@ -95,26 +130,31 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   rating: {
-    fontSize: 12,
+    fontSize: 13, // --- AESTHETIC TWEAK: Larger font ---
     fontWeight: '600',
     marginLeft: 4,
-    color: '#1F2937',
+    color: colors.text,
   },
   reviews: {
-    fontSize: 11,
-    color: '#9CA3AF',
+    fontSize: 12,
+    color: colors.textSecondary,
     marginLeft: 4,
   },
-  discount: {
-    marginTop: 4,
-    backgroundColor: '#FEE2E2',
-    color: '#B91C1C',
+  // --- New Discount Badge Style ---
+  discountBadge: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    backgroundColor: colors.discountBg,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  discountText: {
+    color: colors.discountText,
     fontSize: 12,
     fontWeight: '600',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
   },
 });
 

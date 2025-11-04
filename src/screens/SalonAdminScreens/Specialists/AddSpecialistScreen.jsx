@@ -163,7 +163,7 @@ export default function AddSpecialistScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Specialists</Text>
         <Text style={styles.count}>{specialists.length} Total</Text>
@@ -179,7 +179,7 @@ export default function AddSpecialistScreen() {
           specialists.map(renderSpecialistCard)
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

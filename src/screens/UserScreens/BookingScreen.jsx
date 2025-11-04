@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -199,11 +200,11 @@ export default function UserBookingsScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation?.goBack()}>
-          <Icon name="chevron-back" size={24} color="#333" />
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation?.goBack()}>
+          <Icon name="chevron-back" size={24} color="#ffffffff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>My Bookings</Text>
         <View style={styles.headerPlaceholder} />
@@ -257,7 +258,7 @@ export default function UserBookingsScreen({ navigation }) {
           filteredBookings.map(renderBookingCard)
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -271,15 +272,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
+    paddingVertical: 16,
+    backgroundColor: '#156778',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: '#ffffffff',
+  },
+  backButton: {
+    padding: 8,
   },
   headerPlaceholder: {
     width: 24,
@@ -432,7 +436,7 @@ const styles = StyleSheet.create({
   viewDetailsButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#7C5FED',
+    backgroundColor: '#156778',
     borderRadius: 6,
   },
   viewDetailsButtonText: {

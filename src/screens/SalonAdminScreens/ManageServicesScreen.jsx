@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,41 +8,26 @@ import {
   Alert,
   Modal,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/Ionicons";
 import { Picker } from "@react-native-picker/picker";
+import Icon from "react-native-vector-icons/Ionicons";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchSalonServices,
+  fetchAllCategories,
+  createServiceItem,
+  updateServiceItem,
+  deleteServiceItem,
+} from "../../redux/slices/salonAdminSlice";
+import Loader from "../../components/Loader";
+import ErrorMessage from "../../components/ErrorMessage";
 
 export default function ManageServicesScreen() {
-  const mockCategories = [
-    { _id: "1", name: "Haircut" },
-    { _id: "2", name: "Wax" },
-    { _id: "3", name: "Facial" },
-    { _id: "4", name: "Massage" },
-  ];
-
-  const [services, setServices] = useState([
-    {
-      _id: "101",
-      name: "Basic Haircut",
-      category: { _id: "1", name: "Haircut" },
-      price: 250,
-      durationMins: 30,
-      discountPercent: 10,
-      description: "Includes wash and styling.",
-      status: "active",
-    },
-    {
-      _id: "102",
-      name: "Full Wax",
-      category: { _id: "2", name: "Wax" },
-      price: 500,
-      durationMins: 45,
-      discountPercent: 5,
-      description: "Full body wax for women.",
-      status: "inactive",
-    },
-  ]);
+  const dispatch = useDispatch();
+  const { services, loading, error, categories } = useSelector(
+    (state) => state.salonAdmin
+  );
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingService, setEditingService] = useState(null);
@@ -53,6 +38,12 @@ export default function ManageServicesScreen() {
   const [durationMins, setDurationMins] = useState("30");
   const [discountPercent, setDiscountPercent] = useState("0");
   const [description, setDescription] = useState("");
+
+  // Fetch services & categories on mount
+  useEffect(() => {
+    dispatch(fetchSalonServices());
+    dispatch(fetchAllCategories());
+  }, [dispatch]);
 
   const openModal = (service = null) => {
     if (service) {
@@ -75,55 +66,65 @@ export default function ManageServicesScreen() {
     setModalVisible(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name || !category || !price) {
       Alert.alert("Error", "Please fill all required fields");
       return;
     }
 
-    const selectedCategory = mockCategories.find((c) => c._id === category);
-    const newService = {
-      _id: editingService ? editingService._id : Date.now().toString(),
+    const selectedCategory = categories.find((c) => c._id === category);
+
+    const serviceData = {
       name,
-      category: selectedCategory,
+      category,
       price: Number(price),
       durationMins: Number(durationMins),
       discountPercent: Number(discountPercent),
       description,
-      status: editingService ? editingService.status : "active",
     };
 
-    if (editingService) {
-      setServices((prev) =>
-        prev.map((s) => (s._id === editingService._id ? newService : s))
-      );
-    } else {
-      setServices((prev) => [newService, ...prev]);
+    try {
+      if (editingService) {
+        await dispatch(
+          updateServiceItem({ serviceId: editingService._id, updateData: serviceData })
+        ).unwrap();
+      } else {
+        await dispatch(createServiceItem(serviceData)).unwrap();
+      }
+      setModalVisible(false);
+    } catch (err) {
+      Alert.alert("Error", err);
     }
-
-    setModalVisible(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (serviceId) => {
     Alert.alert("Delete Service", "Are you sure?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
-        onPress: () =>
-          setServices((prev) => prev.filter((item) => item._id !== id)),
+        onPress: async () => {
+          try {
+            await dispatch(deleteServiceItem(serviceId)).unwrap();
+          } catch (err) {
+            Alert.alert("Error", err);
+          }
+        },
       },
     ]);
   };
 
-  const toggleStatus = (id) => {
-    setServices((prev) =>
-      prev.map((s) =>
-        s._id === id
-          ? { ...s, status: s.status === "active" ? "inactive" : "active" }
-          : s
-      )
-    );
+  const toggleStatus = async (service) => {
+    try {
+      await dispatch(
+        updateServiceItem({
+          serviceId: service._id,
+          updateData: { status: service.status === "active" ? "inactive" : "active" },
+        })
+      ).unwrap();
+    } catch (err) {
+      Alert.alert("Error", err);
+    }
   };
 
   const renderServiceCard = (service) => (
@@ -131,7 +132,17 @@ export default function ManageServicesScreen() {
       <View style={styles.cardHeader}>
         <View style={styles.headerInfo}>
           <Text style={styles.name}>{service.name}</Text>
-          <Text style={styles.categoryText}>{service.category.name}</Text>
+          <View style={styles.categoryRow}>
+            {service.category?.icon && (
+              <Icon
+                name={service.category.icon}
+                size={14}
+                color="#156778"
+                style={{ marginRight: 4 }}
+              />
+            )}
+            <Text style={styles.categoryText}>{service.category?.name}</Text>
+          </View>
         </View>
         <View style={styles.statusContainer}>
           <Text
@@ -148,14 +159,10 @@ export default function ManageServicesScreen() {
       <View style={styles.section}>
         <View style={styles.rowBetween}>
           <Text style={styles.priceText}>₹{service.price}</Text>
-          <Text style={styles.durationText}>
-            ⏱ {service.durationMins} mins
-          </Text>
+          <Text style={styles.durationText}>⏱ {service.durationMins} mins</Text>
         </View>
         {service.discountPercent > 0 && (
-          <Text style={styles.discountText}>
-            💸 {service.discountPercent}% off
-          </Text>
+          <Text style={styles.discountText}>💸 {service.discountPercent}% off</Text>
         )}
       </View>
 
@@ -172,7 +179,7 @@ export default function ManageServicesScreen() {
 
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: "#4CAF50" }]}
-          onPress={() => toggleStatus(service._id)}
+          onPress={() => toggleStatus(service)}
         >
           <Icon name="swap-horizontal-outline" size={16} color="#fff" />
           <Text style={styles.actionText}>Toggle</Text>
@@ -190,37 +197,39 @@ export default function ManageServicesScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Services</Text>
         <Text style={styles.count}>{services.length} Total</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => openModal(null)}
-        >
-          <Icon name="add-circle-outline" size={18} color="#fff" />
-          <Text style={styles.addButtonText}>Add Service</Text>
-        </TouchableOpacity>
+      {loading && <Loader />}
+      {error && (
+        <ErrorMessage message={error} />
+      )}
 
-        {services.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Icon name="cut-outline" size={50} color="#ccc" />
-            <Text style={styles.emptyText}>No services yet</Text>
-          </View>
-        ) : (
-          services.map(renderServiceCard)
-        )}
-      </ScrollView>
+      {!loading && !error && (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <TouchableOpacity style={styles.addButton} onPress={() => openModal(null)}>
+            <Icon name="add-circle-outline" size={18} color="#fff" />
+            <Text style={styles.addButtonText}>Add Service</Text>
+          </TouchableOpacity>
+
+          {services.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Icon name="cut-outline" size={50} color="#ccc" />
+              <Text style={styles.emptyText}>No services yet</Text>
+            </View>
+          ) : (
+            services.map(renderServiceCard)
+          )}
+        </ScrollView>
+      )}
 
       {/* Add/Edit Modal */}
       <Modal visible={modalVisible} animationType="slide">
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>
-            {editingService ? "Edit Service" : "Add Service"}
-          </Text>
+          <Text style={styles.modalTitle}>{editingService ? "Edit Service" : "Add Service"}</Text>
 
           <TextInput
             placeholder="Service Name"
@@ -229,14 +238,14 @@ export default function ManageServicesScreen() {
             onChangeText={setName}
           />
 
-          <Picker
-            selectedValue={category}
-            onValueChange={setCategory}
-            style={styles.input}
-          >
+          <Picker selectedValue={category} onValueChange={setCategory} style={styles.input}>
             <Picker.Item label="Select Category" value="" />
-            {mockCategories.map((cat) => (
-              <Picker.Item key={cat._id} label={cat.name} value={cat._id} />
+            {categories.map((cat) => (
+              <Picker.Item
+                key={cat._id}
+                label={cat.name}
+                value={cat._id}
+              />
             ))}
           </Picker>
 
@@ -273,67 +282,34 @@ export default function ManageServicesScreen() {
           />
 
           <View style={styles.modalButtons}>
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: "#156778" }]}
-              onPress={handleSave}
-            >
-              <Text style={styles.modalButtonText}>
-                {editingService ? "Update" : "Add"}
-              </Text>
+            <TouchableOpacity style={[styles.modalButton, { backgroundColor: "#156778" }]} onPress={handleSave}>
+              <Text style={styles.modalButtonText}>{editingService ? "Update" : "Add"}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: "#f44336" }]}
-              onPress={() => setModalVisible(false)}
-            >
+            <TouchableOpacity style={[styles.modalButton, { backgroundColor: "#f44336" }]} onPress={() => setModalVisible(false)}>
               <Text style={styles.modalButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f5f5f5" },
-  header: {
-    backgroundColor: "#156778",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
+  header: { backgroundColor: "#156778", paddingHorizontal: 16, paddingVertical: 16 },
   title: { fontSize: 24, fontWeight: "bold", color: "#fff" },
   count: { fontSize: 12, color: "#ddd", marginTop: 4 },
   scrollContent: { padding: 16 },
-  addButton: {
-    flexDirection: "row",
-    backgroundColor: "#156778",
-    borderRadius: 8,
-    paddingVertical: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-    gap: 6,
-  },
+  addButton: { flexDirection: "row", backgroundColor: "#156778", borderRadius: 8, paddingVertical: 10, justifyContent: "center", alignItems: "center", marginBottom: 12, gap: 6 },
   addButtonText: { color: "#fff", fontWeight: "600", fontSize: 14 },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
+  card: { backgroundColor: "#fff", borderRadius: 12, padding: 16, marginBottom: 12, elevation: 3, shadowColor: "#000", shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 } },
+  cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   headerInfo: { flex: 1 },
   name: { fontSize: 16, fontWeight: "700", color: "#333" },
-  categoryText: { fontSize: 13, color: "#156778", marginTop: 2 },
+  categoryRow: { flexDirection: "row", alignItems: "center", marginTop: 2 },
+  categoryText: { fontSize: 13, color: "#156778" },
   statusContainer: { alignItems: "flex-end" },
   statusText: { fontSize: 13, fontWeight: "600" },
   section: { marginVertical: 8 },
@@ -343,43 +319,14 @@ const styles = StyleSheet.create({
   discountText: { fontSize: 12, color: "#4CAF50", marginTop: 4 },
   desc: { fontSize: 12, color: "#555", marginVertical: 8 },
   actions: { flexDirection: "row", justifyContent: "space-between", gap: 8 },
-  actionButton: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-    paddingVertical: 8,
-    gap: 4,
-  },
+  actionButton: { flex: 1, flexDirection: "row", justifyContent: "center", alignItems: "center", borderRadius: 8, paddingVertical: 8, gap: 4 },
   actionText: { color: "#fff", fontWeight: "600", fontSize: 13 },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 60,
-  },
+  emptyContainer: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: 60 },
   emptyText: { fontSize: 16, color: "#999", marginTop: 10 },
   modalContainer: { flex: 1, padding: 20, backgroundColor: "#fff" },
   modalTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  modalButton: {
-    flex: 1,
-    marginHorizontal: 5,
-    borderRadius: 8,
-    padding: 12,
-    alignItems: "center",
-  },
+  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, marginBottom: 12 },
+  modalButtons: { flexDirection: "row", justifyContent: "space-between", marginTop: 20 },
+  modalButton: { flex: 1, marginHorizontal: 5, borderRadius: 8, padding: 12, alignItems: "center" },
   modalButtonText: { color: "#fff", fontWeight: "bold" },
 });
