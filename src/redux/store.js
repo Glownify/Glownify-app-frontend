@@ -3,11 +3,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
 import superAdminReducer from "./slices/superAdminSlice";
 import salonAdminReducer from "./slices/salonAdminSlice";
+import userReducer from "./slices/userSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     superAdmin: superAdminReducer,
     salonAdmin: salonAdminReducer,
+    user: userReducer,
   },
 });

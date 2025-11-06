@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -190,6 +191,8 @@ export default function UserProfileScreen({ navigation }) {
   }
 
   return (
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
+          <StatusBar barStyle="light-content" backgroundColor="#156778" />
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
@@ -231,10 +234,15 @@ export default function UserProfileScreen({ navigation }) {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#156778',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',

@@ -1,6 +1,7 @@
 // src/screens/UserScreens/Messages/NotificationScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const mockNotifications = [
@@ -107,6 +108,8 @@ export default function NotificationScreen({ navigation }) {
   }));
 
   return (
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#156778" />
      <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -125,10 +128,15 @@ export default function NotificationScreen({ navigation }) {
         contentContainerStyle={styles.listContent}
       />
     </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#156778',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

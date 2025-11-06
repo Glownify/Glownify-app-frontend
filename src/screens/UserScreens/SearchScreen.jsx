@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -77,20 +78,21 @@ const SalonCard = ({ item }) => (
 // --- Main Screen ---
 export default function SearchScreen({ navigation }) {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#156778" />
       {/* Header */}
-<View style={styles.header}>
-  <TouchableOpacity onPress={() => navigation.goBack()}>
-    <Icon name="arrow-back-outline" size={24} color="#156778" />
-  </TouchableOpacity>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back-outline" size={24} color="#ffffffff" />
+        </TouchableOpacity>
 
-  <Text style={styles.headerTitle}>Search</Text>
+        <Text style={styles.headerTitle}>Search</Text>
 
-  {/* Filter Icon */}
-  <TouchableOpacity onPress={() => console.log('Filter pressed')}>
-    <Icon name="filter-outline" size={24} color="#156778" />
-  </TouchableOpacity>
-</View>
+        {/* Filter Icon */}
+        <TouchableOpacity onPress={() => console.log('Filter pressed')}>
+          <Icon name="filter-outline" size={24} color="#ffffffff" />
+        </TouchableOpacity>
+      </View>
 
 
       {/* Search Bar */}
@@ -148,7 +150,7 @@ export default function SearchScreen({ navigation }) {
 
 // --- Styles ---
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
+  safeArea: { flex: 1, backgroundColor: '#156778' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
   },
-  headerTitle: { fontSize: 20, fontWeight: '600', color: '#1F2937' },
+  headerTitle: { fontSize: 20, fontWeight: '600', color: '#ffffffff' },
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -173,7 +175,7 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1, backgroundColor: '#F8F9FA' },
   sectionContainer: { backgroundColor: '#FFFFFF', padding: 20, marginTop: 10 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: '#1F2937', marginBottom:5 },
+  sectionTitle: { fontSize: 18, fontWeight: '600', color: '#1F2937', marginBottom: 5 },
   clearAllText: { fontSize: 14, color: '#156778', fontWeight: '500' },
   recentItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F3F4F6' },
   recentItemText: { fontSize: 16, color: '#4A4A4A' },

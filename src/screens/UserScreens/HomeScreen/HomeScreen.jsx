@@ -5,7 +5,6 @@ import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import LinearGradient from 'react-native-linear-gradient';
 
 import HaircutIcon from '../../../assets/categoryIcons/haircut.svg';
 import NailsIcon from '../../../assets/categoryIcons/nails.svg';
@@ -15,8 +14,9 @@ import SpaIcon from '../../../assets/categoryIcons/spa.svg';
 import WaxingIcon from '../../../assets/categoryIcons/waxing.svg';
 import MakeupIcon from '../../../assets/categoryIcons/makeup.svg';
 import MassageIcon from '../../../assets/categoryIcons/massage.svg';
-import { useSelector } from 'react-redux';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // Import icons
+
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchHomeSalons } from '../../../redux/slices/userSlice';
 
 const colors = {
   primary: '#156778',
@@ -30,8 +30,20 @@ const colors = {
 };
 
 export default function HomeScreen({ navigation }) {
-  
+
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const { loading, homeSalons, error } = useSelector((state) => state.user);
+
+  React.useEffect(() => {
+    dispatch(fetchHomeSalons());
+  }, []);
+  console.log('Home Screen - User:', homeSalons
+  );
+
+  console.log(error);
+
+
 
   const categories = [
     { icon: HaircutIcon, label: 'Haircut' },
@@ -92,7 +104,12 @@ export default function HomeScreen({ navigation }) {
   ];
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
+  <StatusBar
+    barStyle="light-content" // white icons (good contrast for dark primary)
+    backgroundColor={colors.primary} // Android only
+  />
+    <View style={{ flex: 1, backgroundColor: colors.white }}>
       <HomeHeader user={user} navigation={navigation} />
       <ScrollView
         style={styles.container}
@@ -125,7 +142,7 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         {/* --- Salon you follow --- */}
-        <SectionHeader title="Salon you follow" showViewAll={false} />
+        {/* <SectionHeader title="Salon you follow" showViewAll={false} />
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -143,7 +160,7 @@ export default function HomeScreen({ navigation }) {
               </LinearGradient>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </ScrollView> */}
 
         {/* Featured Salons - Men */}
         <SectionHeader title="Men Salon" onPress={() => navigation.navigate('SalonsListScreen', { type: 'Men' })} />
@@ -203,13 +220,14 @@ export default function HomeScreen({ navigation }) {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
   },
   container: {
     flex: 1,
@@ -236,10 +254,12 @@ const styles = StyleSheet.create({
   // Promo Styles
   promoContainer: {
     borderRadius: 16,
-    overflow: 'hidden',
-    height: 140,
+    // overflow: 'hidden',
+    height: 180,
+    // borderWidth: 1,
+    // borderColor: 'red',
     marginHorizontal: 16, // Consistent horizontal margin
-    marginTop: 20, // Add space from location
+    marginVertical: 6, // Add space from location
   },
   promoImage: {
     width: '100%',

@@ -15,7 +15,7 @@ export default function App() {
     <SafeAreaProvider>
       <LocationProvider>
         {/* <StatusBar barStyle="dark-content" /> */}
-        <StatusBar barStyle="light-content" backgroundColor="#156778" />
+        {/* <StatusBar barStyle="light-content" backgroundColor="#156778" /> */}
         <RootNavigator />
       </LocationProvider>
     </SafeAreaProvider>

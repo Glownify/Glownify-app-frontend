@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -28,6 +29,7 @@ export default function ShopDetailsSummaryScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={[]}>
+      <StatusBar barStyle="dark-content" />
       <View style={styles.container}>
         {/* Background Image */}
         <Image source={shopData.image} style={styles.backgroundImage} />

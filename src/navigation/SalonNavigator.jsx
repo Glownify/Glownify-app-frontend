@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { checkSubscription } from '../utils/CheckSubscription';
+import { checkSubscription } from '../utils/checkSubscription';
 
 // --- Screens ---
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
