@@ -8,14 +8,13 @@ import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategorie
 // --- Screens ---
 import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboard';
 import SuperAdminProfileScreen from '../screens/SuperAdminScreens/SuperAdminProfileScreen';
+import SalesTeamManagement from '../screens/SuperAdminScreens/SalesTeamManagement';
 
 const ManageUsersScreen = () => (
   <SafeAreaView style={styles.center}>
     <Text style={styles.text}>Manage Users Screen (Static)</Text>
   </SafeAreaView>
 );
-
-
 
 const Tab = createBottomTabNavigator();
 
@@ -39,6 +38,9 @@ export default function SuperAdminNavigator() {
             case 'SuperDashboard':
               iconName = focused ? 'grid' : 'grid-outline';
               showActiveDot = focused;
+              break;
+            case 'SalesTeam':
+              iconName = focused ? 'trending-up' : 'trending-up-outline';
               break;
             case 'ManageSalons':
               iconName = focused ? 'business' : 'business-outline';
@@ -66,6 +68,7 @@ export default function SuperAdminNavigator() {
       })}
     >
       <Tab.Screen name="SuperDashboard" component={SuperAdminDashboard} />
+      <Tab.Screen name="SalesTeam" component={SalesTeamManagement} />
       <Tab.Screen name="ManageSalons" component={ManageSalonsScreen} />
       <Tab.Screen name="ManageUsers" component={ManageUsersScreen} />
       <Tab.Screen name="ManageCategories" component={ManageCategoriesScreen} />
