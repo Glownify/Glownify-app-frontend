@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
+  StatusBar
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -266,7 +267,9 @@ export default function SalesTeamManagement() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+  <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
+    <StatusBar backgroundColor="#156778" barStyle="light-content" />
+    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Sales Team Management</Text>
@@ -337,8 +340,10 @@ export default function SalesTeamManagement() {
         {activeTab === 'revenue' && renderRevenue()}
         {activeTab === 'commissions' && renderCommissions()}
       </ScrollView>
-    </SafeAreaView>
-  );
+    </View>
+  </SafeAreaView>
+);
+
 }
 
 const styles = StyleSheet.create({

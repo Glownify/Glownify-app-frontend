@@ -13,6 +13,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
+import { useDispatch, useSelector } from 'react-redux';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { uploadImageToCloudinary } from '../../api/claudinary';
+import { signupSalonOwner } from '../../redux/slices/authSlice';
 
 const STEPS = {
   CONTACT: 1,
@@ -23,6 +27,9 @@ const STEPS = {
 const ID_TYPES = ['Aadhar', 'PAN', 'GST Certificate', 'Business License'];
 
 export default function SalonOwnerRegistrationScreen({ navigation }) {
+  const dispatch = useDispatch();
+
+  const { signUpLoading, error } = useSelector((state) => state.auth);
   const [currentStep, setCurrentStep] = useState(STEPS.CONTACT);
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +38,8 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const [ownerName, setOwnerName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [ownerEmail, setOwnerEmail] = useState('');
+  const [ownerPassword, setOwnerPassword] = useState('');
   const [shopName, setShopName] = useState('');
   const [partners, setPartners] = useState([{ id: 1, name: '', contact: '', whatsapp: '' }]);
 
@@ -39,6 +48,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const [completeAddress, setCompleteAddress] = useState('');
   const [locationSet, setLocationSet] = useState(false);
   const [salonCategory, setSalonCategory] = useState('');
+  const [locationData, setLocationData] = useState(null);
 
 
   // Step 3: Verification
@@ -48,18 +58,40 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
 
   // Upload shop image
   const handleUploadShopImage = (index) => {
-    Alert.alert('Upload Image', 'Camera/Gallery - Mock', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Select',
-        onPress: () => {
-          const newImages = [...shopImages];
-          newImages[index] = `https://via.placeholder.com/150?text=Shop${index + 1}`;
-          setShopImages(newImages);
-        },
-      },
-    ]);
+  Alert.alert('Upload Image', 'Choose an option', [
+    { text: 'Cancel', style: 'cancel' },
+    {
+      text: 'Camera',
+      onPress: () => pickImage('camera', index),
+    },
+    {
+      text: 'Gallery',
+      onPress: () => pickImage('gallery', index),
+    },
+  ]);
+};
+
+const pickImage = async (type, index) => {
+  const options = {
+    mediaType: 'photo',
+    maxWidth: 800,
+    maxHeight: 800,
+    quality: 0.8,
   };
+
+  let result;
+  if (type === 'camera') {
+    result = await launchCamera(options);
+  } else {
+    result = await launchImageLibrary(options);
+  }
+
+  if (result.assets && result.assets.length > 0) {
+    const newImages = [...shopImages];
+    newImages[index] = result.assets[0].uri;
+    setShopImages(newImages);
+  }
+};
 
   // Add partner
   const addPartner = () => {
@@ -86,26 +118,86 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   };
 
   // Upload ID Proof
-  const handleUploadIDProof = () => {
-    Alert.alert('Upload ID Proof', 'File upload - Mock', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Select',
-        onPress: () => setIdProof('ID_Proof_Document'),
-      },
-    ]);
+ const handleUploadIDProof = () => {
+  Alert.alert('Upload ID Proof', 'Choose an option', [
+    { text: 'Cancel', style: 'cancel' },
+    {
+      text: 'Camera',
+      onPress: () => pickIDProof('camera'),
+    },
+    {
+      text: 'Gallery',
+      onPress: () => pickIDProof('gallery'),
+    },
+  ]);
+};
+
+const pickIDProof = async (type) => {
+  const options = {
+    mediaType: 'photo',
+    maxWidth: 800,
+    maxHeight: 800,
+    quality: 0.8,
   };
 
+  let result;
+  if (type === 'camera') {
+    result = await launchCamera(options);
+  } else {
+    result = await launchImageLibrary(options);
+  }
+
+  if (result.assets && result.assets.length > 0) {
+    setIdProof(result.assets[0].uri);
+  }
+};
+
+
   // Set location on map
-  const handleSetLocation = () => {
-    Alert.alert('Location', 'Map picker - Mock', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Set Location',
-        onPress: () => setLocationSet(true),
-      },
-    ]);
-  };
+// const handleSetLocation = () => {
+//   navigation.navigate('LocationPicker', {
+//     onLocationSelect: (coords, addressInfo) => {
+//       setLocationSet(true);
+
+//       // Save coordinates in GeoJSON format
+//       setLocationData({
+//         type: "Point",
+//         // coordinates: [coords.longitude, coords.latitude],
+//         coordinates: [28.6139, 77.2090], // TEMP FIXED TO DELHI
+//         address: addressInfo?.address || '', // optional, if you get from reverse geocoding
+//         city: addressInfo?.city || '',
+//         state: addressInfo?.state || '',
+//         pincode: addressInfo?.pincode || '',
+//       });
+
+//     },
+//   });
+// };
+
+const handleSetLocation = () => {
+  // Set mock location directly
+  setLocationSet(true);
+
+  setLocationData({
+    type: "Point",
+    coordinates: [28.8431, 78.7784], // Mock Moradabad location
+    address: "India Gate, New Delhi, Delhi, India", // optional mock address
+    city: "Moradabad",
+    state: "Uttar Pradesh",
+    pincode: "244001",
+  });
+
+  // Optional: log to verify
+  console.log("Mock location set:", {
+    type: "Point",
+    coordinates: [28.8431, 78.7784],
+    address: "India Gate, New Delhi, Delhi, India",
+    city: "Moradabad",
+    state: "Uttar Pradesh",
+    pincode: "244001",
+  });
+};
+
 
   const handleNext = () => {
     if (currentStep === STEPS.CONTACT) {
@@ -123,9 +215,51 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
     }
   };
 
-  const handleSubmit = () => {
-    setLoading(true);
-    setTimeout(() => {
+  const handleSubmit = async () => {
+  if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber) {
+    Alert.alert('Error', 'Please fill all required fields.');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // Prepare salon data
+    const salonData = {
+      shopName,
+      shopType: ownershipType,
+      salonCategory,
+      location: locationData,
+      partners,
+      contactNumber,
+      whatsappNumber,
+    };
+
+    // Dispatch signup redux action
+    const resultAction = await dispatch(
+      signupSalonOwner({
+        name: ownerName,
+        email: ownerEmail,
+        phone: contactNumber,
+        password: ownerPassword,
+        salonData,
+      })
+    );
+
+    if (signupSalonOwner.fulfilled.match(resultAction)) {
+      // Upload salon images after successful registration
+      const uploadedImages = [];
+      for (let i = 0; i < shopImages.length; i++) {
+        const image = shopImages[i];
+        if (image) {
+          const uri = await uploadImageToCloudinary(image); // pass props
+          uploadedImages.push(uri);
+        }
+      }
+
+      // Optionally, update salon data with uploaded images
+      console.log('Uploaded Images:', uploadedImages);
+
       setLoading(false);
       Alert.alert('Success', 'Registration submitted! Awaiting verification', [
         {
@@ -133,8 +267,14 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
           onPress: () => navigation?.navigate('Auth'),
         },
       ]);
-    }, 2000);
-  };
+    } else {
+      throw new Error(resultAction.payload || 'Signup failed');
+    }
+  } catch (err) {
+    setLoading(false);
+    Alert.alert('Error', err.message || 'Something went wrong');
+  }
+};
 
   const getStepStatus = (step) => {
     if (step < currentStep) return 'completed';
@@ -247,35 +387,52 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
             </View>
 
             {/* Owner Details */}
-            <Text style={[styles.label, { marginTop: 20 }]}>Owner Details</Text>
+            {/* Owner Details */}
+<Text style={[styles.label, { marginTop: 20 }]}>Owner Details</Text>
 
-            <Text style={styles.fieldLabel}>Owner Full Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter owner's full name"
-              value={ownerName}
-              onChangeText={setOwnerName}
-            />
+<Text style={styles.fieldLabel}>Owner Full Name</Text>
+<TextInput
+  style={styles.input}
+  placeholder="Enter owner's full name"
+  value={ownerName}
+  onChangeText={setOwnerName}
+/>
 
-            <Text style={styles.fieldLabel}>Contact Number</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter contact number"
-              value={contactNumber}
-              onChangeText={setContactNumber}
-              keyboardType="phone-pad"
-            />
+<Text style={styles.fieldLabel}>Email Address</Text>
+<TextInput
+  style={styles.input}
+  placeholder="Enter email address"
+  value={ownerEmail}           // NEW state
+  onChangeText={setOwnerEmail} // NEW state
+  keyboardType="email-address"
+/>
 
-            <Text style={styles.fieldLabel}>WhatsApp Number</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter WhatsApp number"
-              value={whatsappNumber}
-              onChangeText={setWhatsappNumber}
-              keyboardType="phone-pad"
-            />
+<Text style={styles.fieldLabel}>Password</Text>
+<TextInput
+  style={styles.input}
+  placeholder="Enter password"
+  value={ownerPassword}           // NEW state
+  onChangeText={setOwnerPassword} // NEW state
+  secureTextEntry={true}
+/>
 
+<Text style={styles.fieldLabel}>Contact Number</Text>
+<TextInput
+  style={styles.input}
+  placeholder="Enter contact number"
+  value={contactNumber}
+  onChangeText={setContactNumber}
+  keyboardType="phone-pad"
+/>
 
+<Text style={styles.fieldLabel}>WhatsApp Number</Text>
+<TextInput
+  style={styles.input}
+  placeholder="Enter WhatsApp number"
+  value={whatsappNumber}
+  onChangeText={setWhatsappNumber}
+  keyboardType="phone-pad"
+/>
 
             {/* Shop Information */}
             <Text style={[styles.label, { marginTop: 20 }]}>Shop Information</Text>

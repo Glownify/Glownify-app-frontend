@@ -98,6 +98,35 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
+
+// salon regsitration
+// 0️⃣ Signup Salon Owner
+export const signupSalonOwner = createAsyncThunk(
+  "auth/signupSalonOwner",
+  async ({ name, email, phone, password, salonData }, { rejectWithValue }) => {
+    try {
+      console.log("Salon Owner Signup data:", { name, email, phone, password, salonData });
+      const res = await axiosInstance.post("/auth/signup", {
+        name,
+        email,
+        phone,
+        password,
+        role: "salon_owner",  // role is fixed
+        salonData,
+      });
+
+      const { user, token } = res.data;
+      await AsyncStorage.setItem("token", token);
+      await AsyncStorage.setItem("user", JSON.stringify(user));
+
+      return { user, token };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Salon owner signup failed");
+    }
+  }
+);
+
+
 // -------------------- SLICE --------------------
 const authSlice = createSlice({
   name: 'auth',
@@ -214,7 +243,22 @@ const authSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+
+      // Signup Salon Owner
+      .addCase(signupSalonOwner.pending, (state) => {
+  state.signUpLoading = true;
+  state.error = null;
+})
+.addCase(signupSalonOwner.fulfilled, (state, action) => {
+  state.signUpLoading = false;
+  state.user = action.payload.user;
+  state.token = action.payload.token;
+})
+.addCase(signupSalonOwner.rejected, (state, action) => {
+  state.signUpLoading = false;
+  state.error = action.payload;
+});
   },
 });
 

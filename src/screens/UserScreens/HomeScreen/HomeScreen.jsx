@@ -1,10 +1,13 @@
-import React, {useContext} from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, ActivityIndicator, StatusBar } from 'react-native';
+// src/screens/UserScreens/Home/HomeScreen.js
+import React, { useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, Image, StatusBar, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchHomeSalons } from '../../../redux/slices/userSlice';
 import HomeHeader from '../../../components/HomeHeader';
 import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import HaircutIcon from '../../../assets/categoryIcons/haircut.svg';
 import NailsIcon from '../../../assets/categoryIcons/nails.svg';
@@ -15,35 +18,22 @@ import WaxingIcon from '../../../assets/categoryIcons/waxing.svg';
 import MakeupIcon from '../../../assets/categoryIcons/makeup.svg';
 import MassageIcon from '../../../assets/categoryIcons/massage.svg';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchHomeSalons } from '../../../redux/slices/userSlice';
-
 const colors = {
   primary: '#156778',
   primaryLight: '#E1F5FA',
   white: '#FFFFFF',
-  black: '#111827',
-  text: '#374151',
-  textSecondary: '#6B7280',
   background: '#FFFFFF',
-  border: '#E5E7EB',
+  textSecondary: '#6B7280',
 };
 
 export default function HomeScreen({ navigation }) {
-
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const { loading, homeSalons, error } = useSelector((state) => state.user);
 
-  React.useEffect(() => {
+  useEffect(() => {
     dispatch(fetchHomeSalons());
-  }, []);
-  console.log('Home Screen - User:', homeSalons
-  );
-
-  console.log(error);
-
-
+  }, [dispatch]);
 
   const categories = [
     { icon: HaircutIcon, label: 'Haircut' },
@@ -56,230 +46,101 @@ export default function HomeScreen({ navigation }) {
     { icon: MassageIcon, label: 'Massage' },
   ];
 
-  // Mock data - replace with your actual data
-  const followedSalons = [
-    { id: '1', imageUrl: require('../../../assets/salonfollow.png') },
-    { id: '2', imageUrl: require('../../../assets/salonfollow.png') },
-    { id: '3', imageUrl: require('../../../assets/salonfollow.png') },
-    { id: '4', imageUrl: require('../../../assets/salonfollow.png') },
-  ];
+  const renderSalonSection = (title, data) => {
+    if (!data || data.length === 0) return null;
 
-  const menSaloons = [
-    {
-      id: '1',
-      imageUrl: require('../../../assets/featuredSalon.png'),
-      category: 'Hair • Facial',
-      name: 'Salon de Elegance',
-      address: '800 35th Ave #2, Point City...',
-      rating: '4.9',
-      reviews: '814',
-    },
-    // ... other salons
-  ];
+    return (
+      <View style={{ marginBottom: 20 }}>
+        <SectionHeader title={title} showViewAll onPress={() => navigation.navigate('SalonsListScreen', { type: title })} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+          {data.map((salon) => (
+            <View key={salon._id} style={styles.salonCardWrapper}>
+              <SalonCard salon={salon} />
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
 
-  const beautyParlours = [
-    {
-      id: 'b1',
-      imageUrl: require('../../../assets/featuredSalon.png'),
-      category: 'Makeup • Spa',
-      name: 'Glow Beauty Lounge',
-      address: 'Banjara Hills, Hyderabad',
-      rating: '4.9',
-      reviews: '1.8k',
-    },
-    // ... other parlours
-  ];
-
-  const homeServices = [
-    {
-      id: 'h1',
-      imageUrl: require('../../../assets/featuredSalon.png'),
-      category: 'Massage • Haircut',
-      name: 'Urban Spa at Home',
-      address: 'Madhapur, Hyderabad',
-      rating: '4.8',
-      reviews: '2.3k',
-    },
-    // ... other services
-  ];
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <Text>Loading salons...</Text>
+      </View>
+    );
+  }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.safeArea}>
-  <StatusBar
-    barStyle="light-content" // white icons (good contrast for dark primary)
-    backgroundColor={colors.primary} // Android only
-  />
-    <View style={{ flex: 1, backgroundColor: colors.white }}>
-      <HomeHeader user={user} navigation={navigation} />
-      <ScrollView
-        style={styles.container}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContentContainer}
-      >
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <View style={{ flex: 1, backgroundColor: colors.white }}>
+        <HomeHeader user={user} navigation={navigation} />
 
-        {/* --- Promo Banner --- */}
-        <View style={styles.promoContainer}>
-          <Image
-            source={require('../../../assets/promo.png')}
-            style={styles.promoImage}
-          />
-        </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Promo Banner */}
+          <View style={styles.promoContainer}>
+            <Image source={require('../../../assets/promo.png')} style={styles.promoImage} />
+          </View>
 
-        {/* Categories */}
-        <SectionHeader title="What do you want to get?" showViewAll={false} />
-        <View style={styles.categories}>
-          {categories.map((cat) => {
-            const IconComponent = cat.icon;
-            return (
-              <TouchableOpacity key={cat.label} style={styles.categoryItem}>
-                <View style={styles.categoryIcon}>
-                  {IconComponent && <IconComponent width={32} height={32} />}
-                </View>
-                <Text style={styles.categoryLabel}>{cat.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+          {/* Categories */}
+          <SectionHeader title="What do you want to get?" />
+          <View style={styles.categories}>
+            {categories.map((cat) => {
+              const IconComponent = cat.icon;
+              return (
+                <TouchableOpacity key={cat.label} style={styles.categoryItem}>
+                  <View style={styles.categoryIcon}>
+                    <IconComponent width={32} height={32} />
+                  </View>
+                  <Text style={styles.categoryLabel}>{cat.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
-        {/* --- Salon you follow --- */}
-        {/* <SectionHeader title="Salon you follow" showViewAll={false} />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.horizontalScrollContainer}
-        >
-          {followedSalons.map((salon) => (
-            <TouchableOpacity key={salon.id} style={styles.followedSalonItem}>
-              <LinearGradient
-                colors={['#156778', '#03BAE1']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.gradientBorder}
-              >
-                <Image source={salon.imageUrl} style={styles.followedSalonImage} />
-              </LinearGradient>
-            </TouchableOpacity>
-          ))}
-        </ScrollView> */}
+          {/* --- Salon Sections --- */}
+          {renderSalonSection('Men Salon', homeSalons?.menSalon)}
+          {renderSalonSection('Beauty Parlour', homeSalons?.beautyParlour)}
+          {renderSalonSection('Unisex', homeSalons?.unisex)}
+          {renderSalonSection('Spa', homeSalons?.spa)}
+          {renderSalonSection('Barbershop', homeSalons?.barbershop)}
 
-        {/* Featured Salons - Men */}
-        <SectionHeader title="Men Salon" onPress={() => navigation.navigate('SalonsListScreen', { type: 'Men' })} />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.horizontalScrollContainer}
-        >
-          {menSaloons.map((salon) => (
-            <View key={salon.id} style={styles.featuredSalonCard}>
-              <SalonCard {...salon} />
-            </View>
-          ))}
+          {/* --- Nearby Offers --- */}
+          <SectionHeader title="Nearby Offers" />
+          <View style={{ paddingHorizontal: 16 }}>
+            <NearbyOfferCard
+              imageUrl={require('../../../assets/featuredSalon.png')}
+              category="Hair • Facial"
+              name="Maroon's Luxury Salon"
+              address="Kukatpally, Hyderabad"
+              rating="4.8"
+              reviews="3.7k"
+              discount="15% Off"
+            />
+          </View>
         </ScrollView>
-
-        {/* Beauty Parlour Section */}
-        <SectionHeader title="Beauty Parlour" onPress={() => navigation.navigate('SalonsListScreen', { type: 'Beauty' })} />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.horizontalScrollContainer}
-        >
-          {beautyParlours.map((salon) => (
-            <View key={salon.id} style={styles.featuredSalonCard}>
-              <SalonCard {...salon} />
-            </View>
-          ))}
-        </ScrollView>
-
-        {/* Home Service Section */}
-        <SectionHeader title="Home Service" onPress={() => navigation.navigate('SalonsListScreen', { type: 'Home' })} />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.horizontalScrollContainer}
-        >
-          {homeServices.map((salon) => (
-            <View key={salon.id} style={styles.featuredSalonCard}>
-              <SalonCard {...salon} />
-            </View>
-          ))}
-        </ScrollView>
-
-        {/* Nearby Offers */}
-        <SectionHeader title="Nearby Offers" onPress={() => navigation.navigate('SalonsListScreen', { type: 'Offers' })} />
-        <View style={styles.nearbyOffersContainer}>
-          <NearbyOfferCard
-            imageUrl={require('../../../assets/featuredSalon.png')}
-            category="Hair • Facial"
-            name="Maroon's Luxury Salon"
-            address="Kukatpally, Hyderabad"
-            rating="4.8"
-            reviews="3.7k"
-            discount="15% Off"
-          />
-          {/* Add more NearbyOfferCard here */}
-        </View>
-      </ScrollView>
-    </View>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.primary,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-  scrollContentContainer: {
-    paddingBottom: 40, // Ensure space at the bottom
-  },
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  locationText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-
-  // Promo Styles
+  safeArea: { flex: 1, backgroundColor: colors.primary },
   promoContainer: {
     borderRadius: 16,
-    // overflow: 'hidden',
-    height: 180,
-    // borderWidth: 1,
-    // borderColor: 'red',
-    marginHorizontal: 16, // Consistent horizontal margin
-    marginVertical: 6, // Add space from location
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
-  promoImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-
-  // Categories
+  promoImage: { width: '100%', height: 180, borderRadius: 12 },
   categories: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    marginTop: 8, // Space from SectionHeader
+    marginTop: 8,
   },
-  categoryItem: {
-    alignItems: 'center',
-    width: '22%',
-    marginBottom: 16,
-  },
+  categoryItem: { alignItems: 'center', width: '22%', marginBottom: 16 },
   categoryIcon: {
     backgroundColor: colors.primaryLight,
     width: 60,
@@ -295,41 +156,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
   },
-  
-  // Horizontal Scrolling Sections
-  horizontalScrollContainer: {
-    paddingLeft: 16,
-    paddingVertical: 12,
-  },
-
-  // --- Salon you follow ---
-  followedSalonItem: {
-    marginRight: 12,
-    alignItems: 'center',
-  },
-  gradientBorder: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    padding: 3, // thickness
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  followedSalonImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: colors.white,
-  },
-
-  // --- Featured Salon Card Wrapper ---
-  featuredSalonCard: {
-    width: 240, // Fixed width for horizontal scrolling
-    marginRight: 16,
-  },
-
-  // --- Nearby Offers ---
-  nearbyOffersContainer: {
-    paddingHorizontal: 16, // Consistent horizontal padding
-  },
+  horizontalScroll: { paddingLeft: 16, paddingVertical: 10 },
+  salonCardWrapper: { marginRight: 16 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

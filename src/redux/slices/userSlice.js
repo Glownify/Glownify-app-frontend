@@ -10,7 +10,7 @@ export const fetchHomeSalons = createAsyncThunk(
       const response = await axiosInstance.get("/user/get-home-salons");
       return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response.data.message || "Failed to fetch home salons");
     }
   }
 );

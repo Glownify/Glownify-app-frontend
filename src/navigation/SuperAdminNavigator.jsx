@@ -1,109 +1,181 @@
-import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ManageSalonsScreen from '../screens/SuperAdminScreens/ManageSalonsScreen';
-import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategoriesScreen';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 // --- Screens ---
 import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboard';
-import SuperAdminProfileScreen from '../screens/SuperAdminScreens/SuperAdminProfileScreen';
-import ManageUsersScreen from '../screens/SuperAdminScreens/ManageUsersScreen';
-
 import SalesTeamManagement from '../screens/SuperAdminScreens/SalesTeamManagement';
-
-const ManageUsersScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Manage Users Screen (Static)</Text>
-  </SafeAreaView>
-);
+import ManageSalonsScreen from '../screens/SuperAdminScreens/ManageSalonsScreen';
+import ManageUsersScreen from '../screens/SuperAdminScreens/ManageUsersScreen';
+import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategoriesScreen';
+import SuperAdminProfileScreen from '../screens/SuperAdminScreens/SuperAdminProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-// --- Main Super Admin Tab Navigator ---
+const colors = {
+  primary: '#156778',
+  white: '#FFFFFF',
+  inactive: '#E0E0E0',
+  black: '#000000',
+  badge: '#FFA500',
+};
+
 export default function SuperAdminNavigator() {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          height: 70,
-          paddingBottom: 5,
-          paddingTop: 5,
-        },
-        tabBarIcon: ({ focused, color }) => {
-          let iconName;
-          let showActiveDot = false;
+    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.primary }}>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: {
+            height: 50,
+            backgroundColor: colors.primary,
+            borderTopWidth: 0,
+            elevation: 0,
+            paddingBottom: 5,
+            paddingTop: 5,
+          },
+        }}
+      >
+        {/* --- Dashboard --- */}
+        <Tab.Screen
+          name="SuperDashboard"
+          component={SuperAdminDashboard}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'grid' : 'grid-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
 
-          switch (route.name) {
-            case 'SuperDashboard':
-              iconName = focused ? 'grid' : 'grid-outline';
-              showActiveDot = focused;
-              break;
-            case 'SalesTeam':
-              iconName = focused ? 'trending-up' : 'trending-up-outline';
-              break;
-            case 'ManageSalons':
-              iconName = focused ? 'business' : 'business-outline';
-              break;
-            case 'ManageUsers':
-              iconName = focused ? 'people' : 'people-outline';
-              break;
-            case 'ManageCategories':
-              iconName = focused ? 'pricetag' : 'pricetag-outline';
-              break;
-            case 'SuperProfile':
-              iconName = focused ? 'person' : 'person-outline';
-              break;
-          }
+        {/* --- Sales Team --- */}
+        <Tab.Screen
+          name="SalesTeam"
+          component={SalesTeamManagement}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'trending-up' : 'trending-up-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
 
-          return (
-            <View style={styles.iconContainer}>
-              <Icon name={iconName} size={26} color={color} />
-              {showActiveDot && <View style={styles.activeDot} />}
-            </View>
-          );
-        },
-        tabBarActiveTintColor: '#156778',
-        tabBarInactiveTintColor: 'gray',
-      })}
-    >
-      <Tab.Screen name="SuperDashboard" component={SuperAdminDashboard} />
-      <Tab.Screen name="SalesTeam" component={SalesTeamManagement} />
-      <Tab.Screen name="ManageSalons" component={ManageSalonsScreen} />
-      <Tab.Screen name="ManageUsers" component={ManageUsersScreen} />
-      <Tab.Screen name="ManageCategories" component={ManageCategoriesScreen} />
-      <Tab.Screen name="SuperProfile" component={SuperAdminProfileScreen} />
-    </Tab.Navigator>
+        {/* --- Manage Salons --- */}
+        <Tab.Screen
+          name="ManageSalons"
+          component={ManageSalonsScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'business' : 'business-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
+
+        {/* --- Manage Users --- */}
+        <Tab.Screen
+          name="ManageUsers"
+          component={ManageUsersScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'people' : 'people-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+                {!focused && <View style={styles.badge} />}
+              </View>
+            ),
+          }}
+        />
+
+        {/* --- Manage Categories --- */}
+        <Tab.Screen
+          name="ManageCategories"
+          component={ManageCategoriesScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'pricetag' : 'pricetag-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
+
+        {/* --- Profile --- */}
+        <Tab.Screen
+          name="SuperProfile"
+          component={SuperAdminProfileScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'person' : 'person-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   iconContainer: {
-    width: 30,
-    height: 28,
+    width: 50,
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
   },
-  activeDot: {
+  activeBar: {
     position: 'absolute',
-    bottom: -10,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#156778',
+    top: -10,
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.white,
   },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  text: {
-    fontSize: 18,
-    color: '#156778',
-    fontWeight: '600',
+  badge: {
+    position: 'absolute',
+    top: 2,
+    right: 12,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.badge,
+    borderWidth: 1,
+    borderColor: colors.white,
   },
 });

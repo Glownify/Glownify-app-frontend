@@ -1,9 +1,9 @@
+// src/screens/UserScreens/Home/SalonCard.js
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
-// Define colors for this component
 const colors = {
   primary: '#156778',
   white: '#FFFFFF',
@@ -11,32 +11,47 @@ const colors = {
   textSecondary: '#6B7280',
   star: '#FACC15',
   like: '#EF4444',
-  likeBg: 'rgba(255, 255, 255, 0.9)', // --- AESTHETIC TWEAK: Slightly more opaque ---
+  likeBg: 'rgba(255, 255, 255, 0.9)',
   border: '#E5E7EB',
 };
 
-const SalonCard = ({ imageUrl, category, name, address, rating, reviews }) => {
+const SalonCard = ({ salon }) => {
   const navigation = useNavigation();
+
+  const {
+    shopName,
+    salonCategory,
+    location,
+    galleryImages,
+    rating = '4.8',
+    reviews = '200',
+  } = salon || {};
+
+  const imageSource =
+    galleryImages?.length > 0
+      ? { uri: galleryImages[0] }
+      : require('../../../assets/featuredSalon.png');
 
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate('ShopDetailsSummary')}
+      onPress={() => navigation.navigate('ShopDetailsSummary', { salonId: salon._id })}
       activeOpacity={0.8}
     >
-      <Image
-        source={imageUrl}
-        style={styles.image}
-        defaultSource={require('../../../assets/featuredSalon.png')}
-      />
+      <Image source={imageSource} style={styles.image} resizeMode="cover" />
+
       <TouchableOpacity style={styles.heartButton}>
         <Ionicons name="heart-outline" size={20} color={colors.like} />
       </TouchableOpacity>
-      
+
       <View style={styles.info}>
-        <Text style={styles.category}>{category}</Text>
-        <Text style={styles.name} numberOfLines={1}>{name}</Text>
-        <Text style={styles.address} numberOfLines={1}>{address}</Text>
+        <Text style={styles.category}>{salonCategory}</Text>
+        <Text style={styles.name} numberOfLines={1}>
+          {shopName || 'Unnamed Salon'}
+        </Text>
+        <Text style={styles.address} numberOfLines={1}>
+          {location?.address || 'Address not available'}
+        </Text>
         <View style={styles.ratingRow}>
           <Ionicons name="star" size={14} color={colors.star} />
           <Text style={styles.rating}>{rating}</Text>
@@ -49,7 +64,7 @@ const SalonCard = ({ imageUrl, category, name, address, rating, reviews }) => {
 
 const styles = StyleSheet.create({
   card: {
-    width: '100%',
+    width: 240,
     borderRadius: 16,
     backgroundColor: colors.white,
     shadowColor: '#000',
@@ -57,15 +72,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 3,
-    // --- AESTHETIC TWEAKS ---
-    borderWidth: 1, 
-    borderColor: colors.border, // Helps card pop on off-white bg
-    overflow: 'hidden', // Ensures image corners are clipped
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
-    height: 160,
-    // Removed border radius, as parent 'overflow: hidden' handles it
+    height: 150,
   },
   heartButton: {
     position: 'absolute',
