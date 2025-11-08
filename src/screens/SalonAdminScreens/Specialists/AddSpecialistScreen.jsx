@@ -1,340 +1,431 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
+  TextInput,
+  Modal,
+  TouchableOpacity,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Alert,
   Image,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+  Alert,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { useDispatch } from "react-redux";
+import { addSpecialist } from "../../../redux/slices/salonAdminSlice";
 
-// Mock Specialists Data
-const MOCK_SPECIALISTS = [
-  {
-    id: 1,
-    name: 'Raj Kumar',
-    expertise: 'Hair Cut',
-    experience: 5,
-    image: 'https://via.placeholder.com/80?text=Raj',
-    certifications: ['Diploma in Hair Styling', 'Advanced Hair Coloring'],
-    availability: [
-      { day: 'Monday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Tuesday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Wednesday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Thursday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Friday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Saturday', start: '10:00 AM', end: '08:00 PM' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Neha Singh',
-    expertise: 'Hair Spa',
-    experience: 3,
-    image: 'https://via.placeholder.com/80?text=Neha',
-    certifications: ['Certificate in Spa Therapy', 'Hair Treatment Specialist'],
-    availability: [
-      { day: 'Monday', start: '10:00 AM', end: '08:00 PM' },
-      { day: 'Tuesday', start: '10:00 AM', end: '08:00 PM' },
-      { day: 'Wednesday', start: '10:00 AM', end: '08:00 PM' },
-      { day: 'Thursday', start: '10:00 AM', end: '08:00 PM' },
-      { day: 'Friday', start: '10:00 AM', end: '08:00 PM' },
-      { day: 'Saturday', start: '11:00 AM', end: '07:00 PM' },
-      { day: 'Sunday', start: '11:00 AM', end: '06:00 PM' },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Arjun Reddy',
-    expertise: 'Beard Trim',
-    experience: 7,
-    image: 'https://via.placeholder.com/80?text=Arjun',
-    certifications: ['Master Barber', 'Beard Care Specialist'],
-    availability: [
-      { day: 'Monday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Tuesday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Wednesday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Thursday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Friday', start: '09:00 AM', end: '09:00 PM' },
-      { day: 'Saturday', start: '10:00 AM', end: '08:00 PM' },
-    ],
-  },
-];
-
-export default function AddSpecialistScreen() {
-  const [specialists, setSpecialists] = useState(MOCK_SPECIALISTS);
-  const [expandedId, setExpandedId] = useState(null);
-
-  const handleDelete = (id) => {
-    Alert.alert(
-      'Delete Specialist',
-      'Are you sure?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            setSpecialists(specialists.filter((s) => s.id !== id));
-            Alert.alert('Success', 'Specialist removed');
-          },
-        },
-      ]
-    );
-  };
-
-  const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
-
-  const renderAvailabilityDay = (day) => (
-    <View key={day.day} style={styles.availabilityItem}>
-      <Text style={styles.dayText}>{day.day}</Text>
-      <Text style={styles.timeText}>
-        {day.start} - {day.end}
-      </Text>
-    </View>
-  );
-
-  const renderSpecialistCard = (specialist) => (
-    <View key={specialist.id} style={styles.card}>
-      {/* Header with Image and Basic Info */}
-      <View style={styles.cardHeader}>
-        <Image
-          source={{ uri: specialist.image }}
-          style={styles.specialistImage}
-        />
-        <View style={styles.headerInfo}>
-          <Text style={styles.name}>{specialist.name}</Text>
-          <Text style={styles.expertise}>{specialist.expertise}</Text>
-          <View style={styles.experienceRow}>
-            <Icon name="briefcase" size={14} color="#156778" />
-            <Text style={styles.experience}>{specialist.experience} years exp</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Certifications */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Certifications</Text>
-        {specialist.certifications.map((cert, idx) => (
-          <View key={idx} style={styles.certItem}>
-            <Icon name="checkmark-circle" size={14} color="#4CAF50" />
-            <Text style={styles.certText}>{cert}</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Availability Toggle */}
-      <TouchableOpacity
-        style={styles.expandButton}
-        onPress={() => toggleExpand(specialist.id)}
-      >
-        <Text style={styles.expandButtonText}>
-          {expandedId === specialist.id ? 'Hide' : 'Show'} Availability
-        </Text>
-        <Icon
-          name={expandedId === specialist.id ? 'chevron-up' : 'chevron-down'}
-          size={20}
-          color="#156778"
-        />
-      </TouchableOpacity>
-
-      {/* Availability (Expanded) */}
-      {expandedId === specialist.id && (
-        <View style={styles.availabilityContainer}>
-          <Text style={styles.sectionTitle}>Weekly Schedule</Text>
-          {specialist.availability.map(renderAvailabilityDay)}
-        </View>
-      )}
-
-      {/* Delete Button */}
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDelete(specialist.id)}
-      >
-        <Icon name="trash" size={16} color="#fff" />
-        <Text style={styles.deleteButtonText}>Remove</Text>
-      </TouchableOpacity>
-    </View>
-  );
+// Compact Time Picker
+function TimePicker({ label, value, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const hours = Array.from({ length: 12 }, (_, i) => i + 1);
+  const minutes = ["00", "30"];
+  const periods = ["AM", "PM"];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Specialists</Text>
-        <Text style={styles.count}>{specialists.length} Total</Text>
-      </View>
+    <View style={{ marginBottom: 10 }}>
+      <Text style={styles.label}>{label}</Text>
+      <TouchableOpacity
+        style={styles.timeInput}
+        onPress={() => setOpen(!open)}
+        activeOpacity={0.7}
+      >
+        <Text style={{ color: value ? "#000" : "#999" }}>
+          {value || "Select Time"}
+        </Text>
+        <Icon name={open ? "chevron-up" : "time-outline"} size={18} color="#156778" />
+      </TouchableOpacity>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {specialists.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Icon name="person-outline" size={50} color="#ccc" />
-            <Text style={styles.emptyText}>No specialists yet</Text>
-          </View>
-        ) : (
-          specialists.map(renderSpecialistCard)
-        )}
-      </ScrollView>
+      {open && (
+        <View style={styles.dropdown}>
+          <ScrollView nestedScrollEnabled style={{ maxHeight: 150 }}>
+            {periods.map((p) =>
+              hours.map((h) =>
+                minutes.map((m) => {
+                  const time = `${h}:${m} ${p}`;
+                  return (
+                    <TouchableOpacity
+                      key={time}
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        onSelect(time);
+                        setOpen(false);
+                      }}
+                    >
+                      <Text style={styles.dropdownText}>{time}</Text>
+                    </TouchableOpacity>
+                  );
+                })
+              )
+            )}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }
 
+// Day Picker
+function DayPicker({ selectedDays, onSelect }) {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const toggleDay = (day) => {
+    if (selectedDays.includes(day))
+      onSelect(selectedDays.filter((d) => d !== day));
+    else onSelect([...selectedDays, day]);
+  };
+
+  return (
+    <View style={{ marginBottom: 15 }}>
+      <Text style={styles.label}>Available Days</Text>
+      <View style={styles.daysContainer}>
+        {days.map((day) => {
+          const selected = selectedDays.includes(day);
+          return (
+            <TouchableOpacity
+              key={day}
+              style={[styles.dayItem, selected && styles.dayItemSelected]}
+              onPress={() => toggleDay(day)}
+            >
+              <Text style={[styles.dayText, selected && styles.dayTextSelected]}>
+                {day}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+export default function AddSpecialistModal({ visible, onClose }) {
+  const dispatch = useDispatch();
+
+  const [form, setForm] = useState({
+    name: "",
+    contactNumber: "",
+    expertise: "",
+    experienceYears: "",
+    image: "",
+    certifications: [],
+    availabilityDays: [],
+    startTime: "",
+    endTime: "",
+  });
+
+  const [certificateInput, setCertificateInput] = useState("");
+
+  const handleChange = (key, value) => setForm({ ...form, [key]: value });
+
+  const handleAddCertificate = () => {
+    if (!certificateInput.trim()) return;
+    setForm({
+      ...form,
+      certifications: [...form.certifications, certificateInput.trim()],
+    });
+    setCertificateInput("");
+  };
+
+  const handleRemoveCertificate = (index) => {
+    const updated = [...form.certifications];
+    updated.splice(index, 1);
+    setForm({ ...form, certifications: updated });
+  };
+
+  // 📸 Choose Image Source (Camera or Gallery)
+  const pickImage = () => {
+    Alert.alert(
+      "Upload Image",
+      "Choose an option",
+      [
+        {
+          text: "Camera",
+          onPress: () =>
+            launchCamera({ mediaType: "photo", quality: 0.7 }, (response) => {
+              if (response.didCancel || response.errorCode) return;
+              handleChange("image", response.assets[0].uri);
+            }),
+        },
+        {
+          text: "Gallery",
+          onPress: () =>
+            launchImageLibrary({ mediaType: "photo", quality: 0.7 }, (response) => {
+              if (response.didCancel || response.errorCode) return;
+              handleChange("image", response.assets[0].uri);
+            }),
+        },
+        { text: "Cancel", style: "cancel" },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleSubmit = () => {
+    if (!form.name || !form.contactNumber || !form.expertise) {
+      alert("Please fill required fields");
+      return;
+    }
+
+    const newSpecialist = {
+      name: form.name,
+      contactNumber: form.contactNumber,
+      expertise: form.expertise,
+      experienceYears: Number(form.experienceYears) || 0,
+      image: form.image || "",
+      certifications: form.certifications,
+      availability: {
+        days: form.availabilityDays,
+        time: { start: form.startTime, end: form.endTime },
+      },
+    };
+
+    dispatch(addSpecialist(newSpecialist));
+    onClose();
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="slide">
+      <View style={styles.overlay}>
+        <View style={styles.modalBox}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Add Specialist</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Icon name="close" size={22} color="#333" />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {/* 🔹 Image Upload at Top */}
+            <TouchableOpacity
+              style={styles.imageBox}
+              onPress={pickImage}
+              activeOpacity={0.8}
+            >
+              {form.image ? (
+                <Image source={{ uri: form.image }} style={styles.imagePreview} />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Icon name="camera" size={30} color="#156778" />
+                  <Text style={{ color: "#156778", marginTop: 5 }}>Upload Image</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TextInput
+              placeholder="Name"
+              style={styles.input}
+              value={form.name}
+              onChangeText={(v) => handleChange("name", v)}
+            />
+            <TextInput
+              placeholder="Contact Number"
+              style={styles.input}
+              keyboardType="phone-pad"
+              value={form.contactNumber}
+              onChangeText={(v) => handleChange("contactNumber", v)}
+            />
+            <TextInput
+              placeholder="Expertise (e.g. Hair, Skin)"
+              style={styles.input}
+              value={form.expertise}
+              onChangeText={(v) => handleChange("expertise", v)}
+            />
+            <TextInput
+              placeholder="Experience (in years)"
+              style={styles.input}
+              keyboardType="numeric"
+              value={form.experienceYears}
+              onChangeText={(v) => handleChange("experienceYears", v)}
+            />
+
+            {/* Certificates */}
+            <View style={{ marginBottom: 10 }}>
+              <Text style={styles.label}>Certifications</Text>
+              <View style={styles.certRow}>
+                <TextInput
+                  placeholder="Enter certificate name"
+                  style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                  value={certificateInput}
+                  onChangeText={setCertificateInput}
+                />
+                <TouchableOpacity style={styles.addCertBtn} onPress={handleAddCertificate}>
+                  <Icon name="add-circle" size={26} color="#156778" />
+                </TouchableOpacity>
+              </View>
+              {form.certifications.map((cert, idx) => (
+                <View key={idx} style={styles.certItem}>
+                  <Text style={styles.certText}>{cert}</Text>
+                  <TouchableOpacity onPress={() => handleRemoveCertificate(idx)}>
+                    <Icon name="close-circle" size={20} color="red" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+
+            <DayPicker
+              selectedDays={form.availabilityDays}
+              onSelect={(days) => handleChange("availabilityDays", days)}
+            />
+
+            <TimePicker
+              label="Start Time"
+              value={form.startTime}
+              onSelect={(v) => handleChange("startTime", v)}
+            />
+            <TimePicker
+              label="End Time"
+              value={form.endTime}
+              onSelect={(v) => handleChange("endTime", v)}
+            />
+          </ScrollView>
+
+          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <Text style={styles.submitText}>Add Specialist</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
+  overlay: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
   },
-  header: {
-    backgroundColor: '#156778',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  count: {
-    fontSize: 12,
-    color: '#ddd',
-    marginTop: 4,
-  },
-  scrollContent: {
-    padding: 16,
-  },
-  card: {
-    backgroundColor: '#fff',
+  modalBox: {
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    width: "100%",
+    maxHeight: "90%",
   },
-  cardHeader: {
-    flexDirection: 'row',
-    marginBottom: 16,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
-  specialistImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#e0e0e0',
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#156778",
   },
-  headerInfo: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'center',
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 4,
+    color: "#156778",
   },
-  name: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  expertise: {
-    fontSize: 13,
-    color: '#156778',
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  experienceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  experience: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 4,
-  },
-  section: {
-    marginVertical: 12,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 8,
-  },
-  certItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  certText: {
-    fontSize: 12,
-    color: '#555',
-    marginLeft: 8,
-  },
-  expandButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    marginVertical: 12,
-  },
-  expandButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#156778',
-  },
-  availabilityContainer: {
-    marginVertical: 12,
-    paddingVertical: 10,
-    backgroundColor: '#f9f9f9',
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 10,
+    marginBottom: 10,
+    fontSize: 14,
   },
-  availabilityItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  submitButton: {
+    backgroundColor: "#156778",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  submitText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginTop: 4,
+    backgroundColor: "#fff",
+  },
+  dropdownItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  dropdownText: {
+    fontSize: 14,
+    color: "#156778",
+  },
+  timeInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  daysContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  dayItem: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
     paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    paddingHorizontal: 12,
+  },
+  dayItemSelected: {
+    backgroundColor: "#156778",
+    borderColor: "#156778",
   },
   dayText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#333',
-  },
-  timeText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  deleteButton: {
-    flexDirection: 'row',
-    backgroundColor: '#f44336',
-    paddingVertical: 10,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 10,
-  },
-  deleteButtonText: {
+    color: "#333",
     fontSize: 13,
-    fontWeight: '600',
-    color: '#fff',
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
+  dayTextSelected: {
+    color: "#fff",
+    fontWeight: "600",
   },
-  emptyText: {
-    fontSize: 16,
-    color: '#999',
-    marginTop: 10,
+  certRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  addCertBtn: {
+    marginLeft: 6,
+  },
+  certItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#F1F5F9",
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 6,
+  },
+  certText: {
+    color: "#156778",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  imageBox: {
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  imagePreview: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    borderWidth: 2,
+    borderColor: "#156778",
+  },
+  imagePlaceholder: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    borderWidth: 2,
+    borderColor: "#156778",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
   },
 });

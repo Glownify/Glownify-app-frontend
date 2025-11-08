@@ -104,6 +104,7 @@ export const resetPassword = createAsyncThunk(
 export const signupSalonOwner = createAsyncThunk(
   "auth/signupSalonOwner",
   async ({ name, email, phone, password, salonData }, { rejectWithValue }) => {
+    console.log(salonData);
     try {
       console.log("Salon Owner Signup data:", { name, email, phone, password, salonData });
       const res = await axiosInstance.post("/auth/signup", {

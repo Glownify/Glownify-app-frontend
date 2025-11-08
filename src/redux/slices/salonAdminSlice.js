@@ -100,6 +100,7 @@ export const updateSpecialist = createAsyncThunk(
 export const deleteSpecialist = createAsyncThunk(
   "salonAdmin/deleteSpecialist",
   async (specialistId, { rejectWithValue }) => {
+    console.log("Deleting specialist with ID:", specialistId);
     try {
       const res = await axiosInstance.delete(`/salon-admin/delete-specialist/${specialistId}`);
       return specialistId;

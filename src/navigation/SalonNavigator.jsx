@@ -8,7 +8,7 @@ import { checkSubscription } from '../utils/checkSubscription';
 // --- Screens ---
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
 import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
-import AddSpecialistScreen from '../screens/SalonAdminScreens/Specialists/AddSpecialistScreen';
+import ManageSpecialistScreen from '../screens/SalonAdminScreens/Specialists/ManageSpecialistScreen';
 import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
 import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotificationsScreen';
 import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
@@ -79,10 +79,10 @@ export default function SalonNavigator({ navigation }) {
           }}
         />
 
-        {/* Add Specialist */}
+        {/* Specialist */}
         <Tab.Screen
-          name="AddSpecialist"
-          component={AddSpecialistScreen}
+          name="ManageSpecialist"
+          component={ManageSpecialistScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>

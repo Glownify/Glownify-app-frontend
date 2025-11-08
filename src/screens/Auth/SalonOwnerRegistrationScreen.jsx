@@ -31,7 +31,6 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
 
   const { signUpLoading, error } = useSelector((state) => state.auth);
   const [currentStep, setCurrentStep] = useState(STEPS.CONTACT);
-  const [loading, setLoading] = useState(false);
 
   // Step 1: Contact Details
   const [ownershipType, setOwnershipType] = useState('personal');
@@ -46,9 +45,10 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   // Step 2: Shop Details
   const [shopImages, setShopImages] = useState([null, null, null, null]);
   const [completeAddress, setCompleteAddress] = useState('');
+  
   const [locationSet, setLocationSet] = useState(false);
   const [salonCategory, setSalonCategory] = useState('');
-  const [locationData, setLocationData] = useState(null);
+  const [locationData, setLocationData] = useState({});
 
 
   // Step 3: Verification
@@ -175,28 +175,16 @@ const pickIDProof = async (type) => {
 // };
 
 const handleSetLocation = () => {
-  // Set mock location directly
-  setLocationSet(true);
-
   setLocationData({
     type: "Point",
-    coordinates: [28.8431, 78.7784], // Mock Moradabad location
-    address: "India Gate, New Delhi, Delhi, India", // optional mock address
-    city: "Moradabad",
-    state: "Uttar Pradesh",
-    pincode: "244001",
-  });
-
-  // Optional: log to verify
-  console.log("Mock location set:", {
-    type: "Point",
-    coordinates: [28.8431, 78.7784],
+    coordinates: [78.7784, 28.8431], // ✅ [longitude, latitude]
     address: "India Gate, New Delhi, Delhi, India",
     city: "Moradabad",
     state: "Uttar Pradesh",
     pincode: "244001",
   });
 };
+
 
 
   const handleNext = () => {
@@ -221,7 +209,6 @@ const handleSetLocation = () => {
     return;
   }
 
-  setLoading(true);
 
   try {
     // Prepare salon data
@@ -260,18 +247,15 @@ const handleSetLocation = () => {
       // Optionally, update salon data with uploaded images
       console.log('Uploaded Images:', uploadedImages);
 
-      setLoading(false);
       Alert.alert('Success', 'Registration submitted! Awaiting verification', [
         {
           text: 'OK',
-          onPress: () => navigation?.navigate('Auth'),
         },
       ]);
     } else {
       throw new Error(resultAction.payload || 'Signup failed');
     }
   } catch (err) {
-    setLoading(false);
     Alert.alert('Error', err.message || 'Something went wrong');
   }
 };
@@ -673,9 +657,9 @@ const handleSetLocation = () => {
               <TouchableOpacity
                 style={styles.submitButton}
                 onPress={handleSubmit}
-                disabled={loading}
+                disabled={signUpLoading}
               >
-                {loading ? (
+                {signUpLoading ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <>
