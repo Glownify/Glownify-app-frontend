@@ -8,169 +8,134 @@ import {
   Modal,
   TextInput,
   Alert,
+  FlatList,
   Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const SALONS_DATA = [
+const USERS_DATA = [
   {
     id: 1,
-    name: 'Prime Salon & Spa',
-    owner: 'Rajesh Kumar',
-    city: 'Mumbai',
-    category: 'Premium',
-    subscriptionPlan: 'Pro',
+    name: 'Rajesh Kumar',
+    email: 'rajesh@salon.com',
+    phone: '9876543210',
+    role: 'Sales Person',
     status: 'Active',
     joinDate: '2025-01-15',
-    revenue: '₹45,000',
+    avatar: '👨',
   },
   {
     id: 2,
-    name: 'Shine Beauty Studio',
-    owner: 'Priya Sharma',
-    city: 'Delhi',
-    category: 'Standard',
-    subscriptionPlan: 'Basic',
+    name: 'Priya Sharma',
+    email: 'priya@salon.com',
+    phone: '9123456789',
+    role: 'Sales Person',
     status: 'Active',
     joinDate: '2025-01-20',
-    revenue: '₹28,000',
+    avatar: '👩',
   },
   {
     id: 3,
-    name: 'Glam House',
-    owner: 'Amit Patel',
-    city: 'Bangalore',
-    category: 'Premium',
-    subscriptionPlan: 'Pro',
-    status: 'Suspended',
+    name: 'Amit Patel',
+    email: 'amit@salon.com',
+    phone: '8765432109',
+    role: 'Sales Person',
+    status: 'Inactive',
     joinDate: '2025-01-10',
-    revenue: '₹32,000',
+    avatar: '👨',
   },
   {
     id: 4,
-    name: 'Hair Craft',
-    owner: 'Sneha Reddy',
-    city: 'Hyderabad',
-    category: 'Standard',
-    subscriptionPlan: 'Basic',
+    name: 'Sneha Reddy',
+    email: 'sneha@salon.com',
+    phone: '9654321087',
+    role: 'Salon Owner',
     status: 'Active',
     joinDate: '2025-02-01',
-    revenue: '₹18,000',
-  },
-  {
-    id: 5,
-    name: 'Luxe Salon',
-    owner: 'Vikram Singh',
-    city: 'Pune',
-    category: 'Premium',
-    subscriptionPlan: 'Enterprise',
-    status: 'Active',
-    joinDate: '2025-02-05',
-    revenue: '₹62,000',
+    avatar: '👩',
   },
 ];
 
-const SUBSCRIPTION_PLANS = ['Basic', 'Standard', 'Pro', 'Enterprise'];
-const CATEGORIES = ['Unisex Salon', 'Men Salon', 'Women Salon', 'Premium', 'Standard'];
+const USER_ROLES = ['Sales Person', 'Salon Owner', 'Admin'];
 
-export default function ManageSalonsScreen() {
+export default function ManageUsersScreen() {
   const [activeTab, setActiveTab] = useState('all');
   const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedSalon, setSelectedSalon] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    owner: '',
-    city: '',
-    category: 'Standard',
-    subscriptionPlan: 'Basic',
+    email: '',
+    phone: '',
+    role: 'Sales Person',
   });
 
-  // Filter salons based on tab and search
-  const getFilteredSalons = () => {
-    let filtered = SALONS_DATA;
+  // Filter users based on tab and search
+  const getFilteredUsers = () => {
+    let filtered = USERS_DATA;
 
     if (activeTab === 'active') {
-      filtered = filtered.filter((s) => s.status === 'Active');
-    } else if (activeTab === 'suspended') {
-      filtered = filtered.filter((s) => s.status === 'Suspended');
+      filtered = filtered.filter((u) => u.status === 'Active');
+    } else if (activeTab === 'inactive') {
+      filtered = filtered.filter((u) => u.status === 'Inactive');
     }
 
     if (searchText) {
       filtered = filtered.filter(
-        (s) =>
-          s.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          s.city.toLowerCase().includes(searchText.toLowerCase()) ||
-          s.owner.toLowerCase().includes(searchText.toLowerCase())
+        (u) =>
+          u.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          u.email.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
     return filtered;
   };
 
-  const handleAddSalon = () => {
-    if (!formData.name || !formData.owner || !formData.city) {
+  const handleAddUser = () => {
+    if (!formData.name || !formData.email || !formData.phone) {
       Alert.alert('Error', 'Please fill all required fields');
       return;
     }
-    Alert.alert('Success', `Salon ${formData.name} ${selectedSalon ? 'updated' : 'added'} successfully!`);
-    setFormData({ name: '', owner: '', city: '', category: 'Standard', subscriptionPlan: 'Basic' });
-    setSelectedSalon(null);
+    Alert.alert('Success', `User ${formData.name} added successfully!`);
+    setFormData({ name: '', email: '', phone: '', role: 'Sales Person' });
     setModalVisible(false);
   };
 
-  const handleEditSalon = (salon) => {
-    setSelectedSalon(salon);
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
     setFormData({
-      name: salon.name,
-      owner: salon.owner,
-      city: salon.city,
-      category: salon.category,
-      subscriptionPlan: salon.subscriptionPlan,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
     });
     setModalVisible(true);
   };
 
-  const handleDeleteSalon = (salonId) => {
+  const handleDeleteUser = (userId) => {
     Alert.alert(
-      'Delete Salon',
-      'Are you sure you want to delete this salon?',
+      'Delete User',
+      'Are you sure you want to delete this user?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            Alert.alert('Success', 'Salon deleted successfully');
+            Alert.alert('Success', 'User deleted successfully');
           },
         },
       ]
     );
   };
 
-  const handleSuspendSalon = (salonId) => {
-    Alert.alert('Suspend Salon', 'Are you sure you want to suspend this salon?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Suspend',
-        style: 'destructive',
-        onPress: () => {
-          Alert.alert('Success', 'Salon suspended successfully');
-        },
-      },
-    ]);
-  };
-
-  const filteredSalons = getFilteredSalons();
+  const filteredUsers = getFilteredUsers();
   const statsData = {
-    total: SALONS_DATA.length,
-    active: SALONS_DATA.filter((s) => s.status === 'Active').length,
-    suspended: SALONS_DATA.filter((s) => s.status === 'Suspended').length,
-    revenue: SALONS_DATA.reduce((sum, s) => {
-      const amount = parseInt(s.revenue.replace(/[^\d]/g, ''));
-      return sum + amount;
-    }, 0),
+    total: USERS_DATA.length,
+    active: USERS_DATA.filter((u) => u.status === 'Active').length,
+    inactive: USERS_DATA.filter((u) => u.status === 'Inactive').length,
+    salesPersons: USERS_DATA.filter((u) => u.role === 'Sales Person').length,
   };
 
   return (
@@ -178,19 +143,12 @@ export default function ManageSalonsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>Manage Salons</Text>
-          <Text style={styles.headerSubtitle}>Salon registrations & subscriptions</Text>
+          <Text style={styles.headerTitle}>Manage Users</Text>
+          <Text style={styles.headerSubtitle}>Control user accounts & permissions</Text>
         </View>
-        <TouchableOpacity
-          style={styles.addSalonButton}
-          onPress={() => {
-            setSelectedSalon(null);
-            setFormData({ name: '', owner: '', city: '', category: 'Standard', subscriptionPlan: 'Basic' });
-            setModalVisible(true);
-          }}
-        >
+        <TouchableOpacity style={styles.addUserButton} onPress={() => setModalVisible(true)}>
           <Icon name="add" size={20} color="#fff" />
-          <Text style={styles.addSalonButtonText}>Add Salon</Text>
+          <Text style={styles.addUserButtonText}>Add User</Text>
         </TouchableOpacity>
       </View>
 
@@ -199,11 +157,11 @@ export default function ManageSalonsScreen() {
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
             <View style={styles.statCardContent}>
-              <Text style={styles.statCardLabel}>Total Salons</Text>
+              <Text style={styles.statCardLabel}>Total Users</Text>
               <Text style={styles.statCardValue}>{statsData.total}</Text>
             </View>
             <View style={[styles.statCardIcon, { backgroundColor: '#7C5FED20' }]}>
-              <Icon name="storefront" size={24} color="#7C5FED" />
+              <Icon name="people" size={24} color="#7C5FED" />
             </View>
           </View>
 
@@ -219,21 +177,21 @@ export default function ManageSalonsScreen() {
 
           <View style={styles.statCard}>
             <View style={styles.statCardContent}>
-              <Text style={styles.statCardLabel}>Suspended</Text>
-              <Text style={styles.statCardValue}>{statsData.suspended}</Text>
+              <Text style={styles.statCardLabel}>Inactive</Text>
+              <Text style={styles.statCardValue}>{statsData.inactive}</Text>
             </View>
-            <View style={[styles.statCardIcon, { backgroundColor: '#FF980020' }]}>
-              <Icon name="alert-circle" size={24} color="#FF9800" />
+            <View style={[styles.statCardIcon, { backgroundColor: '#F4433620' }]}>
+              <Icon name="alert-circle" size={24} color="#F44336" />
             </View>
           </View>
 
           <View style={styles.statCard}>
             <View style={styles.statCardContent}>
-              <Text style={styles.statCardLabel}>Total Revenue</Text>
-              <Text style={styles.statCardValue}>₹{(statsData.revenue / 100000).toFixed(1)}L</Text>
+              <Text style={styles.statCardLabel}>Sales Persons</Text>
+              <Text style={styles.statCardValue}>{statsData.salesPersons}</Text>
             </View>
-            <View style={[styles.statCardIcon, { backgroundColor: '#4CAF5020' }]}>
-              <Icon name="cash" size={24} color="#4CAF50" />
+            <View style={[styles.statCardIcon, { backgroundColor: '#2196F320' }]}>
+              <Icon name="trending-up" size={24} color="#2196F3" />
             </View>
           </View>
         </View>
@@ -244,7 +202,7 @@ export default function ManageSalonsScreen() {
             <Icon name="search" size={20} color="#999" />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search salons by name or city"
+              placeholder="Search users by name or email"
               value={searchText}
               onChangeText={setSearchText}
               placeholderTextColor="#999"
@@ -269,7 +227,7 @@ export default function ManageSalonsScreen() {
                 activeTab === 'all' && styles.activeTabText,
               ]}
             >
-              All Salons
+              All Users
             </Text>
           </TouchableOpacity>
 
@@ -288,42 +246,42 @@ export default function ManageSalonsScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'suspended' && styles.activeTab]}
-            onPress={() => setActiveTab('suspended')}
+            style={[styles.tab, activeTab === 'inactive' && styles.activeTab]}
+            onPress={() => setActiveTab('inactive')}
           >
             <Text
               style={[
                 styles.tabText,
-                activeTab === 'suspended' && styles.activeTabText,
+                activeTab === 'inactive' && styles.activeTabText,
               ]}
             >
-              Suspended
+              Inactive
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Salons List */}
-        <View style={styles.salonsSection}>
-          {filteredSalons.length > 0 ? (
-            filteredSalons.map((salon) => (
-              <View key={salon.id} style={styles.salonCard}>
-                <View style={styles.salonCardHeader}>
-                  <View style={styles.salonIconContainer}>
-                    <Icon name="storefront" size={24} color="#fff" />
+        {/* Users List */}
+        <View style={styles.usersSection}>
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
+              <View key={user.id} style={styles.userCard}>
+                <View style={styles.userCardHeader}>
+                  <View style={styles.userAvatar}>
+                    <Text style={styles.userAvatarText}>{user.avatar}</Text>
                   </View>
-                  <View style={styles.salonInfo}>
-                    <Text style={styles.salonName}>{salon.name}</Text>
-                    <Text style={styles.salonOwner}>Owner: {salon.owner}</Text>
+                  <View style={styles.userInfo}>
+                    <Text style={styles.userName}>{user.name}</Text>
+                    <Text style={styles.userEmail}>{user.email}</Text>
                   </View>
-                  <View style={styles.salonActions}>
+                  <View style={styles.userActions}>
                     <TouchableOpacity
-                      onPress={() => handleEditSalon(salon)}
+                      onPress={() => handleEditUser(user)}
                       style={styles.actionButton}
                     >
                       <Icon name="pencil" size={18} color="#7C5FED" />
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={() => handleDeleteSalon(salon.id)}
+                      onPress={() => handleDeleteUser(user.id)}
                       style={styles.actionButton}
                     >
                       <Icon name="trash" size={18} color="#F44336" />
@@ -331,28 +289,22 @@ export default function ManageSalonsScreen() {
                   </View>
                 </View>
 
-                <View style={styles.salonCardDetails}>
-                  <View style={styles.detailRow}>
-                    <View style={styles.detailItem}>
-                      <Icon name="location" size={14} color="#999" />
-                      <Text style={styles.detailText}>{salon.city}</Text>
-                    </View>
-                    <View style={styles.detailItem}>
-                      <Icon name="pricetag" size={14} color="#999" />
-                      <Text style={styles.detailText}>{salon.category}</Text>
-                    </View>
+                <View style={styles.userCardDetails}>
+                  <View style={styles.userDetail}>
+                    <Icon name="call" size={14} color="#999" />
+                    <Text style={styles.userDetailText}>{user.phone}</Text>
                   </View>
-
-                  <View style={styles.detailRow}>
-                    <View style={styles.planBadge}>
-                      <Text style={styles.planBadgeText}>{salon.subscriptionPlan}</Text>
-                    </View>
+                  <View style={styles.userDetail}>
+                    <Icon name="briefcase" size={14} color="#999" />
+                    <Text style={styles.userDetailText}>{user.role}</Text>
+                  </View>
+                  <View style={styles.userDetail}>
                     <View
                       style={[
                         styles.statusBadge,
                         {
                           backgroundColor:
-                            salon.status === 'Active' ? '#C8E6C9' : '#FFE0B2',
+                            user.status === 'Active' ? '#C8E6C9' : '#FFCCBC',
                         },
                       ]}
                     >
@@ -361,42 +313,29 @@ export default function ManageSalonsScreen() {
                           styles.statusBadgeText,
                           {
                             color:
-                              salon.status === 'Active' ? '#2E7D32' : '#E65100',
+                              user.status === 'Active' ? '#2E7D32' : '#E65100',
                           },
                         ]}
                       >
-                        {salon.status}
+                        {user.status}
                       </Text>
                     </View>
-                    <Text style={styles.revenueText}>{salon.revenue}</Text>
                   </View>
-
-                  <View style={styles.actionRow}>
-                    <Text style={styles.joinDate}>Joined {salon.joinDate}</Text>
-                    {salon.status === 'Active' && (
-                      <TouchableOpacity
-                        style={styles.suspendButton}
-                        onPress={() => handleSuspendSalon(salon.id)}
-                      >
-                        <Icon name="alert" size={14} color="#FF9800" />
-                        <Text style={styles.suspendButtonText}>Suspend</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
+                  <Text style={styles.joinDate}>Joined {user.joinDate}</Text>
                 </View>
               </View>
             ))
           ) : (
             <View style={styles.emptyState}>
               <Icon name="search" size={48} color="#DDD" />
-              <Text style={styles.emptyStateText}>No salons found</Text>
+              <Text style={styles.emptyStateText}>No users found</Text>
               <Text style={styles.emptyStateSubtext}>Try adjusting your filters</Text>
             </View>
           )}
         </View>
       </ScrollView>
 
-      {/* Add/Edit Salon Modal */}
+      {/* Add/Edit User Modal */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -407,12 +346,12 @@ export default function ManageSalonsScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                {selectedSalon ? 'Edit Salon' : 'Add New Salon'}
+                {selectedUser ? 'Edit User' : 'Add New User'}
               </Text>
               <TouchableOpacity
                 onPress={() => {
                   setModalVisible(false);
-                  setSelectedSalon(null);
+                  setSelectedUser(null);
                 }}
               >
                 <Icon name="close" size={24} color="#333" />
@@ -420,74 +359,53 @@ export default function ManageSalonsScreen() {
             </View>
 
             <ScrollView style={styles.modalForm} showsVerticalScrollIndicator={false}>
-              <Text style={styles.inputLabel}>Salon Name *</Text>
+              <Text style={styles.inputLabel}>Full Name *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter salon name"
+                placeholder="Enter full name"
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
                 placeholderTextColor="#999"
               />
 
-              <Text style={styles.inputLabel}>Owner Name *</Text>
+              <Text style={styles.inputLabel}>Email *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter owner name"
-                value={formData.owner}
-                onChangeText={(text) => setFormData({ ...formData, owner: text })}
+                placeholder="Enter email"
+                value={formData.email}
+                onChangeText={(text) => setFormData({ ...formData, email: text })}
+                keyboardType="email-address"
                 placeholderTextColor="#999"
               />
 
-              <Text style={styles.inputLabel}>City *</Text>
+              <Text style={styles.inputLabel}>Phone *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter city"
-                value={formData.city}
-                onChangeText={(text) => setFormData({ ...formData, city: text })}
+                placeholder="Enter phone number"
+                value={formData.phone}
+                onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                keyboardType="phone-pad"
                 placeholderTextColor="#999"
               />
 
-              <Text style={styles.inputLabel}>Category</Text>
-              <View style={styles.optionsContainer}>
-                {CATEGORIES.map((cat) => (
+              <Text style={styles.inputLabel}>Role *</Text>
+              <View style={styles.roleSelector}>
+                {USER_ROLES.map((role) => (
                   <TouchableOpacity
-                    key={cat}
+                    key={role}
                     style={[
-                      styles.optionButton,
-                      formData.category === cat && styles.optionButtonSelected,
+                      styles.roleOption,
+                      formData.role === role && styles.roleOptionSelected,
                     ]}
-                    onPress={() => setFormData({ ...formData, category: cat })}
+                    onPress={() => setFormData({ ...formData, role })}
                   >
                     <Text
                       style={[
-                        styles.optionButtonText,
-                        formData.category === cat && styles.optionButtonTextSelected,
+                        styles.roleOptionText,
+                        formData.role === role && styles.roleOptionTextSelected,
                       ]}
                     >
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <Text style={styles.inputLabel}>Subscription Plan</Text>
-              <View style={styles.optionsContainer}>
-                {SUBSCRIPTION_PLANS.map((plan) => (
-                  <TouchableOpacity
-                    key={plan}
-                    style={[
-                      styles.optionButton,
-                      formData.subscriptionPlan === plan && styles.optionButtonSelected,
-                    ]}
-                    onPress={() => setFormData({ ...formData, subscriptionPlan: plan })}
-                  >
-                    <Text
-                      style={[
-                        styles.optionButtonText,
-                        formData.subscriptionPlan === plan && styles.optionButtonTextSelected,
-                      ]}
-                    >
-                      {plan}
+                      {role}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -499,15 +417,15 @@ export default function ManageSalonsScreen() {
                 style={styles.cancelButton}
                 onPress={() => {
                   setModalVisible(false);
-                  setSelectedSalon(null);
+                  setSelectedUser(null);
                 }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.submitButton} onPress={handleAddSalon}>
+              <TouchableOpacity style={styles.submitButton} onPress={handleAddUser}>
                 <Icon name="checkmark" size={18} color="#fff" />
                 <Text style={styles.submitButtonText}>
-                  {selectedSalon ? 'Update' : 'Add'} Salon
+                  {selectedUser ? 'Update' : 'Add'} User
                 </Text>
               </TouchableOpacity>
             </View>
@@ -543,16 +461,16 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 2,
   },
-  addSalonButton: {
+  addUserButton: {
     flexDirection: 'row',
-    backgroundColor: '#E91E63',
+    backgroundColor: '#7C5FED',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 6,
     alignItems: 'center',
     gap: 4,
   },
-  addSalonButtonText: {
+  addUserButtonText: {
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
@@ -635,7 +553,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   activeTab: {
-    backgroundColor: '#E91E63',
+    backgroundColor: '#7C5FED',
   },
   tabText: {
     fontSize: 12,
@@ -645,10 +563,10 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: '#fff',
   },
-  salonsSection: {
+  usersSection: {
     gap: 12,
   },
-  salonCard: {
+  userCard: {
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 12,
@@ -658,34 +576,37 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 1,
   },
-  salonCardHeader: {
+  userCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     marginBottom: 12,
   },
-  salonIconContainer: {
+  userAvatar: {
     width: 44,
     height: 44,
-    borderRadius: 8,
-    backgroundColor: '#E91E63',
+    borderRadius: 22,
+    backgroundColor: '#E8D4F8',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  salonInfo: {
+  userAvatarText: {
+    fontSize: 24,
+  },
+  userInfo: {
     flex: 1,
   },
-  salonName: {
+  userName: {
     fontSize: 14,
     fontWeight: '700',
     color: '#333',
   },
-  salonOwner: {
+  userEmail: {
     fontSize: 11,
     color: '#999',
     marginTop: 2,
   },
-  salonActions: {
+  userActions: {
     flexDirection: 'row',
     gap: 8,
   },
@@ -697,34 +618,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  salonCardDetails: {
+  userCardDetails: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 10,
   },
-  detailRow: {
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  detailItem: {
+  userDetail: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  detailText: {
+  userDetailText: {
     fontSize: 11,
     color: '#666',
-  },
-  planBadge: {
-    backgroundColor: '#E8D4F8',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-  },
-  planBadgeText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#7C5FED',
   },
   statusBadge: {
     paddingVertical: 4,
@@ -735,34 +641,10 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
-  revenueText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#4CAF50',
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   joinDate: {
     fontSize: 10,
     color: '#999',
-  },
-  suspendButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#FF9800',
-  },
-  suspendButtonText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#FF9800',
+    marginTop: 4,
   },
   emptyState: {
     alignItems: 'center',
@@ -824,30 +706,27 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 14,
   },
-  optionsContainer: {
+  roleSelector: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 14,
+    marginBottom: 16,
   },
-  optionButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 6,
+  roleOption: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
     backgroundColor: '#f5f5f5',
-    borderWidth: 1,
-    borderColor: '#DDD',
+    alignItems: 'center',
   },
-  optionButtonSelected: {
-    backgroundColor: '#E91E63',
-    borderColor: '#E91E63',
+  roleOptionSelected: {
+    backgroundColor: '#7C5FED',
   },
-  optionButtonText: {
+  roleOptionText: {
     fontSize: 11,
     fontWeight: '600',
     color: '#666',
   },
-  optionButtonTextSelected: {
+  roleOptionTextSelected: {
     color: '#fff',
   },
   modalFooter: {
@@ -873,7 +752,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     flex: 1,
-    backgroundColor: '#E91E63',
+    backgroundColor: '#7C5FED',
     paddingVertical: 10,
     borderRadius: 8,
     flexDirection: 'row',

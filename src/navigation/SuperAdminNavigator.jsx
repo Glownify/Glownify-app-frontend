@@ -2,19 +2,14 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ManageSalonsScreen from '../screens/SuperAdminScreens/ManageSalonsScreen';
-import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategoriesScreen';
 
 // --- Screens ---
 import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboard';
-import SuperAdminProfileScreen from '../screens/SuperAdminScreens/SuperAdminProfileScreen';
 import SalesTeamManagement from '../screens/SuperAdminScreens/SalesTeamManagement';
-
-const ManageUsersScreen = () => (
-  <SafeAreaView style={styles.center}>
-    <Text style={styles.text}>Manage Users Screen (Static)</Text>
-  </SafeAreaView>
-);
+import ManageSalonsScreen from '../screens/SuperAdminScreens/ManageSalonsScreen';
+import ManageUsersScreen from '../screens/SuperAdminScreens/ManageUsersScreen';
+import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategoriesScreen';
+import SuperAdminProfileScreen from '../screens/SuperAdminScreens/SuperAdminProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -92,16 +87,5 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: '#156778',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  text: {
-    fontSize: 18,
-    color: '#156778',
-    fontWeight: '600',
   },
 });
