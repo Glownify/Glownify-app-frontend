@@ -12,27 +12,25 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../redux/slices/authSlice';
 
 export default function SuperAdminProfileScreen() {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   const [editMode, setEditMode] = useState(false);
   const [changePasswordModal, setChangePasswordModal] = useState(false);
   const [settingsModal, setSettingsModal] = useState(false);
 
-  const [profileData, setProfileData] = useState({
-    name: 'Admin User',
-    email: 'admin@salonstartup.com',
-    phone: '9876543210',
-    designation: 'Super Administrator',
-    joinDate: '2024-12-01',
-  });
-
-  const [editFormData, setEditFormData] = useState(profileData);
+  const [editFormData, setEditFormData] = useState(user);
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
+
+  console.log(user);
 
   const [settings, setSettings] = useState({
     emailNotifications: true,
@@ -80,7 +78,7 @@ export default function SuperAdminProfileScreen() {
         text: 'Logout',
         style: 'destructive',
         onPress: () => {
-          Alert.alert('Success', 'You have been logged out');
+          dispatch(logout());
         },
       },
     ]);
@@ -154,11 +152,11 @@ export default function SuperAdminProfileScreen() {
             </View>
           ) : (
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{profileData.name}</Text>
-              <Text style={styles.profileDesignation}>{profileData.designation}</Text>
-              <Text style={styles.profileEmail}>{profileData.email}</Text>
-              <Text style={styles.profilePhone}>{profileData.phone}</Text>
-              <Text style={styles.joinDateText}>Joined {profileData.joinDate}</Text>
+              <Text style={styles.profileName}>{user.name}</Text>
+              {/* <Text style={styles.profileDesignation}>{profileData.designation}</Text> */}
+              <Text style={styles.profileEmail}>{user.email}</Text>
+              <Text style={styles.profilePhone}>{user.phone}</Text>
+              <Text style={styles.joinDateText}>Joined {new Date(user.createdAt).toLocaleDateString()}</Text>
             </View>
           )}
         </View>

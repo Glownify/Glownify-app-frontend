@@ -1,5 +1,5 @@
-const YOUR_CLOUD_NAME = "YOUR_CLOUD_NAME"; // replace with your cloud name
-const YOUR_CLOUDINARY_PRESET = "YOUR_CLOUDINARY_PRESET"; // replace with your preset
+const YOUR_CLOUD_NAME = "dzkiozbbk";
+const YOUR_CLOUDINARY_PRESET = "Salon_Project";
 
 export const uploadImageToCloudinary = async (file) => {
   const formData = new FormData();
@@ -8,7 +8,7 @@ export const uploadImageToCloudinary = async (file) => {
     name: file.fileName || "image.png",
     type: file.type || "image/png",
   });
-  formData.append("upload_preset", YOUR_CLOUDINARY_PRESET); // replace with your preset
+  formData.append("upload_preset", YOUR_CLOUDINARY_PRESET);
 
   try {
     const res = await fetch(

@@ -60,26 +60,6 @@ export default function ManageUsersScreen() {
     customers: usersData.length,
   };
 
-  const handleAddUser = () => {
-    if (!formData.name || !formData.email || !formData.phone) {
-      Alert.alert('Error', 'Please fill all required fields');
-      return;
-    }
-    Alert.alert(
-      'Success',
-      selectedUser ? `User ${formData.name} updated successfully!` : `User ${formData.name} added successfully!`
-    );
-    setFormData({ name: '', email: '', phone: '', role: 'Customer' });
-    setSelectedUser(null);
-    setModalVisible(false);
-  };
-
-  const handleEditUser = user => {
-    setSelectedUser(user);
-    setFormData({ name: user.name, email: user.email, phone: user.phone, role: 'Customer' });
-    setModalVisible(true);
-  };
-
   const handleDeleteUser = userId => {
     Alert.alert('Delete User', 'Are you sure you want to delete this user?', [
       { text: 'Cancel', style: 'cancel' },
@@ -99,10 +79,6 @@ export default function ManageUsersScreen() {
           <Text style={styles.headerTitle}>Manage Users</Text>
           <Text style={styles.headerSubtitle}>Control customer accounts</Text>
         </View>
-        <TouchableOpacity style={styles.addUserButton} onPress={() => setModalVisible(true)}>
-          <Icon name="add" size={20} color="#fff" />
-          <Text style={styles.addUserButtonText}>Add User</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -188,9 +164,6 @@ export default function ManageUsersScreen() {
   </TouchableOpacity>
 </View>
                   <View style={styles.userActions}>
-                    <TouchableOpacity onPress={() => handleEditUser(user)} style={styles.actionButton}>
-                      <Icon name="pencil" size={18} color="#7C5FED" />
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDeleteUser(user._id)} style={styles.actionButton}>
                       <Icon name="trash" size={18} color="#F44336" />
                     </TouchableOpacity>
@@ -220,41 +193,6 @@ export default function ManageUsersScreen() {
           </View>
         )}
       </ScrollView>
-
-      {/* Add/Edit Modal */}
-      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{selectedUser ? 'Edit Customer' : 'Add New Customer'}</Text>
-              <TouchableOpacity onPress={() => { setModalVisible(false); setSelectedUser(null); }}>
-                <Icon name="close" size={24} color="#333" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.modalForm} showsVerticalScrollIndicator={false}>
-              <Text style={styles.inputLabel}>Full Name *</Text>
-              <TextInput style={styles.input} placeholder="Enter full name" value={formData.name} onChangeText={text => setFormData({...formData, name: text})} placeholderTextColor="#999" />
-
-              <Text style={styles.inputLabel}>Email *</Text>
-              <TextInput style={styles.input} placeholder="Enter email" value={formData.email} onChangeText={text => setFormData({...formData, email: text})} keyboardType="email-address" placeholderTextColor="#999" />
-
-              <Text style={styles.inputLabel}>Phone *</Text>
-              <TextInput style={styles.input} placeholder="Enter phone number" value={formData.phone} onChangeText={text => setFormData({...formData, phone: text})} keyboardType="phone-pad" placeholderTextColor="#999" />
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => { setModalVisible(false); setSelectedUser(null); }}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.submitButton} onPress={handleAddUser}>
-                <Icon name="checkmark" size={18} color="#fff" />
-                <Text style={styles.submitButtonText}>{selectedUser ? 'Update' : 'Add'} Customer</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
