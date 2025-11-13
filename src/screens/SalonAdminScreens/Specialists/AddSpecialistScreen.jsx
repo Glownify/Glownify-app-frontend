@@ -15,7 +15,7 @@ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import { useDispatch } from "react-redux";
 import { addSpecialist } from "../../../redux/slices/salonAdminSlice";
 
-// Compact Time Picker
+// Time Picker Component
 function TimePicker({ label, value, onSelect }) {
   const [open, setOpen] = useState(false);
   const hours = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -30,9 +30,7 @@ function TimePicker({ label, value, onSelect }) {
         onPress={() => setOpen(!open)}
         activeOpacity={0.7}
       >
-        <Text style={{ color: value ? "#000" : "#999" }}>
-          {value || "Select Time"}
-        </Text>
+        <Text style={{ color: value ? "#000" : "#999" }}>{value || "Select Time"}</Text>
         <Icon name={open ? "chevron-up" : "time-outline"} size={18} color="#156778" />
       </TouchableOpacity>
 
@@ -65,12 +63,11 @@ function TimePicker({ label, value, onSelect }) {
   );
 }
 
-// Day Picker
+// Day Picker Component
 function DayPicker({ selectedDays, onSelect }) {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const toggleDay = (day) => {
-    if (selectedDays.includes(day))
-      onSelect(selectedDays.filter((d) => d !== day));
+    if (selectedDays.includes(day)) onSelect(selectedDays.filter((d) => d !== day));
     else onSelect([...selectedDays, day]);
   };
 
@@ -86,9 +83,7 @@ function DayPicker({ selectedDays, onSelect }) {
               style={[styles.dayItem, selected && styles.dayItemSelected]}
               onPress={() => toggleDay(day)}
             >
-              <Text style={[styles.dayText, selected && styles.dayTextSelected]}>
-                {day}
-              </Text>
+              <Text style={[styles.dayText, selected && styles.dayTextSelected]}>{day}</Text>
             </TouchableOpacity>
           );
         })}
@@ -103,26 +98,26 @@ export default function AddSpecialistModal({ visible, onClose }) {
   const [form, setForm] = useState({
     name: "",
     contactNumber: "",
-    expertise: "",
+    expertise: [],
+    expertiseInput: "",
     experienceYears: "",
     image: "",
     certifications: [],
+    certificateInput: "",
     availabilityDays: [],
     startTime: "",
     endTime: "",
   });
 
-  const [certificateInput, setCertificateInput] = useState("");
-
   const handleChange = (key, value) => setForm({ ...form, [key]: value });
 
   const handleAddCertificate = () => {
-    if (!certificateInput.trim()) return;
+    if (!form.certificateInput.trim()) return;
     setForm({
       ...form,
-      certifications: [...form.certifications, certificateInput.trim()],
+      certifications: [...form.certifications, form.certificateInput.trim()],
+      certificateInput: "",
     });
-    setCertificateInput("");
   };
 
   const handleRemoveCertificate = (index) => {
@@ -131,8 +126,7 @@ export default function AddSpecialistModal({ visible, onClose }) {
     setForm({ ...form, certifications: updated });
   };
 
-  // 📸 Choose Image Source (Camera or Gallery)
-  const pickImage = () => {
+  const handlePickImage = () => {
     Alert.alert(
       "Upload Image",
       "Choose an option",
@@ -159,11 +153,23 @@ export default function AddSpecialistModal({ visible, onClose }) {
     );
   };
 
-  const handleSubmit = () => {
-    if (!form.name || !form.contactNumber || !form.expertise) {
-      alert("Please fill required fields");
+  const handleSubmit = async () => {
+    if (!form.name || !form.contactNumber || form.expertise.length === 0) {
+      Alert.alert("Missing Fields", "Please fill all required fields.");
       return;
     }
+
+    if (!form.startTime || !form.endTime || form.availabilityDays.length === 0) {
+      Alert.alert("Missing Availability", "Please select days and time.");
+      return;
+    }
+
+    // Create availability array
+    const availability = form.availabilityDays.map((day) => ({
+      day,
+      start: form.startTime,
+      end: form.endTime,
+    }));
 
     const newSpecialist = {
       name: form.name,
@@ -172,14 +178,30 @@ export default function AddSpecialistModal({ visible, onClose }) {
       experienceYears: Number(form.experienceYears) || 0,
       image: form.image || "",
       certifications: form.certifications,
-      availability: {
-        days: form.availabilityDays,
-        time: { start: form.startTime, end: form.endTime },
-      },
+      availability,
     };
 
-    dispatch(addSpecialist(newSpecialist));
-    onClose();
+    try {
+      const result = await dispatch(addSpecialist(newSpecialist)).unwrap();
+      Alert.alert("Success", "Specialist added successfully!");
+      onClose();
+      setForm({
+        name: "",
+        contactNumber: "",
+        expertise: [],
+        expertiseInput: "",
+        experienceYears: "",
+        image: "",
+        certifications: [],
+        certificateInput: "",
+        availabilityDays: [],
+        startTime: "",
+        endTime: "",
+      });
+    } catch (err) {
+      console.error("Add Specialist Error:", err);
+      Alert.alert("Error", err.message || "Failed to add specialist. Please try again.");
+    }
   };
 
   return (
@@ -194,12 +216,8 @@ export default function AddSpecialistModal({ visible, onClose }) {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/* 🔹 Image Upload at Top */}
-            <TouchableOpacity
-              style={styles.imageBox}
-              onPress={pickImage}
-              activeOpacity={0.8}
-            >
+            {/* Image Upload */}
+            <TouchableOpacity style={styles.imageBox} onPress={handlePickImage} activeOpacity={0.8}>
               {form.image ? (
                 <Image source={{ uri: form.image }} style={styles.imagePreview} />
               ) : (
@@ -210,6 +228,7 @@ export default function AddSpecialistModal({ visible, onClose }) {
               )}
             </TouchableOpacity>
 
+            {/* Name & Contact */}
             <TextInput
               placeholder="Name"
               style={styles.input}
@@ -223,12 +242,53 @@ export default function AddSpecialistModal({ visible, onClose }) {
               value={form.contactNumber}
               onChangeText={(v) => handleChange("contactNumber", v)}
             />
-            <TextInput
-              placeholder="Expertise (e.g. Hair, Skin)"
-              style={styles.input}
-              value={form.expertise}
-              onChangeText={(v) => handleChange("expertise", v)}
-            />
+
+            {/* Expertise Multi-Add */}
+            <View style={{ marginBottom: 10 }}>
+              <Text style={styles.label}>Expertise</Text>
+              <View style={styles.certRow}>
+                <TextInput
+                  placeholder="Enter expertise (e.g. Hair, Makeup)"
+                  style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                  value={form.expertiseInput}
+                  onChangeText={(v) => handleChange("expertiseInput", v)}
+                />
+                <TouchableOpacity
+                  style={styles.addCertBtn}
+                  onPress={() => {
+                    const val = form.expertiseInput.trim();
+                    if (!val) return;
+                    if (form.expertise.includes(val)) return alert("Already added!");
+                    setForm({
+                      ...form,
+                      expertise: [...form.expertise, val],
+                      expertiseInput: "",
+                    });
+                  }}
+                >
+                  <Icon name="add-circle" size={26} color="#156778" />
+                </TouchableOpacity>
+              </View>
+
+              {form.expertise.length > 0 &&
+                form.expertise.map((exp, idx) => (
+                  <View key={idx} style={styles.certItem}>
+                    <Text style={styles.certText}>{exp}</Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setForm({
+                          ...form,
+                          expertise: form.expertise.filter((_, i) => i !== idx),
+                        })
+                      }
+                    >
+                      <Icon name="close-circle" size={20} color="red" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+            </View>
+
+            {/* Experience */}
             <TextInput
               placeholder="Experience (in years)"
               style={styles.input}
@@ -237,20 +297,21 @@ export default function AddSpecialistModal({ visible, onClose }) {
               onChangeText={(v) => handleChange("experienceYears", v)}
             />
 
-            {/* Certificates */}
+            {/* Certifications */}
             <View style={{ marginBottom: 10 }}>
               <Text style={styles.label}>Certifications</Text>
               <View style={styles.certRow}>
                 <TextInput
                   placeholder="Enter certificate name"
                   style={[styles.input, { flex: 1, marginBottom: 0 }]}
-                  value={certificateInput}
-                  onChangeText={setCertificateInput}
+                  value={form.certificateInput}
+                  onChangeText={(v) => handleChange("certificateInput", v)}
                 />
                 <TouchableOpacity style={styles.addCertBtn} onPress={handleAddCertificate}>
                   <Icon name="add-circle" size={26} color="#156778" />
                 </TouchableOpacity>
               </View>
+
               {form.certifications.map((cert, idx) => (
                 <View key={idx} style={styles.certItem}>
                   <Text style={styles.certText}>{cert}</Text>
@@ -261,21 +322,13 @@ export default function AddSpecialistModal({ visible, onClose }) {
               ))}
             </View>
 
+            {/* Availability */}
             <DayPicker
               selectedDays={form.availabilityDays}
               onSelect={(days) => handleChange("availabilityDays", days)}
             />
-
-            <TimePicker
-              label="Start Time"
-              value={form.startTime}
-              onSelect={(v) => handleChange("startTime", v)}
-            />
-            <TimePicker
-              label="End Time"
-              value={form.endTime}
-              onSelect={(v) => handleChange("endTime", v)}
-            />
+            <TimePicker label="Start Time" value={form.startTime} onSelect={(v) => handleChange("startTime", v)} />
+            <TimePicker label="End Time" value={form.endTime} onSelect={(v) => handleChange("endTime", v)} />
           </ScrollView>
 
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
@@ -287,145 +340,30 @@ export default function AddSpecialistModal({ visible, onClose }) {
   );
 }
 
+// Styles
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  modalBox: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    width: "100%",
-    maxHeight: "90%",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#156778",
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 4,
-    color: "#156778",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 10,
-    fontSize: 14,
-  },
-  submitButton: {
-    backgroundColor: "#156778",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  submitText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  dropdown: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginTop: 4,
-    backgroundColor: "#fff",
-  },
-  dropdownItem: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  dropdownText: {
-    fontSize: 14,
-    color: "#156778",
-  },
-  timeInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  daysContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  dayItem: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  dayItemSelected: {
-    backgroundColor: "#156778",
-    borderColor: "#156778",
-  },
-  dayText: {
-    color: "#333",
-    fontSize: 13,
-  },
-  dayTextSelected: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  certRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  addCertBtn: {
-    marginLeft: 6,
-  },
-  certItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#F1F5F9",
-    padding: 8,
-    borderRadius: 8,
-    marginTop: 6,
-  },
-  certText: {
-    color: "#156778",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  imageBox: {
-    alignSelf: "center",
-    marginBottom: 16,
-  },
-  imagePreview: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    borderWidth: 2,
-    borderColor: "#156778",
-  },
-  imagePlaceholder: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    borderWidth: 2,
-    borderColor: "#156778",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F9FAFB",
-  },
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", paddingHorizontal: 20 },
+  modalBox: { backgroundColor: "#fff", borderRadius: 12, padding: 16, width: "100%", maxHeight: "90%" },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
+  title: { fontSize: 18, fontWeight: "700", color: "#156778" },
+  label: { fontSize: 14, fontWeight: "600", marginBottom: 4, color: "#156778" },
+  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, marginBottom: 10, fontSize: 14 },
+  submitButton: { backgroundColor: "#156778", paddingVertical: 12, borderRadius: 8, alignItems: "center", marginTop: 10 },
+  submitText: { color: "#fff", fontWeight: "600" },
+  dropdown: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, marginTop: 4, backgroundColor: "#fff" },
+  dropdownItem: { paddingVertical: 8, paddingHorizontal: 12 },
+  dropdownText: { fontSize: 14, color: "#156778" },
+  timeInput: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  daysContainer: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  dayItem: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, paddingVertical: 6, paddingHorizontal: 12 },
+  dayItemSelected: { backgroundColor: "#156778", borderColor: "#156778" },
+  dayText: { color: "#333", fontSize: 13 },
+  dayTextSelected: { color: "#fff", fontWeight: "600" },
+  certRow: { flexDirection: "row", alignItems: "center" },
+  addCertBtn: { marginLeft: 6 },
+  certItem: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#F1F5F9", padding: 8, borderRadius: 8, marginTop: 6 },
+  certText: { color: "#156778", fontSize: 14, fontWeight: "500" },
+  imageBox: { alignSelf: "center", marginBottom: 16 },
+  imagePreview: { width: 110, height: 110, borderRadius: 55, borderWidth: 2, borderColor: "#156778" },
+  imagePlaceholder: { width: 110, height: 110, borderRadius: 55, borderWidth: 2, borderColor: "#156778", justifyContent: "center", alignItems: "center", backgroundColor: "#F9FAFB" },
 });

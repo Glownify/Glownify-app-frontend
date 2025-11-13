@@ -60,7 +60,7 @@ export default function ManageSpecialistScreen() {
         <View style={styles.headerInfo}>
           <Text style={styles.name}>{specialist.name}</Text>
           <Text style={styles.contact}>{specialist.contactNumber}</Text>
-          <Text style={styles.expertise}>{specialist.expertise}</Text>
+          <Text style={styles.expertise}>{specialist.expertise.map(exp => exp).join(', ')}</Text>
           <View style={styles.experienceRow}>
             <Icon name="briefcase" size={14} color="#156778" />
             <Text style={styles.experience}>{specialist.experienceYears} years exp</Text>

@@ -81,6 +81,7 @@ export default function ManageServicesScreen() {
       durationMins: Number(durationMins),
       discountPercent: Number(discountPercent),
       description,
+      providerType: "salon",
     };
 
     try {
@@ -127,8 +128,8 @@ export default function ManageServicesScreen() {
     }
   };
 
-  const renderServiceCard = (service) => (
-    <View key={service._id} style={styles.card}>
+  const renderServiceCard = (service, index) => (
+    <View key={service._id || index} style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.headerInfo}>
           <Text style={styles.name}>{service.name}</Text>

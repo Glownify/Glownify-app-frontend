@@ -63,6 +63,7 @@ export const fetchSalonSpecialists = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get("/salon-admin/get-specialists");
+      console.log("Fetched specialists:", res.data.specialists);
       return res.data.specialists;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch specialists");
@@ -175,6 +176,7 @@ const salonAdminSlice = createSlice({
         state.specialists.push(action.payload);
       })
       .addCase(addSpecialist.rejected, (state, action) => { state.error = action.payload; })
+
       .addCase(updateSpecialist.fulfilled, (state, action) => {
         const index = state.specialists.findIndex((s) => s._id === action.payload._id);
         if (index !== -1) state.specialists[index] = action.payload;
