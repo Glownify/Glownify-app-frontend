@@ -1,167 +1,302 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
   Modal,
   TextInput,
-  Button,
   Alert,
-  Image,
-} from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import * as ImagePicker from "react-native-image-picker";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchAllCategories,
   createCategory,
   updateCategory,
-} from "../../redux/slices/superAdminSlice";
-import { uploadImageToCloudinary } from "../api/cloudinary";
-import ErrorMessage from "../../components/ErrorMessage";
-import Loader from "../../components/Loader";
-import { SafeAreaView } from "react-native-safe-area-context";
+  clearSuperAdminError,
+} from '../../redux/slices/superAdminSlice';
 
 export default function ManageCategoriesScreen() {
   const dispatch = useDispatch();
-  const { categories, loading, error } = useSelector(
-    (state) => state.superAdmin
-  );
+  const { categories, loading, error } = useSelector((state) => state.superAdmin);
 
-  console.log("Categories:", categories);
-
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [name, setName] = useState("");
-  const [icon, setIcon] = useState(""); // URL after upload
-  const [uploading, setUploading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    icon: '✂️',
+  });
 
+  const EMOJI_OPTIONS = ['✂️', '💆', '💄', '💅', '🧵', '🧖', '💇', '👗', '👠', '💍'];
+
+  // Fetch categories on mount
   useEffect(() => {
     dispatch(fetchAllCategories());
   }, [dispatch]);
 
-  const openCreateModal = () => {
-    setEditingCategory(null);
-    setName("");
-    setIcon("");
-    setModalVisible(true);
-  };
-
-  const openEditModal = (category) => {
-    setEditingCategory(category);
-    setName(category.name);
-    setIcon(category.icon || "");
-    setModalVisible(true);
-  };
-
-  const handleSubmit = async () => {
-  if (!name.trim()) return;
-  const data = { name, icon };
-
-  try {
-    if (editingCategory) {
-      await dispatch(updateCategory({ categoryId: editingCategory._id, data })).unwrap();
-      Alert.alert("Success", "Category updated successfully!");
-    } else {
-      await dispatch(createCategory(data)).unwrap();
-      Alert.alert("Success", "Category created successfully!");
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Error', error);
+      dispatch(clearSuperAdminError());
     }
-    setModalVisible(false);
-  } catch (err) {
-    Alert.alert("Error", err.message || "Something went wrong");
-  }
-};
+  }, [error, dispatch]);
 
-  const pickImage = async () => {
-    ImagePicker.launchImageLibrary({ mediaType: "photo" }, async (response) => {
-      if (response.didCancel || response.errorCode) return;
+  // Filter categories based on tab and search
+  const getFilteredCategories = () => {
+    let filtered = categories;
 
-      const file = response.assets[0];
+    if (activeTab === 'active') filtered = filtered.filter((c) => c.active);
+    else if (activeTab === 'inactive') filtered = filtered.filter((c) => !c.active);
 
-      try {
-        setUploading(true);
-        const url = await uploadImageToCloudinary(file);
-        setIcon(url); // save uploaded image URL in state
-      } catch (err) {
-        Alert.alert("Upload failed", err.message);
-      } finally {
-        setUploading(false);
-      }
-    });
+    if (searchText) {
+      filtered = filtered.filter((c) =>
+        c.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    return filtered;
   };
 
-  const renderCategoryItem = ({ item }) => (
-    <View style={styles.categoryCard}>
-      {item.icon ? <Image source={{ uri: item.icon }} style={styles.icon} /> : null}
-      <Text style={styles.categoryName}>{item.name}</Text>
-      <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => openEditModal(item)}
-      >
-        <Text style={styles.editText}>Edit</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const handleAddOrUpdateCategory = () => {
+    if (!formData.name) {
+      Alert.alert('Error', 'Please enter a category name');
+      return;
+    }
+
+    if (selectedCategory) {
+      dispatch(updateCategory({ categoryId: selectedCategory._id, data: formData }));
+    } else {
+      dispatch(createCategory(formData));
+    }
+
+    setModalVisible(false);
+    setSelectedCategory(null);
+    setFormData({ name: '', icon: '✂️' });
+  };
+
+  const handleEditCategory = (category) => {
+    setSelectedCategory(category);
+    setFormData({
+      name: category.name,
+      icon: category.icon || '✂️',
+    });
+    setModalVisible(true);
+  };
+
+  const filteredCategories = getFilteredCategories();
+
+  // Stats
+  const statsData = {
+    total: categories.length,
+    active: categories.filter((c) => c.active).length,
+    inactive: categories.filter((c) => !c.active).length,
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Manage Categories</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerTitle}>Manage Categories</Text>
+          <Text style={styles.headerSubtitle}>Salon service categories</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.addCategoryButton}
+          onPress={() => {
+            setSelectedCategory(null);
+            setFormData({ name: '', icon: '✂️' });
+            setModalVisible(true);
+          }}
+        >
+          <Icon name="add" size={20} color="#fff" />
+          <Text style={styles.addCategoryButtonText}>Add</Text>
+        </TouchableOpacity>
+      </View>
 
-      <Button title="Create Category" color="#156778" onPress={openCreateModal} />
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Stats */}
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <View style={styles.statCardContent}>
+              <Text style={styles.statCardLabel}>Total Categories</Text>
+              <Text style={styles.statCardValue}>{statsData.total}</Text>
+            </View>
+            <View style={[styles.statCardIcon, { backgroundColor: '#7C5FED20' }]}>
+              <Icon name="pricetag" size={24} color="#7C5FED" />
+            </View>
+          </View>
+          <View style={styles.statCard}>
+            <View style={styles.statCardContent}>
+              <Text style={styles.statCardLabel}>Active</Text>
+              <Text style={styles.statCardValue}>{statsData.active}</Text>
+            </View>
+            <View style={[styles.statCardIcon, { backgroundColor: '#4CAF5020' }]}>
+              <Icon name="checkmark-circle" size={24} color="#4CAF50" />
+            </View>
+          </View>
+          <View style={styles.statCard}>
+            <View style={styles.statCardContent}>
+              <Text style={styles.statCardLabel}>Inactive</Text>
+              <Text style={styles.statCardValue}>{statsData.inactive}</Text>
+            </View>
+            <View style={[styles.statCardIcon, { backgroundColor: '#FF980020' }]}>
+              <Icon name="alert-circle" size={24} color="#FF9800" />
+            </View>
+          </View>
+        </View>
 
-      {loading && (
-        <Loader />
-      )}
-
-      {error && (
-        <ErrorMessage message={error.message} />
-      )}
-
-      {!loading && !error && (
-        <FlatList
-          data={categories}
-          keyExtractor={(item) => item._id}
-          renderItem={renderCategoryItem}
-          contentContainerStyle={{ paddingBottom: 20, marginTop: 12 }}
-        />
-      )}
-
-      {/* Modal for Create / Update */}
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View style={styles.overlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
-              {editingCategory ? "Update Category" : "Create Category"}
-            </Text>
-
+        {/* Search */}
+        <View style={styles.searchSection}>
+          <View style={styles.searchBar}>
+            <Icon name="search" size={20} color="#999" />
             <TextInput
-              placeholder="Category Name"
-              value={name}
-              onChangeText={setName}
-              style={styles.input}
+              style={styles.searchInput}
+              placeholder="Search categories"
+              value={searchText}
+              onChangeText={setSearchText}
+              placeholderTextColor="#999"
             />
+            {searchText ? (
+              <TouchableOpacity onPress={() => setSearchText('')}>
+                <Icon name="close" size={20} color="#999" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
 
-            <Button
-              title={uploading ? "Uploading..." : "Pick Icon"}
-              onPress={pickImage}
-              color="#156778"
-              disabled={uploading}
-            />
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'all' && styles.activeTab]}
+            onPress={() => setActiveTab('all')}
+          >
+            <Text style={[styles.tabText, activeTab === 'all' && styles.activeTabText]}>All Categories</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'active' && styles.activeTab]}
+            onPress={() => setActiveTab('active')}
+          >
+            <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>Active</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'inactive' && styles.activeTab]}
+            onPress={() => setActiveTab('inactive')}
+          >
+            <Text style={[styles.tabText, activeTab === 'inactive' && styles.activeTabText]}>Inactive</Text>
+          </TouchableOpacity>
+        </View>
 
-            {icon ? <Image source={{ uri: icon }} style={styles.previewIcon} /> : null}
+        {/* Categories Grid */}
+        <View style={styles.categoriesSection}>
+          {filteredCategories.length > 0 ? (
+            <View style={styles.categoriesGrid}>
+              {filteredCategories.map((category) => (
+                <View key={category._id} style={styles.categoryCard}>
+                  <View style={styles.categoryHeader}>
+                    <View style={styles.categoryIconContainer}>
+                      <Text style={styles.categoryIcon}>{category.icon || '✂️'}</Text>
+                    </View>
+                    <View style={styles.categoryActions}>
+                      <TouchableOpacity
+                        onPress={() => handleEditCategory(category)}
+                        style={styles.actionButton}
+                      >
+                        <Icon name="pencil" size={16} color="#7C5FED" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
 
-            <View style={styles.buttonRow}>
-              <Button
-                title="Cancel"
-                color="red"
+                  <Text style={styles.categoryName}>{category.name}</Text>
+
+                  <View style={styles.categoryFooter}>
+                    <View
+                      style={[
+                        styles.statusBadge,
+                        { backgroundColor: category.active ? '#C8E6C9' : '#FFCCBC' },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.statusBadgeText,
+                          { color: category.active ? '#2E7D32' : '#E65100' },
+                        ]}
+                      >
+                        {category.active ? 'Active' : 'Inactive'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View style={styles.emptyState}>
+              <Icon name="search" size={48} color="#DDD" />
+              <Text style={styles.emptyStateText}>No categories found</Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Add/Edit Category Modal */}
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {selectedCategory ? 'Edit Category' : 'Add New Category'}
+              </Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Icon name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalForm}>
+              <Text style={styles.inputLabel}>Select Icon</Text>
+              <View style={styles.emojiGrid}>
+                {EMOJI_OPTIONS.map((emoji) => (
+                  <TouchableOpacity
+                    key={emoji}
+                    style={[
+                      styles.emojiOption,
+                      formData.icon === emoji && styles.emojiOptionSelected,
+                    ]}
+                    onPress={() => setFormData({ ...formData, icon: emoji })}
+                  >
+                    <Text style={styles.emojiText}>{emoji}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.inputLabel}>Category Name *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter category name"
+                value={formData.name}
+                onChangeText={(text) => setFormData({ ...formData, name: text })}
+              />
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={styles.cancelButton}
                 onPress={() => setModalVisible(false)}
-              />
-              <Button
-                title={editingCategory ? "Update" : "Create"}
-                onPress={handleSubmit}
-                color="#156778"
-              />
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleAddOrUpdateCategory}
+              >
+                <Icon name="checkmark" size={18} color="#fff" />
+                <Text style={styles.submitButtonText}>
+                  {selectedCategory ? 'Update' : 'Add'} Category
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -171,32 +306,55 @@ export default function ManageCategoriesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 12 },
-  categoryCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    marginBottom: 8,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-  },
-  categoryName: { fontSize: 16, marginLeft: 8, flex: 1 },
-  editButton: {
-    backgroundColor: "#156778",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  editText: { color: "#fff", fontSize: 14 },
-  loadingContainer: { marginTop: 20, alignItems: "center" },
-  errorContainer: { marginTop: 20, padding: 12, backgroundColor: "#ffe5e5", borderRadius: 8 },
-  errorText: { color: "#ff3333" },
-  overlay: { flex: 1, justifyContent: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-  modalContainer: { margin: 20, padding: 20, backgroundColor: "#fff", borderRadius: 12, elevation: 5 },
-  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, marginBottom: 12 },
-  buttonRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 12 },
-  previewIcon: { width: 60, height: 60, marginVertical: 10, borderRadius: 8 },
-  icon: { width: 40, height: 40, borderRadius: 6 },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
+  headerSubtitle: { fontSize: 12, color: '#999', marginTop: 2 },
+  addCategoryButton: { flexDirection: 'row', backgroundColor: '#2196F3', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, alignItems: 'center', gap: 4 },
+  addCategoryButtonText: { color: '#fff', fontSize: 12, fontWeight: '600' },
+  scrollContent: { paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 30 },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
+  statCard: { width: '48%', backgroundColor: '#fff', borderRadius: 10, padding: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2, elevation: 1 },
+  statCardContent: { flex: 1 },
+  statCardLabel: { fontSize: 11, color: '#999', fontWeight: '500', marginBottom: 4 },
+  statCardValue: { fontSize: 18, fontWeight: '700', color: '#333' },
+  statCardIcon: { width: 40, height: 40, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  searchSection: { marginBottom: 16 },
+  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
+  searchInput: { flex: 1, fontSize: 14, color: '#333' },
+  tabsContainer: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 8, gap: 4, marginBottom: 16, padding: 4 },
+  tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 6 },
+  activeTab: { backgroundColor: '#2196F3' },
+  tabText: { fontSize: 12, fontWeight: '600', color: '#999' },
+  activeTabText: { color: '#fff' },
+  categoriesSection: { gap: 12 },
+  categoriesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  categoryCard: { width: '48%', backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2, elevation: 1 },
+  categoryHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  categoryIconContainer: { width: 44, height: 44, borderRadius: 8, backgroundColor: '#f5f5f5', justifyContent: 'center', alignItems: 'center' },
+  categoryIcon: { fontSize: 24 },
+  categoryActions: { flexDirection: 'row', gap: 6 },
+  actionButton: { width: 28, height: 28, borderRadius: 6, backgroundColor: '#f5f5f5', justifyContent: 'center', alignItems: 'center' },
+  categoryName: { fontSize: 13, fontWeight: '700', color: '#333', marginBottom: 4 },
+  categoryFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  statusBadge: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4, flex: 1 },
+  statusBadgeText: { fontSize: 10, fontWeight: '600', textAlign: 'center' },
+  emptyState: { alignItems: 'center', paddingVertical: 40 },
+  emptyStateText: { fontSize: 14, fontWeight: '600', color: '#999', marginTop: 12 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 16, maxHeight: '90%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: '#333' },
+  modalForm: { paddingHorizontal: 16, paddingVertical: 16 },
+  inputLabel: { fontSize: 12, fontWeight: '600', color: '#333', marginBottom: 8 },
+  emojiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+  emojiOption: { width: '22%', aspectRatio: 1, borderRadius: 10, backgroundColor: '#f5f5f5', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
+  emojiOptionSelected: { backgroundColor: '#E8D4F8', borderColor: '#7C5FED' },
+  emojiText: { fontSize: 24 },
+  input: { backgroundColor: '#f5f5f5', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#333', marginBottom: 14 },
+  modalFooter: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
+  cancelButton: { flex: 1, paddingVertical: 10, borderRadius: 8, borderWidth: 1, borderColor: '#DDD', alignItems: 'center' },
+  cancelButtonText: { fontSize: 13, fontWeight: '600', color: '#666' },
+  submitButton: { flex: 1, backgroundColor: '#2196F3', paddingVertical: 10, borderRadius: 8, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 4 },
+  submitButtonText: { fontSize: 13, fontWeight: '600', color: '#fff' },
 });
