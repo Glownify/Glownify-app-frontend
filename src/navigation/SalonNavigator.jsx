@@ -10,7 +10,7 @@ import ManageSpecialistScreen from '../screens/SalonAdminScreens/Specialists/Man
 import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
 import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotificationsScreen';
 import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
-import SubscriptionPlan from '../screens/SubscriptionPlan'; // Your subscription modal screen
+import SubscriptionPlanScreen from '../screens/SubscriptionPlanScreen'; // Your subscription modal screen
 import { checkSubscription } from '../utils/checkSubscription';
 
 const Tab = createBottomTabNavigator();
@@ -154,7 +154,7 @@ export default function SalonNavigator({ navigation }) {
         transparent={true}
         animationType="slide"
       >
-        <SubscriptionPlan
+        <SubscriptionPlanScreen
           navigation={navigation}
           closeModal={() => setShowSubscriptionModal(false)}
         />

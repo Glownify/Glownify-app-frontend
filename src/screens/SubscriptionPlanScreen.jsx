@@ -38,7 +38,7 @@ const DUMMY_PLANS = [
   },
 ];
 
-export default function SubscriptionScreen({ closeModal }) {
+export default function SubscriptionPlanScreen({ closeModal }) {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlanId, setSelectedPlanId] = useState(null);
