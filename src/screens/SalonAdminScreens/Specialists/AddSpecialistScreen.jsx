@@ -137,8 +137,8 @@ const handlePickImage = () => {
         onPress: () =>
           launchCamera({ mediaType: "photo", quality: 0.7 }, (response) => {
             if (response.didCancel || response.errorCode) return;
-            // store the entire asset object temporarily
-            handleChange("image", response.assets[0]);
+            // Extract only the URI string
+            handleChange("image", response.assets[0].uri);
           }),
       },
       {
@@ -146,7 +146,8 @@ const handlePickImage = () => {
         onPress: () =>
           launchImageLibrary({ mediaType: "photo", quality: 0.7 }, (response) => {
             if (response.didCancel || response.errorCode) return;
-            handleChange("image", response.assets[0]);
+            // Extract only the URI string
+            handleChange("image", response.assets[0].uri);
           }),
       },
       { text: "Cancel", style: "cancel" },
@@ -168,7 +169,7 @@ const handlePickImage = () => {
   }
 
   let imageUrl = "";
-  if (form.image && form.image.uri) {
+  if (form.image) {
     // upload to Cloudinary
     try {
       imageUrl = await uploadImageToCloudinary(form.image);
@@ -234,8 +235,8 @@ const handlePickImage = () => {
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Image Upload */}
             <TouchableOpacity style={styles.imageBox} onPress={handlePickImage} activeOpacity={0.8}>
-  {form.image?.uri ? (
-    <Image source={{ uri: form.image.uri }} style={styles.imagePreview} />
+  {form.image ? (
+    <Image source={{ uri: form.image }} style={styles.imagePreview} />
   ) : (
     <View style={styles.imagePlaceholder}>
       <Icon name="camera" size={30} color="#156778" />
