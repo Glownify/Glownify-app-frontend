@@ -7,15 +7,16 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSalonSpecialists, addSpecialist, deleteSpecialist } from '../../../redux/slices/salonAdminSlice';
+import { fetchSalonSpecialists, deleteSpecialist } from '../../../redux/slices/salonAdminSlice';
 import AddSpecialistModal from './AddSpecialistScreen';
 
 export default function ManageSpecialistScreen() {
   const dispatch = useDispatch();
-  const { specialists } = useSelector((state) => state.salonAdmin);
+  const { specialists, loading, error } = useSelector((state) => state.salonAdmin);
   const [expandedId, setExpandedId] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -60,7 +61,7 @@ export default function ManageSpecialistScreen() {
         <View style={styles.headerInfo}>
           <Text style={styles.name}>{specialist.name}</Text>
           <Text style={styles.contact}>{specialist.contactNumber}</Text>
-          <Text style={styles.expertise}>{specialist.expertise.map(exp => exp).join(', ')}</Text>
+          <Text style={styles.expertise}>{specialist.expertise.join(', ')}</Text>
           <View style={styles.experienceRow}>
             <Icon name="briefcase" size={14} color="#156778" />
             <Text style={styles.experience}>{specialist.experienceYears} years exp</Text>
@@ -115,27 +116,39 @@ export default function ManageSpecialistScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Specialists</Text>
-        <Text style={styles.count}>{specialists.length} Total</Text>
+  <Text style={styles.title}>Specialists</Text>
+  <Text style={styles.count}>{specialists.length} Total</Text>
 
-        {/* Add Button */}
-        <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)}>
-          <Icon name="add-circle" size={22} color="#fff" />
-          <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Specialist List */}
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {specialists.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Icon name="person-outline" size={50} color="#ccc" />
-            <Text style={styles.emptyText}>No specialists yet</Text>
-          </View>
-        ) : (
-          specialists.map(renderSpecialistCard)
-        )}
-      </ScrollView>
+  {/* Add Button - only show if no error */}
+  {!error && !loading && (
+    <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)}>
+      <Icon name="add-circle" size={22} color="#fff" />
+      <Text style={styles.addButtonText}>Add</Text>
+    </TouchableOpacity>
+  )}
+</View>
+      {/* Content */}
+      {loading ? (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#156778" />
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Icon name="alert-circle-outline" size={50} color="#f44336" />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {specialists.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Icon name="person-outline" size={50} color="#ccc" />
+              <Text style={styles.emptyText}>No specialists yet</Text>
+            </View>
+          ) : (
+            specialists.map(renderSpecialistCard)
+          )}
+        </ScrollView>
+      )}
 
       {/* Add Specialist Modal */}
       <AddSpecialistModal visible={showAddModal} onClose={() => setShowAddModal(false)} />
@@ -198,6 +211,9 @@ const styles = StyleSheet.create({
   deleteButtonText: { fontSize: 13, fontWeight: '600', color: '#fff' },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 60 },
   emptyText: { fontSize: 16, color: '#999', marginTop: 10 },
+  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 60 },
+  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 60 },
+  errorText: { fontSize: 16, color: '#f44336', marginTop: 10, textAlign: 'center', paddingHorizontal: 20 },
   addButton: { position: 'absolute', right: 16, top: 16, flexDirection: 'row', alignItems: 'center', backgroundColor: '#1a8e9f', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
   addButtonText: { color: '#fff', fontWeight: '600', marginLeft: 4 },
 });

@@ -1,22 +1,15 @@
-// src/screens/UserScreens/Home/HomeScreen.js
-import React, { useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, StatusBar, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, ScrollView, StyleSheet, Image, StatusBar, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SvgUri } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchHomeSalons } from '../../../redux/slices/userSlice';
+import { fetchHomeSalons, getAllCategories } from '../../../redux/slices/userSlice';
 import HomeHeader from '../../../components/HomeHeader';
 import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
 
-import HaircutIcon from '../../../assets/categoryIcons/haircut.svg';
-import NailsIcon from '../../../assets/categoryIcons/nails.svg';
-import FacialIcon from '../../../assets/categoryIcons/facial.svg';
-import ColoringIcon from '../../../assets/categoryIcons/coloring.svg';
-import SpaIcon from '../../../assets/categoryIcons/spa.svg';
-import WaxingIcon from '../../../assets/categoryIcons/waxing.svg';
-import MakeupIcon from '../../../assets/categoryIcons/makeup.svg';
-import MassageIcon from '../../../assets/categoryIcons/massage.svg';
+const { width } = Dimensions.get('window');
 
 const colors = {
   primary: '#156778',
@@ -26,32 +19,66 @@ const colors = {
   textSecondary: '#6B7280',
 };
 
+const CategoryIcon = ({ uri }) => {
+  const isSvg = uri?.endsWith('.svg');
+  if (isSvg) return <SvgUri width={32} height={32} uri={uri} />;
+  return <Image source={{ uri }} style={{ width: 32, height: 32, resizeMode: 'contain' }} />;
+};
+
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const { loading, homeSalons, error } = useSelector((state) => state.user);
+  const { loading, homeSalons, categories } = useSelector((state) => state.user);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const promoScrollRef = useRef(null);
+  const promoImages = [
+    require('../../../assets/promos/promo1.png'),
+    require('../../../assets/promos/promo2.png'),
+    require('../../../assets/promos/promo3.png'),
+  ];
+
+  const loadData = async () => {
+    try {
+      await Promise.all([dispatch(fetchHomeSalons()), dispatch(getAllCategories())]);
+    } catch (err) {
+      console.log('Error refreshing:', err);
+    }
+  };
 
   useEffect(() => {
-    dispatch(fetchHomeSalons());
-  }, [dispatch]);
+    loadData();
+  }, []);
 
-  const categories = [
-    { icon: HaircutIcon, label: 'Haircut' },
-    { icon: NailsIcon, label: 'Nails' },
-    { icon: FacialIcon, label: 'Facial' },
-    { icon: ColoringIcon, label: 'Coloring' },
-    { icon: SpaIcon, label: 'Spa' },
-    { icon: WaxingIcon, label: 'Waxing' },
-    { icon: MakeupIcon, label: 'Makeup' },
-    { icon: MassageIcon, label: 'Massage' },
-  ];
+  useEffect(() => {
+    // Slide promo banner every 3 seconds
+    const interval = setInterval(() => {
+      const nextSlide = (currentSlide + 1) % promoImages.length;
+      setCurrentSlide(nextSlide);
+      promoScrollRef.current?.scrollTo({ x: nextSlide * width, animated: true });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [currentSlide]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
 
   const renderSalonSection = (title, data) => {
     if (!data || data.length === 0) return null;
 
     return (
       <View style={{ marginBottom: 20 }}>
-        <SectionHeader title={title} showViewAll onPress={() => navigation.navigate('SalonsListScreen', { type: title })} />
+        <SectionHeader
+          title={title}
+          showViewAll
+          onPress={() => navigation.navigate('SalonsListScreen', { type: title })}
+        />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
           {data.map((salon) => (
             <View key={salon._id} style={styles.salonCardWrapper}>
@@ -63,7 +90,7 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <View style={styles.centered}>
         <Text>Loading salons...</Text>
@@ -77,26 +104,36 @@ export default function HomeScreen({ navigation }) {
       <View style={{ flex: 1, backgroundColor: colors.white }}>
         <HomeHeader user={user} navigation={navigation} />
 
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Promo Banner */}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          {/* Promo Banner Slider */}
           <View style={styles.promoContainer}>
-            <Image source={require('../../../assets/promo.png')} style={styles.promoImage} />
+            <ScrollView
+              ref={promoScrollRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={false} // Auto scroll only
+            >
+              {promoImages.map((img, index) => (
+                <Image key={index} source={img} style={styles.promoImage} />
+              ))}
+            </ScrollView>
           </View>
 
           {/* Categories */}
           <SectionHeader title="What do you want to get?" />
           <View style={styles.categories}>
-            {categories.map((cat) => {
-              const IconComponent = cat.icon;
-              return (
-                <TouchableOpacity key={cat.label} style={styles.categoryItem}>
-                  <View style={styles.categoryIcon}>
-                    <IconComponent width={32} height={32} />
-                  </View>
-                  <Text style={styles.categoryLabel}>{cat.label}</Text>
-                </TouchableOpacity>
-              );
-            })}
+            {categories.map((cat) => (
+              <TouchableOpacity key={cat._id} style={styles.categoryItem}>
+                <View style={styles.categoryIcon}>
+                  <CategoryIcon uri={cat.icon} />
+                </View>
+                <Text style={styles.categoryLabel}>{cat.name}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           {/* --- Salon Sections --- */}
@@ -131,8 +168,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginHorizontal: 16,
     marginVertical: 8,
+    overflow: 'hidden',
   },
-  promoImage: { width: '100%', height: 180, borderRadius: 12 },
+  promoImage: { width: width - 32, height: 180, borderRadius: 12, marginRight: 16 },
   categories: {
     flexDirection: 'row',
     flexWrap: 'wrap',

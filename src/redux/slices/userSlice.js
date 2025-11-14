@@ -15,10 +15,24 @@ export const fetchHomeSalons = createAsyncThunk(
   }
 );
 
+export const getAllCategories = createAsyncThunk(
+  "user/getAllCategories",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/user/get-all-categories");
+      console.log("Categories fetched:", response.data.categories);
+      return response.data.categories;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message || "Failed to fetch categories");
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
     homeSalons: [],
+    categories: [],
     loading: false,
     error: null,
   },
@@ -34,6 +48,18 @@ const userSlice = createSlice({
         state.homeSalons = action.payload;
       })
       .addCase(fetchHomeSalons.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getAllCategories.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllCategories.fulfilled, (state, action) => {
+        state.loading = false;
+        state.categories = action.payload;
+      })
+      .addCase(getAllCategories.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { uploadImageToCloudinary } from '../../api/claudinary';
 import { signupSalonOwner } from '../../redux/slices/authSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STEPS = {
   CONTACT: 1,
@@ -45,10 +46,15 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   // Step 2: Shop Details
   const [shopImages, setShopImages] = useState([null, null, null, null]);
   const [completeAddress, setCompleteAddress] = useState('');
-  
+  // --- FIX 1: Added missing state variables ---
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [pincode, setPincode] = useState('');
+  // -------------------------------------------
   const [locationSet, setLocationSet] = useState(false);
   const [salonCategory, setSalonCategory] = useState('');
   const [locationData, setLocationData] = useState({});
+  const [currentLocation, setCurrentLocation] = useState({}); // Changed to object for clarity
 
 
   // Step 3: Verification
@@ -56,42 +62,63 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const [idNumber, setIdNumber] = useState('');
   const [idProof, setIdProof] = useState(null);
 
+  useEffect(() => {
+    const loadLocation = async () => {
+      try {
+        const savedLocation = await AsyncStorage.getItem("userLocation");
+
+        if (savedLocation) {
+          const parsed = JSON.parse(savedLocation);
+          console.log("🔥 User Location from AsyncStorage: ", parsed);
+          // Assuming parsed is { latitude: ..., longitude: ... }
+          setCurrentLocation(parsed); 
+        } else {
+          console.log("⚠️ No saved location found");
+        }
+      } catch (error) {
+        console.log("❌ Error loading location:", error);
+      }
+    };
+
+    loadLocation();
+  }, []);
+
   // Upload shop image
   const handleUploadShopImage = (index) => {
-  Alert.alert('Upload Image', 'Choose an option', [
-    { text: 'Cancel', style: 'cancel' },
-    {
-      text: 'Camera',
-      onPress: () => pickImage('camera', index),
-    },
-    {
-      text: 'Gallery',
-      onPress: () => pickImage('gallery', index),
-    },
-  ]);
-};
-
-const pickImage = async (type, index) => {
-  const options = {
-    mediaType: 'photo',
-    maxWidth: 800,
-    maxHeight: 800,
-    quality: 0.8,
+    Alert.alert('Upload Image', 'Choose an option', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Camera',
+        onPress: () => pickImage('camera', index),
+      },
+      {
+        text: 'Gallery',
+        onPress: () => pickImage('gallery', index),
+      },
+    ]);
   };
 
-  let result;
-  if (type === 'camera') {
-    result = await launchCamera(options);
-  } else {
-    result = await launchImageLibrary(options);
-  }
+  const pickImage = async (type, index) => {
+    const options = {
+      mediaType: 'photo',
+      maxWidth: 800,
+      maxHeight: 800,
+      quality: 0.8,
+    };
 
-  if (result.assets && result.assets.length > 0) {
-    const newImages = [...shopImages];
-    newImages[index] = result.assets[0].uri;
-    setShopImages(newImages);
-  }
-};
+    let result;
+    if (type === 'camera') {
+      result = await launchCamera(options);
+    } else {
+      result = await launchImageLibrary(options);
+    }
+
+    if (result.assets && result.assets.length > 0) {
+      const newImages = [...shopImages];
+      newImages[index] = result.assets[0].uri;
+      setShopImages(newImages);
+    }
+  };
 
   // Add partner
   const addPartner = () => {
@@ -118,74 +145,63 @@ const pickImage = async (type, index) => {
   };
 
   // Upload ID Proof
- const handleUploadIDProof = () => {
-  Alert.alert('Upload ID Proof', 'Choose an option', [
-    { text: 'Cancel', style: 'cancel' },
-    {
-      text: 'Camera',
-      onPress: () => pickIDProof('camera'),
-    },
-    {
-      text: 'Gallery',
-      onPress: () => pickIDProof('gallery'),
-    },
-  ]);
-};
-
-const pickIDProof = async (type) => {
-  const options = {
-    mediaType: 'photo',
-    maxWidth: 800,
-    maxHeight: 800,
-    quality: 0.8,
+  const handleUploadIDProof = () => {
+    Alert.alert('Upload ID Proof', 'Choose an option', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Camera',
+        onPress: () => pickIDProof('camera'),
+      },
+      {
+        text: 'Gallery',
+        onPress: () => pickIDProof('gallery'),
+      },
+    ]);
   };
 
-  let result;
-  if (type === 'camera') {
-    result = await launchCamera(options);
-  } else {
-    result = await launchImageLibrary(options);
-  }
+  const pickIDProof = async (type) => {
+    const options = {
+      mediaType: 'photo',
+      maxWidth: 800,
+      maxHeight: 800,
+      quality: 0.8,
+    };
 
-  if (result.assets && result.assets.length > 0) {
-    setIdProof(result.assets[0].uri);
-  }
-};
+    let result;
+    if (type === 'camera') {
+      result = await launchCamera(options);
+    } else {
+      result = await launchImageLibrary(options);
+    }
 
+    if (result.assets && result.assets.length > 0) {
+      setIdProof(result.assets[0].uri);
+    }
+  };
 
-  // Set location on map
-// const handleSetLocation = () => {
-//   navigation.navigate('LocationPicker', {
-//     onLocationSelect: (coords, addressInfo) => {
-//       setLocationSet(true);
+  // --- FIX 3: Updated handleSetLocation to use state variables ---
+  const handleSetLocation = () => {
+     if (!completeAddress || !city || !state || !pincode) {
+        Alert.alert("Missing Address", "Please fill in all address fields (Address, City, State, Pincode).");
+        return;
+      }
+     if (!currentLocation.longitude || !currentLocation.latitude) {
+        Alert.alert("Missing Location", "Could not get your location coordinates from storage.");
+        return;
+     }
 
-//       // Save coordinates in GeoJSON format
-//       setLocationData({
-//         type: "Point",
-//         // coordinates: [coords.longitude, coords.latitude],
-//         coordinates: [28.6139, 77.2090], // TEMP FIXED TO DELHI
-//         address: addressInfo?.address || '', // optional, if you get from reverse geocoding
-//         city: addressInfo?.city || '',
-//         state: addressInfo?.state || '',
-//         pincode: addressInfo?.pincode || '',
-//       });
+    setLocationData({
+      type: "Point",
+      coordinates: [currentLocation.longitude, currentLocation.latitude],
+      address: completeAddress, // Use state variable
+      city: city,               // Use state variable
+      state: state,             // Use state variable
+      pincode: pincode,         // Use state variable
+    });
 
-//     },
-//   });
-// };
-
-const handleSetLocation = () => {
-  setLocationData({
-    type: "Point",
-    coordinates: [78.7784, 28.8431], // ✅ [longitude, latitude]
-    address: "India Gate, New Delhi, Delhi, India",
-    city: "Moradabad",
-    state: "Uttar Pradesh",
-    pincode: "244001",
-  });
-};
-
-
+    setLocationSet(true); 
+  };
+  // -----------------------------------------------------------------
 
   const handleNext = () => {
     if (currentStep === STEPS.CONTACT) {
@@ -204,61 +220,61 @@ const handleSetLocation = () => {
   };
 
   const handleSubmit = async () => {
-  if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber) {
-    Alert.alert('Error', 'Please fill all required fields.');
-    return;
-  }
-
-
-  try {
-    // Prepare salon data
-    const salonData = {
-      shopName,
-      shopType: ownershipType,
-      salonCategory,
-      location: locationData,
-      partners,
-      contactNumber,
-      whatsappNumber,
-    };
-
-    // Dispatch signup redux action
-    const resultAction = await dispatch(
-      signupSalonOwner({
-        name: ownerName,
-        email: ownerEmail,
-        phone: contactNumber,
-        password: ownerPassword,
-        salonData,
-      })
-    );
-
-    if (signupSalonOwner.fulfilled.match(resultAction)) {
-      // Upload salon images after successful registration
-      const uploadedImages = [];
-      for (let i = 0; i < shopImages.length; i++) {
-        const image = shopImages[i];
-        if (image) {
-          const uri = await uploadImageToCloudinary(image); // pass props
-          uploadedImages.push(uri);
-        }
-      }
-
-      // Optionally, update salon data with uploaded images
-      console.log('Uploaded Images:', uploadedImages);
-
-      Alert.alert('Success', 'Registration submitted! Awaiting verification', [
-        {
-          text: 'OK',
-        },
-      ]);
-    } else {
-      throw new Error(resultAction.payload || 'Signup failed');
+    if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber) {
+      Alert.alert('Error', 'Please fill all required fields.');
+      return;
     }
-  } catch (err) {
-    Alert.alert('Error', err.message || 'Something went wrong');
-  }
-};
+
+    try {
+      // Prepare salon data
+      const salonData = {
+        shopName,
+        shopType: ownershipType,
+        salonCategory,
+        location: locationData, // This now contains the correct data
+        partners,
+        contactNumber,
+        whatsappNumber,
+      };
+
+      // Dispatch signup redux action
+      const resultAction = await dispatch(
+        signupSalonOwner({
+          name: ownerName,
+          email: ownerEmail,
+          phone: contactNumber,
+          password: ownerPassword,
+          salonData,
+        })
+      );
+
+      if (signupSalonOwner.fulfilled.match(resultAction)) {
+        // Upload salon images after successful registration
+        const uploadedImages = [];
+        for (let i = 0; i < shopImages.length; i++) {
+          const image = shopImages[i];
+          if (image) {
+            const uri = await uploadImageToCloudinary(image); // pass props
+            uploadedImages.push(uri);
+          }
+        }
+
+        // Optionally, update salon data with uploaded images
+        console.log('Uploaded Images:', uploadedImages);
+
+        Alert.alert('Success', 'Registration submitted! Awaiting verification', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(), // Go back after success
+          },
+        ]);
+      } else {
+        throw new Error(resultAction.payload || 'Signup failed');
+      }
+    } catch (err) {
+      Alert.alert('Error', err.message || 'Something went wrong');
+    }
+  };
 
   const getStepStatus = (step) => {
     if (step < currentStep) return 'completed';
@@ -371,52 +387,52 @@ const handleSetLocation = () => {
             </View>
 
             {/* Owner Details */}
-            {/* Owner Details */}
-<Text style={[styles.label, { marginTop: 20 }]}>Owner Details</Text>
+            <Text style={[styles.label, { marginTop: 20 }]}>Owner Details</Text>
 
-<Text style={styles.fieldLabel}>Owner Full Name</Text>
-<TextInput
-  style={styles.input}
-  placeholder="Enter owner's full name"
-  value={ownerName}
-  onChangeText={setOwnerName}
-/>
+            <Text style={styles.fieldLabel}>Owner Full Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter owner's full name"
+              value={ownerName}
+              onChangeText={setOwnerName}
+            />
 
-<Text style={styles.fieldLabel}>Email Address</Text>
-<TextInput
-  style={styles.input}
-  placeholder="Enter email address"
-  value={ownerEmail}           // NEW state
-  onChangeText={setOwnerEmail} // NEW state
-  keyboardType="email-address"
-/>
+            <Text style={styles.fieldLabel}>Email Address</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter email address"
+              value={ownerEmail}
+              onChangeText={setOwnerEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
-<Text style={styles.fieldLabel}>Password</Text>
-<TextInput
-  style={styles.input}
-  placeholder="Enter password"
-  value={ownerPassword}           // NEW state
-  onChangeText={setOwnerPassword} // NEW state
-  secureTextEntry={true}
-/>
+            <Text style={styles.fieldLabel}>Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter password"
+              value={ownerPassword}
+              onChangeText={setOwnerPassword}
+              secureTextEntry={true}
+            />
 
-<Text style={styles.fieldLabel}>Contact Number</Text>
-<TextInput
-  style={styles.input}
-  placeholder="Enter contact number"
-  value={contactNumber}
-  onChangeText={setContactNumber}
-  keyboardType="phone-pad"
-/>
+            <Text style={styles.fieldLabel}>Contact Number</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter contact number"
+              value={contactNumber}
+              onChangeText={setContactNumber}
+              keyboardType="phone-pad"
+            />
 
-<Text style={styles.fieldLabel}>WhatsApp Number</Text>
-<TextInput
-  style={styles.input}
-  placeholder="Enter WhatsApp number"
-  value={whatsappNumber}
-  onChangeText={setWhatsappNumber}
-  keyboardType="phone-pad"
-/>
+            <Text style={styles.fieldLabel}>WhatsApp Number</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter WhatsApp number"
+              value={whatsappNumber}
+              onChangeText={setWhatsappNumber}
+              keyboardType="phone-pad"
+            />
 
             {/* Shop Information */}
             <Text style={[styles.label, { marginTop: 20 }]}>Shop Information</Text>
@@ -547,14 +563,41 @@ const handleSetLocation = () => {
             <Text style={[styles.label, { marginTop: 20 }]}>Shop Location *</Text>
             <Text style={styles.fieldLabel}>Help customers find you</Text>
 
-            <Text style={styles.fieldLabel}>Complete Address *</Text>
+            {/* --- FIX 2: Corrected TextInputs --- */}
+            <Text style={styles.label}>Complete Address</Text>
             <TextInput
-              style={[styles.input, { minHeight: 80, textAlignVertical: 'top' }]}
-              placeholder="Shop No, Building, Street, Area, City, State, Pincode"
-              value={completeAddress}
+              style={styles.input}
+              placeholder="House No, Area, Road"
+              value={completeAddress} 
               onChangeText={setCompleteAddress}
-              multiline
             />
+
+            <Text style={styles.label}>City</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter City"
+              value={city}
+              onChangeText={setCity}
+            />
+
+            <Text style={styles.label}>State</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter State"
+              value={state}
+              onChangeText={setState}
+            />
+
+            <Text style={styles.label}>Pincode</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter Pincode"
+              keyboardType="numeric"
+              value={pincode}
+              onChangeText={setPincode}
+            />
+            {/* ---------------------------------- */}
+
 
             <Text style={styles.fieldLabel}>Set Location on Map</Text>
             <TouchableOpacity
@@ -637,8 +680,10 @@ const handleSetLocation = () => {
               <Icon name="cloud-upload" size={40} color="#7C5FED" />
               {idProof ? (
                 <>
-                  <Text style={styles.uploadedText}>✓ {idProof}</Text>
-                  <Text style={styles.uploadSubtext}>PNG, JPG up to 5MB</Text>
+                  <Text style={styles.uploadedText}>✓ Image Selected</Text>
+                  <Text style={styles.uploadSubtext} numberOfLines={1} ellipsizeMode="middle">
+                    {idProof}
+                  </Text>
                 </>
               ) : (
                 <>
@@ -676,6 +721,7 @@ const handleSetLocation = () => {
   );
 }
 
+// STYLES (Unchanged)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -772,6 +818,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 14,
     marginBottom: 16,
+    color: '#333', // Added text color for better visibility
   },
   ownershipContainer: {
     flexDirection: 'row',
@@ -921,10 +968,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#4CAF50',
+    paddingHorizontal: 16, // Added for long file names
   },
   uploadSubtext: {
     fontSize: 11,
     color: '#999',
+    paddingHorizontal: 16, // Added for long file names
   },
   nextButton: {
     backgroundColor: '#7C5FED',
@@ -935,6 +984,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 6,
     marginVertical: 20,
+    flex: 1, // Added for equal width in navButtons
   },
   nextButtonText: {
     color: '#fff',

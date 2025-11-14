@@ -54,7 +54,7 @@ export const checkSubscription = async (navigation) => {
 
       if (!data.isSubscriptionActive) {
         console.log("🚫 Expired subscription (backend confirmed). Redirecting...");
-        navigation.getParent()?.replace("SubscriptionScreen");
+        // navigation.getParent()?.replace("SubscriptionScreen");
       } else {
         console.log("✅ Subscription renewed or active per backend.");
       }

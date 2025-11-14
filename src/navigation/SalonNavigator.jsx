@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { checkSubscription } from '../utils/checkSubscription';
 
-// --- Screens ---
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
 import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
 import ManageSpecialistScreen from '../screens/SalonAdminScreens/Specialists/ManageSpecialistScreen';
 import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
 import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotificationsScreen';
 import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
+import SubscriptionPlan from '../screens/SubscriptionPlan'; // Your subscription modal screen
+import { checkSubscription } from '../utils/checkSubscription';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,8 +23,15 @@ const colors = {
 };
 
 export default function SalonNavigator({ navigation }) {
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+
   useEffect(() => {
-    checkSubscription(navigation);
+    const verifySubscription = async () => {
+      const isActive = await checkSubscription();
+      if (!isActive) setShowSubscriptionModal(true);
+    };
+
+    verifySubscription();
   }, []);
 
   return (
@@ -43,7 +50,6 @@ export default function SalonNavigator({ navigation }) {
           },
         }}
       >
-        {/* Dashboard */}
         <Tab.Screen
           name="SalonDashboard"
           component={SalonAdminDashboard}
@@ -60,8 +66,6 @@ export default function SalonNavigator({ navigation }) {
             ),
           }}
         />
-
-        {/* Bookings */}
         <Tab.Screen
           name="SalonBookings"
           component={SalonBookingsScreen}
@@ -78,8 +82,6 @@ export default function SalonNavigator({ navigation }) {
             ),
           }}
         />
-
-        {/* Specialist */}
         <Tab.Screen
           name="ManageSpecialist"
           component={ManageSpecialistScreen}
@@ -96,8 +98,6 @@ export default function SalonNavigator({ navigation }) {
             ),
           }}
         />
-
-        {/* Manage Services */}
         <Tab.Screen
           name="ManageServices"
           component={ManageServicesScreen}
@@ -114,8 +114,6 @@ export default function SalonNavigator({ navigation }) {
             ),
           }}
         />
-
-        {/* Notifications */}
         <Tab.Screen
           name="SalonNotifications"
           component={SalonNotificationsScreen}
@@ -128,13 +126,10 @@ export default function SalonNavigator({ navigation }) {
                   size={26}
                   color={focused ? colors.white : colors.inactive}
                 />
-                {!focused && <View style={styles.badge} />}
               </View>
             ),
           }}
         />
-
-        {/* Profile */}
         <Tab.Screen
           name="SalonProfile"
           component={SalonProfileScreen}
@@ -152,11 +147,22 @@ export default function SalonNavigator({ navigation }) {
           }}
         />
       </Tab.Navigator>
+
+      {/* Subscription Modal */}
+      <Modal
+        visible={showSubscriptionModal}
+        transparent={true}
+        animationType="slide"
+      >
+        <SubscriptionPlan
+          navigation={navigation}
+          closeModal={() => setShowSubscriptionModal(false)}
+        />
+      </Modal>
     </SafeAreaView>
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
   iconContainer: {
     width: 50,
@@ -171,16 +177,5 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
     backgroundColor: colors.white,
-  },
-  badge: {
-    position: 'absolute',
-    top: 2,
-    right: 12,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.badge,
-    borderWidth: 1,
-    borderColor: colors.white,
   },
 });

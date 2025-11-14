@@ -35,7 +35,7 @@ const SalonCard = ({ salon }) => {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate('ShopDetailsSummary', { salonId: salon._id })}
+      onPress={() => navigation.navigate('ShopDetailsFull', { salonId: salon._id })}
       activeOpacity={0.8}
     >
       <Image source={imageSource} style={styles.image} resizeMode="cover" />
