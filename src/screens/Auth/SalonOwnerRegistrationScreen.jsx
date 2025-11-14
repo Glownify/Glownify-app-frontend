@@ -612,7 +612,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
               ) : (
                 <>
                   <Icon name="location" size={40} color="#999" />
-                  <Text style={styles.mapBoxText}>Pin your exact location</Text>
+                  <Text style={styles.mapBoxText}>Click To Pin your exact location</Text>
                 </>
               )}
             </TouchableOpacity>
