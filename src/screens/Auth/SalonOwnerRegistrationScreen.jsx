@@ -60,7 +60,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   // Step 3: Verification
   const [idType, setIdType] = useState('');
   const [idNumber, setIdNumber] = useState('');
-  const [idProof, setIdProof] = useState(null);
+  const [idImageUrl, setIdImageUrl] = useState(null);
 
   useEffect(() => {
     const loadLocation = async () => {
@@ -175,7 +175,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
     }
 
     if (result.assets && result.assets.length > 0) {
-      setIdProof(result.assets[0].uri);
+      setIdImageUrl(result.assets[0].uri);
     }
   };
 
@@ -225,6 +225,22 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       return;
     }
 
+     if (shopImages.filter(img => img !== null).length < 1) {
+    return Alert.alert('Error', 'Please upload at least 1 salon images.');
+  }
+
+  if (!locationSet) {
+    return Alert.alert('Error', 'Please set your salon location.');
+  }
+
+  if (!idType || !idNumber || !idImageUrl) {
+    return Alert.alert('Error', 'Please complete ID verification.');
+  }
+
+  if(!/^\d{6}$/.test(pincode)) {
+    return Alert.alert('Error', 'Please enter a valid 6-digit pincode.');
+  }
+
     try {
       // Prepare salon data
       const salonData = {
@@ -232,7 +248,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
         shopType: ownershipType,
         salonCategory,
         location: locationData, // This now contains the correct data
-        partners,
+        partners: ownershipType === 'partnership' ? partners : [],
         contactNumber,
         whatsappNumber,
       };
@@ -678,11 +694,11 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
               onPress={handleUploadIDProof}
             >
               <Icon name="cloud-upload" size={40} color="#7C5FED" />
-              {idProof ? (
+              {idImageUrl ? (
                 <>
                   <Text style={styles.uploadedText}>✓ Image Selected</Text>
                   <Text style={styles.uploadSubtext} numberOfLines={1} ellipsizeMode="middle">
-                    {idProof}
+                    {idImageUrl}
                   </Text>
                 </>
               ) : (
