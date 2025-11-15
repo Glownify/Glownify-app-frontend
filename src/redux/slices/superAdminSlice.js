@@ -4,12 +4,16 @@ import axiosInstance from "../../api/axiosInstance";
 // ==================== ASYNC THUNKS ====================
 
 // 🔹 SALOONS
+// 🔹 Fetch All Saloons (Paginated)
 export const fetchAllSaloons = createAsyncThunk(
   "superAdmin/fetchAllSaloons",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/super-admin/getAllSaloons");
-      return res.data.saloons;
+      const res = await axiosInstance.get(
+        `/super-admin/getAllSaloons?page=${page}&limit=${limit}`
+      );
+      console.log(res.data);
+      return res.data; // contains saloons, page, totalPages, etc.
     } catch (error) {
       return rejectWithValue(error.response?.data || "Error fetching saloons");
     }
@@ -18,10 +22,12 @@ export const fetchAllSaloons = createAsyncThunk(
 
 export const fetchAllUsers = createAsyncThunk(
   "superAdmin/fetchAllUsers",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/super-admin/get-all-users");
-      return res.data.users;
+      const res = await axiosInstance.get(
+        `/super-admin/get-all-users?page=${page}&limit=${limit}`
+      );
+      return res.data; // should include users, page, totalPages, count
     } catch (error) {
       return rejectWithValue(error.response?.data || "Error fetching users");
     }
@@ -123,6 +129,10 @@ const superAdminSlice = createSlice({
     users: [],
     categories: [],
     offers: [],
+    saloonsPage: 1,
+    saloonsTotalPages: 1,
+    usersPage: 1,
+    usersTotalPages: 1,
     loading: false,
     error: null,
   },
@@ -137,9 +147,16 @@ const superAdminSlice = createSlice({
       .addCase(fetchAllSaloons.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchAllSaloons.fulfilled, (state, action) => {
+       .addCase(fetchAllSaloons.fulfilled, (state, action) => {
         state.loading = false;
-        state.saloons = action.payload;
+        state.saloonsPage = action.payload.page;
+        state.saloonsTotalPages = action.payload.totalPages;
+
+        if (action.meta.arg.page === 1) {
+          state.saloons = action.payload.saloons; // first page
+        } else {
+          state.saloons = [...state.saloons, ...action.payload.saloons]; // append next pages
+        }
       })
       .addCase(fetchAllSaloons.rejected, (state, action) => {
         state.loading = false;
@@ -150,9 +167,16 @@ const superAdminSlice = createSlice({
       .addCase(fetchAllUsers.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+       .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload;
+        state.usersPage = action.payload.page;
+        state.usersTotalPages = action.payload.totalPages;
+
+        if (action.meta.arg.page === 1) {
+          state.users = action.payload.users;
+        } else {
+          state.users = [...state.users, ...action.payload.users];
+        }
       })
       .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;

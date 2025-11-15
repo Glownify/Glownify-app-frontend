@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllSaloons } from '../../redux/slices/superAdminSlice';
 
 const SALONS_DATA = [
   {
@@ -75,6 +77,11 @@ const SUBSCRIPTION_PLANS = ['Basic', 'Standard', 'Pro', 'Enterprise'];
 const CATEGORIES = ['Unisex Salon', 'Men Salon', 'Women Salon', 'Premium', 'Standard'];
 
 export default function ManageSalonsScreen() {
+  const dispatch = useDispatch();
+  const { saloons, saloonsPage, saloonsTotalPages, loading } = useSelector(
+    (state) => state.superAdmin
+  );
+
   const [activeTab, setActiveTab] = useState('all');
   const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -86,6 +93,10 @@ export default function ManageSalonsScreen() {
     category: 'Standard',
     subscriptionPlan: 'Basic',
   });
+
+  useEffect(() => {
+    dispatch(fetchAllSaloons({ page: 1, limit: 10 }));
+  }, [dispatch]);
 
   // Filter salons based on tab and search
   const getFilteredSalons = () => {
