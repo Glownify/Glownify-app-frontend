@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import ServiceCard from './ServiceCard';
 import SpecialistCard from './SpecialistCard';
 import ReviewCard from './ReviewCard';
-
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchSalonById } from '../../../redux/slices/userSlice';
 const { height, width } = Dimensions.get('window');
 
 // Mock Data
@@ -31,12 +32,6 @@ const shopData = {
     require('../../../assets/featuredSalon.png'),
   ],
   about: 'Looking for your career? Plush Beauty Lounge, they accept men as well as women. Our beauty treatment focuses on hair and skin, ensuring that if is shallots its skin, it matters to us.',
-  openingHours: [
-    { day: 'Monday', time: '08:00am - 09:00pm' },
-    { day: 'Tuesday', time: 'Closed' },
-    { day: 'Wednesday', time: '08:00am - 09:00pm' },
-    { day: 'Thursday', time: '08:00am - 09:00pm' },
-  ],
   services: [
     {
       id: '1',
@@ -111,9 +106,26 @@ const shopData = {
 // Add this after line 102 (after shopData definition)
 console.log('Reviews Data:', JSON.stringify(shopData.reviews, null, 2));
 
-export default function ShopDetailsScreen({ navigation }) {
+export default function ShopDetailsScreen({ navigation, route }) {
+  const { salonId } = route.params;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const insets = useSafeAreaInsets();
+
+  const defaultOpeningHours = [
+    { day: 'Monday', start: '08:00am', end: '09:00pm' },
+    { day: 'Tuesday', start: '08:00am', end: '09:00pm' },
+    { day: 'Wednesday', start: '08:00am', end: '09:00pm' },
+    { day: 'Thursday', start: '08:00am', end: '09:00pm' },
+  ];
+
+  useEffect(() => {
+    dispatch(fetchSalonById(salonId));
+  }, [dispatch, salonId]);
+
+  const dispatch = useDispatch();
+  const salonData = useSelector((state) => state.user.salonDetails);
+
+  console.log('Salon Data from Redux:', salonData);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: 'transparent' }]} edges={[]}>
@@ -171,13 +183,13 @@ export default function ShopDetailsScreen({ navigation }) {
 
           {/* Shop Info */}
           <View style={styles.infoSection}>
-            <Text style={styles.shopName}>{shopData.name}</Text>
+            <Text style={styles.shopName}>{salonData?.shopName}</Text>
 
             <View style={styles.locationRow}>
               <Icon name="location-outline" size={16} color="#6B7280" />
-              <Text style={styles.locationText}>{shopData.location}</Text>
+              <Text style={styles.locationText}>{salonData?.location?.address || "Unknown Location"}</Text>
               <View style={styles.dot} />
-              <Text style={styles.distanceText}>{shopData.distance}</Text>
+              <Text style={styles.distanceText}>{salonData?.distance}</Text>
             </View>
 
             <View style={styles.statsRow}>
@@ -193,30 +205,40 @@ export default function ShopDetailsScreen({ navigation }) {
                 <Icon name="eye-outline" size={16} color="#6B7280" />
                 <Text style={styles.statText}>{shopData.views} views</Text>
               </View>
+              
+              <View style={styles.statDivider} />
+ 
+                <Icon name="navigate-outline" size={16} color="#6B7280" />
+                <Text style={styles.statText}>Directions</Text>
+              
             </View>
           </View>
 
           {/* About */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>About</Text>
-            <Text style={styles.aboutText}>{shopData.about}</Text>
+            <Text style={styles.aboutText}>{salonData?.about || "The salon will update its details soon! Meanwhile, you're welcome to explore services and enjoy great grooming & beauty care."}</Text>
           </View>
 
           {/* Opening Hours */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Opening Hours</Text>
-            {shopData.openingHours.map((item, index) => (
-              <View key={index} style={styles.hourRow}>
-                <Text style={styles.dayText}>{item.day}</Text>
-                <Text style={[
-                  styles.timeText,
-                  item.time === 'Closed' && styles.closedText
-                ]}>
-                  {item.time}
-                </Text>
-              </View>
-            ))}
-          </View>
+          
+          {((salonData?.openingHours && salonData.openingHours.length > 0)
+    ? salonData.openingHours
+    : defaultOpeningHours
+  ).map((hour) => (
+    <View key={hour.day} style={styles.hourRow}>
+      <Text style={styles.dayText}>{hour.day}</Text>
+      {hour.start && hour.end ? (
+        <Text style={styles.timeText}>{hour.start} - {hour.end}</Text>
+      ) : (
+        <Text style={[styles.timeText, styles.closedText]}>Closed</Text>
+      )}
+    </View>
+  ))}
+  </View>
+  
 
           {/* Our Services */}
           <View style={styles.section}>
@@ -484,23 +506,32 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   hourRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  dayText: {
-    fontSize: 14,
-    color: '#111827',
-  },
-  timeText: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  closedText: {
-    color: '#EF4444',
-  },
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 12,
+  paddingHorizontal: 4,
+  borderBottomWidth: 0.8,
+  borderBottomColor: '#E5E7EB',
+},
+
+dayText: {
+  fontSize: 15,
+  fontWeight: '600',
+  color: '#111827',
+},
+
+timeText: {
+  fontSize: 14,
+  fontWeight: '500',
+  color: '#16A34A', // Green for open time
+},
+
+closedText: {
+  fontSize: 14,
+  fontWeight: '600',
+  color: '#DC2626', // Red for closed
+},
   viewAllServicesButton: {
     borderWidth: 1,
     borderColor: '#156778',
