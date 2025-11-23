@@ -30,6 +30,8 @@ export default function HomeScreen({ navigation }) {
   const user = useSelector((state) => state.auth.user);
   const { loading, homeSalons, categories } = useSelector((state) => state.user);
 
+  console.log('HomeSalons:', homeSalons);
+
   const [refreshing, setRefreshing] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -137,11 +139,10 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           {/* --- Salon Sections --- */}
-          {renderSalonSection('Men Salon', homeSalons?.menSalon)}
+          {renderSalonSection('Men Salon', homeSalons?.men)}
           {renderSalonSection('Beauty Parlour', homeSalons?.beautyParlour)}
           {renderSalonSection('Unisex', homeSalons?.unisex)}
           {renderSalonSection('Spa', homeSalons?.spa)}
-          {renderSalonSection('Barbershop', homeSalons?.barbershop)}
 
           {/* --- Nearby Offers --- */}
           <SectionHeader title="Nearby Offers" />

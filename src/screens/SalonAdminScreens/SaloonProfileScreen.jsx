@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { logout } from '../../redux/slices/authSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // Mock Salon Data
 const MOCK_SALON_DATA = {
@@ -32,7 +32,10 @@ const MOCK_SALON_DATA = {
 
 export default function SalonProfileScreen() {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   const [salonData] = useState(MOCK_SALON_DATA);
+
+  console.log('User from Redux:', user);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -55,16 +58,17 @@ export default function SalonProfileScreen() {
         {/* Header */}
         <View style={styles.headerSection}>
           <Image source={{ uri: salonData.image }} style={styles.salonImage} />
-          <Text style={styles.salonName}>{salonData.name}</Text>
+          <Text style={styles.salonName}>{user.name}</Text>
           <View style={styles.ratingRow}>
             <Icon name="star" size={16} color="#FFD700" />
             <Text style={styles.rating}>{salonData.rating}</Text>
             <Text style={styles.reviews}>({salonData.reviews} reviews)</Text>
           </View>
+          <Text style={styles.rating}>{user?.salon?.registrationNumber}</Text>
         </View>
 
         {/* Quick Stats */}
-        <View style={styles.statsContainer}>
+        {/* <View style={styles.statsContainer}>
           <View style={styles.statBox}>
             <Icon name="cut" size={24} color="#156778" />
             <Text style={styles.statNumber}>{salonData.services}</Text>
@@ -75,7 +79,7 @@ export default function SalonProfileScreen() {
             <Text style={styles.statNumber}>{salonData.specialists}</Text>
             <Text style={styles.statLabel}>Specialists</Text>
           </View>
-        </View>
+        </View> */}
 
         {/* Contact & Location */}
         <View style={styles.section}>
@@ -85,7 +89,7 @@ export default function SalonProfileScreen() {
             <Icon name="location" size={20} color="#156778" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Location</Text>
-              <Text style={styles.infoText}>{salonData.location}</Text>
+              <Text style={styles.infoText}>{user?.salon?.location?.address}</Text>
             </View>
           </View>
 
@@ -93,7 +97,11 @@ export default function SalonProfileScreen() {
             <Icon name="call" size={20} color="#156778" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Phone</Text>
-              <Text style={styles.infoText}>{salonData.phone}</Text>
+              <Text style={styles.infoText}>{user?.salon?.contactNumber}</Text>
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Whatsapp</Text>
+              <Text style={styles.infoText}>{user?.salon?.whatsappNumber}</Text>
             </View>
           </View>
 
@@ -101,7 +109,7 @@ export default function SalonProfileScreen() {
             <Icon name="mail" size={20} color="#156778" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoText}>{salonData.email}</Text>
+              <Text style={styles.infoText}>{user?.email}</Text>
             </View>
           </View>
         </View>

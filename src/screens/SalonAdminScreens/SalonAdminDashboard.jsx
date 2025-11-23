@@ -47,7 +47,7 @@ const MOCK_TOP_SPECIALISTS = [
   { id: 3, name: 'Arjun Reddy', bookings: 10 },
 ];
 
-export default function SalonAdminDashboard() {
+export default function SalonAdminDashboard({navigation}) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending':
@@ -65,10 +65,21 @@ export default function SalonAdminDashboard() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Welcome Back!</Text>
-          <Text style={styles.date}>Today's Overview</Text>
-        </View>
+       {/* Header */}
+<View style={styles.header}>
+  <View style={styles.headerTop}>
+    <Text style={styles.greeting}>Welcome Back!</Text>
+    <TouchableOpacity style={styles.notificationButton} onPress={() => navigation.navigate('SalonNotifications')}>
+      <Icon name="notifications-outline" size={24} color="#fff" />
+      {/* Optional: add badge */}
+      <View style={styles.notificationBadge}>
+        <Text style={styles.badgeText}>3</Text>
+      </View>
+    </TouchableOpacity>
+  </View>
+  <Text style={styles.date}>Today's Overview</Text>
+</View>
+
 
         {/* Quick Stats */}
         <View style={styles.statsGrid}>
@@ -170,6 +181,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 20,
   },
+  headerTop: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
+notificationButton: {
+  width: 40,
+  height: 40,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+notificationBadge: {
+  position: 'absolute',
+  top: 2,
+  right: 2,
+  backgroundColor: '#FF0000',
+  width: 16,
+  height: 16,
+  borderRadius: 8,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+badgeText: {
+  color: '#fff',
+  fontSize: 10,
+  fontWeight: '700',
+},
   greeting: {
     fontSize: 24,
     fontWeight: 'bold',

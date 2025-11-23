@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { logout } from '../../redux/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { logoutAndGoToSalonRegistration } from '../../utils/NavigationHelper';
 
 // Menu Items
 const MENU_ITEMS = [
@@ -87,6 +88,13 @@ const MENU_ITEMS = [
     icon: 'call',
     section: 'other',
   },
+  {
+    id: 11,
+    title: 'Earn With Us',
+    subtitle: 'Become a partner',
+    icon: 'briefcase',
+    section: 'earnwithus',
+  },
 ];
 
 export default function UserProfileScreen({ navigation }) {
@@ -100,6 +108,9 @@ export default function UserProfileScreen({ navigation }) {
       break;
     case 'My Profile':
       navigation.navigate("HomeTab", { screen: "ProfileEditScreen" });
+      break;
+      case 'Earn With Us':
+      logoutAndGoToSalonRegistration(navigation, dispatch);
       break;
     default:
       Alert.alert(item.title, `${item.subtitle} - Coming soon!`);
@@ -222,6 +233,7 @@ export default function UserProfileScreen({ navigation }) {
 
         {/* Menu Sections */}
         {renderMenuSection(null, 'account')}
+        {renderMenuSection('Earn With Us', 'earnwithus')}
         {renderMenuSection('Rewards', 'rewards')}
         {renderMenuSection('Other Information', 'other')}
 

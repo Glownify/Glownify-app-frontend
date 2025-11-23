@@ -492,11 +492,9 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
               >
                 <Picker.Item label="Select Category" value="" />
                 <Picker.Item label="Men Salon" value="men" />
-                <Picker.Item label="Women Salon" value="women" />
-                <Picker.Item label="Unisex Salon" value="unisex" />
                 <Picker.Item label="Beauty Parlour" value="beautyParlour" />
+                <Picker.Item label="Unisex Salon" value="unisex" />
                 <Picker.Item label="Spa" value="spa" />
-                <Picker.Item label="Barbershop" value="barbershop" />
               </Picker>
             </View>
 
