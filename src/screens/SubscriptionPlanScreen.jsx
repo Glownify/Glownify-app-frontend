@@ -10,38 +10,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-const DUMMY_PLANS = [
-  {
-    _id: 'plan1',
-    name: 'Basic',
-    price: 199,
-    durationInDays: 30,
-    features: ['Up to 5 staff members', 'Unlimited bookings', 'Customer management', 'Basic reporting'],
-    isActive: true,
-  },
-  {
-    _id: 'plan2',
-    name: 'Pro',
-    price: 499,
-    durationInDays: 90,
-    features: ['Everything in Basic', 'Up to 15 staff members', 'Advanced reporting', 'Email marketing integration', 'Service add-ons'],
-    isActive: true,
-  },
-  {
-    _id: 'plan3',
-    name: 'Premium',
-    price: 1999,
-    durationInDays: 365,
-    features: ['Everything in Pro', 'Unlimited staff members', 'Dedicated account manager', 'Inventory management', 'Priority support'],
-    isActive: true,
-  },
-];
+import { useDispatch, useSelector } from 'react-redux';
+import { subscribePlan, fetchSubscriptionPlans } from '../redux/slices/subscriptionSlice';
 
 export default function SubscriptionPlanScreen({ closeModal }) {
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { subscriptionPlans, loading } = useSelector((state) => state.subscription);
+  const dispatch = useDispatch();
   const [selectedPlanId, setSelectedPlanId] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchSubscriptionPlans())
+  }, []);
+
+  console.log('Subscription:', subscriptionPlans);
+
 
   const getDurationText = (days) => {
     if (days <= 31) return '/ month';
@@ -50,14 +32,11 @@ export default function SubscriptionPlanScreen({ closeModal }) {
     return `for ${days} days`;
   };
 
-  useEffect(() => {
-    const fetchPlans = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setPlans(DUMMY_PLANS.filter((plan) => plan.isActive));
-      setLoading(false);
-    };
-    fetchPlans();
-  }, []);
+  const handleSubscribePlan = (planId) => {
+    console.log('Subscribing to plan:', planId);
+    dispatch(subscribePlan(planId));
+    closeModal();
+  }
 
   const renderPlanCard = ({ item }) => {
     const isSelected = selectedPlanId === item._id;
@@ -103,7 +82,7 @@ export default function SubscriptionPlanScreen({ closeModal }) {
             </View>
           ) : (
             <FlatList
-              data={plans}
+              data={subscriptionPlans}
               renderItem={renderPlanCard}
               keyExtractor={(item) => item._id}
               contentContainerStyle={styles.listContent}
@@ -115,7 +94,7 @@ export default function SubscriptionPlanScreen({ closeModal }) {
             <TouchableOpacity
               style={[styles.continueButton, !selectedPlanId && styles.disabledButton]}
               disabled={!selectedPlanId}
-              onPress={() => console.log('Selected Plan ID:', selectedPlanId)}
+              onPress={() => handleSubscribePlan(selectedPlanId)}
             >
               <Text style={styles.continueButtonText}>Continue</Text>
             </TouchableOpacity>
