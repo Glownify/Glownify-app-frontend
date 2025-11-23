@@ -182,7 +182,7 @@ export default function RegisterScreen({navigation}) {
           onPress={() => navigation.navigate('RoleSelection')}
         >
           <Text style={styles.providerText}>Are You a Service Provider?</Text>
-          <Text style={styles.providerLink}>Register as Admin</Text>
+          <Text style={styles.providerLink}>Register as Partner</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
