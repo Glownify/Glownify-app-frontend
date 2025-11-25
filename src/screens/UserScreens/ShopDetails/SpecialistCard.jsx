@@ -4,7 +4,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 export default function SpecialistCard({ specialist }) {
   return (
     <View style={styles.container}>
-      <Image source={specialist.image} style={styles.image} />
+      <Image source={{uri: specialist.image}} style={styles.image} />
       <Text style={styles.name} numberOfLines={1}>{specialist.name}</Text>
     </View>
   );

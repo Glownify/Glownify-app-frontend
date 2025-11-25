@@ -19,8 +19,6 @@ const { height, width } = Dimensions.get('window');
 
 // Mock Data
 const shopData = {
-  name: 'Plush Beauty Lounge',
-  location: 'Plain Toluid',
   distance: '18 km away available',
   rating: 4.7,
   reviews: '12k',
@@ -31,7 +29,6 @@ const shopData = {
     require('../../../assets/featuredSalon.png'),
     require('../../../assets/featuredSalon.png'),
   ],
-  about: 'Looking for your career? Plush Beauty Lounge, they accept men as well as women. Our beauty treatment focuses on hair and skin, ensuring that if is shallots its skin, it matters to us.',
   services: [
     {
       id: '1',
@@ -70,12 +67,6 @@ const shopData = {
       image: require('../../../assets/featuredSalon.png'),
     },
   ],
-  specialists: [
-    { id: '1', name: 'Ronald', image: require('../../../assets/featuredSalon.png') },
-    { id: '2', name: 'Merry', image: require('../../../assets/featuredSalon.png') },
-    { id: '3', name: 'Bella', image: require('../../../assets/featuredSalon.png') },
-    { id: '4', name: 'Joseph', image: require('../../../assets/featuredSalon.png') },
-  ],
   reviews: [
     {
       id: '1',
@@ -103,8 +94,6 @@ const shopData = {
     },
   ],
 };
-// Add this after line 102 (after shopData definition)
-console.log('Reviews Data:', JSON.stringify(shopData.reviews, null, 2));
 
 export default function ShopDetailsScreen({ navigation, route }) {
   const { salonId } = route.params;
@@ -125,7 +114,9 @@ export default function ShopDetailsScreen({ navigation, route }) {
   const dispatch = useDispatch();
   const salonData = useSelector((state) => state.user.salonDetails);
 
-  console.log('Salon Data from Redux:', salonData);
+  const specialists = salonData?.specialistsData || [];
+  const serviceCategories = salonData?.serviceCategories || [];
+
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: 'transparent' }]} edges={[]}>
@@ -255,31 +246,15 @@ export default function ShopDetailsScreen({ navigation, route }) {
               showsHorizontalScrollIndicator={false}
               style={styles.filterTabsContainer}
             >
-              <TouchableOpacity
-                style={[styles.filterTab, styles.filterTabActive]}
-                activeOpacity={0.7}
-              >
-                <View style={styles.filterIconContainer}>
-                  <Icon name="cut-outline" size={20} color="#156778" />
-                </View>
-                <Text style={[styles.filterTabText, styles.filterTabTextActive]}>
-                  Haircut
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.filterTab} activeOpacity={0.7}>
-                <View style={styles.filterIconContainer}>
-                  <Icon name="happy-outline" size={20} color="#6B7280" />
-                </View>
-                <Text style={styles.filterTabText}>Facial</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.filterTab} activeOpacity={0.7}>
-                <View style={styles.filterIconContainer}>
-                  <Icon name="hand-left-outline" size={20} color="#6B7280" />
-                </View>
-                <Text style={styles.filterTabText}>Nails</Text>
-              </TouchableOpacity>
+              {serviceCategories.map((category) => (
+                <TouchableOpacity
+                  key={category.id}
+                  style={[styles.filterTab, /* Add active style conditionally */]}
+                  onPress={()=>console.log(category._id)}
+                >
+                  <Text style={styles.filterTabText}>{category.name}</Text>
+                </TouchableOpacity>
+              ))}
             </ScrollView>
 
             {shopData.services.map((service) => (
@@ -317,9 +292,13 @@ export default function ShopDetailsScreen({ navigation, route }) {
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {shopData.specialists.map((specialist) => (
-                <SpecialistCard key={specialist.id} specialist={specialist} />
-              ))}
+              {specialists.length === 0 ? (
+                <Text style={styles.aboutText}>No specialists available at the moment.</Text>
+              ) : (
+                specialists.map((specialist) => (
+                  <SpecialistCard key={specialist._id} specialist={specialist} />
+                ))
+              )}
             </ScrollView>
           </View>
 
