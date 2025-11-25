@@ -8,6 +8,7 @@ import HomeHeader from '../../../components/HomeHeader';
 import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
+import ServiceAtHomeCard from './ServiceAtHomeCard';
 
 const { width } = Dimensions.get('window');
 
@@ -190,6 +191,11 @@ export default function HomeScreen({ navigation }) {
 
           {/* --- Salon Sections --- */}
           {renderSalonSection(selectedCategory.toUpperCase(), salonList)}
+
+          {/* --- Service at Home Card --- */}
+      <SectionHeader title="Service At Home" />
+      <ServiceAtHomeCard onPress={() => navigation.navigate('ProfessionalsListScreen')} />
+
           {/* --- Nearby Offers --- */}
           <SectionHeader title="Nearby Offers" />
           <View style={{ paddingHorizontal: 16 }}>
