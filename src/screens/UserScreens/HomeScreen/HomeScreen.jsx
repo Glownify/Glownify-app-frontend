@@ -38,7 +38,7 @@ export default function HomeScreen({ navigation }) {
     : [];
 
 
-  console.log('HomeScreen Rendered. HomeSalonsBySalonCategory:', homeSalonsBySalonCategory?.data);
+  // console.log('HomeScreen Rendered. HomeSalonsBySalonCategory:', homeSalonsBySalonCategory?.data);
 
   const [refreshing, setRefreshing] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -87,7 +87,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   const renderSalonSection = (title, data) => {
-    console.log(`Rendering salon section: ${title}`, data);
+    // console.log(`Rendering salon section: ${title}`, data);
     
     // Use the salonList variable or re-calculate listData for safety
     const listData = Array.isArray(data?.salons) ? data.salons : Array.isArray(data) ? data : [];
