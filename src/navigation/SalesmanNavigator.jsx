@@ -6,23 +6,17 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 // ========================
+// IMPORT SCREENS
+// ========================
+import SalesPersonDashboard from '../screens/Salesman/Salespersondashboard';
+import SalesPersonProfileScreen from '../screens/Salesman/Salespersonprofilescreen';
+
+// ========================
 //  MOCK SCREENS (TABS)
 // ========================
-const SalesManDashboard = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>Salesman Dashboard Screen</Text>
-  </View>
-);
-
 const SalesManOrders = () => (
   <View style={styles.mockScreen}>
     <Text style={styles.mockText}>Salesman Orders Screen</Text>
-  </View>
-);
-
-const SalesManProfile = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>Salesman Profile Screen</Text>
   </View>
 );
 
@@ -73,7 +67,7 @@ const colors = {
 function SalesHomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="SalesHomeMain" component={SalesManDashboard} />
+      <Stack.Screen name="SalesHomeMain" component={SalesPersonDashboard} />
 
       {/* Screens not shown in tab bar */}
       <Stack.Screen name="CustomerDetails" component={CustomerDetailsScreen} />
@@ -175,7 +169,7 @@ export default function SalesmanNavigator() {
         {/* PROFILE */}
         <Tab.Screen
           name="SalesProfile"
-          component={SalesManProfile}
+          component={SalesPersonProfileScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>
