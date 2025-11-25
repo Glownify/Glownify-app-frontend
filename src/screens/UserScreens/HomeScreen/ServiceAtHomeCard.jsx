@@ -15,7 +15,7 @@ const colors = {
 // Define a default professional object for demonstration/placeholder
 const defaultProfessional = {
     _id: 'prof1',
-    profileImage: require('../../../assets/image.png'), // Placeholder image
+    profileImage: { uri: 'https://appointible.com/wp-content/uploads/2023/02/hair-stylist-cutting-hair-1024x683.jpeg.webp' }, // Placeholder image
     name: 'Maya Sharma',
     address: 'Banjara Hills, Hyd.',
     experience: '8 Years',
