@@ -38,8 +38,6 @@ export default function HomeScreen({ navigation }) {
     : [];
 
 
-  // console.log('HomeScreen Rendered. HomeSalonsBySalonCategory:', homeSalonsBySalonCategory?.data);
-
   const [refreshing, setRefreshing] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('women');
@@ -51,14 +49,15 @@ export default function HomeScreen({ navigation }) {
   ];
 
   const handleSelectSalonCategory = (category) => {
-   dispatch(fetchHomeSalonsBySalonCategory(category));
    setSelectedCategory(category);
   }
 
-  useEffect(() => {
+ useEffect(() => {
     dispatch(getAllCategories());
-    dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
-  }, [selectedCategory, dispatch]);
+    if (selectedCategory) {
+        dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+    }
+}, [selectedCategory, dispatch]);
 
   useEffect(() => {
     // Slide promo banner every 2 seconds
@@ -190,7 +189,7 @@ export default function HomeScreen({ navigation }) {
 
 
           {/* --- Salon Sections --- */}
-          {renderSalonSection(selectedCategory.toUpperCase(), homeSalonsBySalonCategory?.data)}
+          {renderSalonSection(selectedCategory.toUpperCase(), salonList)}
           {/* --- Nearby Offers --- */}
           <SectionHeader title="Nearby Offers" />
           <View style={{ paddingHorizontal: 16 }}>

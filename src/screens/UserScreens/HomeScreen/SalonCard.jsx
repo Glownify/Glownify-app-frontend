@@ -17,12 +17,13 @@ const colors = {
 
 const SalonCard = ({ salon }) => {
   const navigation = useNavigation();
-
+  
   const {
     shopName,
     salonCategory,
     location,
     galleryImages,
+    categories,
     rating = '4.8',
     reviews = '200',
   } = salon || {};
@@ -51,6 +52,9 @@ const SalonCard = ({ salon }) => {
         </Text>
         <Text style={styles.address} numberOfLines={1}>
           {location?.address || 'Address not available'}
+        </Text>
+         <Text style={styles.address} numberOfLines={1}>
+          {categories?.map(cat => cat.name).join(', ') || 'No categories available'}
         </Text>
         <View style={styles.ratingRow}>
           <Ionicons name="star" size={14} color={colors.star} />
