@@ -53,46 +53,6 @@ function HomeStack() {
   );
 }
 
-// function MessagesTopTabNavigator() {
-//   return (
-//     <View style={{ flex: 1, backgroundColor: colors.white }}>
-//       <TopTab.Navigator
-//         screenOptions={{
-//           tabBarActiveTintColor: colors.primary,
-//           tabBarInactiveTintColor: 'gray',
-//           tabBarLabelStyle: {
-//             textTransform: 'none',
-//             fontSize: 18,
-//             fontWeight: '600',
-//           },
-//           tabBarIndicatorStyle: {
-//             backgroundColor: colors.primary,
-//             height: 2.5,
-//           },
-//           tabBarStyle: {
-//             backgroundColor: colors.white,
-//             elevation: 0,
-//             shadowOpacity: 0,
-//           },
-//         }}
-//       >
-//         <TopTab.Screen
-//           name="Message"
-//           component={MessageScreen}
-//           options={{ title: 'Messages' }}
-//         />
-//         <TopTab.Screen
-//           name="Notification"
-//           component={NotificationScreen}
-//           options={{ title: 'Notification' }}
-//         />
-//       </TopTab.Navigator>
-//     </View>
-//   );
-// }
-// --- End Unchanged Navigators ---
-
-
 export default function AppNavigator() {
   return (
     <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.primary }}>
@@ -153,23 +113,26 @@ export default function AppNavigator() {
           })}
         />
 
-        {/* --- Screen 2: Bookings --- */}
+         {/* --- Screen 2: Notifications --- */}
         <Tab.Screen
-          name="BookingsTab"
-          component={UserBookingsScreen}
+          name="NotificationTab"
+          component={NotificationScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>
                 {focused && <View style={styles.activeBar} />}
                 <Icon
-                  name={focused ? 'clipboard' : 'clipboard-outline'}
+                  name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'}
                   size={26}
                   color={focused ? colors.white : colors.inactive}
                 />
+                {!focused && <View style={styles.badge} />}
               </View>
             ),
           }}
         />
+
+        
 
         {/* --- Screen 3: AI FAB --- */}
         <Tab.Screen
@@ -198,24 +161,24 @@ export default function AppNavigator() {
           }}
         />
 
-        {/* --- Screen 4: Notifications --- */}
+        {/* --- Screen 4: Bookings --- */}
         <Tab.Screen
-          name="NotificationTab"
-          component={NotificationScreen}
+          name="BookingsTab"
+          component={UserBookingsScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>
                 {focused && <View style={styles.activeBar} />}
                 <Icon
-                  name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'}
+                  name={focused ? 'clipboard' : 'clipboard-outline'}
                   size={26}
                   color={focused ? colors.white : colors.inactive}
                 />
-                {!focused && <View style={styles.badge} />}
               </View>
             ),
           }}
         />
+
 
         {/* --- Screen 5: Profile --- */}
         <Tab.Screen

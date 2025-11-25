@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, StatusBar, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Image, StatusBar, Button, ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgUri } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchHomeSalons, getAllCategories } from '../../../redux/slices/userSlice';
+import { fetchHomeSalonsBySalonCategory, getAllCategories } from '../../../redux/slices/userSlice';
 import HomeHeader from '../../../components/HomeHeader';
 import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
@@ -28,13 +28,21 @@ const CategoryIcon = ({ uri }) => {
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const { loading, homeSalons, categories } = useSelector((state) => state.user);
+  const { loading, homeSalonsBySalonCategory, categories } = useSelector((state) => state.user);
 
-  console.log('HomeSalons:', homeSalons);
+  // Use a more robust check for data structure, but keep it minimal
+  const salonList = Array.isArray(homeSalonsBySalonCategory?.data?.salons)
+    ? homeSalonsBySalonCategory.data.salons
+    : Array.isArray(homeSalonsBySalonCategory?.data)
+    ? homeSalonsBySalonCategory.data
+    : [];
+
+
+  console.log('HomeScreen Rendered. HomeSalonsBySalonCategory:', homeSalonsBySalonCategory?.data);
 
   const [refreshing, setRefreshing] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-
+  const [selectedCategory, setSelectedCategory] = useState('women');
   const promoScrollRef = useRef(null);
   const promoImages = [
     require('../../../assets/promos/promo1.png'),
@@ -42,37 +50,49 @@ export default function HomeScreen({ navigation }) {
     require('../../../assets/promos/promo3.png'),
   ];
 
-  const loadData = async () => {
-    try {
-      await Promise.all([dispatch(fetchHomeSalons()), dispatch(getAllCategories())]);
-    } catch (err) {
-      console.log('Error refreshing:', err);
-    }
-  };
+  const handleSelectSalonCategory = (category) => {
+   dispatch(fetchHomeSalonsBySalonCategory(category));
+   setSelectedCategory(category);
+  }
 
   useEffect(() => {
-    loadData();
-  }, []);
+    dispatch(getAllCategories());
+    dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+  }, [selectedCategory, dispatch]);
 
   useEffect(() => {
-    // Slide promo banner every 3 seconds
+    // Slide promo banner every 2 seconds
     const interval = setInterval(() => {
       const nextSlide = (currentSlide + 1) % promoImages.length;
       setCurrentSlide(nextSlide);
-      promoScrollRef.current?.scrollTo({ x: nextSlide * width, animated: true });
+      
+      // 🚨 SAFETY CHECK: Ensure ref.current is not null before calling scrollTo
+      if (promoScrollRef.current) {
+         promoScrollRef.current.scrollTo({ x: nextSlide * width, animated: true });
+      }
     }, 2000);
 
+    // Clean up the interval when the component unmounts or dependencies change
     return () => clearInterval(interval);
-  }, [currentSlide]);
+  }, [currentSlide, promoImages.length]); // Added promoImages.length as a dependency
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
+    // Use Promise.all if these were async thunks, but for dispatching, this is fine
+    dispatch(getAllCategories());
+    dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+    // A small delay or a check on Redux state change would make this more accurate,
+    // but for simple refreshing, we stop the indicator:
+    setRefreshing(false); 
   };
 
   const renderSalonSection = (title, data) => {
-    if (!data || data.length === 0) return null;
+    console.log(`Rendering salon section: ${title}`, data);
+    
+    // Use the salonList variable or re-calculate listData for safety
+    const listData = Array.isArray(data?.salons) ? data.salons : Array.isArray(data) ? data : [];
+
+    if (listData.length === 0) return null;
 
     return (
       <View style={{ marginBottom: 20 }}>
@@ -82,7 +102,7 @@ export default function HomeScreen({ navigation }) {
           onPress={() => navigation.navigate('SalonsListScreen', { type: title })}
         />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-          {data.map((salon) => (
+          {listData.map((salon) => ( // Use listData here
             <View key={salon._id} style={styles.salonCardWrapper}>
               <SalonCard salon={salon} />
             </View>
@@ -93,12 +113,15 @@ export default function HomeScreen({ navigation }) {
   };
 
   if (loading && !refreshing) {
-    return (
-      <View style={styles.centered}>
-        <Text>Loading salons...</Text>
-      </View>
-    );
-  }
+  return (
+    <View style={styles.centered}>
+      <ActivityIndicator size="large" color={colors.primary} />
+      <Text style={{ marginTop: 10, fontSize: 16, color: colors.primary }}>
+        Loading salons...
+      </Text>
+    </View>
+  );
+}
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -125,11 +148,38 @@ export default function HomeScreen({ navigation }) {
             </ScrollView>
           </View>
 
+          
+          <View style={styles.setCategoryContainer}>
+
+  <TouchableOpacity
+    style={[styles.categoryButton, selectedCategory === 'women' && styles.categoryButtonActive]}
+    onPress={() => handleSelectSalonCategory('women')}
+    accessibilityRole="button"
+    accessibilityLabel={selectedCategory === 'women' ? 'Selected Women salon category' : 'Select Women salon category'}
+  >
+    <Text style={[styles.categoryButtonText, selectedCategory === 'women' && styles.categoryButtonTextActive]}>Women</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={[styles.categoryButton, selectedCategory === 'men' && styles.categoryButtonActive]}
+    onPress={() => handleSelectSalonCategory('men')}
+    accessibilityRole="button"
+    accessibilityLabel={selectedCategory === 'men' ? 'Selected Men salon category' : 'Select Men salon category'}
+  >
+    <Text style={[styles.categoryButtonText, selectedCategory === 'men' && styles.categoryButtonTextActive]}>Men</Text>
+  </TouchableOpacity>
+</View>
+
           {/* Categories */}
           <SectionHeader title="What do you want to get?" />
           <View style={styles.categories}>
             {categories.map((cat) => (
-              <TouchableOpacity key={cat._id} style={styles.categoryItem}>
+              <TouchableOpacity 
+                key={cat._id} 
+                style={styles.categoryItem}
+                accessibilityRole="button"
+                accessibilityLabel={`View services for ${cat.name} category`}
+              >
                 <View style={styles.categoryIcon}>
                   <CategoryIcon uri={cat.icon} />
                 </View>
@@ -138,12 +188,9 @@ export default function HomeScreen({ navigation }) {
             ))}
           </View>
 
-          {/* --- Salon Sections --- */}
-          {renderSalonSection('Men Salon', homeSalons?.men)}
-          {renderSalonSection('Beauty Parlour', homeSalons?.beautyParlour)}
-          {renderSalonSection('Unisex', homeSalons?.unisex)}
-          {renderSalonSection('Spa', homeSalons?.spa)}
 
+          {/* --- Salon Sections --- */}
+          {renderSalonSection(selectedCategory.toUpperCase(), homeSalonsBySalonCategory?.data)}
           {/* --- Nearby Offers --- */}
           <SectionHeader title="Nearby Offers" />
           <View style={{ paddingHorizontal: 16 }}>
@@ -195,6 +242,38 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
   },
+  setCategoryContainer: {
+  flexDirection: 'row',
+  justifyContent: 'flex-start',
+  marginHorizontal: 16,
+  marginVertical: 16,
+  gap: 16, // using gap for simplicity, test on target devices
+},
+
+categoryButton: {
+  paddingVertical: 10,
+  paddingHorizontal: 30,
+  backgroundColor: colors.primaryLight,
+  // borderRadius: 25, (Removed rounded border as it was commented out)
+  borderWidth: 1,
+  borderColor: 'transparent',
+},
+
+categoryButtonActive: {
+  backgroundColor: colors.primary,
+  borderColor: colors.primary,
+},
+
+categoryButtonText: {
+  color: colors.primary,
+  fontWeight: '600',
+  fontSize: 16,
+  textAlign: 'center',
+},
+
+categoryButtonTextActive: {
+  color: colors.white,
+},
   horizontalScroll: { paddingLeft: 16, paddingVertical: 10 },
   salonCardWrapper: { marginRight: 16 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },

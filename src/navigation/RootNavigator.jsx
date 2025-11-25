@@ -8,6 +8,8 @@ import AuthNavigator from './AuthNavigator';
 import AppNavigator from './AppNavigator';
 import SalonNavigator from './SalonNavigator';
 import SuperAdminNavigator from './SuperAdminNavigator';
+// import IndependentNavigator from './IndependentNavigator';
+import SalesmanNavigator from './SalesmanNavigator';
 import { useSelector, useDispatch } from 'react-redux';
 import { loadUserFromStorage } from '../redux/slices/authSlice';
 
@@ -61,6 +63,8 @@ export default function RootNavigator() {
           <Stack.Screen name="Salon" component={SalonNavigator} />
         ) : user.role === 'independent_beautician' ? (
           <Stack.Screen name="Independent" component={IndependentNavigator} />
+        ) : user.role === 'salesman' ? (
+          <Stack.Screen name="Salesman" component={SalesmanNavigator} />
         ) : (
           <Stack.Screen name="App" component={AppNavigator} /> // default user
         )}

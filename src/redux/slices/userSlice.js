@@ -3,12 +3,14 @@ import axiosInstance from "../../api/axiosInstance";
 
 // -------------------- SERVICE THUNKS --------------------
 
-export const fetchHomeSalons = createAsyncThunk(
-  "user/fetchHomeSalons",
-  async (_, { rejectWithValue }) => {
+export const fetchHomeSalonsBySalonCategory = createAsyncThunk(
+  "user/fetchHomeSalonsBySalonCategory",
+  async (category, { rejectWithValue }) => {
+    console.log('Fetching home salons for category:', category);
     try {
-      const response = await axiosInstance.get("/user/get-home-salons");
-      return response.data.data;
+      const response = await axiosInstance.get(`/user/get-home-salons?category=${category}`);
+      console.log('Fetched home salons response:', response.data);
+      return response.data || [];
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch home salons");
     }
@@ -42,7 +44,7 @@ export const fetchSalonById = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    homeSalons: [],
+    homeSalonsBySalonCategory: [],
     categories: [],
     salonDetails: null,
     loading: false,
@@ -51,15 +53,15 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchHomeSalons.pending, (state) => {
+      .addCase(fetchHomeSalonsBySalonCategory.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchHomeSalons.fulfilled, (state, action) => {
+      .addCase(fetchHomeSalonsBySalonCategory.fulfilled, (state, action) => {
         state.loading = false;
-        state.homeSalons = action.payload;
+        state.homeSalonsBySalonCategory = action.payload;
       })
-      .addCase(fetchHomeSalons.rejected, (state, action) => {
+      .addCase(fetchHomeSalonsBySalonCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
