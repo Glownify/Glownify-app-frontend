@@ -1,6 +1,6 @@
 import { logout } from '../../redux/slices/authSlice';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import React, { useState } from 'react';
 import {
   View,
@@ -14,18 +14,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-const SALES_PERSON_PROFILE = {
-  id: 'SP-2025-001',
-  name: 'Rajesh Kumar',
-  referralId: 'SP-2025-001',
-  email: 'rajesh@salonstartup.com',
-  phone: '9876543210',
-  whatsapp: '9876543210',
-  address: 'New Delhi, Delhi',
-  joinDate: '2025-01-15',
-  profilePhoto: '👨',
-};
 
 const PROFILE_STATS = [
   {
@@ -54,8 +42,22 @@ const PROFILE_STATS = [
 export default function SalesPersonProfileScreen() {
   const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
-    const navigation = useNavigation();
-  const [profileData, setProfileData] = useState(SALES_PERSON_PROFILE);
+  const navigation = useNavigation();
+  const { user } = useSelector((state) => state.auth);
+
+  // Use Redux user data with fallbacks
+  const profileData = {
+    id: user?._id || 'SP-2025-001',
+    name: user?.name || 'Salesman',
+    referralId: user?.referralId || 'SP-2025-001',
+    email: user?.email || 'email@example.com',
+    phone: user?.phone || '9876543210',
+    whatsapp: user?.whatsappNumber || user?.phone || '9876543210',
+    address: user?.address || 'Address not provided',
+    joinDate: user?.createdAt || new Date().toISOString(),
+    profilePhoto: '👨',
+  };
+
   const [editFormData, setEditFormData] = useState(profileData);
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
@@ -68,7 +70,7 @@ export default function SalesPersonProfileScreen() {
       Alert.alert('Error', 'Please fill all required fields');
       return;
     }
-    setProfileData(editFormData);
+    // TODO: Call API to update profile
     setEditMode(false);
     Alert.alert('Success', 'Profile updated successfully!');
   };
