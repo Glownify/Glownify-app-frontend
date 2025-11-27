@@ -162,8 +162,8 @@ export default function HomeScreen({ navigation }) {
     accessibilityLabel={selectedCategory === 'women' ? 'Selected Women salon category' : 'Select Women salon category'}
   >
     <View style={{flexDirection: 'row',gap:10}}>
-    <Image style={styles.menWomenStyle} source={womenImage}/>
-    <Text style={[styles.categoryButtonText, selectedCategory === 'women' && styles.categoryButtonTextActive]}>Women</Text>
+      <Image style={styles.menWomenStyle} source={womenImage}/>
+      <Text style={[styles.categoryButtonText, selectedCategory === 'women' && styles.categoryButtonTextActive]}>Women</Text>
     </View>
   </TouchableOpacity>
 
@@ -174,8 +174,8 @@ export default function HomeScreen({ navigation }) {
     accessibilityLabel={selectedCategory === 'men' ? 'Selected Men salon category' : 'Select Men salon category'}
   >
     <View style={{flexDirection: 'row', gap:10}}>
-    <Image style={styles.menWomenStyle} source={menImage}/>
-    <Text style={[styles.categoryButtonText, selectedCategory === 'men' && styles.categoryButtonTextActive]}>Men</Text>
+      <Image style={styles.menWomenStyle} source={menImage}/>
+      <Text style={[styles.categoryButtonText, selectedCategory === 'men' && styles.categoryButtonTextActive]}>Men</Text>
     </View>
   </TouchableOpacity>
 </View>
