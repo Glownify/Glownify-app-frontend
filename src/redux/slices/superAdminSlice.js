@@ -42,7 +42,14 @@ export const fetchAllCategories = createAsyncThunk(
       const res = await axiosInstance.get("/super-admin/getAllCategories");
       return res.data.categories;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Error fetching categories");
+
+      // 🔥 Always return a clean string message
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Error fetching categories";
+
+      return rejectWithValue(message);  // return string only!
     }
   }
 );
@@ -50,11 +57,17 @@ export const fetchAllCategories = createAsyncThunk(
 export const createCategory = createAsyncThunk(
   "superAdmin/createCategory",
   async (data, { rejectWithValue }) => {
+    console.log("Creating category with data:", data);
     try {
       const res = await axiosInstance.post("/super-admin/create-category", data);
       return res.data.category;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Error creating category");
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Error fetching categories";
+
+      return rejectWithValue(message);  // return string only!
     }
   }
 );
@@ -63,11 +76,16 @@ export const updateCategory = createAsyncThunk(
   "superAdmin/updateCategory",
   async ({ categoryId, data }, { rejectWithValue }) => {
     try {
+      console.log("Updating category with ID:", categoryId, "and data:", data);
       const res = await axiosInstance.patch(`/super-admin/update-category/${categoryId}`, data);
       return res.data.category;
     } catch (error) {
-      console.log(error.response?.data?.message);
-      return rejectWithValue(error.response?.data?.message || "Error updating category");
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Error updating categories";
+
+      return rejectWithValue(message);  // return string only!
     }
   }
 );
@@ -80,7 +98,11 @@ export const fetchAllOffers = createAsyncThunk(
       const res = await axiosInstance.get("/super-admin/get-all-offers");
       return res.data.offers;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Error fetching offers");
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Error fetching offers";
+      return rejectWithValue(message);  // return string only!
     }
   }
 );

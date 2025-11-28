@@ -6,10 +6,8 @@ import axiosInstance from "../../api/axiosInstance";
 export const fetchHomeSalonsBySalonCategory = createAsyncThunk(
   "user/fetchHomeSalonsBySalonCategory",
   async (category, { rejectWithValue }) => {
-    // console.log('Fetching home salons for category:', category);
     try {
       const response = await axiosInstance.get(`/user/get-home-salons?category=${category}`);
-      // console.log('Fetched home salons response:', response.data);
       return response.data || [];
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch home salons");
@@ -19,9 +17,9 @@ export const fetchHomeSalonsBySalonCategory = createAsyncThunk(
 
 export const getAllCategories = createAsyncThunk(
   "user/getAllCategories",
-  async (_, { rejectWithValue }) => {
+  async (gender, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/user/get-all-categories");
+      const response = await axiosInstance.get(`/user/get-all-categories?gender=${gender}`);
       return response.data.categories;
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch categories");

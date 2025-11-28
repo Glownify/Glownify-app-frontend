@@ -40,7 +40,7 @@ export default function OfferScreen() {
 
           {/* Example placeholder image */}
           <Image
-            source={require('../../assets/offer/offer.png')}
+            source={require('../../assets/promos/promo1.png')}
             style={styles.bannerImage}
             resizeMode="contain"
           />
@@ -58,7 +58,7 @@ export default function OfferScreen() {
           </View>
 
           <Image
-            source={require('../../assets/offer/refer.png')}
+            source={require('../../assets/promos/promo1.png')}
             style={styles.offerImage}
             resizeMode="contain"
           />

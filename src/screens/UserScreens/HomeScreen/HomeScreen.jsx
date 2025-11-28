@@ -11,7 +11,9 @@ import NearbyOfferCard from './NearbyOfferCard';
 import ServiceAtHomeCard from './ServiceAtHomeCard';
 import PromoBanner from './PromoBanner';
 
+
 const { width } = Dimensions.get('window');
+
 
 const colors = {
   primary: '#156778',
@@ -21,18 +23,20 @@ const colors = {
   textSecondary: '#6B7280',
 };
 
+
 const CategoryIcon = ({ uri }) => {
   const isSvg = uri?.endsWith('.svg');
   if (isSvg) return <SvgUri width={32} height={32} uri={uri} />;
   return <Image source={{ uri }} style={{ width: 32, height: 32, resizeMode: 'contain' }} />;
 };
 
+
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const { loading, homeSalonsBySalonCategory, categories } = useSelector((state) => state.user);
 
-  // Use a more robust check for data structure, but keep it minimal
+
   const salonList = Array.isArray(homeSalonsBySalonCategory?.data?.salons)
     ? homeSalonsBySalonCategory.data.salons
     : Array.isArray(homeSalonsBySalonCategory?.data)
@@ -52,49 +56,47 @@ export default function HomeScreen({ navigation }) {
 
  
   const womenImage = require('../../../assets/men-women/woman.png');
-  const menImage = require('../../../assets/men-women/men.png')
+  const menImage = require('../../../assets/men-women/men.png');
+
 
   const handleSelectSalonCategory = (category) => {
    setSelectedCategory(category);
   }
 
- useEffect(() => {
-    dispatch(getAllCategories());
-    if (selectedCategory) {
-        dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
-    }
+
+useEffect(() => {
+  if (selectedCategory) {
+    dispatch(getAllCategories(selectedCategory));
+    dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+  }
 }, [selectedCategory, dispatch]);
 
+
+
   useEffect(() => {
-    // Slide promo banner every 2 seconds
     const interval = setInterval(() => {
       const nextSlide = (currentSlide + 1) % promoImages.length;
       setCurrentSlide(nextSlide);
       
-      // 🚨 SAFETY CHECK: Ensure ref.current is not null before calling scrollTo
       if (promoScrollRef.current) {
          promoScrollRef.current.scrollTo({ x: nextSlide * width, animated: true });
       }
     }, 2000);
 
-    // Clean up the interval when the component unmounts or dependencies change
     return () => clearInterval(interval);
-  }, [currentSlide, promoImages.length]); // Added promoImages.length as a dependency
+  }, [currentSlide, promoImages.length]);
+
 
   const onRefresh = async () => {
-    setRefreshing(true);
-    // Use Promise.all if these were async thunks, but for dispatching, this is fine
-    dispatch(getAllCategories());
-    dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
-    // A small delay or a check on Redux state change would make this more accurate,
-    // but for simple refreshing, we stop the indicator:
-    setRefreshing(false); 
-  };
+  setRefreshing(true);
+  dispatch(getAllCategories(selectedCategory));
+  dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+  setRefreshing(false);
+};
+
+
 
   const renderSalonSection = (title, data) => {
-    // console.log(`Rendering salon section: ${title}`, data);
-    
-    // Use the salonList variable or re-calculate listData for safety
     const listData = Array.isArray(data?.salons) ? data.salons : Array.isArray(data) ? data : [];
 
     if (listData.length === 0) return null;
@@ -107,7 +109,7 @@ export default function HomeScreen({ navigation }) {
           onPress={() => navigation.navigate('SalonsListScreen', { type: title })}
         />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-          {listData.map((salon) => ( // Use listData here
+          {listData.map((salon) => (
             <View key={salon._id} style={styles.salonCardWrapper}>
               <SalonCard salon={salon} />
             </View>
@@ -117,16 +119,18 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
+
   if (loading && !refreshing) {
-  return (
-    <View style={styles.centered}>
-      <ActivityIndicator size="large" color={colors.primary} />
-      <Text style={{ marginTop: 10, fontSize: 16, color: colors.primary }}>
-        Loading salons...
-      </Text>
-    </View>
-  );
-}
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ marginTop: 10, fontSize: 16, color: colors.primary }}>
+          Loading salons...
+        </Text>
+      </View>
+    );
+  }
+
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -139,49 +143,54 @@ export default function HomeScreen({ navigation }) {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
           {/* Promo Banner Slider */}
-          {/* <View style={styles.promoContainer}>
-            <ScrollView
-              ref={promoScrollRef}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              scrollEnabled={false} // Auto scroll only
-            >
-              {promoImages.map((img, index) => (
-                <Image key={index} source={img} style={styles.promoImage} />
-              ))}
-            </ScrollView>
-          </View> */}
-
           <PromoBanner />
 
-          
-          <View style={styles.setCategoryContainer}>
+          {/* Gender Category Toggle */}
+          <View style={styles.toggleContainer}>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                styles.toggleButtonLeft,
+                selectedCategory === 'women' && styles.toggleButtonActive
+              ]}
+              onPress={() => handleSelectSalonCategory('women')}
+              activeOpacity={0.8}
+            >
+              <Image 
+                style={styles.toggleIcon} 
+                source={womenImage}
+                resizeMode="contain"
+              />
+              <Text style={[
+                styles.toggleText,
+                selectedCategory === 'women' && styles.toggleTextActive
+              ]}>
+                Women
+              </Text>
+            </TouchableOpacity>
 
-  <TouchableOpacity
-    style={[styles.categoryButton, selectedCategory === 'women' && styles.categoryButtonActive]}
-    onPress={() => handleSelectSalonCategory('women')}
-    accessibilityRole="button"
-    accessibilityLabel={selectedCategory === 'women' ? 'Selected Women salon category' : 'Select Women salon category'}
-  >
-    <View style={{flexDirection: 'row',gap:10}}>
-      <Image style={styles.menWomenStyle} source={womenImage}/>
-      <Text style={[styles.categoryButtonText, selectedCategory === 'women' && styles.categoryButtonTextActive]}>Women</Text>
-    </View>
-  </TouchableOpacity>
-
-  <TouchableOpacity
-    style={[styles.categoryButton, selectedCategory === 'men' && styles.categoryButtonActive]}
-    onPress={() => handleSelectSalonCategory('men')}
-    accessibilityRole="button"
-    accessibilityLabel={selectedCategory === 'men' ? 'Selected Men salon category' : 'Select Men salon category'}
-  >
-    <View style={{flexDirection: 'row', gap:10}}>
-      <Image style={styles.menWomenStyle} source={menImage}/>
-      <Text style={[styles.categoryButtonText, selectedCategory === 'men' && styles.categoryButtonTextActive]}>Men</Text>
-    </View>
-  </TouchableOpacity>
-</View>
+            <TouchableOpacity
+              style={[
+                styles.toggleButton,
+                styles.toggleButtonRight,
+                selectedCategory === 'men' && styles.toggleButtonActive
+              ]}
+              onPress={() => handleSelectSalonCategory('men')}
+              activeOpacity={0.8}
+            >
+              <Image 
+                style={styles.toggleIcon} 
+                source={menImage}
+                resizeMode="contain"
+              />
+              <Text style={[
+                styles.toggleText,
+                selectedCategory === 'men' && styles.toggleTextActive
+              ]}>
+                Men
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Categories */}
           <SectionHeader title="What do you want to get?" />
@@ -201,13 +210,12 @@ export default function HomeScreen({ navigation }) {
             ))}
           </View>
 
-
           {/* --- Salon Sections --- */}
           {renderSalonSection(selectedCategory.toUpperCase(), salonList)}
 
           {/* --- Service at Home Card --- */}
-      <SectionHeader title="Service At Home" />
-      <ServiceAtHomeCard onPress={() => navigation.navigate('ProfessionalsListScreen')} />
+          <SectionHeader title="Service At Home" />
+          <ServiceAtHomeCard onPress={() => navigation.navigate('ProfessionalsListScreen')} />
 
           {/* --- Nearby Offers --- */}
           <SectionHeader title="Nearby Offers" />
@@ -228,15 +236,24 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
+
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.primary },
+  safeArea: { 
+    flex: 1, 
+    backgroundColor: colors.primary 
+  },
   promoContainer: {
     borderRadius: 16,
     marginHorizontal: 16,
     marginVertical: 8,
     overflow: 'hidden',
   },
-  promoImage: { width: width - 32, height: 180, borderRadius: 12, marginRight: 16 },
+  promoImage: { 
+    width: width - 32, 
+    height: 180, 
+    borderRadius: 12, 
+    marginRight: 16 
+  },
   categories: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -244,7 +261,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginTop: 8,
   },
-  categoryItem: { alignItems: 'center', width: '22%', marginBottom: 16 },
+  categoryItem: { 
+    alignItems: 'center', 
+    width: '22%', 
+    marginBottom: 16 
+  },
   categoryIcon: {
     backgroundColor: colors.primaryLight,
     width: 60,
@@ -260,44 +281,67 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
   },
-  setCategoryContainer: {
-  flexDirection: 'row',
-  justifyContent: 'flex-start',
-  marginHorizontal: 16,
-  marginVertical: 16,
-  gap: 16, // using gap for simplicity, test on target devices
-},
-
-categoryButton: {
-  paddingVertical: 10,
-  paddingHorizontal: 20,
-  backgroundColor: colors.primaryLight,
-  borderRadius: 10,
-  // borderRadius: 25, (Removed rounded border as it was commented out)
-  borderWidth: 1,
-  borderColor: colors.primary,
-},
-
-categoryButtonActive: {
-  backgroundColor: colors.primary,
-  borderColor: colors.primary,
-},
-
-categoryButtonText: {
-  color: colors.primary,
-  fontWeight: '600',
-  fontSize: 16,
-  textAlign: 'center',
-},
-menWomenStyle:{
-  width : '20',
-  height: '20'
-},
-
-categoryButtonTextActive: {
-  color: colors.white,
-},
-  horizontalScroll: { paddingLeft: 16, paddingVertical: 10 },
-  salonCardWrapper: { marginRight: 16 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  
+  // Toggle Styles
+  toggleContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    marginVertical: 16,
+    borderRadius: 30,
+    backgroundColor: colors.primaryLight,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  toggleButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    gap: 8,
+  },
+  toggleButtonLeft: {
+    borderTopLeftRadius: 26,
+    borderBottomLeftRadius: 26,
+  },
+  toggleButtonRight: {
+    borderTopRightRadius: 26,
+    borderBottomRightRadius: 26,
+  },
+  toggleButtonActive: {
+    backgroundColor: colors.primary,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  toggleIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 4,
+  },
+  toggleText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  toggleTextActive: {
+    color: colors.white,
+  },
+  
+  horizontalScroll: { 
+    paddingLeft: 16, 
+    paddingVertical: 10 
+  },
+  salonCardWrapper: { 
+    marginRight: 16 
+  },
+  centered: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
 });

@@ -8,6 +8,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -19,6 +20,7 @@ import {
   clearSuperAdminError,
 } from '../../redux/slices/superAdminSlice';
 
+
 export default function ManageCategoriesScreen() {
   const dispatch = useDispatch();
   const { categories, loading, error } = useSelector((state) => state.superAdmin);
@@ -29,10 +31,9 @@ export default function ManageCategoriesScreen() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    icon: '✂️',
+    icon: '',
+    gender: 'women',
   });
-
-  const EMOJI_OPTIONS = ['✂️', '💆', '💄', '💅', '🧵', '🧖', '💇', '👗', '👠', '💍'];
 
   // Fetch categories on mount
   useEffect(() => {
@@ -68,6 +69,11 @@ export default function ManageCategoriesScreen() {
       return;
     }
 
+    if (!formData.icon) {
+      Alert.alert('Error', 'Please enter an icon URL');
+      return;
+    }
+
     if (selectedCategory) {
       dispatch(updateCategory({ categoryId: selectedCategory._id, data: formData }));
     } else {
@@ -76,14 +82,15 @@ export default function ManageCategoriesScreen() {
 
     setModalVisible(false);
     setSelectedCategory(null);
-    setFormData({ name: '', icon: '✂️' });
+    setFormData({ name: '', icon: '', gender: 'women' });
   };
 
   const handleEditCategory = (category) => {
     setSelectedCategory(category);
     setFormData({
       name: category.name,
-      icon: category.icon || '✂️',
+      icon: category.icon || '',
+      gender: category.gender || 'women',
     });
     setModalVisible(true);
   };
@@ -109,7 +116,7 @@ export default function ManageCategoriesScreen() {
           style={styles.addCategoryButton}
           onPress={() => {
             setSelectedCategory(null);
-            setFormData({ name: '', icon: '✂️' });
+            setFormData({ name: '', icon: '', gender: 'women' });
             setModalVisible(true);
           }}
         >
@@ -199,7 +206,15 @@ export default function ManageCategoriesScreen() {
                 <View key={category._id} style={styles.categoryCard}>
                   <View style={styles.categoryHeader}>
                     <View style={styles.categoryIconContainer}>
-                      <Text style={styles.categoryIcon}>{category.icon || '✂️'}</Text>
+                      {category.icon ? (
+                        <Image
+                          source={{ uri: category.icon }}
+                          style={styles.categoryIconImage}
+                          resizeMode="contain"
+                        />
+                      ) : (
+                        <Icon name="image-outline" size={24} color="#999" />
+                      )}
                     </View>
                     <View style={styles.categoryActions}>
                       <TouchableOpacity
@@ -212,6 +227,12 @@ export default function ManageCategoriesScreen() {
                   </View>
 
                   <Text style={styles.categoryName}>{category.name}</Text>
+                  
+                  {category.gender && (
+                    <Text style={styles.categoryGender}>
+                      {category.gender.charAt(0).toUpperCase() + category.gender.slice(1)}
+                    </Text>
+                  )}
 
                   <View style={styles.categoryFooter}>
                     <View
@@ -255,30 +276,77 @@ export default function ManageCategoriesScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.modalForm}>
-              <Text style={styles.inputLabel}>Select Icon</Text>
-              <View style={styles.emojiGrid}>
-                {EMOJI_OPTIONS.map((emoji) => (
-                  <TouchableOpacity
-                    key={emoji}
-                    style={[
-                      styles.emojiOption,
-                      formData.icon === emoji && styles.emojiOptionSelected,
-                    ]}
-                    onPress={() => setFormData({ ...formData, icon: emoji })}
-                  >
-                    <Text style={styles.emojiText}>{emoji}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
+            <ScrollView style={styles.modalForm} showsVerticalScrollIndicator={false}>
               <Text style={styles.inputLabel}>Category Name *</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Enter category name"
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
+                placeholderTextColor="#999"
               />
+
+              <Text style={styles.inputLabel}>Icon URL *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter icon URL (e.g., https://example.com/icon.png)"
+                value={formData.icon}
+                onChangeText={(text) => setFormData({ ...formData, icon: text })}
+                placeholderTextColor="#999"
+                autoCapitalize="none"
+              />
+
+              {/* Icon Preview */}
+              {formData.icon ? (
+                <View style={styles.iconPreviewContainer}>
+                  <Text style={styles.inputLabel}>Icon Preview</Text>
+                  <View style={styles.iconPreview}>
+                    <Image
+                      source={{ uri: formData.icon }}
+                      style={styles.iconPreviewImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                </View>
+              ) : null}
+
+              <Text style={styles.inputLabel}>Gender *</Text>
+              <View style={styles.genderToggle}>
+                <TouchableOpacity
+                  style={[
+                    styles.genderButton,
+                    styles.genderButtonLeft,
+                    formData.gender === 'women' && styles.genderButtonActive,
+                  ]}
+                  onPress={() => setFormData({ ...formData, gender: 'women' })}
+                >
+                  <Text
+                    style={[
+                      styles.genderButtonText,
+                      formData.gender === 'women' && styles.genderButtonTextActive,
+                    ]}
+                  >
+                    Women
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.genderButton,
+                    styles.genderButtonRight,
+                    formData.gender === 'men' && styles.genderButtonActive,
+                  ]}
+                  onPress={() => setFormData({ ...formData, gender: 'men' })}
+                >
+                  <Text
+                    style={[
+                      styles.genderButtonText,
+                      formData.gender === 'men' && styles.genderButtonTextActive,
+                    ]}
+                  >
+                    Men
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
 
             <View style={styles.modalFooter}>
@@ -332,10 +400,11 @@ const styles = StyleSheet.create({
   categoryCard: { width: '48%', backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2, elevation: 1 },
   categoryHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   categoryIconContainer: { width: 44, height: 44, borderRadius: 8, backgroundColor: '#f5f5f5', justifyContent: 'center', alignItems: 'center' },
-  categoryIcon: { fontSize: 24 },
+  categoryIconImage: { width: 32, height: 32 },
   categoryActions: { flexDirection: 'row', gap: 6 },
   actionButton: { width: 28, height: 28, borderRadius: 6, backgroundColor: '#f5f5f5', justifyContent: 'center', alignItems: 'center' },
   categoryName: { fontSize: 13, fontWeight: '700', color: '#333', marginBottom: 4 },
+  categoryGender: { fontSize: 11, color: '#666', marginBottom: 8, fontWeight: '500' },
   categoryFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   statusBadge: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4, flex: 1 },
   statusBadgeText: { fontSize: 10, fontWeight: '600', textAlign: 'center' },
@@ -347,14 +416,20 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 16, fontWeight: '700', color: '#333' },
   modalForm: { paddingHorizontal: 16, paddingVertical: 16 },
   inputLabel: { fontSize: 12, fontWeight: '600', color: '#333', marginBottom: 8 },
-  emojiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  emojiOption: { width: '22%', aspectRatio: 1, borderRadius: 10, backgroundColor: '#f5f5f5', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: 'transparent' },
-  emojiOptionSelected: { backgroundColor: '#E8D4F8', borderColor: '#7C5FED' },
-  emojiText: { fontSize: 24 },
-  input: { backgroundColor: '#f5f5f5', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#333', marginBottom: 14 },
+  input: { backgroundColor: '#f5f5f5', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 14, color: '#333', marginBottom: 16 },
+  iconPreviewContainer: { marginBottom: 16 },
+  iconPreview: { backgroundColor: '#f5f5f5', borderRadius: 8, padding: 16, alignItems: 'center', justifyContent: 'center' },
+  iconPreviewImage: { width: 60, height: 60 },
+  genderToggle: { flexDirection: 'row', backgroundColor: '#f5f5f5', borderRadius: 8, padding: 4, marginBottom: 16 },
+  genderButton: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 6 },
+  genderButtonLeft: { marginRight: 2 },
+  genderButtonRight: { marginLeft: 2 },
+  genderButtonActive: { backgroundColor: '#2196F3' },
+  genderButtonText: { fontSize: 14, fontWeight: '600', color: '#666' },
+  genderButtonTextActive: { color: '#fff' },
   modalFooter: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
-  cancelButton: { flex: 1, paddingVertical: 10, borderRadius: 8, borderWidth: 1, borderColor: '#DDD', alignItems: 'center' },
+  cancelButton: { flex: 1, paddingVertical: 12, borderRadius: 8, borderWidth: 1, borderColor: '#DDD', alignItems: 'center' },
   cancelButtonText: { fontSize: 13, fontWeight: '600', color: '#666' },
-  submitButton: { flex: 1, backgroundColor: '#2196F3', paddingVertical: 10, borderRadius: 8, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 4 },
+  submitButton: { flex: 1, backgroundColor: '#2196F3', paddingVertical: 12, borderRadius: 8, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 4 },
   submitButtonText: { fontSize: 13, fontWeight: '600', color: '#fff' },
 });
