@@ -64,6 +64,35 @@ function TimePicker({ label, value, onSelect }) {
   );
 }
 
+//Experties Picker Component
+function ExpertiesPicker({selectedExperties, onSelect}){
+  const Experties = ["Hair","Skin","Makeup","Massage","Nails","Other"]
+  const toggleExperties = (exp)=>{
+    if(selectedExperties.includes(exp)) onSelect(selectedExperties.filter((e)=>e!==exp))
+    else onSelect([...selectedExperties,exp])
+  }
+
+  return(
+    <View style={{ marginBottom: 15 }}>
+      <Text style={styles.label}>Expertise</Text>
+      <View style={styles.daysContainer}>
+        {Experties.map((exp) => {
+          const selected = selectedExperties.includes(exp);
+          return (
+            <TouchableOpacity
+              key={exp}
+              style={[styles.dayItem, selected && styles.dayItemSelected]}
+              onPress={() => toggleExperties(exp)}
+            >
+              <Text style={[styles.dayText, selected && styles.dayTextSelected]}>{exp}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  )
+}
+
 // Day Picker Component
 function DayPicker({ selectedDays, onSelect }) {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -260,8 +289,13 @@ const handlePickImage = () => {
               onChangeText={(v) => handleChange("contactNumber", v)}
             />
 
+            <ExpertiesPicker 
+              selectedExperties={form.expertise}
+              onSelect={(v) => handleChange("expertise", v)}
+            />
+
             {/* Expertise Multi-Add */}
-            <View style={{ marginBottom: 10 }}>
+            {/* <View style={{ marginBottom: 10 }}>
               <Text style={styles.label}>Expertise</Text>
               <View style={styles.certRow}>
                 <TextInput
@@ -303,7 +337,7 @@ const handlePickImage = () => {
                     </TouchableOpacity>
                   </View>
                 ))}
-            </View>
+            </View> */}
 
             {/* Experience */}
             <TextInput

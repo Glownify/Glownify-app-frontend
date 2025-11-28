@@ -12,7 +12,8 @@ import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
 import BookingScreen from '../screens/UserScreens/Bookings/BookingScreen';
 import SearchScreen from '../screens/UserScreens/SearchScreen';
 import MessageScreen from '../screens/UserScreens/MessageScreen';
-import NotificationScreen from '../screens/UserScreens/NotificationScreen';
+// import NotificationScreen from '../screens/UserScreens/NotificationScreen';
+import OfferScreen from '../screens/UserScreens/OfferScreen'
 import ShopDetailsSummaryScreen from '../screens/UserScreens/ShopDetails/ShopDetailsSummaryScreen';
 import ShopDetailsFullScreen from '../screens/UserScreens/ShopDetails/ShopDetailsFullScreen';
 import ServiceDetailsScreen from '../screens/UserScreens/ServiceDetails/ServiceDetailsScreen';
@@ -115,8 +116,8 @@ export default function AppNavigator() {
 
          {/* --- Screen 2: Notifications --- */}
         <Tab.Screen
-          name="NotificationTab"
-          component={NotificationScreen}
+          name="OfferTab"
+          component={OfferScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>

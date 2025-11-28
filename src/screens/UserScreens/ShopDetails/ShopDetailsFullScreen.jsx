@@ -190,12 +190,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
                 <Text style={styles.statSubText}>({shopData.reviewCount || shopData.reviews.length})</Text>
               </View>
 
-              <View style={styles.statDivider} />
-
-              <View style={styles.statItem}>
-                <Icon name="eye-outline" size={16} color="#6B7280" />
-                <Text style={styles.statText}>{shopData.views} views</Text>
-              </View>
+              
               
               <View style={styles.statDivider} />
  

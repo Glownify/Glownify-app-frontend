@@ -50,6 +50,10 @@ export default function HomeScreen({ navigation }) {
     require('../../../assets/promos/promo3.png'),
   ];
 
+ 
+  const womenImage = require('../../../assets/men-women/woman.png');
+  const menImage = require('../../../assets/men-women/men.png')
+
   const handleSelectSalonCategory = (category) => {
    setSelectedCategory(category);
   }
@@ -160,7 +164,10 @@ export default function HomeScreen({ navigation }) {
     accessibilityRole="button"
     accessibilityLabel={selectedCategory === 'women' ? 'Selected Women salon category' : 'Select Women salon category'}
   >
-    <Text style={[styles.categoryButtonText, selectedCategory === 'women' && styles.categoryButtonTextActive]}>Women</Text>
+    <View style={{flexDirection: 'row',gap:10}}>
+      <Image style={styles.menWomenStyle} source={womenImage}/>
+      <Text style={[styles.categoryButtonText, selectedCategory === 'women' && styles.categoryButtonTextActive]}>Women</Text>
+    </View>
   </TouchableOpacity>
 
   <TouchableOpacity
@@ -169,7 +176,10 @@ export default function HomeScreen({ navigation }) {
     accessibilityRole="button"
     accessibilityLabel={selectedCategory === 'men' ? 'Selected Men salon category' : 'Select Men salon category'}
   >
-    <Text style={[styles.categoryButtonText, selectedCategory === 'men' && styles.categoryButtonTextActive]}>Men</Text>
+    <View style={{flexDirection: 'row', gap:10}}>
+      <Image style={styles.menWomenStyle} source={menImage}/>
+      <Text style={[styles.categoryButtonText, selectedCategory === 'men' && styles.categoryButtonTextActive]}>Men</Text>
+    </View>
   </TouchableOpacity>
 </View>
 
@@ -260,11 +270,12 @@ const styles = StyleSheet.create({
 
 categoryButton: {
   paddingVertical: 10,
-  paddingHorizontal: 30,
+  paddingHorizontal: 20,
   backgroundColor: colors.primaryLight,
+  borderRadius: 10,
   // borderRadius: 25, (Removed rounded border as it was commented out)
   borderWidth: 1,
-  borderColor: 'transparent',
+  borderColor: colors.primary,
 },
 
 categoryButtonActive: {
@@ -277,6 +288,10 @@ categoryButtonText: {
   fontWeight: '600',
   fontSize: 16,
   textAlign: 'center',
+},
+menWomenStyle:{
+  width : '20',
+  height: '20'
 },
 
 categoryButtonTextActive: {
