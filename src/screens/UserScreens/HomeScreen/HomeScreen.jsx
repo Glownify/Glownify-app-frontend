@@ -9,6 +9,7 @@ import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
 import ServiceAtHomeCard from './ServiceAtHomeCard';
+import PromoBanner from './PromoBanner';
 
 const { width } = Dimensions.get('window');
 
@@ -134,7 +135,7 @@ export default function HomeScreen({ navigation }) {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
           {/* Promo Banner Slider */}
-          <View style={styles.promoContainer}>
+          {/* <View style={styles.promoContainer}>
             <ScrollView
               ref={promoScrollRef}
               horizontal
@@ -146,7 +147,9 @@ export default function HomeScreen({ navigation }) {
                 <Image key={index} source={img} style={styles.promoImage} />
               ))}
             </ScrollView>
-          </View>
+          </View> */}
+
+          <PromoBanner />
 
           
           <View style={styles.setCategoryContainer}>
