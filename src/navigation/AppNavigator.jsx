@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, StatusBar, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -12,7 +12,6 @@ import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
 import BookingScreen from '../screens/UserScreens/Bookings/BookingScreen';
 import SearchScreen from '../screens/UserScreens/SearchScreen';
 import MessageScreen from '../screens/UserScreens/MessageScreen';
-// import NotificationScreen from '../screens/UserScreens/NotificationScreen';
 import OfferScreen from '../screens/UserScreens/OfferScreen'
 import ShopDetailsSummaryScreen from '../screens/UserScreens/ShopDetails/ShopDetailsSummaryScreen';
 import ShopDetailsFullScreen from '../screens/UserScreens/ShopDetails/ShopDetailsFullScreen';
@@ -32,12 +31,61 @@ const colors = {
   primary: '#156778',
   primaryLight: '#E1F5FA',
   white: '#FFFFFF',
-  inactive: '#E0E0E0',
+  inactive: '#B0BEC5',
+  inactiveLight: '#E0E0E0',
   black: '#000000',
   badge: '#FFA500', // Orange
+  shadow: '#000000',
 };
 
-// --- Your Navigators (Unchanged) ---
+// --- Tab Icon Images ---
+const tabIcons = {
+  home: {
+    active: require('../assets/tab-icons/home.png'),
+    inactive: require('../assets/tab-icons/home.png'),
+  },
+  offer: {
+    active: require('../assets/tab-icons/offer_fill.png'),
+    inactive: require('../assets/tab-icons/offer.png'),
+  },
+  ai: {
+    active: require('../assets/tab-icons/home.png'),
+    inactive: require('../assets/tab-icons/home.png'),
+  },
+  bookings: {
+    active: require('../assets/tab-icons/booking_fill.png'),
+    inactive: require('../assets/tab-icons/booking.png'),
+  },
+  profile: {
+    active: require('../assets/tab-icons/profile_fill.png'),
+    inactive: require('../assets/tab-icons/profile.png'),
+  },
+};
+
+// --- Custom Tab Icon Component ---
+const TabIcon = ({ focused, icon, size = 26, showBadge = false }) => {
+  return (
+    <View style={styles.iconContainer}>
+      {focused && <View style={styles.activeBar} />}
+      <View style={[
+        styles.iconWrapper,
+        focused && styles.iconWrapperActive
+      ]}>
+        <Image
+          source={focused ? icon.active : icon.inactive}
+          style={{
+            width: size,
+            height: size,
+          }}
+          resizeMode="contain"
+        />
+      </View>
+      {!focused && showBadge && <View style={styles.badge} />}
+    </View>
+  );
+};
+
+// --- Your Navigators ---
 function HomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -62,13 +110,17 @@ export default function AppNavigator() {
           headerShown: false,
           tabBarShowLabel: false,
           tabBarStyle: {
-            height: 50, // Standard height
-            backgroundColor: colors.primary,
-            borderTopWidth: 0,
-            elevation: 0,
-            // Add padding to account for the FAB
-            paddingBottom: 5,
-            paddingTop: 5,
+            height: 65,
+            backgroundColor: colors.white,
+            borderTopWidth: 1,
+            borderTopColor: '#F0F0F0',
+            elevation: 10,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            paddingBottom: 8,
+            paddingTop: 8,
           },
         }}
       >
@@ -79,7 +131,6 @@ export default function AppNavigator() {
           options={({ route }) => ({
             tabBarStyle: ((route) => {
               const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
-              // Logic to hide tab bar (preserved)
               if (
                 [
                   'ShopDetailsSummary',
@@ -91,49 +142,40 @@ export default function AppNavigator() {
               ) {
                 return { display: 'none' };
               }
-              // Default style
               return {
-                height: 50,
-                backgroundColor: colors.primary,
-                borderTopWidth: 0,
-                elevation: 0,
-                paddingBottom: 5,
-                paddingTop: 5,
+                height: 65,
+                backgroundColor: colors.white,
+                borderTopWidth: 1,
+                borderTopColor: '#F0F0F0',
+                elevation: 10,
+                shadowColor: colors.shadow,
+                shadowOffset: { width: 0, height: -2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 8,
+                paddingBottom: 8,
+                paddingTop: 8,
               };
             })(route),
             tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'home' : 'home-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
+              <TabIcon
+                focused={focused}
+                icon={tabIcons.home}
+                size={focused ? 34 : 26}  // Increased size when active
+              />
             ),
           })}
         />
 
-         {/* --- Screen 2: Notifications --- */}
+        {/* --- Screen 2: Offers --- */}
         <Tab.Screen
           name="OfferTab"
           component={OfferScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-                {!focused && <View style={styles.badge} />}
-              </View>
+              <TabIcon focused={focused} icon={tabIcons.offer} showBadge={true} />
             ),
           }}
         />
-
-        
 
         {/* --- Screen 3: AI FAB --- */}
         <Tab.Screen
@@ -141,20 +183,26 @@ export default function AppNavigator() {
           component={AIBasedHairs}
           options={{
             tabBarIcon: ({ focused }) => (
-              // This is the icon inside the FAB
-              <Icon
-                name="qr-code-outline"
-                size={30}
-                color={colors.primary}
+              <Image
+                source={tabIcons.ai.active}
+                style={styles.fabIcon}
+                resizeMode="contain"
               />
             ),
             tabBarButton: (props) => (
               <TouchableOpacity
                 {...props}
                 style={styles.fabContainer}
-                activeOpacity={0.9}
+                activeOpacity={0.85}
               >
-                <View style={styles.fab}>
+                <View
+                  style={[
+                    styles.fab,
+                    props.accessibilityState?.selected
+                      ? { borderColor: colors.primary }
+                      : { borderColor: colors.white },
+                  ]}
+                >
                   {props.children}
                 </View>
               </TouchableOpacity>
@@ -168,18 +216,10 @@ export default function AppNavigator() {
           component={UserBookingsScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'clipboard' : 'clipboard-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
+              <TabIcon focused={focused} icon={tabIcons.bookings} />
             ),
           }}
         />
-
 
         {/* --- Screen 5: Profile --- */}
         <Tab.Screen
@@ -187,14 +227,7 @@ export default function AppNavigator() {
           component={ProfileScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'person' : 'person-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
+              <TabIcon focused={focused} icon={tabIcons.profile} />
             ),
           }}
         />
@@ -204,59 +237,76 @@ export default function AppNavigator() {
 }
 
 const styles = StyleSheet.create({
-  // --- New FAB Styles ---
+  // --- FAB Styles ---
   fabContainer: {
-    // This container helps center the FAB
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    top: -35,
   },
   fab: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.white,
-    // Lifts the button up
-    transform: [{ translateY: -25 }],
-    // Shadow for depth
-    shadowColor: colors.black,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: colors.primary,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 8,
-    // Center the icon
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    // "Cutout" effect
     borderWidth: 4,
-    borderColor: colors.primary,
+    borderColor: colors.white, // Default border color
+  },
+  fabIcon: {
+    width: 70,
+    height: 70,
   },
   
-  // --- Refined Icon Styles ---
+  // --- Icon Container Styles ---
   iconContainer: {
-    width: 50, // Standardized width
+    width: 50,
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
+  
+  // Icon Wrapper for background effect
+  iconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  
+  iconWrapperActive: {
+    backgroundColor: colors.primaryLight,
+  },
+  
+  // Badge
   badge: {
     position: 'absolute',
-    top: 2,  // Adjusted position
-    right: 12, // Adjusted position
+    top: 8,
+    right: 8,
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: colors.badge,
-    borderWidth: 1,
-    borderColor: colors.white, // White border to pop
+    borderWidth: 1.5,
+    borderColor: colors.white,
   },
+  
+  // Active Bar Indicator
   activeBar: {
     position: 'absolute',
-    top: -10,
- // Position at the top of the container
-    width: 40, // Width of the bar
-    height: 4,  // Thickness of the bar
+    top: 0,
+    width: 32,
+    height: 3,
     borderRadius: 2,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
   },
 });

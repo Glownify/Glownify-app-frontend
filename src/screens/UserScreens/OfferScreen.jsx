@@ -5,22 +5,44 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  StatusBar,
 } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default function OfferScreen() {
+export default function OfferScreen({ navigation }) {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <ScrollView showsVerticalScrollIndicator={false} style={{ padding: 16 }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
+      <StatusBar barStyle="light-content" backgroundColor="#156778" />
+
+      {/* ---------- SAME HEADER AS BOOKINGS ---------- */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation?.goBack()}
+        >
+          <Icon name="chevron-back" size={24} color="#fff" />
+        </TouchableOpacity>
+
+        <Text style={styles.headerTitle}>Offers</Text>
+
+        <View style={styles.headerPlaceholder} />
+      </View>
+
+      {/* --------------- BODY --------------- */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={{ padding: 16, backgroundColor: '#fff', flex: 1 }}
+      >
         {/* -------- Top 2 Cards -------- */}
         <View style={styles.topRow}>
           <TouchableOpacity style={styles.smallCard}>
             <Icon name="pricetag-outline" size={22} color="#3B82F6" />
             <Text style={styles.cardText}>3 Coupons</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.smallCard]}>
+
+          <TouchableOpacity style={styles.smallCard}>
             <Icon name="wallet-outline" size={22} color="#059669" />
             <Text style={styles.cardText}>₹299 Wallet</Text>
           </TouchableOpacity>
@@ -38,7 +60,6 @@ export default function OfferScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Example placeholder image */}
           <Image
             source={require('../../assets/promos/promo1.png')}
             style={styles.bannerImage}
@@ -69,6 +90,30 @@ export default function OfferScreen() {
 }
 
 const styles = StyleSheet.create({
+  /* ---------- HEADER STYLES (Copied from Booking Screen) ---------- */
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: '#156778',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  backButton: {
+    padding: 8,
+  },
+  headerPlaceholder: {
+    width: 24,
+  },
+
+  /* ---------- EXISTING OFFER SCREEN STYLES ---------- */
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -24,6 +24,7 @@ const SalonCard = ({ salon }) => {
     location,
     galleryImages,
     categories,
+    distance = '2.3',
     rating = '4.8',
     reviews = '200',
   } = salon || {};
@@ -50,17 +51,33 @@ const SalonCard = ({ salon }) => {
         <Text style={styles.name} numberOfLines={1}>
           {shopName || 'Unnamed Salon'}
         </Text>
-        <Text style={styles.address} numberOfLines={1}>
+        {/* <Text style={styles.address} numberOfLines={1}>
           {location?.address || 'Address not available'}
-        </Text>
+        </Text> */}
          <Text style={styles.address} numberOfLines={1}>
           {categories?.map(cat => cat.name).join(' | ') || 'No categories available'}
         </Text>
-        <View style={styles.ratingRow}>
-          <Ionicons name="star" size={14} color={colors.star} />
-          <Text style={styles.rating}>{rating}</Text>
-          <Text style={styles.reviews}>({reviews})</Text>
-        </View>
+       <View style={styles.ratingRow}>
+  <Ionicons
+    name="location-outline"
+    size={14}
+    color={colors.primary}
+    style={{ marginRight: 4 }}
+  />
+  <Text style={styles.address} numberOfLines={1}>
+    {distance ? `${distance} km` : 'Distance not available'}
+  </Text>
+
+  <Ionicons
+    name="star"
+    size={14}
+    color={colors.star}
+    style={{ marginLeft: 10, marginRight: 2 }}
+  />
+  <Text style={styles.rating}>{rating || '0.0'}</Text>
+  <Text style={styles.reviews}>({reviews || 0})</Text>
+</View>
+
       </View>
     </TouchableOpacity>
   );
