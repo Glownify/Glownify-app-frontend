@@ -260,12 +260,12 @@ const styles = StyleSheet.create({
   paddingHorizontal: 16,
   marginTop: 8,
   justifyContent: 'flex-start',
-  gap: 12,   // ⭐ adds equal space between items
+  gap: 10,   // ⭐ adds equal space between items
 },
 
 categoryItem: { 
   alignItems: 'center',
-  width: '22%',  // ⭐ adjust to fit 4 items per row OR 3 (your choice)
+  width: '23%',  // ⭐ adjust to fit 4 items per row OR 3 (your choice)
   marginBottom: 16,
 },
   categoryIcon: {
