@@ -457,14 +457,14 @@ export default function PromoBanner() {
             title="Choose Your Salon"
             description="Browse nearby salons and pick your favorite one."
             iconChar="🏬"
-            delay={200}
+            delay={0}
           />
           <StepItem
             step={2}
             title="Select Your Services"
             description="Haircut, grooming, facial & more."
             iconChar="✂️"
-            delay={400}
+            delay={2000}
           />
           <StepItem
             step={3}
@@ -472,7 +472,7 @@ export default function PromoBanner() {
             description="Choose your slot & confirm instantly."
             iconChar="📅"
             isLast
-            delay={600}
+            delay={4000}
           />
         </View>
 
