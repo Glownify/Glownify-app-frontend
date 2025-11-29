@@ -99,6 +99,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
   const { salonId } = route.params;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const insets = useSafeAreaInsets();
+  const [showHours, setShowHours] = useState(false);
 
   const defaultOpeningHours = [
     { day: 'Monday', start: '08:00am', end: '09:00pm' },
@@ -116,6 +117,8 @@ export default function ShopDetailsScreen({ navigation, route }) {
 
   const specialists = salonData?.specialistsData || [];
   const serviceCategories = salonData?.serviceCategories || [];
+
+  console.log(serviceCategories);
 
 
   return (
@@ -183,6 +186,19 @@ export default function ShopDetailsScreen({ navigation, route }) {
               <Text style={styles.distanceText}>{salonData?.distance}</Text>
             </View>
 
+            {/* Home Service & Open Now Row */}
+<View style={styles.statusRow}>
+  <View style={styles.statusItem1}>
+    <Icon name="home-outline" size={16} color="#ffffffff" />
+    <Text style={styles.statusText}>Home Service Available</Text>
+  </View>
+
+  <View style={styles.statusItem2}>
+    <Icon name="time-outline" size={16} color='#ffffffff' />
+    <Text style={styles.statusText}>Open Now</Text>
+  </View>
+</View>
+
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
                 <Icon name="star" size={16} color="#FACC15" />
@@ -207,24 +223,40 @@ export default function ShopDetailsScreen({ navigation, route }) {
           </View>
 
           {/* Opening Hours */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Opening Hours</Text>
-          
-          {((salonData?.openingHours && salonData.openingHours.length > 0)
-    ? salonData.openingHours
-    : defaultOpeningHours
-  ).map((hour) => (
-    <View key={hour.day} style={styles.hourRow}>
-      <Text style={styles.dayText}>{hour.day}</Text>
-      {hour.start && hour.end ? (
-        <Text style={styles.timeText}>{hour.start} - {hour.end}</Text>
-      ) : (
-        <Text style={[styles.timeText, styles.closedText]}>Closed</Text>
-      )}
+<View style={styles.section}>
+  <TouchableOpacity 
+    style={styles.openingHeader} 
+    onPress={() => setShowHours(!showHours)}
+  >
+    <Text style={styles.sectionTitle}>Opening Hours</Text>
+
+    <Icon 
+      name={showHours ? "chevron-up-outline" : "chevron-down-outline"} 
+      size={22} 
+      color="#111827" 
+    />
+  </TouchableOpacity>
+
+  {showHours && (
+    <View>
+      {((salonData?.openingHours && salonData.openingHours.length > 0)
+        ? salonData.openingHours
+        : defaultOpeningHours
+      ).map((hour) => (
+        <View key={hour.day} style={styles.hourRow}>
+          <Text style={styles.dayText}>{hour.day}</Text>
+
+          {hour.start && hour.end ? (
+            <Text style={styles.timeText}>{hour.start} - {hour.end}</Text>
+          ) : (
+            <Text style={[styles.timeText, styles.closedText]}>Closed</Text>
+          )}
+        </View>
+      ))}
     </View>
-  ))}
-  </View>
-  
+  )}
+</View>
+
 
           {/* Our Services */}
           <View style={styles.section}>
@@ -401,6 +433,13 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 8,
   },
+  openingHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingVertical: 4,
+  marginBottom: 10,
+},
   shopName: {
     fontSize: 24,
     fontWeight: '700',
@@ -417,6 +456,35 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginLeft: 4,
   },
+  statusRow: {
+  flexDirection: 'row',
+  justifyContent: 'flex-start', // or space-between if you want them spread
+  alignItems: 'center',
+  marginBottom: 12,
+  gap: 16, // space between items
+},
+      statusItem1: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#9C6ADE',
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 14,
+      },
+      statusItem2: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#47C676',
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 14,
+      },
+      statusText: {
+        marginLeft: 4,
+        fontSize: 14,
+        fontWeight: '300',
+        color: '#ffffffff',
+},
   dot: {
     width: 4,
     height: 4,

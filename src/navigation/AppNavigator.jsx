@@ -182,6 +182,7 @@ export default function AppNavigator() {
           name="AIBasedHairs"
           component={AIBasedHairs}
           options={{
+            tabBarLabel: () => null,
             tabBarIcon: ({ focused }) => (
               <Image
                 source={tabIcons.ai.active}
@@ -245,8 +246,8 @@ const styles = StyleSheet.create({
     top: -35,
   },
   fab: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: 35,
     backgroundColor: colors.primary,
     shadowColor: colors.shadow,
@@ -256,19 +257,19 @@ const styles = StyleSheet.create({
     elevation: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
+    borderWidth: 8,
     borderColor: colors.white, // Default border color
   },
   fabIcon: {
-    width: 70,
-    height: 70,
+    width: 54,
+    height: 54,
   },
   
   // --- Icon Container Styles ---
   iconContainer: {
     width: 50,
-    height: '100%',
-    justifyContent: 'center',
+    height: 36,
+    justifyContent: 'flex-end', 
     alignItems: 'center',
     position: 'relative',
   },
