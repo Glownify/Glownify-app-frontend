@@ -255,17 +255,19 @@ const styles = StyleSheet.create({
     marginRight: 16 
   },
   categories: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    marginTop: 8,
-  },
-  categoryItem: { 
-    alignItems: 'center', 
-    width: '22%', 
-    marginBottom: 16 
-  },
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  paddingHorizontal: 16,
+  marginTop: 8,
+  justifyContent: 'flex-start',
+  gap: 12,   // ⭐ adds equal space between items
+},
+
+categoryItem: { 
+  alignItems: 'center',
+  width: '22%',  // ⭐ adjust to fit 4 items per row OR 3 (your choice)
+  marginBottom: 16,
+},
   categoryIcon: {
     backgroundColor: colors.primaryLight,
     width: 60,
@@ -303,12 +305,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   toggleButtonLeft: {
-    borderTopLeftRadius: 26,
-    borderBottomLeftRadius: 26,
+    borderRadius: 30,
   },
   toggleButtonRight: {
-    borderTopRightRadius: 26,
-    borderBottomRightRadius: 26,
+    borderRadius: 30,
   },
   toggleButtonActive: {
     backgroundColor: colors.primary,
@@ -319,9 +319,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   toggleIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 4,
+    width: 30,
+    height: 30,
+    marginRight: 6,
   },
   toggleText: {
     fontSize: 16,

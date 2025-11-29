@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, ScrollView, Animated } from "react-native";
 
 // --- Color Palette ---
 const Colors = {
@@ -7,97 +7,447 @@ const Colors = {
   secondary: "#C0B3E0",
   textPrimary: "#1F2937",
   textSecondary: "#6B7280",
-  white: "#FFC7A8",
   white: "#FFFFFF",
   cardBackground: "#FAFAFA",
 };
 
-// --- Icon Box ---
-const StepIcon = ({ iconChar }) => (
-  <View style={styles.stepIcon}>
-    <Text style={styles.stepIconText}>{iconChar}</Text>
-  </View>
-);
+// --- Continuously Animated Icon Box ---
+const StepIcon = ({ iconChar, delay = 0 }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const glowAnim = useRef(new Animated.Value(1)).current;
 
-// --- Salon Card ---
-const SalonCard = ({ title, location, rating, count, price }) => (
-  <View style={styles.salonCard}>
-    <View style={styles.cardImage}>
-      <Text style={{ fontSize: 20 }}>🖼️</Text>
-    </View>
+  useEffect(() => {
+    // Initial entrance
+    Animated.sequence([
+      Animated.delay(delay),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 3,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
-    <View style={{ flex: 1 }}>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.cardLocation}>{location}</Text>
+    // Continuous rotation loop
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
 
-      <View style={styles.ratingRow}>
-        <Text style={styles.star}>★</Text>
-        <Text style={styles.ratingText}>{rating}</Text>
-        <Text style={styles.separator}>|</Text>
-        <Text style={styles.countText}>{count}</Text>
+    // Continuous glow pulse
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1.15,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const rotate = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.stepIcon,
+        {
+          transform: [{ scale: scaleAnim }, { rotate }],
+        },
+      ]}
+    >
+      <Animated.View style={{ transform: [{ scale: glowAnim }] }}>
+        <Text style={styles.stepIconText}>{iconChar}</Text>
+      </Animated.View>
+    </Animated.View>
+  );
+};
+
+// --- Continuously Animated Salon Card ---
+const SalonCard = ({ title, location, rating, count, price, index }) => {
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
+  const shineAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Initial entrance
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        delay: index * 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        delay: index * 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Continuous float effect
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -3,
+          duration: 2000 + index * 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 2000 + index * 300,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Continuous shine effect
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(index * 500),
+        Animated.timing(shineAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shineAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.delay(2000),
+      ])
+    ).start();
+  }, []);
+
+  const shine = shineAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.05],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.salonCard,
+        {
+          opacity: fadeAnim,
+          transform: [
+            { translateY: Animated.add(slideAnim, floatAnim) },
+            { scale: shine },
+          ],
+        },
+      ]}
+    >
+      <View style={styles.cardImage}>
+        <Text style={{ fontSize: 20 }}>🖼️</Text>
       </View>
 
-      <View style={styles.priceRow}>
-        <Text style={styles.price}>₹{price}</Text>
-        <Text style={styles.orText}>or</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardLocation}>{location}</Text>
+
+        <View style={styles.ratingRow}>
+          <Text style={styles.star}>★</Text>
+          <Text style={styles.ratingText}>{rating}</Text>
+          <Text style={styles.separator}>|</Text>
+          <Text style={styles.countText}>{count}</Text>
+        </View>
+
+        <View style={styles.priceRow}>
+          <Text style={styles.price}>₹{price}</Text>
+          <Text style={styles.orText}>or</Text>
+        </View>
       </View>
-    </View>
-  </View>
-);
+    </Animated.View>
+  );
+};
 
-// --- Phone Mockup ---
-const PhoneMockup = () => (
-  <View style={styles.phoneWrapper}>
-    <View style={styles.notchRow}>
-      {/* <Text style={styles.timeText}>8:41</Text> */}
-    </View>
+// --- Continuously Animated Phone Mockup ---
+const PhoneMockup = () => {
+  const slideAnim = useRef(new Animated.Value(100)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
-    <View style={styles.headerRow}>
-      <View style={styles.circleIcon}>
-        <Text>🔍</Text>
+  useEffect(() => {
+    // Entrance animation
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 20,
+        friction: 7,
+        delay: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        delay: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Continuous pulse effect
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.03,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Continuous subtle tilt
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotateAnim, {
+          toValue: -1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotateAnim, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const rotate = rotateAnim.interpolate({
+    inputRange: [-1, 1],
+    outputRange: ['-4deg', '4deg'],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.phoneWrapper,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateX: slideAnim }, { scale: pulseAnim }, { rotate }],
+        },
+      ]}
+    >
+      <View style={styles.notchRow} />
+
+      <View style={styles.headerRow}>
+        <View style={styles.circleIcon}>
+          <Text>🔍</Text>
+        </View>
+        <Text style={styles.menuIcon}>≡</Text>
       </View>
 
-      <Text style={styles.menuIcon}>≡</Text>
-    </View>
+      <Text style={styles.screenTitle}>Book a Salon Visit</Text>
 
-    <Text style={styles.screenTitle}>Book a Salon Visit</Text>
+      <ScrollView style={styles.listScroll}>
+        <SalonCard
+          title="Glow Up Studio"
+          location="Khar"
+          rating="4.8"
+          count="625"
+          price="1500"
+          index={0}
+        />
+        <SalonCard
+          title="Stylista"
+          location="Bandra"
+          rating="4.8"
+          count="202"
+          price="2000"
+          index={1}
+        />
+        <SalonCard
+          title="Salon 360"
+          location="Andheri"
+          rating="4.7"
+          count="88"
+          price="1300"
+          index={2}
+        />
 
-    <ScrollView style={styles.listScroll}>
-      <SalonCard title="Glow Up Studio" location="Khar" rating="4.8" count="625" price="1500" />
-      <SalonCard title="Stylista" location="Bandra" rating="4.8" count="202" price="2000" />
-      {/* <SalonCard title="Salon 360" location="Andheri" rating="4.7" count="88" price="1300" /> */}
-      {/* <SalonCard title="Urban Bliss" location="Juhu" rating="4.6" count="412" price="1850" /> */}
-      {/* <SalonCard title="Hair & Beyond" location="Colaba" rating="4.9" count="780" price="2200" /> */}
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </Animated.View>
+  );
+};
 
-      <View style={{ height: 40 }} />
-    </ScrollView>
-  </View>
-);
+// --- Continuously Animated Steps Section ---
+const StepItem = ({ step, title, description, iconChar, isLast, delay }) => {
+  const slideAnim = useRef(new Animated.Value(-30)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const bounceAnim = useRef(new Animated.Value(0)).current;
 
-// --- Steps Section ---
-const StepItem = ({ step, title, description, iconChar, isLast }) => (
-  <View style={styles.stepItem}>
-    <View style={{ alignItems: "center", marginRight: 20 }}>
-      <StepIcon iconChar={iconChar} />
-      {!isLast && <View style={styles.verticalLine} />}
-    </View>
+  useEffect(() => {
+    // Initial entrance
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 40,
+        friction: 8,
+        delay,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        delay,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
-    <View style={{ flex: 1 }}>
-      <Text style={styles.stepTitle}>
-        <Text style={styles.stepNumber}>Step {step} </Text>
-        {title}
-      </Text>
-      <Text style={styles.stepDescription}>{description}</Text>
-    </View>
-  </View>
-);
+    // Continuous bounce effect
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay + 1000),
+        Animated.spring(bounceAnim, {
+          toValue: -5,
+          tension: 100,
+          friction: 3,
+          useNativeDriver: true,
+        }),
+        Animated.spring(bounceAnim, {
+          toValue: 0,
+          tension: 100,
+          friction: 3,
+          useNativeDriver: true,
+        }),
+        Animated.delay(3000),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        styles.stepItem,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateX: slideAnim }, { translateY: bounceAnim }],
+        },
+      ]}
+    >
+      <View style={{ alignItems: "center", marginRight: 20 }}>
+        <StepIcon iconChar={iconChar} delay={delay} />
+        {!isLast && <View style={styles.verticalLine} />}
+      </View>
+
+      <View style={{ flex: 1 }}>
+        <Text style={styles.stepTitle}>
+          <Text style={styles.stepNumber}>Step {step} </Text>
+          {title}
+        </Text>
+        <Text style={styles.stepDescription}>{description}</Text>
+      </View>
+    </Animated.View>
+  );
+};
 
 export default function PromoBanner() {
+  const headerFade = useRef(new Animated.Value(0)).current;
+  const headerSlide = useRef(new Animated.Value(-20)).current;
+  const headerFloat = useRef(new Animated.Value(0)).current;
+  const footerFade = useRef(new Animated.Value(0)).current;
+  const footerPulse = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Header entrance
+    Animated.parallel([
+      Animated.timing(headerFade, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.spring(headerSlide, {
+        toValue: 0,
+        tension: 50,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Continuous header float
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(headerFloat, {
+          toValue: -3,
+          duration: 2500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerFloat, {
+          toValue: 0,
+          duration: 2500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Footer entrance
+    Animated.timing(footerFade, {
+      toValue: 1,
+      duration: 1000,
+      delay: 1500,
+      useNativeDriver: true,
+    }).start();
+
+    // Continuous footer pulse
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(footerPulse, {
+          toValue: 1.15,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(footerPulse, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
   return (
     <ScrollView contentContainerStyle={styles.mainWrapper}>
-      <Text style={styles.mainHeader}>
+      <Animated.Text
+        style={[
+          styles.mainHeader,
+          {
+            opacity: headerFade,
+            transform: [
+              { translateY: Animated.add(headerSlide, headerFloat) },
+            ],
+          },
+        ]}
+      >
         Book Your Salon Appointment in 3 Easy Steps
-      </Text>
+      </Animated.Text>
 
       <View style={styles.container}>
         {/* Steps Section */}
@@ -107,12 +457,14 @@ export default function PromoBanner() {
             title="Choose Your Salon"
             description="Browse nearby salons and pick your favorite one."
             iconChar="🏬"
+            delay={200}
           />
           <StepItem
             step={2}
             title="Select Your Services"
             description="Haircut, grooming, facial & more."
             iconChar="✂️"
+            delay={400}
           />
           <StepItem
             step={3}
@@ -120,6 +472,7 @@ export default function PromoBanner() {
             description="Choose your slot & confirm instantly."
             iconChar="📅"
             isLast
+            delay={600}
           />
         </View>
 
@@ -130,57 +483,55 @@ export default function PromoBanner() {
       </View>
 
       {/* Footer */}
-      <View style={styles.footer}>
+      <Animated.View
+        style={[
+          styles.footer,
+          {
+            opacity: footerFade,
+            transform: [{ scale: footerPulse }],
+          },
+        ]}
+      >
         <Text style={styles.footerPoints}>
           • Fast Booking  • No Waiting  • Verified Salons
         </Text>
-        {/* <Text style={styles.footerBrand}>💅 Glownify</Text> */}
-      </View>
+      </Animated.View>
     </ScrollView>
   );
 }
 
-// ----------------------------------------------------------------------
-// STYLESHEET
-// ----------------------------------------------------------------------
+// StyleSheet
 const styles = StyleSheet.create({
   mainWrapper: {
     paddingVertical: 10,
     backgroundColor: Colors.white,
     alignItems: "center",
   },
-
   mainHeader: {
     fontSize: 18,
     fontWeight: "800",
     color: Colors.textPrimary,
     textAlign: "center",
     marginBottom: 20,
-    // paddingHorizontal: 20,
   },
-
   container: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "center",
     paddingHorizontal: 15,
   },
-
   leftBlock: {
     width: "45%",
     paddingRight: 10,
   },
-
   rightBlock: {
     width: "50%",
     alignItems: "center",
   },
-
   stepItem: {
     flexDirection: "row",
     marginBottom: 20,
   },
-
   stepIcon: {
     width: 40,
     height: 40,
@@ -191,35 +542,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     elevation: 5,
   },
-
   stepIconText: {
     fontSize: 18,
   },
-
   verticalLine: {
     width: 2,
     height: 30,
     backgroundColor: Colors.secondary,
   },
-
   stepTitle: {
     fontSize: 12,
     fontWeight: "600",
     color: Colors.textPrimary,
     marginBottom: 5,
   },
-
   stepNumber: {
     color: Colors.primary,
     fontWeight: "700",
   },
-
   stepDescription: {
     color: Colors.textSecondary,
     fontSize: 10,
   },
-
-  // ------------ Phone Mockup -----------------------
   phoneWrapper: {
     width: 150,
     height: 300,
@@ -230,25 +574,19 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     padding: 8,
     elevation: 8,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+    shadowOpacity: 0.3,
   },
-
   notchRow: {
     alignItems: "center",
     marginBottom: 10,
   },
-
-  timeText: {
-    fontSize: 6,
-    fontWeight: "700",
-    color: "#333",
-  },
-
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    // marginBottom: 10,
   },
-
   circleIcon: {
     width: 20,
     height: 20,
@@ -257,24 +595,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   menuIcon: {
     fontSize: 22,
     color: "#666",
   },
-
   screenTitle: {
     fontSize: 12,
     fontWeight: "700",
     color: Colors.textPrimary,
     marginBottom: 10,
   },
-
   listScroll: {
     height: 430,
   },
-
-  // --------- Salon Card ----------
   salonCard: {
     flexDirection: "row",
     padding: 6,
@@ -284,7 +617,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
   },
-
   cardImage: {
     width: 20,
     height: 20,
@@ -294,58 +626,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 10,
   },
-
   cardTitle: {
     fontWeight: "700",
     fontSize: 10,
     color: Colors.textPrimary,
   },
-
   cardLocation: {
     fontSize: 8,
     color: Colors.textSecondary,
   },
-
   ratingRow: {
     flexDirection: "row",
     marginTop: 3,
     alignItems: "center",
   },
-
-  star: { color: "gold", marginRight: 5 },
-  ratingText: { fontWeight: "700", color: Colors.textPrimary },
-  separator: { marginHorizontal: 5, color: Colors.textSecondary },
-  countText: { color: Colors.textSecondary },
-
+  star: { color: "gold", marginRight: 5, fontSize: 8 },
+  ratingText: { fontWeight: "700", color: Colors.textPrimary, fontSize: 8 },
+  separator: { marginHorizontal: 5, color: Colors.textSecondary, fontSize: 8 },
+  countText: { color: Colors.textSecondary, fontSize: 8 },
   priceRow: {
     flexDirection: "row",
     marginTop: 5,
     alignItems: "center",
   },
-
   price: {
     fontSize: 10,
     fontWeight: "700",
     color: Colors.primary,
     marginRight: 10,
   },
-
   orText: { color: Colors.textSecondary, fontSize: 10 },
-
-  // ---------- Footer -----------
   footer: {
     marginTop: 10,
     alignItems: "center",
   },
-
   footerPoints: {
     color: Colors.textSecondary,
     fontSize: 14,
-  },
-
-  footerBrand: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: Colors.primary,
   },
 });
