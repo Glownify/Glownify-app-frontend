@@ -9,6 +9,7 @@ export const fetchSalonServices = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get("/salon-admin/get-service-items");
+      console.log("Fetched services:", res.data.services);
       return res.data.services;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch services");
@@ -20,6 +21,7 @@ export const fetchSalonServices = createAsyncThunk(
 export const createServiceItem = createAsyncThunk(
   "salonAdmin/createServiceItem",
   async (serviceData, { rejectWithValue }) => {
+    console.log("Creating service with data:", serviceData);
     try {
       const res = await axiosInstance.post("/salon-admin/create-service-item", serviceData);
       return res.data.service;
@@ -33,6 +35,7 @@ export const createServiceItem = createAsyncThunk(
 export const updateServiceItem = createAsyncThunk(
   "salonAdmin/updateServiceItem",
   async ({ serviceId, updateData }, { rejectWithValue }) => {
+    console.log("Updating service with ID:", serviceId, "Data:", updateData);
     try {
       const res = await axiosInstance.put(`/salon-admin/update-service-item/${serviceId}`, updateData);
       return res.data.service;

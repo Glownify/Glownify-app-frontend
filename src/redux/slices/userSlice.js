@@ -32,6 +32,7 @@ export const fetchSalonById = createAsyncThunk(
   async (salonId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/user/get-salon/${salonId}`);
+      console.log("Fetched salon details:", response.data);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch salon by ID");
