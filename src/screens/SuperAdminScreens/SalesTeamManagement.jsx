@@ -7,7 +7,10 @@ import {
   TouchableOpacity,
   FlatList,
   Dimensions,
-  StatusBar
+  StatusBar,
+  Modal,
+  TextInput,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -80,13 +83,55 @@ const LOW_PERFORMERS = [
 
 export default function SalesTeamManagement() {
   const [activeTab, setActiveTab] = useState('sales');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [formData, setFormData] = useState({
+    referralId: '',
+    name: '',
+    email: '',
+    mobile: '',
+  });
 
   const maxValue = Math.max(...SUBSCRIPTION_DATA.map((d) => d.value));
   const chartHeight = 120;
 
+  const handleAddSalesman = () => {
+    if (!formData.referralId || !formData.name || !formData.email || !formData.mobile) {
+      Alert.alert('Error', 'Please fill all fields');
+      return;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      Alert.alert('Error', 'Please enter a valid email');
+      return;
+    }
+
+    // Validate mobile
+    if (formData.mobile.length < 10) {
+      Alert.alert('Error', 'Please enter a valid mobile number');
+      return;
+    }
+
+    // Success
+    Alert.alert('Success', `${formData.name} has been registered successfully!`);
+
+    // Reset form
+    setFormData({
+      referralId: '',
+      name: '',
+      email: '',
+      mobile: '',
+    });
+    setModalVisible(false);
+  };
+
   const renderSalesTeam = () => (
     <View style={styles.tabContent}>
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setModalVisible(true)}
+      >
         <Icon name="add" size={18} color="#fff" />
         <Text style={styles.addButtonText}>Register New Sales Person</Text>
       </TouchableOpacity>
@@ -267,83 +312,166 @@ export default function SalesTeamManagement() {
   );
 
   return (
-  <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
-    <StatusBar backgroundColor="#156778" barStyle="light-content" />
-    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Sales Team Management</Text>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
+      <StatusBar backgroundColor="#156778" barStyle="light-content" />
+      <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Sales Team Management</Text>
+        </View>
+
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'sales' && styles.activeTab]}
+            onPress={() => setActiveTab('sales')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'sales' && styles.activeTabText,
+              ]}
+            >
+              Sales Team
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'subscriptions' && styles.activeTab]}
+            onPress={() => setActiveTab('subscriptions')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'subscriptions' && styles.activeTabText,
+              ]}
+            >
+              Subscriptions
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'revenue' && styles.activeTab]}
+            onPress={() => setActiveTab('revenue')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'revenue' && styles.activeTabText,
+              ]}
+            >
+              Revenue
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'commissions' && styles.activeTab]}
+            onPress={() => setActiveTab('commissions')}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'commissions' && styles.activeTabText,
+              ]}
+            >
+              Commissions
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {activeTab === 'sales' && renderSalesTeam()}
+          {activeTab === 'subscriptions' && renderSubscriptions()}
+          {activeTab === 'revenue' && renderRevenue()}
+          {activeTab === 'commissions' && renderCommissions()}
+        </ScrollView>
       </View>
 
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'sales' && styles.activeTab]}
-          onPress={() => setActiveTab('sales')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'sales' && styles.activeTabText,
-            ]}
-          >
-            Sales Team
-          </Text>
-        </TouchableOpacity>
+      {/* Register New Sales Person Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Register New Sales Person</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Icon name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
 
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'subscriptions' && styles.activeTab]}
-          onPress={() => setActiveTab('subscriptions')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'subscriptions' && styles.activeTabText,
-            ]}
-          >
-            Subscriptions
-          </Text>
-        </TouchableOpacity>
+            <ScrollView style={styles.modalForm} showsVerticalScrollIndicator={false}>
+              <Text style={styles.inputLabel}>Referral ID *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g., SP-2025-005"
+                value={formData.referralId}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, referralId: text })
+                }
+                placeholderTextColor="#999"
+              />
 
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'revenue' && styles.activeTab]}
-          onPress={() => setActiveTab('revenue')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'revenue' && styles.activeTabText,
-            ]}
-          >
-            Revenue
-          </Text>
-        </TouchableOpacity>
+              <Text style={styles.inputLabel}>Sales Person Name *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter full name"
+                value={formData.name}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, name: text })
+                }
+                placeholderTextColor="#999"
+              />
 
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'commissions' && styles.activeTab]}
-          onPress={() => setActiveTab('commissions')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'commissions' && styles.activeTabText,
-            ]}
-          >
-            Commissions
-          </Text>
-        </TouchableOpacity>
-      </View>
+              <Text style={styles.inputLabel}>Email *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter email address"
+                value={formData.email}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, email: text })
+                }
+                keyboardType="email-address"
+                placeholderTextColor="#999"
+              />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {activeTab === 'sales' && renderSalesTeam()}
-        {activeTab === 'subscriptions' && renderSubscriptions()}
-        {activeTab === 'revenue' && renderRevenue()}
-        {activeTab === 'commissions' && renderCommissions()}
-      </ScrollView>
-    </View>
-  </SafeAreaView>
-);
+              <Text style={styles.inputLabel}>Mobile Number *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter 10-digit mobile number"
+                value={formData.mobile}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, mobile: text })
+                }
+                keyboardType="phone-pad"
+                maxLength={10}
+                placeholderTextColor="#999"
+              />
+            </ScrollView>
 
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleAddSalesman}
+              >
+                <Icon name="checkmark" size={18} color="#fff" />
+                <Text style={styles.submitButtonText}>Add Salesman</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -694,5 +822,88 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#333',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 16,
+    maxHeight: '85%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+  },
+  modalForm: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 6,
+  },
+  input: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#EEE',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+  },
+  submitButton: {
+    flex: 1,
+    backgroundColor: '#7C5FED',
+    paddingVertical: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 4,
+  },
+  submitButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#fff',
   },
 });
