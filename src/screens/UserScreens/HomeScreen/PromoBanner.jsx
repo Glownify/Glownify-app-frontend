@@ -14,7 +14,6 @@ const Colors = {
 // --- Continuously Animated Icon Box ---
 const StepIcon = ({ iconChar, delay = 0 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -29,14 +28,7 @@ const StepIcon = ({ iconChar, delay = 0 }) => {
       }),
     ]).start();
 
-    // Continuous rotation loop
-    Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: true,
-      })
-    ).start();
+    
 
     // Continuous glow pulse
     Animated.loop(
@@ -55,17 +47,14 @@ const StepIcon = ({ iconChar, delay = 0 }) => {
     ).start();
   }, []);
 
-  const rotate = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
+  
 
   return (
     <Animated.View
       style={[
         styles.stepIcon,
         {
-          transform: [{ scale: scaleAnim }, { rotate }],
+          transform: [{ scale: scaleAnim }],
         },
       ]}
     >
@@ -182,7 +171,7 @@ const PhoneMockup = () => {
   const slideAnim = useRef(new Animated.Value(100)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
+  // const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Entrance animation
@@ -219,31 +208,31 @@ const PhoneMockup = () => {
     ).start();
 
     // Continuous subtle tilt
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 3000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(rotateAnim, {
-          toValue: -1,
-          duration: 3000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(rotateAnim, {
-          toValue: 0,
-          duration: 3000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
+    // Animated.loop(
+    //   Animated.sequence([
+    //     Animated.timing(rotateAnim, {
+    //       toValue: 1,
+    //       duration: 3000,
+    //       useNativeDriver: true,
+    //     }),
+    //     Animated.timing(rotateAnim, {
+    //       toValue: -1,
+    //       duration: 3000,
+    //       useNativeDriver: true,
+    //     }),
+    //     Animated.timing(rotateAnim, {
+    //       toValue: 0,
+    //       duration: 3000,
+    //       useNativeDriver: true,
+    //     }),
+    //   ])
+    // ).start();
   }, []);
 
-  const rotate = rotateAnim.interpolate({
-    inputRange: [-1, 1],
-    outputRange: ['-4deg', '4deg'],
-  });
+  // const rotate = rotateAnim.interpolate({
+  //   inputRange: [-1, 1],
+  //   outputRange: ['-4deg', '4deg'],
+  // });
 
   return (
     <Animated.View
@@ -251,7 +240,7 @@ const PhoneMockup = () => {
         styles.phoneWrapper,
         {
           opacity: fadeAnim,
-          transform: [{ translateX: slideAnim }, { scale: pulseAnim }, { rotate }],
+          transform: [{ translateX: slideAnim }, { scale: pulseAnim }],
         },
       ]}
     >
@@ -302,7 +291,7 @@ const PhoneMockup = () => {
 const StepItem = ({ step, title, description, iconChar, isLast, delay }) => {
   const slideAnim = useRef(new Animated.Value(-30)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const bounceAnim = useRef(new Animated.Value(0)).current;
+  const lineHeightAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Initial entrance
@@ -322,26 +311,25 @@ const StepItem = ({ step, title, description, iconChar, isLast, delay }) => {
       }),
     ]).start();
 
-    // Continuous bounce effect
-    Animated.loop(
+    // Line growth animation - starts after step item appears
+    if (!isLast) {
       Animated.sequence([
-        Animated.delay(delay + 1000),
-        Animated.spring(bounceAnim, {
-          toValue: -5,
-          tension: 100,
-          friction: 3,
-          useNativeDriver: true,
+        Animated.delay(delay + 600), // Wait for step item to appear
+        Animated.timing(lineHeightAnim, {
+          toValue: 1,
+          duration: 2000, // 2 second growth
+          useNativeDriver: false, // height animation needs false
         }),
-        Animated.spring(bounceAnim, {
-          toValue: 0,
-          tension: 100,
-          friction: 3,
-          useNativeDriver: true,
-        }),
-        Animated.delay(3000),
-      ])
-    ).start();
+      ]).start();
+    }
+
+    
   }, []);
+
+  const lineHeight = lineHeightAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 40],
+  });
 
   return (
     <Animated.View
@@ -349,13 +337,15 @@ const StepItem = ({ step, title, description, iconChar, isLast, delay }) => {
         styles.stepItem,
         {
           opacity: fadeAnim,
-          transform: [{ translateX: slideAnim }, { translateY: bounceAnim }],
+          transform: [{ translateX: slideAnim }],
         },
       ]}
     >
       <View style={{ alignItems: "center", marginRight: 20 }}>
         <StepIcon iconChar={iconChar} delay={delay} />
-        {!isLast && <View style={styles.verticalLine} />}
+        {!isLast && (
+          <Animated.View style={[styles.verticalLine, { height: lineHeight }]} />
+        )}
       </View>
 
       <View style={{ flex: 1 }}>
@@ -457,14 +447,14 @@ export default function PromoBanner() {
             title="Choose Your Salon"
             description="Browse nearby salons and pick your favorite one."
             iconChar="🏬"
-            delay={200}
+            delay={0}
           />
           <StepItem
             step={2}
             title="Select Your Services"
             description="Haircut, grooming, facial & more."
             iconChar="✂️"
-            delay={400}
+            delay={2000}
           />
           <StepItem
             step={3}
@@ -472,7 +462,7 @@ export default function PromoBanner() {
             description="Choose your slot & confirm instantly."
             iconChar="📅"
             isLast
-            delay={600}
+            delay={4000}
           />
         </View>
 
@@ -547,7 +537,8 @@ const styles = StyleSheet.create({
   },
   verticalLine: {
     width: 2,
-    height: 30,
+    marginBottom:0,
+    paddingBottom: 0,
     backgroundColor: Colors.secondary,
   },
   stepTitle: {
