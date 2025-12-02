@@ -1,6 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, ScrollView, Animated } from "react-native";
 
+// Animation duration constant - must match HomeScreen's BANNER_DISPLAY_DURATION
+export const PROMO_BANNER_DURATION = 8000; // 8 seconds
+
 // --- Color Palette ---
 const Colors = {
   primary: "#5E38A8",
@@ -382,21 +385,12 @@ export default function PromoBanner() {
       }),
     ]).start();
 
-    // Continuous header float
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(headerFloat, {
-          toValue: -3,
-          duration: 2500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(headerFloat, {
-          toValue: 0,
-          duration: 2500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
+    // Single header float (no loop to sync with banner lifecycle)
+    Animated.timing(headerFloat, {
+      toValue: -3,
+      duration: 2500,
+      useNativeDriver: true,
+    }).start();
 
     // Footer entrance
     Animated.timing(footerFade, {
@@ -406,21 +400,13 @@ export default function PromoBanner() {
       useNativeDriver: true,
     }).start();
 
-    // Continuous footer pulse
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(footerPulse, {
-          toValue: 1.15,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(footerPulse, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
+    // Single footer pulse (no loop to sync with banner lifecycle)
+    Animated.timing(footerPulse, {
+      toValue: 1.15,
+      duration: 1000,
+      delay: 2000,
+      useNativeDriver: true,
+    }).start();
   }, []);
 
   return (

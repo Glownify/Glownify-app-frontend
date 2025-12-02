@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, StatusBar, Button, ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Image, StatusBar,  ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgUri } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,6 +10,8 @@ import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
 import ServiceAtHomeCard from './ServiceAtHomeCard';
 import PromoBanner from './PromoBanner';
+import PromoBanner2 from './PromoBanner2';
+import SkeletonLoadingScreen from './SkeletonLoadingScreen'
 
 
 const { width } = Dimensions.get('window');
@@ -48,6 +50,10 @@ export default function HomeScreen({ navigation }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('women');
   const promoScrollRef = useRef(null);
+  const exitAnim = useRef(new Animated.Value(0)).current;
+  const BANNER_DISPLAY_DURATION = 4000; 
+  const BANNER_EXIT_DURATION = 1000; 
+  const [showBanner1, setShowBanner1] = useState(true); // Track which banner to show
   const promoImages = [
     require('../../../assets/promos/promo1.png'),
     require('../../../assets/promos/promo2.png'),
@@ -72,6 +78,29 @@ useEffect(() => {
 }, [selectedCategory, dispatch]);
 
 
+// Synchronized Banner Slideshow
+useEffect(() => {
+  const bannerCycle = setInterval(() => {
+    // Start exit animation after banner completes its internal animation
+    exitAnim.setValue(0);
+    
+    Animated.sequence([
+      Animated.delay(BANNER_DISPLAY_DURATION), // Wait for banner animation to complete
+      Animated.timing(exitAnim, {
+        toValue: 1,
+        duration: BANNER_EXIT_DURATION,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Switch to next banner (without remounting by using opacity only)
+      setShowBanner1((prev) => !prev);
+      exitAnim.setValue(0);
+    });
+  }, BANNER_DISPLAY_DURATION + BANNER_EXIT_DURATION);
+
+  return () => clearInterval(bannerCycle);
+}, [BANNER_DISPLAY_DURATION, BANNER_EXIT_DURATION, exitAnim]);
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -81,7 +110,7 @@ useEffect(() => {
       if (promoScrollRef.current) {
          promoScrollRef.current.scrollTo({ x: nextSlide * width, animated: true });
       }
-    }, 2000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [currentSlide, promoImages.length]);
@@ -122,12 +151,7 @@ useEffect(() => {
 
   if (loading && !refreshing) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={{ marginTop: 10, fontSize: 16, color: colors.primary }}>
-          Loading salons...
-        </Text>
-      </View>
+      <SkeletonLoadingScreen/>
     );
   }
 
@@ -142,8 +166,57 @@ useEffect(() => {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* Promo Banner Slider */}
-          <PromoBanner />
+          {/* Synchronized Banner Slideshow - Two overlapping animated views */}
+          <View style={styles.bannerContainer}>
+            {/* Banner 1 - PromoBanner */}
+            <Animated.View
+              style={[
+                styles.bannerSlide,
+                {
+                  transform: [
+                    {
+                      translateX: exitAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -width],
+                      }),
+                    },
+                  ],
+                  opacity: exitAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0],
+                  }),
+                  zIndex: showBanner1 ? 10 : 0,
+                },
+              ]}
+            >
+              <PromoBanner key="banner1" />
+            </Animated.View>
+
+            {/* Banner 2 - PromoBanner2 */}
+            <Animated.View
+              style={[
+                styles.bannerSlide,
+                StyleSheet.absoluteFill,
+                {
+                  opacity: exitAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 1],
+                  }),
+                  transform: [
+                    {
+                      translateX: exitAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [width, 0],
+                      }),
+                    },
+                  ],
+                  zIndex: showBanner1 ? 0 : 10,
+                },
+              ]}
+            >
+              <PromoBanner2 key="banner2" />
+            </Animated.View>
+          </View>
 
           {/* Gender Category Toggle */}
           <View style={styles.toggleContainer}>
@@ -343,5 +416,14 @@ categoryItem: {
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center' 
+  },
+  bannerContainer: {
+    width: '100%',
+    height: 'auto',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  bannerSlide: {
+    width: '100%',
   },
 });
