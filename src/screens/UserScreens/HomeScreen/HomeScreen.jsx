@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, Image, StatusBar,  ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgUri } from 'react-native-svg';
@@ -9,8 +9,8 @@ import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
 import ServiceAtHomeCard from './ServiceAtHomeCard';
-import PromoBanner from './PromoBanner';
-import PromoBanner2 from './PromoBanner2';
+import PromoBanner, { PROMO_BANNER_DURATION } from './PromoBanner';
+import PromoBanner2, { PROMO_BANNER_2_DURATION } from './PromoBanner2';
 import SkeletonLoadingScreen from './SkeletonLoadingScreen'
 
 
@@ -50,10 +50,11 @@ export default function HomeScreen({ navigation }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('women');
   const promoScrollRef = useRef(null);
-  const exitAnim = useRef(new Animated.Value(0)).current;
-  const BANNER_DISPLAY_DURATION = 4000; 
-  const BANNER_EXIT_DURATION = 1000; 
-  const [showBanner1, setShowBanner1] = useState(true); // Track which banner to show
+  const transitionAnim = useRef(new Animated.Value(0)).current;
+  const BANNER_EXIT_DURATION = 900; 
+  const [activeBanner, setActiveBanner] = useState(0);
+  const [nextBanner, setNextBanner] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const promoImages = [
     require('../../../assets/promos/promo1.png'),
     require('../../../assets/promos/promo2.png'),
@@ -78,28 +79,33 @@ useEffect(() => {
 }, [selectedCategory, dispatch]);
 
 
-// Synchronized Banner Slideshow
-useEffect(() => {
-  const bannerCycle = setInterval(() => {
-    // Start exit animation after banner completes its internal animation
-    exitAnim.setValue(0);
-    
-    Animated.sequence([
-      Animated.delay(BANNER_DISPLAY_DURATION), // Wait for banner animation to complete
-      Animated.timing(exitAnim, {
-        toValue: 1,
-        duration: BANNER_EXIT_DURATION,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      // Switch to next banner (without remounting by using opacity only)
-      setShowBanner1((prev) => !prev);
-      exitAnim.setValue(0);
-    });
-  }, BANNER_DISPLAY_DURATION + BANNER_EXIT_DURATION);
+  const displayDuration =
+    activeBanner === 0 ? PROMO_BANNER_DURATION : PROMO_BANNER_2_DURATION;
 
-  return () => clearInterval(bannerCycle);
-}, [BANNER_DISPLAY_DURATION, BANNER_EXIT_DURATION, exitAnim]);
+  // Right-to-left banner transition; mounts new banner only when visible
+  const startBannerTransition = useCallback(() => {
+    if (isTransitioning) return;
+    const upcomingBanner = activeBanner === 0 ? 1 : 0;
+    setNextBanner(upcomingBanner);
+    setIsTransitioning(true);
+    transitionAnim.setValue(0);
+
+    Animated.timing(transitionAnim, {
+      toValue: 1,
+      duration: BANNER_EXIT_DURATION,
+      useNativeDriver: true,
+    }).start(() => {
+      setActiveBanner(upcomingBanner);
+      setIsTransitioning(false);
+    });
+  }, [activeBanner, transitionAnim, isTransitioning]);
+
+  // Synchronize parent slideshow cycle with child banner animations
+  useEffect(() => {
+    if (isTransitioning) return;
+    const timer = setTimeout(startBannerTransition, displayDuration);
+    return () => clearTimeout(timer);
+  }, [startBannerTransition, displayDuration, isTransitioning]);
 
 
   useEffect(() => {
@@ -166,56 +172,52 @@ useEffect(() => {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* Synchronized Banner Slideshow - Two overlapping animated views */}
+          {/* Banner Slideshow - mounts only the active banner so animations restart */}
           <View style={styles.bannerContainer}>
-            {/* Banner 1 - PromoBanner */}
-            <Animated.View
-              style={[
-                styles.bannerSlide,
-                {
-                  transform: [
+            {isTransitioning ? (
+              <>
+                <Animated.View
+                  style={[
+                    styles.bannerSlide,
                     {
-                      translateX: exitAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, -width],
-                      }),
+                      transform: [
+                        {
+                          translateX: transitionAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -width],
+                          }),
+                        },
+                      ],
                     },
-                  ],
-                  opacity: exitAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 0],
-                  }),
-                  zIndex: showBanner1 ? 10 : 0,
-                },
-              ]}
-            >
-              <PromoBanner key="banner1" />
-            </Animated.View>
+                  ]}
+                >
+                  {activeBanner === 0 ? <PromoBanner /> : <PromoBanner2 />}
+                </Animated.View>
 
-            {/* Banner 2 - PromoBanner2 */}
-            <Animated.View
-              style={[
-                styles.bannerSlide,
-                StyleSheet.absoluteFill,
-                {
-                  opacity: exitAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 1],
-                  }),
-                  transform: [
+                <Animated.View
+                  style={[
+                    styles.bannerSlide,
+                    StyleSheet.absoluteFill,
                     {
-                      translateX: exitAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [width, 0],
-                      }),
+                      transform: [
+                        {
+                          translateX: transitionAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [width, 0],
+                          }),
+                        },
+                      ],
                     },
-                  ],
-                  zIndex: showBanner1 ? 0 : 10,
-                },
-              ]}
-            >
-              <PromoBanner2 key="banner2" />
-            </Animated.View>
+                  ]}
+                >
+                  {nextBanner === 0 ? <PromoBanner /> : <PromoBanner2 />}
+                </Animated.View>
+              </>
+            ) : activeBanner === 0 ? (
+              <PromoBanner />
+            ) : (
+              <PromoBanner2 />
+            )}
           </View>
 
           {/* Gender Category Toggle */}

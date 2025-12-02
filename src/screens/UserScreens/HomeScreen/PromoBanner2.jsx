@@ -15,14 +15,6 @@ const Colors = {
   cardBackground: '#FAFAFA',
 };
 
-// NOTE: Some environments (bundlers / runtimes) will throw errors when
-// using `useNativeDriver: true` for animation properties that aren't
-// fully supported natively (or when combining animations with Animated.add).
-// To avoid bundling/runtime errors we use `useNativeDriver: false` for
-// animations below. If you run this on a real device and want native
-// driver performance, switch to `true` only for supported properties like
-// `opacity` and basic transforms and test carefully.
-
 // --- Beautician Card Component ---
 const BeauticianCard = ({ name, location, rating, count, price, image }) => {
   return (
@@ -207,7 +199,7 @@ export default function PromoBanner2() {
     // Single header float (no loop to sync with banner lifecycle)
     Animated.timing(headerFloat, {
       toValue: -3,
-      duration: 2500,
+      duration: 2000,
       useNativeDriver: false,
     }).start();
 
@@ -277,22 +269,12 @@ export default function PromoBanner2() {
         {/* Right Image Mockup */}
         <View style={styles.rightBlock}>
           <View style={styles.mockupBox}>
-            {/* <Text style={{ fontSize: 18 }}>📱</Text> */}
             <PhoneMockup />
           </View>
         </View>
       </View>
 
-      <Animated.View
-        style={[
-          styles.footer,
-          { opacity: footerFade, transform: [{ scale: footerPulse }] },
-        ]}
-      >
-        <Text style={styles.footerPoints}>
-          Fast Booking • No Waiting • Verified Beauticians
-        </Text>
-      </Animated.View>
+      
     </ScrollView>
   );
 }
@@ -336,7 +318,7 @@ const StepItem2 = ({ step, title, description, iconChar, isLast, delay }) => {
 
   const lineHeight = lineHeightAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 40],
+    outputRange: [0, 30],
   });
 
   return (
@@ -388,7 +370,7 @@ const styles = StyleSheet.create({
   },
   leftBlock: { width: '45%', paddingRight: 10 },
   rightBlock: { width: '50%', alignItems: 'center' },
-  stepItem: { flexDirection: 'row', marginBottom: 20 },
+  stepItem: { flexDirection: 'row', marginBottom: 15 },
   stepIcon: {
     width: 40,
     height: 40,
@@ -399,7 +381,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   stepIconText: { fontSize: 18 },
-  verticalLine: { width: 2, backgroundColor: Colors.secondary },
+  verticalLine: { width: 2, marginTop: 0,  backgroundColor: Colors.secondary },
   stepTitle: {
     fontSize: 12,
     fontWeight: '600',

@@ -32,18 +32,17 @@ const StepIcon = ({ iconChar, delay = 0 }) => {
     ]).start();
 
     
-
     // Continuous glow pulse
     Animated.loop(
       Animated.sequence([
         Animated.timing(glowAnim, {
           toValue: 1.15,
-          duration: 1500,
+          duration: 2000,
           useNativeDriver: true,
         }),
         Animated.timing(glowAnim, {
           toValue: 1,
-          duration: 1500,
+          duration: 2000,
           useNativeDriver: true,
         }),
       ])
@@ -80,14 +79,14 @@ const SalonCard = ({ title, location, rating, count, price, index }) => {
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 600,
-        delay: index * 150,
+        duration: 500,
+        delay: index * 100,
         useNativeDriver: true,
       }),
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 600,
-        delay: index * 150,
+        duration: 500,
+        delay: index * 100,
         useNativeDriver: true,
       }),
     ]).start();
@@ -97,12 +96,12 @@ const SalonCard = ({ title, location, rating, count, price, index }) => {
       Animated.sequence([
         Animated.timing(floatAnim, {
           toValue: -3,
-          duration: 2000 + index * 300,
+          duration: 2000 + index * 500,
           useNativeDriver: true,
         }),
         Animated.timing(floatAnim, {
           toValue: 0,
-          duration: 2000 + index * 300,
+          duration: 2000 + index * 500,
           useNativeDriver: true,
         }),
       ])
@@ -209,27 +208,6 @@ const PhoneMockup = () => {
         }),
       ])
     ).start();
-
-    // Continuous subtle tilt
-    // Animated.loop(
-    //   Animated.sequence([
-    //     Animated.timing(rotateAnim, {
-    //       toValue: 1,
-    //       duration: 3000,
-    //       useNativeDriver: true,
-    //     }),
-    //     Animated.timing(rotateAnim, {
-    //       toValue: -1,
-    //       duration: 3000,
-    //       useNativeDriver: true,
-    //     }),
-    //     Animated.timing(rotateAnim, {
-    //       toValue: 0,
-    //       duration: 3000,
-    //       useNativeDriver: true,
-    //     }),
-    //   ])
-    // ).start();
   }, []);
 
   // const rotate = rotateAnim.interpolate({
@@ -317,7 +295,7 @@ const StepItem = ({ step, title, description, iconChar, isLast, delay }) => {
     // Line growth animation - starts after step item appears
     if (!isLast) {
       Animated.sequence([
-        Animated.delay(delay + 600), // Wait for step item to appear
+        Animated.delay(delay + 500), // Wait for step item to appear
         Animated.timing(lineHeightAnim, {
           toValue: 1,
           duration: 2000, // 2 second growth
@@ -325,13 +303,12 @@ const StepItem = ({ step, title, description, iconChar, isLast, delay }) => {
         }),
       ]).start();
     }
-
     
   }, []);
 
   const lineHeight = lineHeightAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 40],
+    outputRange: [0, 30],
   });
 
   return (
@@ -523,8 +500,6 @@ const styles = StyleSheet.create({
   },
   verticalLine: {
     width: 2,
-    marginBottom:0,
-    paddingBottom: 0,
     backgroundColor: Colors.secondary,
   },
   stepTitle: {
