@@ -19,6 +19,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { uploadImageToCloudinary } from '../../api/claudinary'; 
 import { signupSalonOwner } from '../../redux/slices/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {showSnackbar} from '../../redux/slices/snackbarSlice';
 
 const STEPS = {
   CONTACT: 1,
@@ -49,7 +50,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const [salonCategory, setSalonCategory] = useState('');
 
   // Step 2: Shop Details
-  const [galleryImages, setgalleryImages] = useState([null, null, null, null]); // Local URIs
+  const [galleryImages, setgalleryImages] = useState([null, null]); // Local URIs
   const [completeAddress, setCompleteAddress] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
@@ -168,7 +169,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   // --- Location Handling ---
   const handleSetLocation = () => {
     if (!completeAddress || !city || !state || !pincode) {
-      Alert.alert("Missing Address", "Please fill in all address fields (Address, City, State, Pincode).");
+      dispatch(showSnackbar({message: "Please fill complete address details before setting location.", type: "error"}));
       return;
     }
     if (!currentLocation.longitude || !currentLocation.latitude) {
@@ -186,28 +187,28 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
     });
 
     setLocationSet(true); 
-    Alert.alert("Location Pinned", `Location pinned to coordinates: Lat ${currentLocation.latitude.toFixed(4)}, Lon ${currentLocation.longitude.toFixed(4)}`);
+    dispatch(showSnackbar({message: `Location pinned to coordinates: Lat ${currentLocation.latitude.toFixed(4)}, Lon ${currentLocation.longitude.toFixed(4)}`, type: "success"}));
   };
 
   const handleNext = () => {
     if (currentStep === STEPS.CONTACT) {
       // Basic validation for Step 1 before moving on
       if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber || !shopName || !salonCategory) {
-         Alert.alert('Error', 'Please fill all required fields in Contact Details.');
+         dispatch(showSnackbar({message: "Please fill all required fields in Contact Details.", type: "error"}));
          return;
       }
       else if(!regexEmail.test(ownerEmail)){
-        Alert.alert('Error', 'Please Enter a Valid Email.');
+        dispatch(showSnackbar({message: "Please Enter a Valid Email.", type: "error"}));
         return;
       }
       else if(!regexPnoneNo.test(contactNumber)){
-        Alert.alert('Error', 'Please Enter a Valid Contact Number.');
+        dispatch(showSnackbar({message: "Please Enter a Valid Contact Number.", type: "error"}));
          return;
       }
       if (ownershipType === 'partnership') {
         const hasIncompletePartner = partners.some(p => !p.name || !p.contact);
         if (hasIncompletePartner) {
-            Alert.alert('Error', 'Please fill in all partner name and contact details.');
+            dispatch(showSnackbar({message: "Please fill in all partner name and contact details.", type: "error"}));
             return;
         }
       }
@@ -215,13 +216,13 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
     } else if (currentStep === STEPS.SHOP) {
       // Basic validation for Step 2 before moving on
       if (galleryImages.filter(img => img !== null).length < 1) {
-        return Alert.alert('Error', 'Please upload at least 1 salon image.');
+        return dispatch(showSnackbar({message: "Please upload at least 1 salon image.", type: "error"}));
       }
       if (!locationSet) {
-        return Alert.alert('Error', 'Please set your salon location.');
+        return dispatch(showSnackbar({message: "Please set your salon location.", type: "error"}));
       }
       if(!/^\d{6}$/.test(pincode)) {
-        return Alert.alert('Error', 'Please enter a valid 6-digit pincode.');
+        return dispatch(showSnackbar({message: "Please enter a valid 6-digit pincode.", type: "error"}));
       }
 
       setCurrentStep(STEPS.VERIFICATION);
@@ -241,12 +242,12 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const handleSubmit = async () => {
     // Final Step 3 validation
     if (!idType || !idNumber || !idImageUrl) {
-      return Alert.alert('Error', 'Please complete ID verification.');
+      return dispatch(showSnackbar({message: "Please complete ID verification.", type: "error"}));
     }
 
     // Validation from previous steps (just in case)
     if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber || !shopName || !salonCategory || galleryImages.filter(img => img !== null).length < 1 || !locationSet) {
-      return Alert.alert('Error', 'Please complete all required steps and fields.');
+      return dispatch(showSnackbar({message: "Please complete all required steps and fields.", type: "error"}));
     }
 
     try {
@@ -254,7 +255,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       // Upload ID Image (Local URI -> Cloudinary URL)
       let finalIdImageUrl = null;
       if (idImageUrl) {
-        Alert.alert('Uploading', 'Uploading ID proof...', [{ text: 'OK' }]);
+        dispatch(showSnackbar({message: "Uploading ID proof...", type: "info"}));
         finalIdImageUrl = await uploadImageToCloudinary(idImageUrl); 
       }
 
@@ -262,7 +263,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       const uploadedShopImageUrls = [];
       const imagesToUpload = galleryImages.filter(img => img !== null);
       if(imagesToUpload.length > 0) {
-        Alert.alert('Uploading', `Uploading ${imagesToUpload.length} salon images...`, [{ text: 'OK' }]);
+        dispatch(showSnackbar({message: `Uploading ${imagesToUpload.length} salon images...`, type: "info"}));
       } 
       for (const image of imagesToUpload) {
         const uri = await uploadImageToCloudinary(image);
@@ -302,18 +303,15 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       if (signupSalonOwner.fulfilled.match(resultAction)) {
         console.log('Final Salon Data Sent:', salonData);
 
-        Alert.alert('Success', 'Registration submitted! Awaiting verification', [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack(), // Go back after success
-          },
-        ]);
+        // Signup successful
+        dispatch(showSnackbar({message: "Signup successful! Welcome aboard.", type: "success"}));
+        navigation.goBack();
       } else {
         // Redux action failed
         throw new Error(resultAction.payload || 'Signup failed');
       }
     } catch (err) {
-      Alert.alert('Error', err.message || 'Something went wrong during submission or upload');
+      dispatch(showSnackbar({message: err.message || "Something went wrong during submission or upload", type: "error"}));
     }
   };
   // ------------------------------------
