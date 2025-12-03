@@ -17,6 +17,9 @@ import { signupUser } from '../../redux/slices/authSlice';
 import Loader from '../../components/Loader';
 import ErrorMessage from '../../components/ErrorMessage';
 
+  const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const regexPnoneNo = /^[6-9]\d{9}$/;
+
 export default function RegisterScreen({navigation}) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,6 +40,13 @@ export default function RegisterScreen({navigation}) {
   const handleRegister = async () => {
     if (!name || !email || !mobileNumber || !password) {
       Alert.alert("Error", "Please fill all fields");
+      return;
+    }
+    else if(!regexEmail.test(email)){
+      Alert.alert("Please Enter Valid Email!");
+      return;
+    }else if(!regexPnoneNo.test(mobileNumber)){
+      Alert.alert("Please Enter Valid Mobile Number!");
       return;
     }
     try {

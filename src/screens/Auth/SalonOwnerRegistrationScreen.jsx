@@ -26,7 +26,9 @@ const STEPS = {
   VERIFICATION: 3,
 };
 
-const ID_TYPES = ['Aadhar', 'PAN', 'GST Certificate', 'DL'];
+const ID_TYPES = ['Aadhar', 'PAN', 'GST Certificate', 'Business License'];
+const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const regexPnoneNo = /^[6-9]\d{9}$/;
 
 export default function SalonOwnerRegistrationScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -192,6 +194,14 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       // Basic validation for Step 1 before moving on
       if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber || !shopName || !salonCategory) {
          Alert.alert('Error', 'Please fill all required fields in Contact Details.');
+         return;
+      }
+      else if(!regexEmail.test(ownerEmail)){
+        Alert.alert('Error', 'Please Enter a Valid Email.');
+        return;
+      }
+      else if(!regexPnoneNo.test(contactNumber)){
+        Alert.alert('Error', 'Please Enter a Valid Contact Number.');
          return;
       }
       if (ownershipType === 'partnership') {
@@ -1062,7 +1072,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 7,
     borderRadius: 8,
     borderWidth: 2,
     borderColor: '#7C5FED',

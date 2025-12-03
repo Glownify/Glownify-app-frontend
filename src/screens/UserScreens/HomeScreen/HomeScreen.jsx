@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, StyleSheet, FlatList, Image, StatusBar, Button, ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { View, Text, ScrollView, StyleSheet, Image, StatusBar, FlatList,  ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgUri } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,7 +9,9 @@ import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
 import ServiceAtHomeCard from './ServiceAtHomeCard';
-import PromoBanner from './PromoBanner';
+import PromoBanner, { PROMO_BANNER_DURATION } from './PromoBanner';
+import PromoBanner2, { PROMO_BANNER_2_DURATION } from './PromoBanner2';
+import SkeletonLoadingScreen from './SkeletonLoadingScreen'
 
 
 const { width } = Dimensions.get('window');
@@ -56,6 +58,11 @@ export default function HomeScreen({ navigation }) {
 const [currentProIndex, setCurrentProIndex] = useState(0);
 
   const promoScrollRef = useRef(null);
+  const transitionAnim = useRef(new Animated.Value(0)).current;
+  const BANNER_EXIT_DURATION = 900; 
+  const [activeBanner, setActiveBanner] = useState(0);
+  const [nextBanner, setNextBanner] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const promoImages = [
     require('../../../assets/promos/promo1.png'),
     require('../../../assets/promos/promo2.png'),
@@ -80,6 +87,36 @@ useEffect(() => {
   }
 }, [selectedCategory, dispatch]);
 
+
+  const displayDuration =
+    activeBanner === 0 ? PROMO_BANNER_DURATION : PROMO_BANNER_2_DURATION;
+
+  // Right-to-left banner transition; mounts new banner only when visible
+  const startBannerTransition = useCallback(() => {
+    if (isTransitioning) return;
+    const upcomingBanner = activeBanner === 0 ? 1 : 0;
+    setNextBanner(upcomingBanner);
+    setIsTransitioning(true);
+    transitionAnim.setValue(0);
+
+    Animated.timing(transitionAnim, {
+      toValue: 1,
+      duration: BANNER_EXIT_DURATION,
+      useNativeDriver: true,
+    }).start(() => {
+      setActiveBanner(upcomingBanner);
+      setIsTransitioning(false);
+    });
+  }, [activeBanner, transitionAnim, isTransitioning]);
+
+  // Synchronize parent slideshow cycle with child banner animations
+  useEffect(() => {
+    if (isTransitioning) return;
+    const timer = setTimeout(startBannerTransition, displayDuration);
+    return () => clearTimeout(timer);
+  }, [startBannerTransition, displayDuration, isTransitioning]);
+
+
   useEffect(() => {
     const interval = setInterval(() => {
       const nextSlide = (currentSlide + 1) % promoImages.length;
@@ -88,7 +125,7 @@ useEffect(() => {
       if (promoScrollRef.current) {
          promoScrollRef.current.scrollTo({ x: nextSlide * width, animated: true });
       }
-    }, 2000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [currentSlide, promoImages.length]);
@@ -148,12 +185,7 @@ useEffect(() => {
 
   if (loading && !refreshing) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={{ marginTop: 10, fontSize: 16, color: colors.primary }}>
-          Loading salons...
-        </Text>
-      </View>
+      <SkeletonLoadingScreen/>
     );
   }
 
@@ -168,8 +200,53 @@ useEffect(() => {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* Promo Banner Slider */}
-          <PromoBanner />
+          {/* Banner Slideshow - mounts only the active banner so animations restart */}
+          <View style={styles.bannerContainer}>
+            {isTransitioning ? (
+              <>
+                <Animated.View
+                  style={[
+                    styles.bannerSlide,
+                    {
+                      transform: [
+                        {
+                          translateX: transitionAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -width],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                >
+                  {activeBanner === 0 ? <PromoBanner /> : <PromoBanner2 />}
+                </Animated.View>
+
+                <Animated.View
+                  style={[
+                    styles.bannerSlide,
+                    StyleSheet.absoluteFill,
+                    {
+                      transform: [
+                        {
+                          translateX: transitionAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [width, 0],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                >
+                  {nextBanner === 0 ? <PromoBanner /> : <PromoBanner2 />}
+                </Animated.View>
+              </>
+            ) : activeBanner === 0 ? (
+              <PromoBanner />
+            ) : (
+              <PromoBanner2 />
+            )}
+          </View>
 
           {/* Gender Category Toggle */}
           <View style={styles.toggleContainer}>
@@ -383,5 +460,14 @@ categoryItem: {
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center' 
+  },
+  bannerContainer: {
+    width: '100%',
+    height: 'auto',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  bannerSlide: {
+    width: '100%',
   },
 });
