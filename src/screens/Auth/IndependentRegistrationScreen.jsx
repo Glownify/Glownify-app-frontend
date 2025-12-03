@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Picker } from '@react-native-picker/picker';
 import { signupIndependentProfessional } from '../../redux/slices/authSlice';
 import { fetchAllCategories } from '../../redux/slices/categoriesSlice';
+import {showSnackbar} from '../../redux/slices/snackbarSlice';
 
 // 🚨 Import your custom upload function
 import { uploadImageToCloudinary } from '../../api/claudinary';
@@ -179,7 +180,7 @@ export default function IndependentRegistrationScreen({ navigation }) {
     // --- Step 1 Validation ---
     if (currentStep === STEPS.PERSONAL) {
       if (!fullName || !gender || !contact || !experience || !profilePhoto) {
-        Alert.alert('Validation Failed', 'Please fill all required personal fields, including a profile photo.');
+        dispatch(showSnackbar({message: "Please fill all required personal fields, including a profile photo.", type: "error"}));
         return;
       }
       setCurrentStep(STEPS.AVAILABILITY);
@@ -191,7 +192,7 @@ export default function IndependentRegistrationScreen({ navigation }) {
       const hasSelectedDay = selectedDays.length > 0;
       const hasSelectedSlot = timeSlotsState.some(slot => slot.selected);
       if (!hasSelectedDay || !hasSelectedSlot) {
-        Alert.alert('Validation Failed', 'Please select at least one available day and one time slot.');
+        dispatch(showSnackbar({message: "Please select at least one available day and time slot.", type: "error"}));
         return;
       }
       setCurrentStep(STEPS.VERIFICATION);
@@ -239,7 +240,7 @@ export default function IndependentRegistrationScreen({ navigation }) {
   const handleSubmit = async () => {
     // Final validation for Step 3
     if (!idType || !idNumber || !idProof) {
-      Alert.alert('Validation Failed', 'Please fill all required verification fields.');
+      dispatch(showSnackbar({message: "Please fill all required verification fields.", type: "error"}));
       return;
     }
 
@@ -260,7 +261,7 @@ export default function IndependentRegistrationScreen({ navigation }) {
         idProofUrl = await uploadImageToCloudinary(idProof);
         console.log("ID Proof URL:", idProofUrl);
       }
-
+      
       // 3. Prepare the final independentData payload
       const independentData = {
         gender: gender.toLowerCase(),
