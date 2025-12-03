@@ -5,6 +5,8 @@ const Colors = {
 
   textPrimary: "#1F2937",
   textSecondary: "#6B7280",
+   textLight: '#FFFFFF',      // Light Text
+  textMuted: '#A0A4A8',      // Muted Text
 
   white: "#FFFFFF",
   black: "#000000",
@@ -18,6 +20,13 @@ const Colors = {
 
   bgLight: "#F9FAFB",
   bgDark: "#111827",
+
+   // Accent Colors
+  accent: '#00B4D8',
+  success: '#2ECC71',        // Green - Approved/Success
+  warning: '#F39C12',        // Amber - Pending
+  error: '#E74C3C',          // Red - Rejected/Error
+
 };
 
 export default Colors;

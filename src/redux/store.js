@@ -6,6 +6,7 @@ import salonAdminReducer from "./slices/salonAdminSlice";
 import userReducer from "./slices/userSlice";
 import subscriptionReducer from "./slices/subscriptionSlice";
 import categoriesReducer from "./slices/categoriesSlice";
+import snackbarReducer from './slices/snackbarSlice';
 
 export const store = configureStore({
   reducer: {
@@ -15,5 +16,6 @@ export const store = configureStore({
     user: userReducer,
     subscription: subscriptionReducer,
     categories: categoriesReducer,
+    snackbar: snackbarReducer,
   },
 });

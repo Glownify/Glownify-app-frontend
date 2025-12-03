@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
+import { showSnackbar } from '../../redux/slices/snackbarSlice';
 
 // -------------------- THUNKS --------------------
 // 0️⃣ Signup user
@@ -27,15 +28,37 @@ export const signupUser = createAsyncThunk(
 // 1️⃣ Login user
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password }, { dispatch, rejectWithValue }) => {
     try {
       const res = await axiosInstance.post('/auth/login', { email, password });
-      const { token, user } = res.data;
+      const { token, user, message } = res.data;
 
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('user', JSON.stringify(user));
+      
+      // Show success snackbar
+      dispatch(
+        showSnackbar({
+          message: message || 'Login successful',
+          type: 'success',
+          duration: 3000,
+        }),
+      );
       return { user, token };
     } catch (error) {
+      
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        'Registration failed. Please try again.';
+
+      dispatch(
+        showSnackbar({
+          message: errorMessage,
+          type: 'error',
+          duration: 3000,
+        }),
+      );
       return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
   }

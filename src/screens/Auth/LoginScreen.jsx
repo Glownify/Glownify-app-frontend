@@ -8,15 +8,15 @@ import {
   Image,
   StatusBar,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../redux/slices/authSlice'; // ✅ import thunk
+import { showSnackbar } from '../../redux/slices/snackbarSlice';
 
 export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
-  const { loading, error, user } = useSelector((state) => state.auth);
+  const { loading, user } = useSelector((state) => state.auth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,18 +25,17 @@ export default function LoginScreen({ navigation }) {
   // ✅ Handle login
   const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert('Missing info', 'Please enter both email and password');
+      dispatch(
+        showSnackbar({
+          message: 'Please enter both email and password',
+          type: 'error',
+          duration: 3000,
+        }),
+      );
       return;
     }
     dispatch(loginUser({ email, password }));
   };
-
-  // ✅ Show error
-  useEffect(() => {
-    if (error) {
-      Alert.alert('Login Failed', error);
-    }
-  }, [error]);
 
   return (
     <View style={styles.container}>

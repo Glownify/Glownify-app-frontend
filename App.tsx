@@ -8,6 +8,7 @@ import {Provider} from 'react-redux';
 import { store } from './src/redux/store';
 import RootNavigator from './src/navigation/RootNavigator';
 import LocationProvider from './src/components/LocationProvider';
+import GlobalSnackbar from './src/components/GlobalSnackbar';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         {/* <StatusBar barStyle="light-content" backgroundColor="#156778" /> */}
         <RootNavigator />
       </LocationProvider>
+      <GlobalSnackbar />
     </SafeAreaProvider>
     </Provider>
   );
