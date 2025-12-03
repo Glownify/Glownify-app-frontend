@@ -26,7 +26,7 @@ const STEPS = {
   VERIFICATION: 3,
 };
 
-const ID_TYPES = ['Aadhar', 'PAN', 'GST Certificate', 'Business License'];
+const ID_TYPES = ['Aadhar', 'PAN', 'GST Certificate', 'DL'];
 
 export default function SalonOwnerRegistrationScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -47,7 +47,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const [salonCategory, setSalonCategory] = useState('');
 
   // Step 2: Shop Details
-  const [shopImages, setShopImages] = useState([null, null, null, null]); // Local URIs
+  const [galleryImages, setgalleryImages] = useState([null, null, null, null]); // Local URIs
   const [completeAddress, setCompleteAddress] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
@@ -104,9 +104,9 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       if (isIDProof) {
         setIdImageUrl(uri);
       } else {
-        const newImages = [...shopImages];
+        const newImages = [...galleryImages];
         newImages[index] = uri;
-        setShopImages(newImages);
+        setgalleryImages(newImages);
       }
     }
   };
@@ -186,10 +186,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
     setLocationSet(true); 
     Alert.alert("Location Pinned", `Location pinned to coordinates: Lat ${currentLocation.latitude.toFixed(4)}, Lon ${currentLocation.longitude.toFixed(4)}`);
   };
-  // ------------------------------------
 
-
-  // --- Step Navigation ---
   const handleNext = () => {
     if (currentStep === STEPS.CONTACT) {
       // Basic validation for Step 1 before moving on
@@ -207,7 +204,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       setCurrentStep(STEPS.SHOP);
     } else if (currentStep === STEPS.SHOP) {
       // Basic validation for Step 2 before moving on
-      if (shopImages.filter(img => img !== null).length < 1) {
+      if (galleryImages.filter(img => img !== null).length < 1) {
         return Alert.alert('Error', 'Please upload at least 1 salon image.');
       }
       if (!locationSet) {
@@ -238,7 +235,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
     }
 
     // Validation from previous steps (just in case)
-    if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber || !shopName || !salonCategory || shopImages.filter(img => img !== null).length < 1 || !locationSet) {
+    if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber || !shopName || !salonCategory || galleryImages.filter(img => img !== null).length < 1 || !locationSet) {
       return Alert.alert('Error', 'Please complete all required steps and fields.');
     }
 
@@ -253,7 +250,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
 
       // Upload Shop Images (Local URI -> Cloudinary URL)
       const uploadedShopImageUrls = [];
-      const imagesToUpload = shopImages.filter(img => img !== null);
+      const imagesToUpload = galleryImages.filter(img => img !== null);
       if(imagesToUpload.length > 0) {
         Alert.alert('Uploading', `Uploading ${imagesToUpload.length} salon images...`, [{ text: 'OK' }]);
       } 
@@ -267,7 +264,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
         shopName,
         shopType: ownershipType,
         salonCategory,
-        shopImages: uploadedShopImageUrls, // <<< FINAL CLOUDINARY URLs
+        galleryImages: uploadedShopImageUrls, // <<< FINAL CLOUDINARY URLs
         location: locationData, 
         partners: ownershipType === 'partnership' ? partners : [],
         contactNumber,
@@ -577,7 +574,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
             </Text>
 
             <View style={styles.imagesGrid}>
-              {shopImages.map((image, index) => (
+              {galleryImages.map((image, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.imageBox}

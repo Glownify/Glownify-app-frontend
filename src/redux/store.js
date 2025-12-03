@@ -5,6 +5,7 @@ import superAdminReducer from "./slices/superAdminSlice";
 import salonAdminReducer from "./slices/salonAdminSlice";
 import userReducer from "./slices/userSlice";
 import subscriptionReducer from "./slices/subscriptionSlice";
+import categoriesReducer from "./slices/categoriesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -13,5 +14,6 @@ export const store = configureStore({
     salonAdmin: salonAdminReducer,
     user: userReducer,
     subscription: subscriptionReducer,
+    categories: categoriesReducer,
   },
 });

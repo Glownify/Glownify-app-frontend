@@ -7,7 +7,6 @@ import axiosInstance from '../../api/axiosInstance';
 export const signupUser = createAsyncThunk(
   "auth/signupUser",
   async ({ name, email, phone, password }, { rejectWithValue }) => {
-    console.log("Signup data:", { name, email, phone, password });
     try {
       const res = await axiosInstance.post("/auth/signup", {
         name,
@@ -32,7 +31,6 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await axiosInstance.post('/auth/login', { email, password });
       const { token, user } = res.data;
-      console.log('Login successful. User:', user);
 
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('user', JSON.stringify(user));
@@ -105,9 +103,7 @@ export const resetPassword = createAsyncThunk(
 export const signupSalonOwner = createAsyncThunk(
   "auth/signupSalonOwner",
   async ({ name, email, phone, password, salonData }, { rejectWithValue }) => {
-    console.log(salonData);
     try {
-      console.log("Salon Owner Signup data:", { name, email, phone, password, salonData });
       const res = await axiosInstance.post("/auth/signup", {
         name,
         email,
@@ -124,6 +120,33 @@ export const signupSalonOwner = createAsyncThunk(
       return { user, token };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Salon owner signup failed");
+    }
+  }
+);
+
+
+// sing up independent professional
+export const signupIndependentProfessional = createAsyncThunk(
+  "auth/signupIndependentProfessional",
+  async ({ name, email, phone, password, independentData }, { rejectWithValue }) => {
+    try {
+      console.log("Independent", { name, email, phone, password, independentData });
+      const res = await axiosInstance.post("/auth/signup", {
+        name,
+        email,
+        phone,
+        password,
+        role: "independent_pro",
+        independentData,
+      });
+
+      const { user, token } = res.data;
+      await AsyncStorage.setItem("token", token);
+      await AsyncStorage.setItem("user", JSON.stringify(user));
+
+      return { user, token };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Independent professional signup failed");
     }
   }
 );
@@ -258,6 +281,21 @@ const authSlice = createSlice({
   state.token = action.payload.token;
 })
 .addCase(signupSalonOwner.rejected, (state, action) => {
+  state.signUpLoading = false;
+  state.error = action.payload;
+})
+
+      // Signup Independent Professional
+      .addCase(signupIndependentProfessional.pending, (state) => {
+  state.signUpLoading = true;
+  state.error = null;
+})
+.addCase(signupIndependentProfessional.fulfilled, (state, action) => {
+  state.signUpLoading = false;
+  state.user = action.payload.user;
+  state.token = action.payload.token;
+})
+.addCase(signupIndependentProfessional.rejected, (state, action) => {
   state.signUpLoading = false;
   state.error = action.payload;
 });

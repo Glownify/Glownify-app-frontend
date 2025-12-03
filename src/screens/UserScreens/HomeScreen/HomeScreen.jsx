@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, StatusBar, Button, ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, FlatList, Image, StatusBar, Button, ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgUri } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchHomeSalonsBySalonCategory, getAllCategories } from '../../../redux/slices/userSlice';
+import { fetchHomeSalonsBySalonCategory, fetchHomeIndependentprosByCategory, getAllCategories } from '../../../redux/slices/userSlice';
 import HomeHeader from '../../../components/HomeHeader';
 import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
@@ -34,7 +34,7 @@ const CategoryIcon = ({ uri }) => {
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const { loading, homeSalonsBySalonCategory, categories } = useSelector((state) => state.user);
+  const { loading, homeSalonsBySalonCategory, homeIndependentProsByCategory, categories } = useSelector((state) => state.user);
 
 
   const salonList = Array.isArray(homeSalonsBySalonCategory?.data?.salons)
@@ -43,10 +43,18 @@ export default function HomeScreen({ navigation }) {
     ? homeSalonsBySalonCategory.data
     : [];
 
+  const independentProsList = Array.isArray(homeIndependentProsByCategory?.data?.independentPros)
+    ? homeIndependentProsByCategory.data.independentPros
+    : Array.isArray(homeIndependentProsByCategory?.data)
+    ? homeIndependentProsByCategory.data
+    : [];
 
   const [refreshing, setRefreshing] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('women');
+  const prosScrollRef = useRef(null);
+const [currentProIndex, setCurrentProIndex] = useState(0);
+
   const promoScrollRef = useRef(null);
   const promoImages = [
     require('../../../assets/promos/promo1.png'),
@@ -68,10 +76,9 @@ useEffect(() => {
   if (selectedCategory) {
     dispatch(getAllCategories(selectedCategory));
     dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+    dispatch(fetchHomeIndependentprosByCategory(selectedCategory));
   }
 }, [selectedCategory, dispatch]);
-
-
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -86,11 +93,30 @@ useEffect(() => {
     return () => clearInterval(interval);
   }, [currentSlide, promoImages.length]);
 
+  useEffect(() => {
+  if (!independentProsList || independentProsList.length === 0) return;
+
+  const interval = setInterval(() => {
+    let nextIndex = (currentProIndex + 1) % independentProsList.length;
+    setCurrentProIndex(nextIndex);
+
+    if (prosScrollRef.current) {
+      prosScrollRef.current.scrollToIndex({
+        index: nextIndex,
+        animated: true
+      });
+    }
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [currentProIndex, independentProsList]);
+
 
   const onRefresh = async () => {
   setRefreshing(true);
   dispatch(getAllCategories(selectedCategory));
   dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+  dispatch(fetchHomeIndependentprosByCategory(selectedCategory));
   setRefreshing(false);
 };
 
@@ -215,7 +241,21 @@ useEffect(() => {
 
           {/* --- Service at Home Card --- */}
           <SectionHeader title="Service At Home" />
-          <ServiceAtHomeCard onPress={() => navigation.navigate('ProfessionalsListScreen')} />
+         <FlatList
+  ref={prosScrollRef}
+  data={independentProsList}
+  keyExtractor={(item) => item._id}
+  renderItem={({ item }) => (
+    <ServiceAtHomeCard
+      independentPro={item}
+      onPress={() => navigation.navigate('ProfessionalsListScreen', { id: item._id })}
+    />
+  )}
+  horizontal
+  pagingEnabled     // smooth snap
+  showsHorizontalScrollIndicator={false}
+  onScrollToIndexFailed={() => {}}
+/>
 
           {/* --- Nearby Offers --- */}
           <SectionHeader title="Nearby Offers" />

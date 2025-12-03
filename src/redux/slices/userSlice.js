@@ -15,6 +15,18 @@ export const fetchHomeSalonsBySalonCategory = createAsyncThunk(
   }
 );
 
+export const fetchHomeIndependentprosByCategory = createAsyncThunk(
+  "user/fetchHomeIndependentprosByCategory",
+  async (category, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/user/get-home-independentpros?category=${category}`);
+      return response.data || [];
+    } catch (error) {
+      return rejectWithValue(error.response.data.message || "Failed to fetch home independent professionals");
+    }
+  }
+);
+
 export const getAllCategories = createAsyncThunk(
   "user/getAllCategories",
   async (gender, { rejectWithValue }) => {
@@ -44,6 +56,7 @@ const userSlice = createSlice({
   name: "user",
   initialState: {
     homeSalonsBySalonCategory: [],
+    homeIndependentProsByCategory: [],
     categories: [],
     salonDetails: null,
     loading: false,
@@ -61,6 +74,18 @@ const userSlice = createSlice({
         state.homeSalonsBySalonCategory = action.payload;
       })
       .addCase(fetchHomeSalonsBySalonCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchHomeIndependentprosByCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchHomeIndependentprosByCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.homeIndependentProsByCategory = action.payload;
+      })
+      .addCase(fetchHomeIndependentprosByCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
