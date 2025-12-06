@@ -1,7 +1,7 @@
 import axios from 'axios';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// export const API_BASE_URL = 'https://api.oxfamofficial.com/api';
-export const API_BASE_URL = 'http://192.168.29.20:3000/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+export const API_BASE_URL = 'https://saloonbackend-mumt.onrender.com/api';
+// export const API_BASE_URL = 'http://192.168.29.20:5000/api';
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
 // Add interceptor to include token in every request
 axiosInstance.interceptors.request.use(
     async (config) => {
-        const token = await AsyncStorage.getItem('userToken');
+        const token = await AsyncStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

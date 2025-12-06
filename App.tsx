@@ -4,17 +4,23 @@ enableScreens();
 import React from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthProvider } from './src/context/AuthContext';
+import {Provider} from 'react-redux';
+import { store } from './src/redux/store';
 import RootNavigator from './src/navigation/RootNavigator';
+import LocationProvider from './src/components/LocationProvider';
+import GlobalSnackbar from './src/components/GlobalSnackbar';
 
 export default function App() {
   return (
+    <Provider store={store}>
     <SafeAreaProvider>
-      <AuthProvider>
-        <StatusBar barStyle="dark-content" />
-        {/* <StatusBar style="light" backgroundColor="#121212" /> */}
+      <LocationProvider>
+        {/* <StatusBar barStyle="dark-content" /> */}
+        {/* <StatusBar barStyle="light-content" backgroundColor="#156778" /> */}
         <RootNavigator />
-      </AuthProvider>
+      </LocationProvider>
+      <GlobalSnackbar />
     </SafeAreaProvider>
+    </Provider>
   );
 }
