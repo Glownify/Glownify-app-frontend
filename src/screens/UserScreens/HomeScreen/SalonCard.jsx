@@ -37,7 +37,9 @@ const SalonCard = ({ salon }) => {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate('ShopDetailsFull', { salonId: salon._id })}
+      onPress={() =>
+        navigation.navigate('ShopDetailsFull', { salonId: salon._id })
+      }
       activeOpacity={0.8}
     >
       <Image source={imageSource} style={styles.image} resizeMode="cover" />
@@ -54,30 +56,30 @@ const SalonCard = ({ salon }) => {
         {/* <Text style={styles.address} numberOfLines={1}>
           {location?.address || 'Address not available'}
         </Text> */}
-         <Text style={styles.address} numberOfLines={1}>
-          {categories?.map(cat => cat.name).join(' | ') || 'No categories available'}
+        <Text style={styles.address} numberOfLines={1}>
+          {categories?.map(cat => cat.name).join(' | ') ||
+            'No categories available'}
         </Text>
-       <View style={styles.ratingRow}>
-  <Ionicons
-    name="location-outline"
-    size={14}
-    color={colors.primary}
-    style={{ marginRight: 4 }}
-  />
-  <Text style={styles.address} numberOfLines={1}>
-    {distance ? `${distance} km` : 'Distance not available'}
-  </Text>
+        <View style={styles.ratingRow}>
+          <Ionicons
+            name="location-outline"
+            size={14}
+            color={colors.primary}
+            style={{ marginRight: 4 }}
+          />
+          <Text style={styles.address} numberOfLines={1}>
+            {distance ? `${distance} km` : 'Distance not available'}
+          </Text>
 
-  <Ionicons
-    name="star"
-    size={14}
-    color={colors.star}
-    style={{ marginLeft: 10, marginRight: 2 }}
-  />
-  <Text style={styles.rating}>{rating || '0.0'}</Text>
-  <Text style={styles.reviews}>({reviews || 0})</Text>
-</View>
-
+          <Ionicons
+            name="star"
+            size={14}
+            color={colors.star}
+            style={{ marginLeft: 10, marginRight: 2 }}
+          />
+          <Text style={styles.rating}>{rating || '0.0'}</Text>
+          <Text style={styles.reviews}>({reviews || 0})</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );

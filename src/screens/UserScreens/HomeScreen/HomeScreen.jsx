@@ -1,9 +1,26 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, StatusBar, FlatList,  ActivityIndicator, TouchableOpacity, RefreshControl, Dimensions, Animated } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Image,
+  StatusBar,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  RefreshControl,
+  Dimensions,
+  Animated,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgUri } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchHomeSalonsBySalonCategory, fetchHomeIndependentprosByCategory, getAllCategories } from '../../../redux/slices/userSlice';
+import {
+  fetchHomeSalonsBySalonCategory,
+  fetchHomeIndependentprosByCategory,
+  getAllCategories,
+} from '../../../redux/slices/userSlice';
 import HomeHeader from '../../../components/HomeHeader';
 import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
@@ -11,11 +28,9 @@ import NearbyOfferCard from './NearbyOfferCard';
 import ServiceAtHomeCard from './ServiceAtHomeCard';
 import PromoBanner, { PROMO_BANNER_DURATION } from './PromoBanner';
 import PromoBanner2, { PROMO_BANNER_2_DURATION } from './PromoBanner2';
-import SkeletonLoadingScreen from './SkeletonLoadingScreen'
-
+import SkeletonLoadingScreen from './SkeletonLoadingScreen';
 
 const { width } = Dimensions.get('window');
-
 
 const colors = {
   primary: '#156778',
@@ -25,19 +40,26 @@ const colors = {
   textSecondary: '#6B7280',
 };
 
-
 const CategoryIcon = ({ uri }) => {
   const isSvg = uri?.endsWith('.svg');
   if (isSvg) return <SvgUri width={32} height={32} uri={uri} />;
-  return <Image source={{ uri }} style={{ width: 32, height: 32, resizeMode: 'contain' }} />;
+  return (
+    <Image
+      source={{ uri }}
+      style={{ width: 32, height: 32, resizeMode: 'contain' }}
+    />
+  );
 };
-
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  const { loading, homeSalonsBySalonCategory, homeIndependentProsByCategory, categories } = useSelector((state) => state.user);
-
+  const user = useSelector(state => state.auth.user);
+  const {
+    loading,
+    homeSalonsBySalonCategory,
+    homeIndependentProsByCategory,
+    categories,
+  } = useSelector(state => state.user);
 
   const salonList = Array.isArray(homeSalonsBySalonCategory?.data?.salons)
     ? homeSalonsBySalonCategory.data.salons
@@ -45,7 +67,9 @@ export default function HomeScreen({ navigation }) {
     ? homeSalonsBySalonCategory.data
     : [];
 
-  const independentProsList = Array.isArray(homeIndependentProsByCategory?.data?.independentPros)
+  const independentProsList = Array.isArray(
+    homeIndependentProsByCategory?.data?.independentPros,
+  )
     ? homeIndependentProsByCategory.data.independentPros
     : Array.isArray(homeIndependentProsByCategory?.data)
     ? homeIndependentProsByCategory.data
@@ -55,11 +79,11 @@ export default function HomeScreen({ navigation }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('women');
   const prosScrollRef = useRef(null);
-const [currentProIndex, setCurrentProIndex] = useState(0);
+  const [currentProIndex, setCurrentProIndex] = useState(0);
 
   const promoScrollRef = useRef(null);
   const transitionAnim = useRef(new Animated.Value(0)).current;
-  const BANNER_EXIT_DURATION = 900; 
+  const BANNER_EXIT_DURATION = 900;
   const [activeBanner, setActiveBanner] = useState(0);
   const [nextBanner, setNextBanner] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -69,24 +93,20 @@ const [currentProIndex, setCurrentProIndex] = useState(0);
     require('../../../assets/promos/promo3.png'),
   ];
 
- 
   const womenImage = require('../../../assets/men-women/woman.png');
   const menImage = require('../../../assets/men-women/men.png');
 
+  const handleSelectSalonCategory = category => {
+    setSelectedCategory(category);
+  };
 
-  const handleSelectSalonCategory = (category) => {
-   setSelectedCategory(category);
-  }
-
-
-useEffect(() => {
-  if (selectedCategory) {
-    dispatch(getAllCategories(selectedCategory));
-    dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
-    dispatch(fetchHomeIndependentprosByCategory(selectedCategory));
-  }
-}, [selectedCategory, dispatch]);
-
+  useEffect(() => {
+    if (selectedCategory) {
+      dispatch(getAllCategories(selectedCategory));
+      dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+      dispatch(fetchHomeIndependentprosByCategory(selectedCategory));
+    }
+  }, [selectedCategory, dispatch]);
 
   const displayDuration =
     activeBanner === 0 ? PROMO_BANNER_DURATION : PROMO_BANNER_2_DURATION;
@@ -116,14 +136,16 @@ useEffect(() => {
     return () => clearTimeout(timer);
   }, [startBannerTransition, displayDuration, isTransitioning]);
 
-
   useEffect(() => {
     const interval = setInterval(() => {
       const nextSlide = (currentSlide + 1) % promoImages.length;
       setCurrentSlide(nextSlide);
-      
+
       if (promoScrollRef.current) {
-         promoScrollRef.current.scrollTo({ x: nextSlide * width, animated: true });
+        promoScrollRef.current.scrollTo({
+          x: nextSlide * width,
+          animated: true,
+        });
       }
     }, 4000);
 
@@ -131,36 +153,37 @@ useEffect(() => {
   }, [currentSlide, promoImages.length]);
 
   useEffect(() => {
-  if (!independentProsList || independentProsList.length === 0) return;
+    if (!independentProsList || independentProsList.length === 0) return;
 
-  const interval = setInterval(() => {
-    let nextIndex = (currentProIndex + 1) % independentProsList.length;
-    setCurrentProIndex(nextIndex);
+    const interval = setInterval(() => {
+      let nextIndex = (currentProIndex + 1) % independentProsList.length;
+      setCurrentProIndex(nextIndex);
 
-    if (prosScrollRef.current) {
-      prosScrollRef.current.scrollToIndex({
-        index: nextIndex,
-        animated: true
-      });
-    }
-  }, 2000);
+      if (prosScrollRef.current) {
+        prosScrollRef.current.scrollToIndex({
+          index: nextIndex,
+          animated: true,
+        });
+      }
+    }, 2000);
 
-  return () => clearInterval(interval);
-}, [currentProIndex, independentProsList]);
-
+    return () => clearInterval(interval);
+  }, [currentProIndex, independentProsList]);
 
   const onRefresh = async () => {
-  setRefreshing(true);
-  dispatch(getAllCategories(selectedCategory));
-  dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
-  dispatch(fetchHomeIndependentprosByCategory(selectedCategory));
-  setRefreshing(false);
-};
-
-
+    setRefreshing(true);
+    dispatch(getAllCategories(selectedCategory));
+    dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
+    dispatch(fetchHomeIndependentprosByCategory(selectedCategory));
+    setRefreshing(false);
+  };
 
   const renderSalonSection = (title, data) => {
-    const listData = Array.isArray(data?.salons) ? data.salons : Array.isArray(data) ? data : [];
+    const listData = Array.isArray(data?.salons)
+      ? data.salons
+      : Array.isArray(data)
+      ? data
+      : [];
 
     if (listData.length === 0) return null;
 
@@ -169,10 +192,16 @@ useEffect(() => {
         <SectionHeader
           title={title}
           showViewAll
-          onPress={() => navigation.navigate('SalonsListScreen', { type: title })}
+          onPress={() =>
+            navigation.navigate('SalonsListScreen', { type: title })
+          }
         />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-          {listData.map((salon) => (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.horizontalScroll}
+        >
+          {listData.map(salon => (
             <View key={salon._id} style={styles.salonCardWrapper}>
               <SalonCard salon={salon} />
             </View>
@@ -182,13 +211,9 @@ useEffect(() => {
     );
   };
 
-
   if (loading && !refreshing) {
-    return (
-      <SkeletonLoadingScreen/>
-    );
+    return <SkeletonLoadingScreen />;
   }
-
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -198,7 +223,9 @@ useEffect(() => {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         >
           {/* Banner Slideshow - mounts only the active banner so animations restart */}
           <View style={styles.bannerContainer}>
@@ -254,20 +281,22 @@ useEffect(() => {
               style={[
                 styles.toggleButton,
                 styles.toggleButtonLeft,
-                selectedCategory === 'women' && styles.toggleButtonActive
+                selectedCategory === 'women' && styles.toggleButtonActive,
               ]}
               onPress={() => handleSelectSalonCategory('women')}
               activeOpacity={0.8}
             >
-              <Image 
-                style={styles.toggleIcon} 
+              <Image
+                style={styles.toggleIcon}
                 source={womenImage}
                 resizeMode="contain"
               />
-              <Text style={[
-                styles.toggleText,
-                selectedCategory === 'women' && styles.toggleTextActive
-              ]}>
+              <Text
+                style={[
+                  styles.toggleText,
+                  selectedCategory === 'women' && styles.toggleTextActive,
+                ]}
+              >
                 Women
               </Text>
             </TouchableOpacity>
@@ -276,20 +305,22 @@ useEffect(() => {
               style={[
                 styles.toggleButton,
                 styles.toggleButtonRight,
-                selectedCategory === 'men' && styles.toggleButtonActive
+                selectedCategory === 'men' && styles.toggleButtonActive,
               ]}
               onPress={() => handleSelectSalonCategory('men')}
               activeOpacity={0.8}
             >
-              <Image 
-                style={styles.toggleIcon} 
+              <Image
+                style={styles.toggleIcon}
                 source={menImage}
                 resizeMode="contain"
               />
-              <Text style={[
-                styles.toggleText,
-                selectedCategory === 'men' && styles.toggleTextActive
-              ]}>
+              <Text
+                style={[
+                  styles.toggleText,
+                  selectedCategory === 'men' && styles.toggleTextActive,
+                ]}
+              >
                 Men
               </Text>
             </TouchableOpacity>
@@ -298,9 +329,9 @@ useEffect(() => {
           {/* Categories */}
           <SectionHeader title="What do you want to get?" />
           <View style={styles.categories}>
-            {categories.map((cat) => (
-              <TouchableOpacity 
-                key={cat._id} 
+            {categories.map(cat => (
+              <TouchableOpacity
+                key={cat._id}
                 style={styles.categoryItem}
                 accessibilityRole="button"
                 accessibilityLabel={`View services for ${cat.name} category`}
@@ -317,22 +348,29 @@ useEffect(() => {
           {renderSalonSection(selectedCategory.toUpperCase(), salonList)}
 
           {/* --- Service at Home Card --- */}
-          <SectionHeader title="Service At Home" />
-         <FlatList
-  ref={prosScrollRef}
-  data={independentProsList}
-  keyExtractor={(item) => item._id}
-  renderItem={({ item }) => (
-    <ServiceAtHomeCard
-      independentPro={item}
-      onPress={() => navigation.navigate('ProfessionalsListScreen', { id: item._id })}
-    />
-  )}
-  horizontal
-  pagingEnabled     // smooth snap
-  showsHorizontalScrollIndicator={false}
-  onScrollToIndexFailed={() => {}}
-/>
+          <SectionHeader 
+            title="Service At Home" 
+            onPress={()=>(navigation.navigate("ProfessionalsListScreen"))} 
+          />
+          <FlatList
+            ref={prosScrollRef}
+            data={independentProsList}
+            keyExtractor={item => item._id}
+            renderItem={({ item }) => (
+              <ServiceAtHomeCard
+                independentPro={item}
+                onPress={() =>
+                  navigation.navigate('ProfessionalDetailScreen', {
+                    id: item._id,
+                  })
+                }
+              />
+            )}
+            horizontal
+            pagingEnabled // smooth snap
+            showsHorizontalScrollIndicator={false}
+            onScrollToIndexFailed={() => {}}
+          />
 
           {/* --- Nearby Offers --- */}
           <SectionHeader title="Nearby Offers" />
@@ -353,11 +391,10 @@ useEffect(() => {
   );
 }
 
-
 const styles = StyleSheet.create({
-  safeArea: { 
-    flex: 1, 
-    backgroundColor: colors.primary 
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.primary,
   },
   promoContainer: {
     borderRadius: 16,
@@ -365,26 +402,26 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     overflow: 'hidden',
   },
-  promoImage: { 
-    width: width - 32, 
-    height: 180, 
-    borderRadius: 12, 
-    marginRight: 16 
+  promoImage: {
+    width: width - 32,
+    height: 180,
+    borderRadius: 12,
+    marginRight: 16,
   },
   categories: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  paddingHorizontal: 16,
-  marginTop: 8,
-  justifyContent: 'flex-start',
-  gap: 10,   // ⭐ adds equal space between items
-},
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    marginTop: 8,
+    justifyContent: 'flex-start',
+    gap: 10, // ⭐ adds equal space between items
+  },
 
-categoryItem: { 
-  alignItems: 'center',
-  width: '23%',  // ⭐ adjust to fit 4 items per row OR 3 (your choice)
-  marginBottom: 16,
-},
+  categoryItem: {
+    alignItems: 'center',
+    width: '23%', // ⭐ adjust to fit 4 items per row OR 3 (your choice)
+    marginBottom: 16,
+  },
   categoryIcon: {
     backgroundColor: colors.primaryLight,
     width: 60,
@@ -400,7 +437,7 @@ categoryItem: {
     fontWeight: '500',
     textAlign: 'center',
   },
-  
+
   // Toggle Styles
   toggleContainer: {
     flexDirection: 'row',
@@ -448,18 +485,18 @@ categoryItem: {
   toggleTextActive: {
     color: colors.white,
   },
-  
-  horizontalScroll: { 
-    paddingLeft: 16, 
-    paddingVertical: 10 
+
+  horizontalScroll: {
+    paddingLeft: 16,
+    paddingVertical: 10,
   },
-  salonCardWrapper: { 
-    marginRight: 16 
+  salonCardWrapper: {
+    marginRight: 16,
   },
-  centered: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bannerContainer: {
     width: '100%',
