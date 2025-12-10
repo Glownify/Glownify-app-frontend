@@ -8,14 +8,8 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import ProfessionalDetailScreen from './ProfessionalDetailScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-const Stack = createNativeStackNavigator();
-
-
 
 // Mock data based on your image
 const salonData = [

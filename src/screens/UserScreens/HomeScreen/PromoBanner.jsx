@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, ScrollView, Animated } from "react-native";
 
 // Animation duration constant - must match HomeScreen's BANNER_DISPLAY_DURATION
-export const PROMO_BANNER_DURATION = 8000; // 8 seconds
+export const PROMO_BANNER_DURATION = 5000; 
 
 // --- Color Palette ---
 const Colors = {
@@ -210,10 +210,6 @@ const PhoneMockup = () => {
     ).start();
   }, []);
 
-  // const rotate = rotateAnim.interpolate({
-  //   inputRange: [-1, 1],
-  //   outputRange: ['-4deg', '4deg'],
-  // });
 
   return (
     <Animated.View
@@ -436,7 +432,7 @@ export default function PromoBanner() {
       </View>
 
       {/* Footer */}
-      <Animated.View
+      {/* <Animated.View
         style={[
           styles.footer,
           {
@@ -448,7 +444,7 @@ export default function PromoBanner() {
         <Text style={styles.footerPoints}>
           • Fast Booking  • No Waiting  • Verified Salons
         </Text>
-      </Animated.View>
+      </Animated.View> */}
     </ScrollView>
   );
 }
@@ -457,6 +453,7 @@ export default function PromoBanner() {
 const styles = StyleSheet.create({
   mainWrapper: {
     paddingVertical: 10,
+    height: 360,
     backgroundColor: Colors.white,
     alignItems: "center",
   },

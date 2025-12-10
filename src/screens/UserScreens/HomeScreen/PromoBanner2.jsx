@@ -1,9 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Animated, Image } from 'react-native';
-import Ionicons from "react-native-vector-icons/Ionicons";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Animated,
+  Image,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Animation duration constant - must match HomeScreen's BANNER_DISPLAY_DURATION
-export const PROMO_BANNER_2_DURATION = 8000; // 8 seconds
+export const PROMO_BANNER_2_DURATION = 5000; 
 
 // --- Color Palette ---
 const Colors = {
@@ -26,9 +33,9 @@ const BeauticianCard = ({ name, location, rating, count, price, image }) => {
         <Text style={styles.cardLocation}>{location}</Text>
 
         <View style={styles.ratingRow}>
-          <Text style={{fontSize: 10}}>{rating}</Text>
-          <Text style={{fontSize: 10}}>⭐</Text>
-          <Text style={{fontSize: 10}}>{count}</Text>
+          <Text style={{ fontSize: 10 }}>{rating}</Text>
+          <Text style={{ fontSize: 10 }}>⭐</Text>
+          <Text style={{ fontSize: 10 }}>{count}</Text>
         </View>
 
         <View style={styles.priceRow}>
@@ -91,9 +98,14 @@ function PhoneMockup() {
         },
       ]}
     >
-      <View style={styles.topNotch} >
-        <Ionicons name="search-outline" style={{paddingTop:4,paddingLeft:4}} size={12} color={Colors.primary} />
-      </View>  
+      <View style={styles.topNotch}>
+        <Ionicons
+          name="search-outline"
+          style={{ paddingTop: 4, paddingLeft: 4 }}
+          size={12}
+          color={Colors.primary}
+        />
+      </View>
 
       <Text style={styles.title}>Book a Beautician</Text>
 
@@ -185,7 +197,7 @@ export default function PromoBanner2() {
     Animated.parallel([
       Animated.timing(headerFade, {
         toValue: 1,
-        duration: 800,
+        duration: 500,
         useNativeDriver: false,
       }),
       Animated.spring(headerSlide, {
@@ -207,7 +219,7 @@ export default function PromoBanner2() {
     Animated.timing(footerFade, {
       toValue: 1,
       duration: 1000,
-      delay: 1500,
+      // delay: 1500,
       useNativeDriver: false,
     }).start();
 
@@ -215,7 +227,7 @@ export default function PromoBanner2() {
     Animated.timing(footerPulse, {
       toValue: 1.15,
       duration: 1000,
-      delay: 2000,
+      // delay: 2000,
       useNativeDriver: false,
     }).start();
   }, [headerFade, headerSlide, headerFloat, footerFade, footerPulse]);
@@ -234,7 +246,7 @@ export default function PromoBanner2() {
           },
         ]}
       >
-        How to Book a Beautician / Barber at Home
+        Book a Beautician/Barber at Home
       </Animated.Text>
 
       <View style={styles.container}>
@@ -273,8 +285,6 @@ export default function PromoBanner2() {
           </View>
         </View>
       </View>
-
-      
     </ScrollView>
   );
 }
@@ -292,12 +302,12 @@ const StepItem2 = ({ step, title, description, iconChar, isLast, delay }) => {
         toValue: 0,
         tension: 40,
         friction: 8,
-        delay,
+        // delay,
         useNativeDriver: false,
       }),
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 600,
+        duration: 500,
         delay,
         useNativeDriver: false,
       }),
@@ -352,11 +362,12 @@ const StepItem2 = ({ step, title, description, iconChar, isLast, delay }) => {
 const styles = StyleSheet.create({
   mainWrapper: {
     paddingVertical: 10,
+    height: 360,
     backgroundColor: Colors.white,
     alignItems: 'center',
   },
   mainHeader: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '800',
     color: Colors.textPrimary,
     textAlign: 'center',
@@ -381,7 +392,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   stepIconText: { fontSize: 18 },
-  verticalLine: { width: 2, marginTop: 0,  backgroundColor: Colors.secondary },
+  verticalLine: { width: 2, marginTop: 0, backgroundColor: Colors.secondary },
   stepTitle: {
     fontSize: 12,
     fontWeight: '600',
@@ -390,16 +401,6 @@ const styles = StyleSheet.create({
   },
   stepNumber: { color: Colors.primary, fontWeight: '700' },
   stepDescription: { color: Colors.textSecondary, fontSize: 10 },
-//   mockupBox: {
-//     width: 160,
-//     height: 300,
-//     borderRadius: 20,
-//     borderWidth: 10,
-//     borderColor: "black",
-//     backgroundColor: '#EEE',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
   footer: { marginTop: 10, alignItems: 'center' },
   footerPoints: { marginTop: 20, color: Colors.textSecondary, fontSize: 14 },
   phoneWrapper: {

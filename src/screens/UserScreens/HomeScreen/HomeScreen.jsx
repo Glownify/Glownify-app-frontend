@@ -83,7 +83,7 @@ export default function HomeScreen({ navigation }) {
 
   const promoScrollRef = useRef(null);
   const transitionAnim = useRef(new Animated.Value(0)).current;
-  const BANNER_EXIT_DURATION = 900;
+  const BANNER_EXIT_DURATION = 500;
   const [activeBanner, setActiveBanner] = useState(0);
   const [nextBanner, setNextBanner] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -147,7 +147,7 @@ export default function HomeScreen({ navigation }) {
           animated: true,
         });
       }
-    }, 4000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [currentSlide, promoImages.length]);
