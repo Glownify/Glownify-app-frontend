@@ -21,6 +21,9 @@ import UserBookingsScreen from '../screens/UserScreens/BookingScreen';
 import AIBasedHairs from '../screens/UserScreens/AIBasedHairs';
 import SalonsListScreen from '../screens/UserScreens/SalonsListScreen';
 import ProfileEditScreen from '../screens/UserScreens/ProfileEditScreen';
+import ServicesMenuScreen from '../screens/UserScreens/ServiceAtHomeScreen/ServicesMenuScreen'
+import ProfessionalsListScreen from '../screens/UserScreens/ServiceAtHomeScreen/ProfessionalsListScreen'
+import ProfessionalDetailScreen from '../screens/UserScreens/ServiceAtHomeScreen/ProfessionalDetailScreen'
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -98,6 +101,10 @@ function HomeStack() {
       <Stack.Screen name="UserBookingsScreen" component={UserBookingsScreen} />
       <Stack.Screen name="ProfileEditScreen" component={ProfileEditScreen} />
       <Stack.Screen name="SalonsListScreen" component={SalonsListScreen} />
+      <Stack.Screen name="ServicesMenuScreen" component={ServicesMenuScreen}/>
+      <Stack.Screen name="ProfessionalsListScreen" component={ProfessionalsListScreen} />
+      <Stack.Screen name="ProfessionalDetailScreen" component={ProfessionalDetailScreen} />
+
     </Stack.Navigator>
   );
 }
