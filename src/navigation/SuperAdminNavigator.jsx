@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 // --- Screens ---
 import SuperAdminDashboard from '../screens/SuperAdminScreens/SuperAdminDashboard';
-import SalesTeamManagement from '../screens/SuperAdminScreens/SalesTeamManagement';
+import SalesExecutiveManagement from '../screens/SuperAdminScreens/Salesexecutivemanagement';
 import ManageSalonsScreen from '../screens/SuperAdminScreens/ManageSalonsScreen';
 import ManageUsersScreen from '../screens/SuperAdminScreens/ManageUsersScreen';
 import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategoriesScreen';
@@ -57,16 +57,16 @@ export default function SuperAdminNavigator() {
           }}
         />
 
-        {/* --- Sales Team --- */}
+        {/* --- Sales Executive --- */}
         <Tab.Screen
-          name="SalesTeam"
-          component={SalesTeamManagement}
+          name="SalesExecutive"
+          component={SalesExecutiveManagement}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>
                 {focused && <View style={styles.activeBar} />}
                 <Icon
-                  name={focused ? 'trending-up' : 'trending-up-outline'}
+                  name={focused ? 'briefcase' : 'briefcase-outline'}
                   size={26}
                   color={focused ? colors.white : colors.inactive}
                 />

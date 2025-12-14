@@ -22,7 +22,7 @@ import {
 import Loader from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
 
-export default function ManageServicesScreen() {
+export default function ManageServicesScreen({ navigation }) {
   const dispatch = useDispatch();
   const { services = [], loading, error, categories = [] } = useSelector(
     (state) => state.salonAdmin
@@ -295,7 +295,9 @@ export default function ManageServicesScreen() {
         )}
       </View>
 
-      {service.description && <Text style={styles.desc}>{service.description}</Text>}
+      {service.description && (
+        <Text style={styles.desc}>{service.description}</Text>
+      )}
 
       <View style={styles.actions}>
         <TouchableOpacity
@@ -346,6 +348,33 @@ export default function ManageServicesScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Services</Text>
         <Text style={styles.count}>{services.length} Total</Text>
+      </View>
+
+      {/* Quick Action Buttons */}
+      <View style={styles.quickActionsContainer}>
+        <TouchableOpacity
+          style={[styles.quickActionBtn, { backgroundColor: '#156778' }]}
+          onPress={() => navigation.navigate('ManageCategories')}
+        >
+          <Icon name="folder-outline" size={18} color="#fff" />
+          <Text style={styles.quickActionText}>Categories</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.quickActionBtn, { backgroundColor: '#4CAF50' }]}
+          onPress={() => navigation.navigate('ServiceAddOns')}
+        >
+          <Icon name="layers-outline" size={18} color="#fff" />
+          <Text style={styles.quickActionText}>Add-ons</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.quickActionBtn, { backgroundColor: '#FF9800' }]}
+          onPress={() => navigation.navigate('ComboPackages')}
+        >
+          <Icon name="gift-outline" size={18} color="#fff" />
+          <Text style={styles.quickActionText}>Combos</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Gender Filter */}
@@ -426,7 +455,6 @@ export default function ManageServicesScreen() {
                       modalGenderFilter === gender && styles.genderFilterButtonActive,
                     ]}
                     onPress={() => {
-                      // simply set modal gender filter; DO NOT clear category here (fix from before)
                       setModalGenderFilter(gender);
                     }}
                   >
@@ -488,7 +516,7 @@ export default function ManageServicesScreen() {
             ) : null}
 
             <TextInput
-              placeholder="Price *"
+              placeholder="Price (₹) *"
               keyboardType="numeric"
               style={styles.input}
               value={price}
@@ -555,6 +583,29 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 24, fontWeight: "bold", color: "#fff" },
   count: { fontSize: 12, color: "#ddd", marginTop: 4 },
+  quickActionsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  quickActionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 6,
+    gap: 4,
+  },
+  quickActionText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#fff',
+  },
   filterContainer: {
     backgroundColor: "#fff",
     paddingHorizontal: 16,
