@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 // Import Screens - Bottom Tab Screens
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
+import MyView from '../screens/SalonAdminScreens/MyView';
 import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
 import ManageSpecialistScreen from '../screens/SalonAdminScreens/Specialists/ManageSpecialistScreen';
 import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
@@ -54,6 +55,22 @@ function SalonTabs() {
       <Tab.Screen
         name="SalonDashboard"
         component={SalonAdminDashboard}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View style={styles.iconContainer}>
+              {focused && <View style={styles.activeBar} />}
+              <Icon
+                name={focused ? 'grid' : 'grid-outline'}
+                size={26}
+                color={focused ? colors.white : colors.inactive}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="MyView"
+        component={MyView}
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.iconContainer}>
