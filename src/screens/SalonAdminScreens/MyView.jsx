@@ -114,6 +114,8 @@ export default function MyView({ navigation, route }) {
 
   const dispatch = useDispatch();
   const salonData = useSelector((state) => state.user.salonDetails);
+  const userDetails = useSelector((state) => state.auth.user)
+//   console.log(userDetails.name)
 
   const specialists = salonData?.specialistsData || [];
   const serviceCategories = salonData?.serviceCategories || [];
@@ -177,13 +179,13 @@ export default function MyView({ navigation, route }) {
 
           {/* Shop Info */}
           <View style={styles.infoSection}>
-            <Text style={styles.shopName}>{salonData?.shopName}</Text>
+            <Text style={styles.shopName}>{userDetails?.roleDetails?.shopName}</Text>
 
             <View style={styles.locationRow}>
               <Icon name="location-outline" size={16} color="#6B7280" />
-              <Text style={styles.locationText}>{salonData?.location?.address || "Unknown Location"}</Text>
+              <Text style={styles.locationText}>{userDetails?.roleDetails?.location?.address || "Unknown Location"}</Text>
               <View style={styles.dot} />
-              <Text style={styles.distanceText}>{salonData?.distance}</Text>
+              <Text style={styles.distanceText}>{userDetails?.distance}</Text>
             </View>
 
             {/* Home Service & Open Now Row */}
