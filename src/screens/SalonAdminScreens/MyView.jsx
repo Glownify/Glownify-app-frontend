@@ -115,7 +115,7 @@ export default function MyView({ navigation, route }) {
   const dispatch = useDispatch();
   const salonData = useSelector((state) => state.user.salonDetails);
   const userDetails = useSelector((state) => state.auth.user)
-//   console.log(userDetails.name)
+  console.log(userDetails)
 
   const specialists = salonData?.specialistsData || [];
   const serviceCategories = salonData?.serviceCategories || [];
@@ -204,7 +204,7 @@ export default function MyView({ navigation, route }) {
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
                 <Icon name="star" size={16} color="#FACC15" />
-                <Text style={styles.statText}>{shopData.rating}</Text>
+                <Text style={styles.statText}>{userDetails?.roleDetails?.rating}</Text>
                 <Text style={styles.statSubText}>({shopData.reviewCount || shopData.reviews.length})</Text>
               </View>
 
@@ -221,7 +221,7 @@ export default function MyView({ navigation, route }) {
           {/* About */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>About</Text>
-            <Text style={styles.aboutText}>{salonData?.about || "The salon will update its details soon! Meanwhile, you're welcome to explore services and enjoy great grooming & beauty care."}</Text>
+            <Text style={styles.aboutText}>{userDetails?.roleDetails?.about || "The salon will update its details soon! Meanwhile, you're welcome to explore services and enjoy great grooming & beauty care."}</Text>
           </View>
 
           {/* Opening Hours */}
