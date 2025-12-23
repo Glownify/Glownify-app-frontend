@@ -20,6 +20,9 @@ import { uploadImageToCloudinary } from '../../api/claudinary';
 import { signupSalonOwner } from '../../redux/slices/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {showSnackbar} from '../../redux/slices/snackbarSlice';
+// Corrected to show both fetchStates and fetchCitiesByState are imported
+import { fetchStates, fetchCitiesByState } from '../../redux/slices/stateCitySlice';
+
 
 const STEPS = {
   CONTACT: 1,
@@ -33,10 +36,15 @@ const regexPnoneNo = /^[6-9]\d{9}$/;
 
 export default function SalonOwnerRegistrationScreen({ navigation }) {
   const dispatch = useDispatch();
+  // Destructure states and city-related properties from the Redux state
+  const { states, citiesByState, isCitiesLoading } = useSelector((state) => state.stateCity); 
 
   // Redux State
   const { signUpLoading } = useSelector((state) => state.auth);
   const [currentStep, setCurrentStep] = useState(STEPS.CONTACT);
+
+  // 1. NEW LOCAL STATE FOR TOTAL SUBMISSION LOADING (includes image upload)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Step 1: Contact Details
   const [ownershipType, setOwnershipType] = useState('personal');
@@ -53,7 +61,8 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const [galleryImages, setgalleryImages] = useState([null, null]); // Local URIs
   const [completeAddress, setCompleteAddress] = useState('');
   const [city, setCity] = useState('');
-  const [state, setState] = useState('');
+  // 'state' will hold the selected state's value (likely the code or ID)
+  const [state, setState] = useState(''); 
   const [pincode, setPincode] = useState('');
   const [locationSet, setLocationSet] = useState(false);
   const [locationData, setLocationData] = useState({}); // Stores GeoJSON data
@@ -63,6 +72,22 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   const [idType, setIdType] = useState('');
   const [idNumber, setIdNumber] = useState('');
   const [idImageUrl, setIdImageUrl] = useState(null); // Local URI of ID proof
+
+  // --- useEffect to load initial states ---
+  useEffect(() => {
+    dispatch(fetchStates());
+  }, [dispatch]);
+  
+  // --- useEffect to fetch cities when state changes ---
+  useEffect(() => {
+    if (state) {
+      // Assuming `state` holds the value required by the API to fetch cities
+      dispatch(fetchCitiesByState(state)); 
+    } else {
+      setCity('');
+    }
+  }, [dispatch, state]);
+
 
   // --- useEffect to load initial location ---
   useEffect(() => {
@@ -177,13 +202,21 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       return;
     }
 
+    // Get the full state name from the list for the final payload
+    const selectedStateObject = states.find(s => s.code === state || s._id === state);
+    const finalStateName = selectedStateObject ? selectedStateObject.name : state;
+
+    // 2. Find the City Name (for GeoJSON payload, using the saved City ID)
+    const selectedCityObject = citiesByState.find(c => c._id === city);
+    const finalCityName = selectedCityObject ? selectedCityObject.name : 'Unknown City';
+
     setLocationData({
       type: "Point",
       coordinates: [currentLocation.longitude, currentLocation.latitude],
       address: completeAddress, 
-      city: city,             
-      state: state,           
-      pincode: pincode,        
+      city: finalCityName,             
+      state: finalStateName,           
+      pincode: pincode,     
     });
 
     setLocationSet(true); 
@@ -224,6 +257,10 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       if(!/^\d{6}$/.test(pincode)) {
         return dispatch(showSnackbar({message: "Please enter a valid 6-digit pincode.", type: "error"}));
       }
+      // Ensure state and city are selected via Picker (not just set)
+      if (!state || !city) {
+         return dispatch(showSnackbar({message: "Please select a State and a City.", type: "error"}));
+      }
 
       setCurrentStep(STEPS.VERIFICATION);
     }
@@ -249,6 +286,8 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
     if (!ownerName || !ownerEmail || !ownerPassword || !contactNumber || !shopName || !salonCategory || galleryImages.filter(img => img !== null).length < 1 || !locationSet) {
       return dispatch(showSnackbar({message: "Please complete all required steps and fields.", type: "error"}));
     }
+
+    setIsSubmitting(true);
 
     try {
       // 1. UPLOAD IMAGES FIRST
@@ -277,7 +316,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
         salonCategory,
         galleryImages: uploadedShopImageUrls, // <<< FINAL CLOUDINARY URLs
         location: locationData, 
-        partners: ownershipType === 'partnership' ? partners : [],
+        partners: ownershipType === 'partnership' ? partners.map(({ id, ...rest }) => rest) : [], // Remove local 'id' from partners
         contactNumber,
         whatsappNumber,
         governmentId: {
@@ -285,6 +324,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
           idNumber: idNumber,
           idImageUrl: finalIdImageUrl, // <<< FINAL CLOUDINARY URL
         },
+        city: city,
       };
 
 
@@ -312,6 +352,10 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       }
     } catch (err) {
       dispatch(showSnackbar({message: err.message || "Something went wrong during submission or upload", type: "error"}));
+    }
+    finally {
+        // Stop loading state for the entire submission process
+        setIsSubmitting(false); 
     }
   };
   // ------------------------------------
@@ -348,6 +392,10 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
       </View>
     );
   };
+
+// Determine if the submit button should be disabled and show the spinner
+  const isButtonDisabled = signUpLoading || isSubmitting;
+  const showSpinner = signUpLoading || isSubmitting;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -497,7 +545,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
               >
                 <Picker.Item label="Select Category" value="" />
                 <Picker.Item label="Men Salon" value="men" />
-                <Picker.Item label="Beauty Parlour" value="beautyParlour" />
+                <Picker.Item label="Women Salon" value="women" />
                 <Picker.Item label="Unisex Salon" value="unisex" />
                 <Picker.Item label="Spa" value="spa" />
               </Picker>
@@ -611,22 +659,53 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
 
             <View style={styles.rowInputs}>
               <View style={styles.halfInput}>
-                <Text style={styles.label}>City *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter City"
-                  value={city}
-                  onChangeText={setCity}
-                />
+                {/* State Picker */}
+                <Text style={styles.label}>State *</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={state}
+                    onValueChange={(itemValue) => {
+                      setState(itemValue);
+                      setCity(''); // Reset city when state changes
+                    }}
+                    style={styles.picker}
+                    dropdownIconColor="#7C5FED"
+                    mode="dropdown"
+                  >
+                    <Picker.Item label="Select State" value="" />
+                    {states.map((s) => (
+                      // Assuming the value to save is the State code or ID (_id) for API calls
+                      <Picker.Item key={s._id} label={s.name} value={s.code || s._id} /> 
+                    ))}
+                  </Picker>
+                </View>
               </View>
               <View style={styles.halfInput}>
-                <Text style={styles.label}>State *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter State"
-                  value={state}
-                  onChangeText={setState}
-                />
+                {/* City Picker */}
+                <Text style={styles.label}>City *</Text>
+                <View style={styles.pickerContainer}>
+                  {isCitiesLoading ? (
+                    <View style={styles.loadingCities}>
+                      <ActivityIndicator size="small" color="#7C5FED" />
+                      <Text style={styles.loadingCitiesText}>Loading Cities...</Text>
+                    </View>
+                  ) : (
+                    <Picker
+                      selectedValue={city}
+                      onValueChange={setCity}
+                      style={styles.picker}
+                      dropdownIconColor="#7C5FED"
+                      mode="dropdown"
+                      // Disable if no state is selected or no cities are available
+                      enabled={!!state && citiesByState.length > 0} 
+                    >
+                      <Picker.Item label={!state ? "Select State First" : (citiesByState.length === 0 ? "No Cities Found" : "Select City")} value="" />
+                      {citiesByState.map((c) => (
+                        <Picker.Item key={c._id} label={c.name} value={c._id} /> 
+                      ))}
+                    </Picker>
+                  )}
+                </View>
               </View>
             </View>
             
@@ -743,19 +822,19 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
                 <Text style={styles.backButtonText}>Back</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.submitButton}
-                onPress={handleSubmit}
-                disabled={signUpLoading}
-              >
-                {signUpLoading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <>
-                    <Text style={styles.submitButtonText}>Submit Registration</Text>
-                    <Icon name="checkmark-circle" size={18} color="#fff" />
-                  </>
-                )}
-              </TouchableOpacity>
+                style={styles.submitButton}
+                onPress={handleSubmit}
+                disabled={isButtonDisabled} // Use combined loading state
+              >
+                {showSpinner ? ( // Use combined loading state
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Text style={styles.submitButtonText}>Submit Registration</Text>
+                    <Icon name="checkmark-circle" size={18} color="#fff" />
+                  </>
+                )}
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -764,7 +843,7 @@ export default function SalonOwnerRegistrationScreen({ navigation }) {
   );
 }
 
-// STYLES (Updated for ID Image and better Step 2 layout)
+// STYLES (Updated to handle Picker styling and City loading state)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -789,16 +868,33 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   pickerContainer: {
-    backgroundColor: '#fff',
+    // Style applied to both State and Category Pickers
+    backgroundColor: '#f0f0f0', // Match input background
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#f0f0f0',
     borderRadius: 8,
     overflow: 'hidden',
     marginBottom: 16,
+    // Add margin bottom only if not inside halfInput
+    // Removed margin bottom from here and added to halfInput content
   },
   picker: {
     height: 50,
     color: '#333',
+  },
+  loadingCities: {
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderRadius: 8,
+  },
+  loadingCitiesText: {
+    color: '#7C5FED',
+    fontSize: 12,
   },
   stepIndicators: {
     flexDirection: 'row',
@@ -970,7 +1066,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     gap: 8,
-    borderWidth: 1, // Added for clarity
+    borderWidth: 1, 
     borderColor: '#ddd'
   },
   mapBoxText: {
@@ -1097,4 +1193,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-

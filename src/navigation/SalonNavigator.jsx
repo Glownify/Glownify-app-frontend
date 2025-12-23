@@ -5,12 +5,22 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+// Import Screens - Bottom Tab Screens
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
 import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
 import ManageSpecialistScreen from '../screens/SalonAdminScreens/Specialists/ManageSpecialistScreen';
 import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
-import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotificationsScreen';
 import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
+
+// Import Screens - Stack Screens (Not in tabs)
+import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotificationsScreen';
+
+// Import NEW Screens for Task 2
+import ManageCategoriesScreen from '../screens/SalonAdminScreens/ManageCategoriesScreen';
+import ServiceAddOnsScreen from '../screens/SalonAdminScreens/ServiceAddOnsScreen';
+import ComboPackagesScreen from '../screens/SalonAdminScreens/ComboPackagesScreen';
+
+// Import Other
 import SubscriptionPlanScreen from '../screens/SubscriptionPlanScreen';
 import { checkSubscription } from '../utils/checkSubscription';
 
@@ -141,10 +151,49 @@ export default function SalonStackNavigator({ navigation }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.primary }}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {/* Main Tabs */}
-        <Stack.Screen name="SalonTabs" component={SalonTabs} />
+        <Stack.Screen
+          name="SalonTabs"
+          component={SalonTabs}
+          options={{ animationEnabled: false }}
+        />
 
         {/* Screens not in tabs */}
-        <Stack.Screen name="SalonNotifications" component={SalonNotificationsScreen} />
+        <Stack.Screen
+          name="SalonNotifications"
+          component={SalonNotificationsScreen}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
+
+        {/* Task 2 - Service Management Screens */}
+        <Stack.Screen
+          name="ManageCategories"
+          component={ManageCategoriesScreen}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
+
+        <Stack.Screen
+          name="ServiceAddOns"
+          component={ServiceAddOnsScreen}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
+
+        <Stack.Screen
+          name="ComboPackages"
+          component={ComboPackagesScreen}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
       </Stack.Navigator>
 
       {/* Subscription Modal */}
