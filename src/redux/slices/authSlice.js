@@ -126,6 +126,7 @@ export const resetPassword = createAsyncThunk(
 export const signupSalonOwner = createAsyncThunk(
   "auth/signupSalonOwner",
   async ({ name, email, phone, password, salonData }, { rejectWithValue }) => {
+    console.log("Salon Owner", { salonData });
     try {
       const res = await axiosInstance.post("/auth/signup", {
         name,
@@ -166,6 +167,7 @@ export const signupIndependentProfessional = createAsyncThunk(
       const { user, token } = res.data;
       await AsyncStorage.setItem("token", token);
       await AsyncStorage.setItem("user", JSON.stringify(user));
+
 
       return { user, token };
     } catch (error) {

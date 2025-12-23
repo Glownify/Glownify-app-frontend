@@ -11,6 +11,7 @@ import ManageSalonsScreen from '../screens/SuperAdminScreens/ManageSalonsScreen'
 import ManageUsersScreen from '../screens/SuperAdminScreens/ManageUsersScreen';
 import ManageCategoriesScreen from '../screens/SuperAdminScreens/ManageCategoriesScreen';
 import SuperAdminProfileScreen from '../screens/SuperAdminScreens/SuperAdminProfileScreen';
+import ManageStateCityScreen from '../screens/SuperAdminScreens/ManageStateCityScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -122,6 +123,24 @@ export default function SuperAdminNavigator() {
                 {focused && <View style={styles.activeBar} />}
                 <Icon
                   name={focused ? 'pricetag' : 'pricetag-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+              </View>
+            ),
+          }}
+        />
+
+        {/* Manage StateCity */}
+        <Tab.Screen
+          name="ManageStateCity"
+          component={ManageStateCityScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'location' : 'location-outline'}
                   size={26}
                   color={focused ? colors.white : colors.inactive}
                 />

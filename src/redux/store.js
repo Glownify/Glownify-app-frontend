@@ -7,6 +7,8 @@ import userReducer from "./slices/userSlice";
 import subscriptionReducer from "./slices/subscriptionSlice";
 import categoriesReducer from "./slices/categoriesSlice";
 import snackbarReducer from './slices/snackbarSlice';
+import salesExecutiveReducer from "./slices/salesExecutive";
+import stateCityReducer from "./slices/stateCitySlice";
 
 export const store = configureStore({
   reducer: {
@@ -17,5 +19,7 @@ export const store = configureStore({
     subscription: subscriptionReducer,
     categories: categoriesReducer,
     snackbar: snackbarReducer,
+    salesExecutive: salesExecutiveReducer,
+    stateCity: stateCityReducer,
   },
-});
+}); 
