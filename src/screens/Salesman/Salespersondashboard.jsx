@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
+  Linking,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -16,6 +18,10 @@ const SALES_PERSON = {
   referralId: 'SP-2025-001',
   profilePhoto: '👨',
 };
+
+const SALES_PERSON_REFERRAL_LINK = "https://salonstartup.com/ref/" + SALES_PERSON.referralId
+
+// console.log(SALES_PERSON_REFERRAL_LINK)
 
 const METRICS = [
   {
@@ -39,6 +45,13 @@ const METRICS = [
     icon: 'cash',
     color: '#4CAF50',
   },
+  {
+    id: 4,
+    label: 'Total Independant Professional',
+    value: 13,
+    icon: 'person',
+    color: '#914cafff',
+  }
 ];
 
 const SALONS_BREAKDOWN = [
@@ -92,7 +105,17 @@ const MONTHLY_SALES = [
   { month: 'May', value: 1 },
 ];
 
-export default function SalesPersonDashboard() {
+
+const shareOnWhatsApp = () => {
+  const message = `Hey! Use my referral link to join: ${SALES_PERSON_REFERRAL_LINK}`;
+  const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
+
+  Linking.openURL(url).catch(() => {
+    Alert.alert('WhatsApp not installed');
+  });
+}
+
+export default function SalesPersonDashboard({navigation}) {
   const [shareModalVisible, setShareModalVisible] = useState(false);
 
   const maxValue = Math.max(...MONTHLY_SALES.map((d) => d.value));
@@ -120,10 +143,10 @@ export default function SalesPersonDashboard() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Metrics Overview - 3 Cards */}
+        {/* Metrics Overview - 4 Cards */}
         <View style={styles.metricsGrid}>
           {METRICS.map((metric) => (
-            <View key={metric.id} style={styles.metricCard}>
+            <TouchableOpacity key={metric.id} style={styles.metricCard} onPress={()=>{metric.id == 1 ? navigation.navigate("MySalonsScreen") : console.log("id!=1")}} >
               <View style={[styles.metricIcon, { backgroundColor: `${metric.color}20` }]}>
                 <Icon name={metric.icon} size={24} color={metric.color} />
               </View>
@@ -131,7 +154,7 @@ export default function SalesPersonDashboard() {
               <Text style={[styles.metricValue, { color: metric.color }]}>
                 {metric.value}
               </Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -225,7 +248,7 @@ export default function SalesPersonDashboard() {
         </View>
 
         {/* Target vs Achieved */}
-        <View style={styles.section}>
+        {/* <View style={styles.section}>
           <Text style={styles.sectionTitle}>Target vs Achieved</Text>
           <View style={styles.progressCard}>
             <View style={styles.progressHeader}>
@@ -244,7 +267,7 @@ export default function SalesPersonDashboard() {
             </View>
             <Text style={styles.progressPercentage}>{progressPercentage.toFixed(0)}% Complete</Text>
           </View>
-        </View>
+        </View> */}
 
         {/* Quick Actions */}
         <View style={styles.section}>
@@ -265,14 +288,14 @@ export default function SalesPersonDashboard() {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.actionButton, styles.actionButtonSecondary]}
             >
               <Icon name="cash" size={20} color="#7C5FED" />
               <Text style={[styles.actionButtonText, styles.actionButtonTextSecondary]}>
                 Withdraw Commission
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       </ScrollView>
@@ -298,7 +321,7 @@ export default function SalesPersonDashboard() {
                 <Text style={styles.referralLinkLabel}>Your Referral Link</Text>
                 <View style={styles.referralLinkBox}>
                   <Text style={styles.referralLink}>
-                    https://salonstartup.com/ref/{SALES_PERSON.referralId}
+                    {SALES_PERSON_REFERRAL_LINK}
                   </Text>
                   <TouchableOpacity style={styles.copyButton}>
                     <Icon name="copy" size={18} color="#7C5FED" />
@@ -308,7 +331,7 @@ export default function SalesPersonDashboard() {
 
               <Text style={styles.shareMethodsLabel}>Share Via</Text>
               <View style={styles.shareMethodsGrid}>
-                <TouchableOpacity style={styles.shareMethod}>
+                <TouchableOpacity style={styles.shareMethod} onPress={()=> shareOnWhatsApp()} >
                   <Icon name="logo-whatsapp" size={32} color="#25D366" />
                   <Text style={styles.shareMethodText}>WhatsApp</Text>
                 </TouchableOpacity>
