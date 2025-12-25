@@ -9,6 +9,9 @@ import {
 } from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllSalonsByCategory } from '../../redux/slices/userSlice';
+import { useEffect } from 'react';
 
 const salonData = [
   {
@@ -71,9 +74,19 @@ const salonData = [
 ];
 
 export default function AllSalonListScreen({ navigation, route }) {
+  const dispatch = useDispatch();
+  const {allSalonsByCategory, loading, error} = useSelector(state => state.user);
   const { category, lat, lng } = route.params;
 
   console.log('AllSalonListScreen category param:', category, lat,lng);
+  console.log('AllSalonListScreen salons from redux:', allSalonsByCategory);
+
+  useEffect(() => {
+    if (category && lat && lng) {
+      dispatch(fetchAllSalonsByCategory({ category, lat, lng }));
+    }
+  }, [category, lat, lng, dispatch]);
+
   return (
     <View style={styles.container}>
       {/* --- Header --- */}
