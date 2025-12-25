@@ -18,13 +18,20 @@ const colors = {
 const SalonCard = ({ salon }) => {
   const navigation = useNavigation();
 
+  const formatDistance = (meters) => {
+  if (meters < 1000) {
+    return `${Math.round(meters)} m`;
+  }
+  return `${(meters / 1000).toFixed(1)} km`;
+};
+
+
   const {
     shopName,
     salonCategory,
-    location,
     galleryImages,
     categories,
-    distance = '2.3',
+    distanceInMeters,
     rating = '4.8',
     reviews = '200',
   } = salon || {};
@@ -68,7 +75,9 @@ const SalonCard = ({ salon }) => {
             style={{ marginRight: 4 }}
           />
           <Text style={styles.address} numberOfLines={1}>
-            {distance ? `${distance} km` : 'Distance not available'}
+             {distanceInMeters !== undefined
+    ? formatDistance(distanceInMeters)
+    : 'Distance not available'}
           </Text>
 
           <Ionicons

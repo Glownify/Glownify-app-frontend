@@ -14,7 +14,6 @@
 //   }
 // };
 
-
 import axios from "axios";
 
 export const getAddressFromCoords = async (latitude, longitude) => {

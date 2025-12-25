@@ -99,8 +99,6 @@ const SALES_EXECUTIVES_DATA = {
   ],
 };
 
-const CITIES = ['Delhi', 'Mumbai', 'Bangalore'];
-
 const SUBSCRIPTION_DATA = [
   { month: 'Jan', value: 40 },
   { month: 'Feb', value: 55 },
@@ -146,7 +144,7 @@ export default function SalesExecutiveManagement() {
     name: '',
     email: '',
     mobile: '',
-    city: 'Delhi',
+    city: '',
     commission: '',
   });
 
@@ -188,7 +186,7 @@ export default function SalesExecutiveManagement() {
       name: '',
       email: '',
       mobile: '',
-      city: 'Delhi',
+      city: '',
       commission: '',
     });
     setCityDropdownVisibleInModal(false);

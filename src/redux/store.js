@@ -9,6 +9,7 @@ import categoriesReducer from "./slices/categoriesSlice";
 import snackbarReducer from './slices/snackbarSlice';
 import salesExecutiveReducer from "./slices/salesExecutive";
 import stateCityReducer from "./slices/stateCitySlice";
+import salesmanReducer from "./slices/salesmanSlice";
 
 export const store = configureStore({
   reducer: {
@@ -21,5 +22,6 @@ export const store = configureStore({
     snackbar: snackbarReducer,
     salesExecutive: salesExecutiveReducer,
     stateCity: stateCityReducer,
+    salesman: salesmanReducer,
   },
 }); 

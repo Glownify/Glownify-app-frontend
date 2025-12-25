@@ -5,9 +5,11 @@ import axiosInstance from "../../api/axiosInstance";
 
 export const fetchHomeSalonsBySalonCategory = createAsyncThunk(
   "user/fetchHomeSalonsBySalonCategory",
-  async (category, { rejectWithValue }) => {
+  async ({ category, lat, lng }, { rejectWithValue }) => {
+    console.log("Fetching home salons with params:", { category, lat, lng });
     try {
-      const response = await axiosInstance.get(`/user/get-home-salons?category=${category}`);
+      const response = await axiosInstance.get(`/user/get-home-salons?category=${category}&lat=${lat}&lng=${lng}`);
+      console.log("Fetched home salons data:", response.data);
       return response.data || [];
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch home salons");
@@ -17,9 +19,9 @@ export const fetchHomeSalonsBySalonCategory = createAsyncThunk(
 
 export const fetchHomeIndependentprosByCategory = createAsyncThunk(
   "user/fetchHomeIndependentprosByCategory",
-  async (category, { rejectWithValue }) => {
+  async ({ category, lat, lng }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/user/get-home-independentpros?category=${category}`);
+      const response = await axiosInstance.get(`/user/get-home-independentpros?category=${category}}&lat=${lat}&lng=${lng}`);
       return response.data || [];
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch home independent professionals");

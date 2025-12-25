@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -29,7 +29,7 @@ import ServiceAtHomeCard from './ServiceAtHomeCard';
 import PromoBanner, { PROMO_BANNER_DURATION } from './PromoBanner';
 import PromoBanner2, { PROMO_BANNER_2_DURATION } from './PromoBanner2';
 import SkeletonLoadingScreen from './SkeletonLoadingScreen';
-
+import { LocationContext } from "../../../components/LocationProvider";
 const { width } = Dimensions.get('window');
 
 const colors = {
@@ -53,6 +53,7 @@ const CategoryIcon = ({ uri }) => {
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
+  const { location } = useContext(LocationContext);
   const user = useSelector(state => state.auth.user);
   const {
     loading,
@@ -101,12 +102,23 @@ export default function HomeScreen({ navigation }) {
   };
 
   useEffect(() => {
-    if (selectedCategory) {
+    if (selectedCategory && location?.latitude && location?.longitude) {
+      const lat = location.latitude;
+      const lng = location.longitude;
       dispatch(getAllCategories(selectedCategory));
-      dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
-      dispatch(fetchHomeIndependentprosByCategory(selectedCategory));
+      dispatch(fetchHomeSalonsBySalonCategory({
+        category: selectedCategory,
+        lat,
+        lng,
+      }));
+      dispatch(fetchHomeIndependentprosByCategory({
+        category: selectedCategory,
+        lat,
+        lng,
+      }));
     }
-  }, [selectedCategory, dispatch]);
+    console.log("User Location in HomeScreen:", homeSalonsBySalonCategory);
+  }, [selectedCategory, dispatch, location]);
 
   const displayDuration =
     activeBanner === 0 ? PROMO_BANNER_DURATION : PROMO_BANNER_2_DURATION;
@@ -172,9 +184,21 @@ export default function HomeScreen({ navigation }) {
 
   const onRefresh = async () => {
     setRefreshing(true);
+     const lat = location?.latitude;
+    const lng = location?.longitude;
     dispatch(getAllCategories(selectedCategory));
-    dispatch(fetchHomeSalonsBySalonCategory(selectedCategory));
-    dispatch(fetchHomeIndependentprosByCategory(selectedCategory));
+     dispatch(
+    fetchHomeSalonsBySalonCategory({
+      category: selectedCategory,
+      lat,
+      lng,
+    })
+  );
+    dispatch(fetchHomeIndependentprosByCategory({
+      category: selectedCategory,
+      lat,
+      lng,
+    }));
     setRefreshing(false);
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,37 +14,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-const SALES_TEAM = [
-  {
-    id: 1,
-    referralId: 'SP-2025-001',
-    name: 'Rajesh Kumar',
-    salons: 15,
-    commission: '₹45,000',
-  },
-  {
-    id: 2,
-    referralId: 'SP-2025-002',
-    name: 'Priya Sharma',
-    salons: 12,
-    commission: '₹38,000',
-  },
-  {
-    id: 3,
-    referralId: 'SP-2025-003',
-    name: 'Amit Patel',
-    salons: 10,
-    commission: '₹32,000',
-  },
-  {
-    id: 4,
-    referralId: 'SP-2025-004',
-    name: 'Sneha Reddy',
-    salons: 9,
-    commission: '₹28,000',
-  },
-];
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCities } from '../../redux/slices/stateCitySlice';
+import { registerSalesman, fetchAllSalesman } from '../../redux/slices/salesmanSlice';
 
 const SUBSCRIPTION_DATA = [
   { month: 'Jan', value: 40 },
@@ -82,20 +54,33 @@ const LOW_PERFORMERS = [
 ];
 
 export default function SalesTeamManagement() {
+  const dispatch = useDispatch();
+  const { cities } = useSelector((state) => state.stateCity);
+  const { salesman } = useSelector((state) => state.salesman);
   const [activeTab, setActiveTab] = useState('sales');
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
-    referralId: '',
     name: '',
     email: '',
     mobile: '',
+    commissionRate: '',
+    city: '',
   });
+
+  const [cityModalVisible, setCityModalVisible] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchCities());
+    dispatch(fetchAllSalesman());
+  }, [dispatch]);
+
+  // console.log(salesman);
 
   const maxValue = Math.max(...SUBSCRIPTION_DATA.map((d) => d.value));
   const chartHeight = 120;
 
   const handleAddSalesman = () => {
-    if (!formData.referralId || !formData.name || !formData.email || !formData.mobile) {
+    if (!formData.name || !formData.email || !formData.mobile || !formData.commissionRate || !formData.city) {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
@@ -113,15 +98,15 @@ export default function SalesTeamManagement() {
       return;
     }
 
-    // Success
-    Alert.alert('Success', `${formData.name} has been registered successfully!`);
+    dispatch(registerSalesman(formData));
 
     // Reset form
     setFormData({
-      referralId: '',
       name: '',
       email: '',
       mobile: '',
+      commissionRate: '',
+      city: '',
     });
     setModalVisible(false);
   };
@@ -140,20 +125,16 @@ export default function SalesTeamManagement() {
       <View style={styles.tableHeader}>
         <Text style={[styles.tableHeaderText, { flex: 1.5 }]}>Referral ID</Text>
         <Text style={[styles.tableHeaderText, { flex: 2 }]}>Sales Person</Text>
-        <Text style={[styles.tableHeaderText, { flex: 1 }]}>Salons</Text>
         <Text style={[styles.tableHeaderText, { flex: 1.5 }]}>Commission</Text>
       </View>
 
       {/* Table Rows */}
-      {SALES_TEAM.map((person) => (
+      {salesman.map((person) => (
         <View key={person.id} style={styles.tableRow}>
           <Text style={[styles.tableCell, { flex: 1.5 }]}>{person.referralId}</Text>
-          <Text style={[styles.tableCell, { flex: 2 }]}>{person.name}</Text>
-          <View style={[styles.salonBadge, { flex: 1 }]}>
-            <Text style={styles.salonBadgeText}>{person.salons}</Text>
-          </View>
+          <Text style={[styles.tableCell, { flex: 2 }]}>{person.user.name}</Text>
           <Text style={[styles.tableCell, { flex: 1.5, color: '#4CAF50' }]}>
-            {person.commission}
+            {person.commissionRate}%
           </Text>
         </View>
       ))}
@@ -404,16 +385,6 @@ export default function SalesTeamManagement() {
             </View>
 
             <ScrollView style={styles.modalForm} showsVerticalScrollIndicator={false}>
-              <Text style={styles.inputLabel}>Referral ID *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., SP-2025-005"
-                value={formData.referralId}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, referralId: text })
-                }
-                placeholderTextColor="#999"
-              />
 
               <Text style={styles.inputLabel}>Sales Person Name *</Text>
               <TextInput
@@ -450,6 +421,31 @@ export default function SalesTeamManagement() {
                 maxLength={10}
                 placeholderTextColor="#999"
               />
+
+             <Text style={styles.inputLabel}>City *</Text>
+<TouchableOpacity 
+  style={styles.input} // Reusing input style for consistency
+  onPress={() => setCityModalVisible(true)}
+>
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Text style={{ color: formData.city ? '#333' : '#999', fontSize: 14 }}>
+      {formData.city || "Select a city"}
+    </Text>
+    <Icon name="chevron-forward" size={18} color="#999" />
+  </View>
+</TouchableOpacity>
+
+              <Text style={styles.inputLabel}>Commission Rate</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter commission rate (%)"
+                value={formData.commissionRate}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, commissionRate: text })
+                }
+                keyboardType="numeric"
+                placeholderTextColor="#999"
+              />
             </ScrollView>
 
             <View style={styles.modalFooter}>
@@ -470,6 +466,48 @@ export default function SalesTeamManagement() {
           </View>
         </View>
       </Modal>
+
+      {/* City Selection Modal */}
+<Modal
+  visible={cityModalVisible}
+  transparent={true}
+  animationType="slide"
+  onRequestClose={() => setCityModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={[styles.modalContent, { height: '50%' }]}> 
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>Select City</Text>
+        <TouchableOpacity onPress={() => setCityModalVisible(false)}>
+          <Icon name="close" size={24} color="#333" />
+        </TouchableOpacity>
+      </View>
+      
+      <FlatList
+        data={cities}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <TouchableOpacity 
+            style={styles.cityOption}
+            onPress={() => {
+              setFormData({ ...formData, city: item._id });
+              setCityModalVisible(false);
+            }}
+          >
+            <View>
+              <Text style={styles.cityName}>{item.name}</Text>
+              <Text style={styles.stateName}>{item.state?.name}</Text>
+            </View>
+            {formData.city === item.name && (
+              <Icon name="checkmark-circle" size={20} color="#7C5FED" />
+            )}
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      />
+    </View>
+  </View>
+</Modal>
     </SafeAreaView>
   );
 }
@@ -870,6 +908,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#EEE',
   },
+  cityOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  cityName: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+  },
+  stateName: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  stateName: {
+    fontSize: 10,
+    color: '#999',
+  },
+
   modalFooter: {
     flexDirection: 'row',
     gap: 10,
