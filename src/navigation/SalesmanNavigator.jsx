@@ -10,6 +10,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 // ========================
 import SalesPersonDashboard from '../screens/Salesman/Salespersondashboard';
 import SalesPersonProfileScreen from '../screens/Salesman/Salespersonprofilescreen';
+import MySalonsScreen from '../screens/Salesman/MySalonsScreen';
 
 // ========================
 //  MOCK SCREENS (TABS)
@@ -68,6 +69,8 @@ function SalesHomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="SalesHomeMain" component={SalesPersonDashboard} />
+      <Stack.Screen name="MySalonsScreen" component={MySalonsScreen} />
+
 
       {/* Screens not shown in tab bar */}
       <Stack.Screen name="CustomerDetails" component={CustomerDetailsScreen} />
@@ -114,7 +117,7 @@ export default function SalesmanNavigator() {
         {/* CHAT / NOTIFICATION */}
         <Tab.Screen
           name="SalesChat"
-          component={SalesManChat}
+          component={MySalonsScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>
