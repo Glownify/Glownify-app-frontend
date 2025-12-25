@@ -63,23 +63,14 @@ const salonData = [
     distance: '4.9 km',
     rating: '4.8',
   },
-  {
-    id: 7,
-    name: 'Radiance Beauty Bar',
-    // image: 'https://via.placeholder.com/350x180',
-    services: 'Bridal Makeup ₹5,999 · Threading ₹99',
-    distance: '4.9 km',
-    rating: '4.8',
-  },
 ];
 
 export default function AllSalonListScreen({ navigation, route }) {
   const dispatch = useDispatch();
-  const {allSalonsByCategory, loading, error} = useSelector(state => state.user);
+  const {allSalons, loading, error} = useSelector(state => state.user);
   const { category, lat, lng } = route.params;
 
-  console.log('AllSalonListScreen category param:', category, lat,lng);
-  console.log('AllSalonListScreen salons from redux:', allSalonsByCategory);
+  console.log('AllSalonListScreen salons from redux:', allSalons);
 
   useEffect(() => {
     if (category && lat && lng) {

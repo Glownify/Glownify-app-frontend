@@ -72,7 +72,7 @@ const userSlice = createSlice({
   initialState: {
     homeSalonsBySalonCategory: [],
     homeIndependentProsByCategory: [],
-    allSalonsByCategory: [],
+    allSalons: [],
     categories: [],
     salonDetails: null,
     loading: false,
@@ -135,7 +135,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchAllSalonsByCategory.fulfilled, (state, action) => {
         state.loading = false;
-        state.allSalonsByCategory = action.payload;
+        state.allSalons = action.payload;
       })
       .addCase(fetchAllSalonsByCategory.rejected, (state, action) => {
         state.loading = false;
