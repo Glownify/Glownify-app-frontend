@@ -44,7 +44,6 @@ export const fetchAllSalesman = createAsyncThunk(
 export const fetchDashboardStats = createAsyncThunk(
   "salesman/fetchDashboardStats",
   async (_, { rejectWithValue }) => {
-    console.log("Fetching dashboard stats...");
     try {
       const { data } = await axiosInstance.get("/salesman/dashboard-stats");
       console.log("Dashboard stats data:", data);
@@ -109,11 +108,11 @@ const salesmanSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchAllSalesman.fulfilled, (state, action) => {
+      .addCase(fetchAllSalesman .fulfilled, (state, action) => {
         state.loading = false;
         state.salesman = action.payload;
       })
-      .addCase(fetchAllSalesman.rejected, (state, action) => {
+      .addCase(fetchAllSalesman .rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

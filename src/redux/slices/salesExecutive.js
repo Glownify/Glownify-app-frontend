@@ -55,6 +55,19 @@ export const fetchSalesExecutivesByCity = createAsyncThunk(
   }
 );
 
+export const fetchDashboardStats = createAsyncThunk(
+  "salesman/fetchDashboardStats",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosInstance.get("/sales-executive/dashboard-stats");
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch dashboard stats"
+      );
+    }
+  }
+);
 /* ===========================
    SLICE
 =========================== */
@@ -67,6 +80,14 @@ const salesExecutiveSlice = createSlice({
     salesExecutives: [],
     selectedCityExecutives: [],
     success: false,
+
+    summary: {
+      totalSalesman: 0,
+      totalSalons: 0,
+      commissionRate: 0,
+      totalEarnings: 0,
+    },
+    salesman: [],
   },
   reducers: {
     clearSalesExecutiveState: (state) => {
@@ -117,6 +138,23 @@ const salesExecutiveSlice = createSlice({
         state.selectedCityExecutives = action.payload;
       })
       .addCase(fetchSalesExecutivesByCity.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchDashboardStats.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      // ✅ Success
+      .addCase(fetchDashboardStats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.summary = action.payload.summary;
+        state.salesman = action.payload.salesman;
+      })
+
+      // ❌ Error
+      .addCase(fetchDashboardStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
