@@ -217,7 +217,7 @@ export default function HomeScreen({ navigation }) {
           title={title}
           showViewAll
           onPress={() =>
-            navigation.navigate('SalonsListScreen', { type: title })
+            navigation.navigate('AllSalonListScreen', { type: title })
           }
         />
         <ScrollView
