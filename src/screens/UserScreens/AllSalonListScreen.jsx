@@ -70,7 +70,10 @@ const salonData = [
   },
 ];
 
-export default function AllSalonListScreen({ navigation }) {
+export default function AllSalonListScreen({ navigation, route }) {
+  const { category, lat, lng } = route.params;
+
+  console.log('AllSalonListScreen category param:', category, lat,lng);
   return (
     <View style={styles.container}>
       {/* --- Header --- */}

@@ -54,6 +54,20 @@ export const fetchSalonById = createAsyncThunk(
   }
 );
 
+export const fetchAllSalonsByCategory = createAsyncThunk(
+  "user/fetchAllSalons",
+  async ({ category, lat, lng }, { rejectWithValue }) => {
+    console.log("Fetching all salons with params:", { category, lat, lng });
+    try {
+      const response = await axiosInstance.get(`/user/get-all-salons-by-category?category=${category}&lat=${lat}&lng=${lng}`);
+      console.log("Fetched all salons data:", response.data);
+      return response.data.salons || [];
+    } catch (error) {
+      return rejectWithValue(error.response.data.message || "Failed to fetch all salons");
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {

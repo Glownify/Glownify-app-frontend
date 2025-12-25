@@ -211,13 +211,20 @@ export default function HomeScreen({ navigation }) {
 
     if (listData.length === 0) return null;
 
+    const lat = location?.latitude;
+    const lng = location?.longitude;
+
     return (
       <View style={{ marginBottom: 20 }}>
         <SectionHeader
           title={title}
           showViewAll
           onPress={() =>
-            navigation.navigate('AllSalonListScreen', { type: title })
+            navigation.navigate('AllSalonListScreen', {
+            category: selectedCategory,
+            lat,
+            lng,
+          })
           }
         />
         <ScrollView
