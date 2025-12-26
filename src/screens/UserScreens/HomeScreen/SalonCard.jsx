@@ -26,6 +26,12 @@ const SalonCard = ({ salon }) => {
 };
 
 
+const PRICE_MAP = [
+  { name: 'Haircut', price: 20 },
+  { name: 'Wax', price: 40 },
+  { name: 'Facial', price: 100 },
+];
+
   const {
     shopName,
     salonCategory,
@@ -60,13 +66,14 @@ const SalonCard = ({ salon }) => {
         <Text style={styles.name} numberOfLines={1}>
           {shopName || 'Unnamed Salon'}
         </Text>
-        {/* <Text style={styles.address} numberOfLines={1}>
-          {location?.address || 'Address not available'}
-        </Text> */}
-        <Text style={styles.address} numberOfLines={1}>
-          {categories?.map(cat => cat.name).join(' | ') ||
-            'No categories available'}
-        </Text>
+       <View style={styles.categories}>
+  {(categories?.length ? categories : PRICE_MAP).map((cat, index) => (
+    <Text key={index} style={styles.categoryItem}>
+      {cat.name} - ₹{cat.price}
+    </Text>
+  ))}
+</View>
+
         <View style={styles.ratingRow}>
           <Ionicons
             name="location-outline"
@@ -142,6 +149,14 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginBottom: 4,
   },
+  categories: {
+  marginBottom: 6,
+},
+categoryItem: {
+  fontSize: 13,
+  color: colors.textSecondary,
+  lineHeight: 18,
+},
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',

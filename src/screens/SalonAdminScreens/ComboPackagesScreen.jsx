@@ -271,7 +271,7 @@ export default function ComboPackagesScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+    <View  style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -322,7 +322,7 @@ export default function ComboPackagesScreen({ navigation }) {
         transparent={false}
         onRequestClose={() => setComboModalVisible(false)}
       >
-        <SafeAreaView style={styles.modalContainer}>
+        <View style={styles.modalContainer}>
           <ScrollView>
             <View style={styles.modalHeader}>
               <TouchableOpacity onPress={() => setComboModalVisible(false)}>
@@ -458,9 +458,9 @@ export default function ComboPackagesScreen({ navigation }) {
               </TouchableOpacity>
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

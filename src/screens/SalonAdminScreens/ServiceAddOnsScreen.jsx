@@ -255,7 +255,7 @@ export default function ServiceAddOnsScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -402,7 +402,7 @@ export default function ServiceAddOnsScreen({ navigation }) {
           </ScrollView>
         </SafeAreaView>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance";
+import { showSnackbar } from "./snackbarSlice";
 
 // -------------------- SERVICE THUNKS --------------------
 
@@ -77,7 +78,8 @@ export const fetchSalonSpecialists = createAsyncThunk(
 // 2️⃣ Add a new specialist
 export const addSpecialist = createAsyncThunk(
   "salonAdmin/addSpecialist",
-  async (specialistData, { rejectWithValue }) => {
+  async (specialistData, { dispatch, rejectWithValue }) => {
+    console.log("Adding specialist with data:", specialistData);
     try {
       const res = await axiosInstance.post("/salon-admin/add-specialist", specialistData);
       return res.data.specialist;

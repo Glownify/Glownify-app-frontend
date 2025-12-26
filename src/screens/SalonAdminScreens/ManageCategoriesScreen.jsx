@@ -66,7 +66,7 @@ const MOCK_CATEGORIES = [
   },
 ];
 
-export default function ManageCategoriesScreen() {
+export default function ManageCategoriesScreen({navigation}) {
   const dispatch = useDispatch();
   const { categories = [] } = useSelector((state) => state.salonAdmin);
 
@@ -328,13 +328,21 @@ export default function ManageCategoriesScreen() {
   );
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Service Categories</Text>
-          <Text style={styles.headerSubtitle}>Manage your service categories</Text>
-        </View>
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={styles.backButton}
+                  >
+                    <Icon name="arrow-back" size={24} color="#fff" />
+                  </TouchableOpacity>
+                  <View style={styles.headerContent}>
+                    <Text style={styles.headerTitle}>Service Category</Text>
+                    <Text style={styles.headerSubtitle}>Manage your service categories</Text>
+                  </View>
+                </View>
 
         {/* Add Button */}
         <TouchableOpacity
@@ -522,7 +530,7 @@ export default function ManageCategoriesScreen() {
           </View>
         </SafeAreaView>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
