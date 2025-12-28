@@ -1,8 +1,17 @@
-// src/screens/UserScreens/Home/SalonCard.js
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, memo } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Platform,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+
+const { width } = Dimensions.get('window');
 
 const colors = {
   primary: '#156778',
@@ -11,20 +20,12 @@ const colors = {
   textSecondary: '#6B7280',
   star: '#FACC15',
   like: '#EF4444',
-  likeBg: 'rgba(255, 255, 255, 0.9)',
+  likeFilled: '#DC2626',
+  likeBg: 'rgba(255, 255, 255, 0.95)',
   border: '#E5E7EB',
+  overlay: 'rgba(0, 0, 0, 0.65)',
+  shadow: '#000',
 };
-
-const SalonCard = ({ salon }) => {
-  const navigation = useNavigation();
-
-  const formatDistance = (meters) => {
-  if (meters < 1000) {
-    return `${Math.round(meters)} m`;
-  }
-  return `${(meters / 1000).toFixed(1)} km`;
-};
-
 
 const PRICE_MAP = [
   { name: 'Haircut', price: 20 },
@@ -32,7 +33,22 @@ const PRICE_MAP = [
   { name: 'Facial', price: 100 },
 ];
 
+const SalonCard = memo(({ salon, onToggleLike }) => {
+  const navigation = useNavigation();
+  const [isLiked, setIsLiked] = useState(false);
+
+  const formatDistance = (meters) => {
+    if (meters < 1000) return `${Math.round(meters)} m`;
+    return `${(meters / 1000).toFixed(1)} km`;
+  };
+
+  const handleLikePress = () => {
+    setIsLiked(!isLiked);
+    onToggleLike?.(_id);
+  };
+
   const {
+    _id,
     shopName,
     salonCategory,
     galleryImages,
@@ -47,132 +63,236 @@ const PRICE_MAP = [
       ? { uri: galleryImages[0] }
       : require('../../../assets/featuredSalon.png');
 
+  const displayCategories = categories?.length ? categories.slice(0, 3) : PRICE_MAP;
+
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() =>
-        navigation.navigate('ShopDetailsFull', { salonId: salon._id })
-      }
-      activeOpacity={0.8}
+      activeOpacity={0.9}
+      onPress={() => navigation.navigate('ShopDetailsFull', { salonId: _id })}
     >
-      <Image source={imageSource} style={styles.image} resizeMode="cover" />
+      {/* IMAGE SECTION */}
+      <View style={styles.imageWrapper}>
+        <Image 
+          source={imageSource} 
+          style={styles.image}
+          resizeMode="cover"
+        />
+        
+        {/* Gradient Overlay */}
+        <View style={styles.gradientOverlay} />
 
-      <TouchableOpacity style={styles.heartButton}>
-        <Ionicons name="heart-outline" size={20} color={colors.like} />
-      </TouchableOpacity>
+        {/* Distance Badge - Bottom Left */}
+        <View style={styles.distanceBadge}>
+          <Ionicons name="location" size={12} color={colors.white} />
+          <Text style={styles.badgeText}>
+            {distanceInMeters !== undefined
+              ? formatDistance(distanceInMeters)
+              : 'N/A'}
+          </Text>
+        </View>
 
+        {/* Rating Badge - Bottom Right */}
+        <View style={styles.ratingBadge}>
+          <Ionicons name="star" size={12} color={colors.star} />
+          <Text style={styles.badgeText}>{rating}</Text>
+          <Text style={styles.reviewsText}>({reviews})</Text>
+        </View>
+
+        {/* Heart Button */}
+        <TouchableOpacity 
+          style={styles.heartButton}
+          onPress={handleLikePress}
+          activeOpacity={0.7}
+        >
+          <Ionicons
+            name={isLiked ? 'heart' : 'heart-outline'}
+            size={20}
+            color={isLiked ? colors.likeFilled : colors.like}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* INFO SECTION */}
       <View style={styles.info}>
-        <Text style={styles.category}>{salonCategory}</Text>
-        <Text style={styles.name} numberOfLines={1}>
+        <View style={styles.headerRow}>
+          <Text style={styles.category} numberOfLines={1}>
+            {salonCategory}
+          </Text>
+        </View>
+
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
           {shopName || 'Unnamed Salon'}
         </Text>
-       <View style={styles.categories}>
-  {(categories?.length ? categories : PRICE_MAP).map((cat, index) => (
-    <Text key={index} style={styles.categoryItem}>
-      {cat.name} - ₹{cat.price}
-    </Text>
-  ))}
-</View>
 
-        <View style={styles.ratingRow}>
-          <Ionicons
-            name="location-outline"
-            size={14}
-            color={colors.primary}
-            style={{ marginRight: 4 }}
-          />
-          <Text style={styles.address} numberOfLines={1}>
-             {distanceInMeters !== undefined
-    ? formatDistance(distanceInMeters)
-    : 'Distance not available'}
-          </Text>
-
-          <Ionicons
-            name="star"
-            size={14}
-            color={colors.star}
-            style={{ marginLeft: 10, marginRight: 2 }}
-          />
-          <Text style={styles.rating}>{rating || '0.0'}</Text>
-          <Text style={styles.reviews}>({reviews || 0})</Text>
+        <View style={styles.categories}>
+          {displayCategories.map((cat, index) => (
+            <View key={index} style={styles.categoryRow}>
+              <Text style={styles.categoryDot}>•</Text>
+              <Text style={styles.categoryItem} numberOfLines={1}>
+                {cat.name} - ₹{cat.price}
+              </Text>
+            </View>
+          ))}
         </View>
       </View>
     </TouchableOpacity>
   );
-};
+});
+
+SalonCard.displayName = 'SalonCard';
+
+export default SalonCard;
+
+/* ===================== STYLES ===================== */
 
 const styles = StyleSheet.create({
   card: {
-    width: 240,
+    width: width * 0.45,
     borderRadius: 16,
     backgroundColor: colors.white,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: colors.border,
+    marginBottom: 14,
     overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
+
+  imageWrapper: {
+    position: 'relative',
+    height: 140,
+    backgroundColor: colors.border,
+  },
+
   image: {
     width: '100%',
-    height: 150,
+    height: '100%',
   },
+
+  gradientOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 50,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+
   heartButton: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    zIndex: 1,
+    top: 10,
+    right: 10,
     backgroundColor: colors.likeBg,
-    borderRadius: 18,
-    padding: 6,
+    padding: 4,
+    borderRadius: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
+
+  distanceBadge: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.overlay,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 10,
+    gap: 3,
+  },
+
+  ratingBadge: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.overlay,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 10,
+    gap: 3,
+  },
+
+  badgeText: {
+    color: colors.white,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+
+  reviewsText: {
+    color: colors.white,
+    fontSize: 10,
+    fontWeight: '500',
+    opacity: 0.9,
+  },
+
   info: {
-    padding: 12,
+    padding: 10,
+    gap: 0,
   },
+
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
   category: {
     fontSize: 11,
     color: colors.primary,
+    fontWeight: '700',
     textTransform: 'uppercase',
-    fontWeight: '600',
-    marginBottom: 2,
+    letterSpacing: 0.5,
+    flex: 1,
   },
+
   name: {
     fontSize: 16,
     fontWeight: '700',
     color: colors.text,
-    marginVertical: 2,
+    lineHeight: 20,
   },
-  address: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 4,
-  },
+
   categories: {
-  marginBottom: 6,
-},
-categoryItem: {
-  fontSize: 13,
-  color: colors.textSecondary,
-  lineHeight: 18,
-},
-  ratingRow: {
+    gap: 0,
+  },
+
+  categoryRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
+    gap: 6,
   },
-  rating: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginLeft: 4,
-    color: colors.text,
+
+  categoryDot: {
+    fontSize: 10,
+    color: colors.primary,
+    fontWeight: '700',
   },
-  reviews: {
+
+  categoryItem: {
     fontSize: 12,
     color: colors.textSecondary,
-    marginLeft: 4,
+    fontWeight: '500',
+    flex: 1,
   },
 });
-
-export default SalonCard;

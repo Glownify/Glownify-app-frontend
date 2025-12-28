@@ -17,8 +17,6 @@ export default function SalonProfileScreen() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  console.log('User from Redux:', user);
-
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },

@@ -15,9 +15,11 @@ const colors = {
   discountBg: '#FEE2E2',
   discountText: '#B91C1C',
   border: '#E5E7EB',
+  homeServiceBg: '#DBEAFE',
+  homeServiceText: '#1E40AF',
 };
 
-const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, discount }) => {
+const SalonHomeServiceCard = ({ imageUrl, category, name, address, rating, reviews, discount }) => {
   const navigation = useNavigation();
   const [imgSource, setImgSource] = useState(
     typeof imageUrl === 'string' ? { uri: imageUrl } : imageUrl
@@ -29,6 +31,12 @@ const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, d
       onPress={() => navigation.navigate('ShopDetailsSummary')}
       activeOpacity={0.8}
     >
+      {/* --- HOME SERVICE BADGE AT TOP RIGHT OF CARD --- */}
+      <View style={styles.homeServiceBadge}>
+        <Ionicons name="home" size={12} color={colors.homeServiceText} />
+        <Text style={styles.homeServiceText}>Home Service</Text>
+      </View>
+
       {/* --- IMAGE CONTAINER for positioning badges --- */}
       <View style={styles.imageContainer}>
         <Image
@@ -38,16 +46,12 @@ const NearbyOfferCard = ({ imageUrl, category, name, address, rating, reviews, d
           onError={() => setImgSource(require('../../../assets/featuredSalon.png'))}
         />
         
-        {/* --- REPOSITIONED HEART BUTTON ---
-            Moved onto the image for consistency with SalonCard
-        */}
+        {/* --- HEART BUTTON --- */}
         <TouchableOpacity style={styles.heartButton}>
           <Ionicons name="heart-outline" size={20} color={colors.like} />
         </TouchableOpacity>
 
-        {/* --- REPOSITIONED DISCOUNT TAG ---
-            Moved onto the image as a "badge" for a cleaner, modern look
-        */}
+        {/* --- DISCOUNT TAG --- */}
         {discount && (
           <View style={styles.discountBadge}>
             <Text style={styles.discountText}>{discount}</Text>
@@ -79,14 +83,41 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 3,
-    // --- AESTHETIC TWEAKS ---
     borderWidth: 1,
     borderColor: colors.border,
-    overflow: 'hidden', // Important for rounded corners
+    overflow: 'visible', // Changed to 'visible' to allow badge overflow
+    marginBottom: 20,
+  },
+  // --- HOME SERVICE BADGE AT TOP RIGHT ---
+  homeServiceBadge: {
+    position: 'absolute',
+    top: -8,
+    right: 8,
+    zIndex: 10,
+    backgroundColor: colors.homeServiceBg,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  homeServiceText: {
+    color: colors.homeServiceText,
+    fontSize: 10,
+    fontWeight: '600',
   },
   imageContainer: {
-    width: 110, // Increased width slightly
-    height: 140, // Increased height slightly
+    width: 110,
+    height: 140,
+    overflow: 'hidden',
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
   },
   image: {
     width: '100%',
@@ -95,7 +126,7 @@ const styles = StyleSheet.create({
   heartButton: {
     position: 'absolute',
     top: 10,
-    right: 10, // Positioned inside the image container
+    right: 10,
     zIndex: 1,
     backgroundColor: colors.likeBg,
     borderRadius: 16,
@@ -114,7 +145,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   name: {
-    fontSize: 16, // --- AESTHETIC TWEAK: Larger font ---
+    fontSize: 16,
     fontWeight: '700',
     color: colors.text,
     marginVertical: 2,
@@ -130,7 +161,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   rating: {
-    fontSize: 13, // --- AESTHETIC TWEAK: Larger font ---
+    fontSize: 13,
     fontWeight: '600',
     marginLeft: 4,
     color: colors.text,
@@ -140,7 +171,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginLeft: 4,
   },
-  // --- New Discount Badge Style ---
   discountBadge: {
     position: 'absolute',
     bottom: 10,
@@ -158,4 +188,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NearbyOfferCard;
+export default SalonHomeServiceCard;

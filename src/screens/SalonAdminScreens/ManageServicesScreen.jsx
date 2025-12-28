@@ -151,7 +151,7 @@ export default function ManageServicesScreen({ navigation }) {
       durationMins: Number(durationMins),
       discountPercent: Number(discountPercent),
       description,
-      providerType: "salon",
+      providerType: "Salon",
     };
 
     try {

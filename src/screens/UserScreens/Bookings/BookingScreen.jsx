@@ -138,7 +138,7 @@ export default function BookingScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#156778',
   },
   container: {
     flex: 1,

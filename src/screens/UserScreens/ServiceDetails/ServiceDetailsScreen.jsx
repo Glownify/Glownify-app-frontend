@@ -9,8 +9,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { addToCart } from '../../../utils/cartStorage';
 
-export default function ServiceDetailsScreen({ navigation }) {
+export default function ServiceDetailsScreen({ route, navigation }) {
+  const {salon, service} = route?.params;
+  console.log('Service Details Route Params:',salon, service);
+
   const serviceData = {
     name: 'Woman Medium Blunt Cut',
     duration: '2.5 hours service',
@@ -49,26 +53,26 @@ export default function ServiceDetailsScreen({ navigation }) {
 
           {/* Service Info */}
           <View style={styles.infoContainer}>
-            <Text style={styles.serviceName}>{serviceData.name}</Text>
+            <Text style={styles.serviceName}>{service.name}</Text>
 
             <View style={styles.durationRow}>
               <Icon name="time-outline" size={18} color="#6B7280" />
-              <Text style={styles.durationText}>{serviceData.duration}</Text>
+              <Text style={styles.durationText}>{service.durationMins}</Text>
             </View>
 
             <View style={styles.priceRow}>
-              <Text style={styles.price}>₹ {serviceData.price}</Text>
-              {serviceData.discount && (
+              <Text style={styles.price}>₹ {service.price}</Text>
+              {service.discountPercent && (
                 <View style={styles.discountBadge}>
                   <Icon name="pricetag" size={14} color="#F59E0B" />
-                  <Text style={styles.discountText}>{serviceData.discount}</Text>
+                  <Text style={styles.discountText}>{service.discountPercent}%</Text>
                 </View>
               )}
             </View>
 
             {/* About Service */}
             <Text style={styles.sectionTitle}>About Service</Text>
-            <Text style={styles.aboutText}>{serviceData.about}</Text>
+            <Text style={styles.aboutText}>{service.description}</Text>
           </View>
         </ScrollView>
 
@@ -76,7 +80,8 @@ export default function ServiceDetailsScreen({ navigation }) {
         <View style={styles.bottomBar}>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate('Booking')}
+            // onPress={() => navigation.navigate('Booking', { service })}
+            onPress={() => addToCart(salon, service)}
           >
             <Text style={styles.addButtonText}>Add to Booking Chart</Text>
           </TouchableOpacity>
@@ -89,7 +94,7 @@ export default function ServiceDetailsScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#156778',
   },
   container: {
     flex: 1,
