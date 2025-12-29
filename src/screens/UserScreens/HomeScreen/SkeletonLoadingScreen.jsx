@@ -37,7 +37,7 @@ export default function SkeletonLoadingScreen() {
         {/* Toggle Buttons */}
         <View style={styles.toggleRow}>
           <Animated.View style={[styles.toggleSkeleton, shimmerStyle]} />
-          <Animated.View style={[styles.toggleSkeleton, shimmerStyle]} />
+          {/* <Animated.View style={[styles.toggleSkeleton, shimmerStyle]} /> */}
         </View>
 
         {/* Category Title */}
@@ -45,7 +45,7 @@ export default function SkeletonLoadingScreen() {
 
         {/* Category Skeleton Grid */}
         <View style={styles.categoryGrid}>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((_, i) => (
+          {[1, 2, 3, 4,].map((_, i) => (
             <View key={i} style={styles.categoryItem}>
               <Animated.View style={[styles.categoryCircle, shimmerStyle]} />
               <Animated.View style={[styles.categoryText, shimmerStyle]} />
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   // Banner
   bannerSkeleton: {
     width: "100%",
-    height: 180,
+    height: 240,
     backgroundColor: colors.light,
     borderRadius: 12,
     marginTop: 16,
@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   toggleSkeleton: {
-    width: "48%",
-    height: 50,
+    width: "98%",
+    height: 60,
     backgroundColor: colors.light,
     borderRadius: 25,
   },
