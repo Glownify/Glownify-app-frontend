@@ -76,7 +76,7 @@ function SalonTabs() {
             <View style={styles.iconContainer}>
               {focused && <View style={styles.activeBar} />}
               <Icon
-                name={focused ? 'grid' : 'grid-outline'}
+                name={focused ? 'card' : 'card-outline'}
                 size={26}
                 color={focused ? colors.white : colors.inactive}
               />
