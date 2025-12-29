@@ -38,8 +38,8 @@ const SalonCard = memo(({ salon, onToggleLike }) => {
   const [isLiked, setIsLiked] = useState(false);
 
   const formatDistance = (meters) => {
-    if (meters < 1000) return `${Math.round(meters)} m`;
-    return `${(meters / 1000).toFixed(1)} km`;
+    if (meters < 1000) return `${Math.round(meters)}`+ 'm';
+    return `${(meters / 1000).toFixed(1)}` +'km';
   };
 
   const handleLikePress = () => {
@@ -295,4 +295,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
   },
-});
+})
