@@ -20,19 +20,6 @@ const SalesManOrders = () => (
     <Text style={styles.mockText}>Salesman Orders Screen</Text>
   </View>
 );
-
-const SalesManChat = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>Salesman Chat Screen</Text>
-  </View>
-);
-
-const SalesManQRCode = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>AI / QR Code Screen</Text>
-  </View>
-);
-
 // ========================
 // EXTRA SCREENS (NOT IN TABS)
 // ========================
@@ -114,16 +101,16 @@ export default function SalesmanNavigator() {
           }}
         />
 
-        {/* CHAT / NOTIFICATION */}
+        {/* MY SALONS */}
         <Tab.Screen
-          name="SalesChat"
+          name="MySalons"
           component={MySalonsScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>
                 {focused && <View style={styles.activeBar} />}
                 <Icon
-                  name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'}
+                  name={focused ? 'business' : 'business-outline'}
                   size={26}
                   color={focused ? colors.white : colors.inactive}
                 />
@@ -133,26 +120,8 @@ export default function SalesmanNavigator() {
           }}
         />
 
-        {/* FAB – QR / AI */}
-        <Tab.Screen
-          name="SalesQRCode"
-          component={SalesManQRCode}
-          options={{
-            tabBarIcon: () => (
-              <Icon name="qr-code-outline" size={28} color={colors.primary} />
-            ),
-            tabBarButton: (props) => (
-              <TouchableOpacity {...props} style={styles.fabContainer}>
-                <View style={styles.fab}>
-                  {props.children}
-                </View>
-              </TouchableOpacity>
-            ),
-          }}
-        />
-
         {/* ORDERS */}
-        <Tab.Screen
+        {/* <Tab.Screen
           name="SalesOrders"
           component={SalesManOrders}
           options={{
@@ -167,7 +136,7 @@ export default function SalesmanNavigator() {
               </View>
             ),
           }}
-        />
+        /> */}
 
         {/* PROFILE */}
         <Tab.Screen

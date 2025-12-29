@@ -15,7 +15,6 @@ import { Picker } from '@react-native-picker/picker';
 import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from '../../redux/slices/authSlice';
 import Loader from '../../components/Loader';
-import ErrorMessage from '../../components/ErrorMessage';
 
   const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const regexPnoneNo = /^[6-9]\d{9}$/;
@@ -164,7 +163,7 @@ export default function RegisterScreen({navigation}) {
         </TouchableOpacity>
 
         {error && (
-          <ErrorMessage message={error} />
+          <Text style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>{error}</Text>
         )}
 
         {/* Divider */}

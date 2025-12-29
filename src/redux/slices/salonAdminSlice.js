@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance";
+import { showSnackbar } from "./snackbarSlice";
 
 // -------------------- SERVICE THUNKS --------------------
 
@@ -9,7 +10,7 @@ export const fetchSalonServices = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get("/salon-admin/get-service-items");
-      console.log("Fetched services:", res.data.services);
+      // console.log("Fetched services:", res.data.services);
       return res.data.services;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch services");
@@ -21,7 +22,6 @@ export const fetchSalonServices = createAsyncThunk(
 export const createServiceItem = createAsyncThunk(
   "salonAdmin/createServiceItem",
   async (serviceData, { rejectWithValue }) => {
-    console.log("Creating service with data:", serviceData);
     try {
       const res = await axiosInstance.post("/salon-admin/create-service-item", serviceData);
       return res.data.service;
@@ -35,7 +35,6 @@ export const createServiceItem = createAsyncThunk(
 export const updateServiceItem = createAsyncThunk(
   "salonAdmin/updateServiceItem",
   async ({ serviceId, updateData }, { rejectWithValue }) => {
-    console.log("Updating service with ID:", serviceId, "Data:", updateData);
     try {
       const res = await axiosInstance.put(`/salon-admin/update-service-item/${serviceId}`, updateData);
       return res.data.service;
@@ -66,7 +65,6 @@ export const fetchSalonSpecialists = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get("/salon-admin/get-specialists");
-      console.log("Fetched specialists:", res.data.specialists);
       return res.data.specialists;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch specialists");
@@ -77,7 +75,7 @@ export const fetchSalonSpecialists = createAsyncThunk(
 // 2️⃣ Add a new specialist
 export const addSpecialist = createAsyncThunk(
   "salonAdmin/addSpecialist",
-  async (specialistData, { rejectWithValue }) => {
+  async (specialistData, { dispatch, rejectWithValue }) => {
     try {
       const res = await axiosInstance.post("/salon-admin/add-specialist", specialistData);
       return res.data.specialist;
@@ -104,7 +102,6 @@ export const updateSpecialist = createAsyncThunk(
 export const deleteSpecialist = createAsyncThunk(
   "salonAdmin/deleteSpecialist",
   async (specialistId, { rejectWithValue }) => {
-    console.log("Deleting specialist with ID:", specialistId);
     try {
       const res = await axiosInstance.delete(`/salon-admin/delete-specialist/${specialistId}`);
       return specialistId;

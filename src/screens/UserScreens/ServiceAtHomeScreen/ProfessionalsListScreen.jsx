@@ -11,6 +11,20 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+// --- Color Palette ---
+const colors = {
+  primary: '#156778',
+  primaryLight: '#E1F5FA',
+  white: '#FFFFFF',
+  background: '#F8F9FA',
+  text: '#111111',
+  textSecondary: '#6B7075',
+  border: '#E5E7EB',
+  success: '#00A86B',
+  filterActive: '#E1F5FE',
+  filterBorder: '#0288D1',
+};
+
 // Mock data based on your image
 const salonData = [
   {
@@ -22,7 +36,7 @@ const salonData = [
     reviews: '2.7k',
     discount: '-58%',
     distance: '5.1km',
-    image: require('../../../assets/profileImg.jpg'), // Using placeholder
+    image: require('../../../assets/profileImg.jpg'),
   },
   {
     id: '2',
@@ -33,7 +47,7 @@ const salonData = [
     reviews: '2.8k',
     discount: '-58%',
     distance: '5.1km',
-    image: require('../../../assets/profileImg.jpg'), // Using placeholder
+    image: require('../../../assets/profileImg.jpg'),
   },
   {
     id: '3',
@@ -44,7 +58,7 @@ const salonData = [
     reviews: '1.7k',
     discount: '-58%',
     distance: '5.1km',
-    image: require('../../../assets/profileImg.jpg'), // Using placeholder
+    image: require('../../../assets/profileImg.jpg'),
   },
   {
     id: '4',
@@ -55,15 +69,16 @@ const salonData = [
     reviews: '3.1k',
     discount: '-58%',
     distance: '5.1km',
-    image: require('../../../assets/profileImg.jpg'), // Using placeholder
+    image: require('../../../assets/profileImg.jpg'),
   },
 ];
 
-// --- Salon Card Component (Updated) ---
+// --- Salon Card Component (Enhanced) ---
 const SalonCard = ({ item, navigation }) => (
   <TouchableOpacity
     style={styles.cardContainer}
     onPress={() => navigation.navigate('ProfessionalDetailScreen')}
+    activeOpacity={0.7}
   >
     {/* IMAGE + RATING BADGE */}
     <View style={styles.leftSection}>
@@ -71,309 +86,299 @@ const SalonCard = ({ item, navigation }) => (
 
       {/* Green Rating Badge */}
       <View style={styles.ratingBadge}>
-        <Icon name="star" size={12} color="#fff" />
+        <Icon name="star" size={12} color={colors.white} />
         <Text style={styles.ratingBadgeText}>{item.rating}</Text>
       </View>
     </View>
 
     {/* MIDDLE CONTENT */}
     <View style={styles.middleSection}>
-      <Text style={styles.nameText}>{item.name}</Text>
+      <Text style={styles.nameText} numberOfLines={1}>
+        {item.name}
+      </Text>
 
       <View style={styles.row}>
-        <Icon name="location-outline" size={16} color="#7A7D82" />
-        <Text style={styles.detailText}>{item.location}</Text>
+        <Icon name="location-outline" size={14} color={colors.textSecondary} />
+        <Text style={styles.detailText} numberOfLines={1}>
+          {item.location}
+        </Text>
       </View>
 
       <View style={styles.row}>
-        <Icon name="briefcase-outline" size={16} color="#7A7D82" />
+        <Icon name="briefcase-outline" size={14} color={colors.textSecondary} />
         <Text style={styles.detailText}>{item.categories}</Text>
       </View>
 
       <View style={styles.row}>
-        <Icon name="cut-outline" size={16} color="#7A7D82" />
-        <Text style={styles.detailText}>Makeup | Makeup | Wax</Text>
+        <Icon name="cut-outline" size={14} color={colors.textSecondary} />
+        <Text style={styles.detailText} numberOfLines={1}>
+          Makeup | Wax | Spa
+        </Text>
       </View>
 
       <View style={styles.row}>
-        <Icon name="female-outline" size={16} color="#7A7D82" />
-        <Text style={styles.detailText}>FEMALE</Text>
+        <View style={styles.genderBadge}>
+          <Icon name="female-outline" size={12} color={colors.primary} />
+          <Text style={styles.genderText}>FEMALE</Text>
+        </View>
       </View>
     </View>
 
     {/* RIGHT ARROW */}
     <View style={styles.rightSection}>
-      <Icon name="chevron-forward" size={22} color="#0A5C62" />
+      <Icon name="chevron-forward" size={24} color={colors.primary} />
     </View>
   </TouchableOpacity>
 );
 
 // --- Filter Categories ---
-const filters = ['Hair', 'Nails', 'Facial', 'Color'];
+const filters = ['All', 'Hair', 'Nails', 'Facial', 'Color', 'Makeup'];
 
 export default function ProfessionalsListScreen({ navigation }) {
   const [activeFilter, setActiveFilter] = useState('Facial');
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
         {/* --- Header --- */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Nearby Specialists List</Text>
-          {/* This button lets you close the modal */}
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="chevron-down-outline" size={28} color="#333" />
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Icon name="chevron-back" size={26} color={colors.white} />
           </TouchableOpacity>
+          <Text style={styles.headerTitle}>Nearby Specialists</Text>
+          <View style={styles.headerRight} />
         </View>
 
-        {/* --- Filter ScrollView --- */}
-        <View style={styles.filterContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {filters.map(filter => (
-              <TouchableOpacity
-                key={filter}
-                style={[
-                  styles.filterButton,
-                  activeFilter === filter && styles.filterButtonActive,
-                ]}
-                onPress={() => setActiveFilter(filter)}
-              >
-                <Text
+        {/* --- Content Wrapper --- */}
+        <View style={styles.contentWrapper}>
+          {/* --- Filter ScrollView --- */}
+          <View style={styles.filterContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filterScrollContent}
+            >
+              {filters.map(filter => (
+                <TouchableOpacity
+                  key={filter}
                   style={[
-                    styles.filterText,
-                    activeFilter === filter && styles.filterTextActive,
+                    styles.filterButton,
+                    activeFilter === filter && styles.filterButtonActive,
                   ]}
+                  onPress={() => setActiveFilter(filter)}
+                  activeOpacity={0.7}
                 >
-                  {filter}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+                  <Text
+                    style={[
+                      styles.filterText,
+                      activeFilter === filter && styles.filterTextActive,
+                    ]}
+                  >
+                    {filter}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
-        {/* --- Salon List --- */}
-        <FlatList
-          data={salonData}
-          keyExtractor={item => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <SalonCard item={item} navigation={navigation} />
-          )}
-        />
+          {/* --- Results Count --- */}
+          <View style={styles.resultsContainer}>
+            <Text style={styles.resultsText}>
+              {salonData.length} specialists found
+            </Text>
+          </View>
+
+          {/* --- Salon List --- */}
+          <FlatList
+            data={salonData}
+            keyExtractor={item => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            renderItem={({ item }) => (
+              <SalonCard item={item} navigation={navigation} />
+            )}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
-// --- Styles (Updated) ---
+// --- Enhanced Styles ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.primary, // Primary color for SafeAreaView
   },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: '#F8F9FA', // Light background for the whole screen
+    backgroundColor: colors.primary,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 15,
-    backgroundColor: '#FFFFFF', // White header background
-    marginHorizontal: -20, // Extend to screen edges
-    paddingHorizontal: 20, // Re-apply padding
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: colors.primary,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '600', // Semi-bold
-    color: '#111111',
+    fontWeight: '700',
+    color: colors.white,
+    letterSpacing: 0.3,
+  },
+  headerRight: {
+    width: 40, // Spacer for centering title
+  },
+  contentWrapper: {
+    flex: 1,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: 'hidden',
   },
   filterContainer: {
-    paddingVertical: 10,
-    marginBottom: 10,
-    backgroundColor: '#FFFFFF', // White filter background
-    marginHorizontal: -20, // Extend to screen edges
-    paddingHorizontal: 20, // Re-apply padding
+    paddingVertical: 16,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  filterScrollContent: {
+    paddingHorizontal: 20,
   },
   filterButton: {
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6', // Default light grey
+    borderRadius: 24,
+    backgroundColor: '#F3F4F6',
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB', // Default grey border
+    borderColor: colors.border,
   },
   filterButtonActive: {
-    backgroundColor: '#E1F5FE', // Light blue background
-    borderColor: '#0288D1', // Blue border
+    backgroundColor: colors.filterActive,
+    borderColor: colors.filterBorder,
   },
   filterText: {
     fontSize: 14,
-    fontWeight: '400',
-    color: '#111111', // Darker grey text
+    fontWeight: '500',
+    color: colors.text,
   },
   filterTextActive: {
-    color: '#156778', // Blue text
-    fontWeight: '600',
+    color: colors.primary,
+    fontWeight: '700',
+  },
+  resultsContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: colors.white,
+  },
+  resultsText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
   cardContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 14,
-    borderWidth: 0.1,
-    borderColor: 'black',
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    padding: 16,
     marginBottom: 16,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    elevation: 4,
   },
-
   leftSection: {
     position: 'relative',
     marginRight: 14,
   },
-
   profileImg: {
-    width: 70,
-    height: 70,
-    borderRadius: 50,
+    width: 75,
+    height: 75,
+    borderRadius: 38,
+    borderWidth: 2,
+    borderColor: colors.primaryLight,
   },
-
   ratingBadge: {
     position: 'absolute',
     bottom: -4,
     left: -2,
-    backgroundColor: '#00A86B',
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 12,
+    backgroundColor: colors.success,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.white,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
-
   ratingBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    marginLeft: 4,
-    fontWeight: '600',
+    color: colors.white,
+    fontSize: 11,
+    marginLeft: 3,
+    fontWeight: '700',
   },
-
   middleSection: {
     flex: 1,
   },
-
   nameText: {
-    fontSize: 18,
-    color: '#0A5C62',
+    fontSize: 17,
+    color: colors.primary,
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: 6,
+    letterSpacing: 0.2,
   },
-
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 5,
   },
-
   detailText: {
-    fontSize: 14,
-    color: '#6B7075',
+    fontSize: 13,
+    color: colors.textSecondary,
     marginLeft: 6,
+    flex: 1,
   },
-
+  genderBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  genderText: {
+    fontSize: 11,
+    color: colors.primary,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
   rightSection: {
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  imageContainer: {
-    width: 130, // Fixed width for the image container
-    height: '100%',
-    position: 'relative', // Needed for absolute positioning of icons
-  },
-  cardImage: {
-    width: '100%',
-    height: '100%',
-    borderTopLeftRadius: 12, // Apply border radius to the image
-    borderBottomLeftRadius: 12,
-  },
-  heartIcon: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: 6,
-    borderRadius: 15,
-  },
-  distanceTag: {
-    position: 'absolute',
-    bottom: 10,
-    left: 0,
-    backgroundColor: '#FFF9E5', // Light orange as in image
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    borderBottomRightRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  distanceText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#F98600', // Dark orange text
-  },
-  cardContent: {
-    flex: 1, // Take up remaining space
-    padding: 14,
-    justifyContent: 'space-between', // Space content vertically
-  },
-  cardCategories: {
-    fontSize: 13,
-    color: '#156778',
-  },
-  cardTitle: {
-    fontSize: 18, // Slightly smaller for horizontal card
-    fontWeight: 'bold',
-    color: '#111111',
-    marginVertical: 2,
-  },
-  cardLocation: {
-    fontSize: 13,
-    color: '#50555C',
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  ratingText: {
-    marginLeft: 6,
-    fontSize: 14,
-    color: '#111111',
-    fontWeight: '600',
-  },
-  reviewText: {
-    marginLeft: 6,
-    fontSize: 14,
-  },
-  discountContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    // Removed background color to match UI
-  },
-  discountText: {
-    marginLeft: 4,
-    fontSize: 14,
-    color: '#111111', // Blue text to match icon
+    paddingLeft: 8,
   },
 });

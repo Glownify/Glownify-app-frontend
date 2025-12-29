@@ -6,8 +6,6 @@ import {logout} from '../../redux/slices/authSlice';
 export default function IndependentProProfile() {
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
-
-    console.log('User from Redux:', user);
   return (
     <View style={styles.container}>
       <Text>IndependentProProfile</Text>

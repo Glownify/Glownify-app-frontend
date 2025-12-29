@@ -56,18 +56,38 @@ export default function ManageSpecialistScreen() {
   const renderSpecialistCard = (specialist) => (
     <View key={specialist._id} style={styles.card}>
       {/* Header */}
-      <View style={styles.cardHeader}>
-        <Image source={{ uri: specialist.image }} style={styles.specialistImage} />
-        <View style={styles.headerInfo}>
-          <Text style={styles.name}>{specialist.name}</Text>
-          <Text style={styles.contact}>{specialist.contactNumber}</Text>
-          <Text style={styles.expertise}>{specialist.expertise.join(', ')}</Text>
-          <View style={styles.experienceRow}>
-            <Icon name="briefcase" size={14} color="#156778" />
-            <Text style={styles.experience}>{specialist.experienceYears} years exp</Text>
-          </View>
-        </View>
-      </View>
+     <View style={styles.cardHeader}>
+  <Image
+    source={{
+      uri:
+        specialist.image && specialist.image.trim() !== ''
+          ? specialist.image
+          : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+    }}
+    style={styles.specialistImage}
+  />
+
+  <View style={styles.headerInfo}>
+    <Text style={styles.name}>
+      {specialist.user?.name || 'Unnamed Specialist'}
+    </Text>
+
+    <Text style={styles.contact}>
+      {specialist.user?.phone || 'N/A'}
+    </Text>
+
+    <Text style={styles.expertise}>
+      {specialist.expertise?.join(', ') || 'No expertise'}
+    </Text>
+
+    <View style={styles.experienceRow}>
+      <Icon name="briefcase" size={14} color="#156778" />
+      <Text style={styles.experience}>
+        {specialist.experienceYears || 0} years exp
+      </Text>
+    </View>
+  </View>
+</View>
 
       {/* Certifications */}
       <View style={styles.section}>

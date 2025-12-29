@@ -20,7 +20,6 @@ import {
   deleteServiceItem,
 } from "../../redux/slices/salonAdminSlice";
 import Loader from "../../components/Loader";
-import ErrorMessage from "../../components/ErrorMessage";
 
 export default function ManageServicesScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -148,12 +147,11 @@ export default function ManageServicesScreen({ navigation }) {
     const serviceData = {
       name,
       category,
-      gender: modalGenderFilter,
       price: Number(price),
       durationMins: Number(durationMins),
       discountPercent: Number(discountPercent),
       description,
-      providerType: "salon",
+      providerType: "Salon",
     };
 
     try {
@@ -352,13 +350,13 @@ export default function ManageServicesScreen({ navigation }) {
 
       {/* Quick Action Buttons */}
       <View style={styles.quickActionsContainer}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[styles.quickActionBtn, { backgroundColor: '#156778' }]}
           onPress={() => navigation.navigate('ManageCategories')}
         >
           <Icon name="folder-outline" size={18} color="#fff" />
           <Text style={styles.quickActionText}>Categories</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity
           style={[styles.quickActionBtn, { backgroundColor: '#4CAF50' }]}
@@ -368,13 +366,13 @@ export default function ManageServicesScreen({ navigation }) {
           <Text style={styles.quickActionText}>Add-ons</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[styles.quickActionBtn, { backgroundColor: '#FF9800' }]}
           onPress={() => navigation.navigate('ComboPackages')}
         >
           <Icon name="gift-outline" size={18} color="#fff" />
           <Text style={styles.quickActionText}>Combos</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Gender Filter */}
@@ -404,7 +402,7 @@ export default function ManageServicesScreen({ navigation }) {
       </View>
 
       {loading && <Loader />}
-      {error && <ErrorMessage message={error} />}
+      {error && <Text style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>{error}</Text>}
 
       {!loading && !error && (
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -443,33 +441,6 @@ export default function ManageServicesScreen({ navigation }) {
               onChangeText={setName}
             />
 
-            {/* Gender Filter in Modal */}
-            <View style={styles.modalGenderSection}>
-              <Text style={styles.pickerLabel}>Category Gender *</Text>
-              <View style={styles.genderFilterButtons}>
-                {["men", "women", "unisex"].map((gender) => (
-                  <TouchableOpacity
-                    key={gender}
-                    style={[
-                      styles.genderFilterButton,
-                      modalGenderFilter === gender && styles.genderFilterButtonActive,
-                    ]}
-                    onPress={() => {
-                      setModalGenderFilter(gender);
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.genderFilterText,
-                        modalGenderFilter === gender && styles.genderFilterTextActive,
-                      ]}
-                    >
-                      {gender.charAt(0).toUpperCase() + gender.slice(1)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
 
             <View style={styles.pickerContainer}>
               <Text style={styles.pickerLabel}>Select Category *</Text>

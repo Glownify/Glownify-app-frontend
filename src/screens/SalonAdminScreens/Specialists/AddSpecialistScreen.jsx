@@ -15,6 +15,7 @@ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import { useDispatch } from "react-redux";
 import { addSpecialist } from "../../../redux/slices/salonAdminSlice";
 import { uploadImageToCloudinary } from "../../../api/claudinary";
+import { showSnackbar } from "../../../redux/slices/snackbarSlice";
 
 // Time Picker Component
 function TimePicker({ label, value, onSelect }) {
@@ -127,7 +128,8 @@ export default function AddSpecialistModal({ visible, onClose }) {
 
   const [form, setForm] = useState({
     name: "",
-    contactNumber: "",
+    phone:"",
+    email:"",
     expertise: [],
     expertiseInput: "",
     experienceYears: "",
@@ -187,7 +189,7 @@ const handlePickImage = () => {
 
 
   const handleSubmit = async () => {
-  if (!form.name || !form.contactNumber || form.expertise.length === 0) {
+  if (!form.name || !form.phone || !form.email || form.expertise.length === 0) {
     Alert.alert("Missing Fields", "Please fill all required fields.");
     return;
   }
@@ -218,7 +220,8 @@ const handlePickImage = () => {
 
   const newSpecialist = {
     name: form.name,
-    contactNumber: form.contactNumber,
+    email: form.email,
+    phone: form.phone,
     expertise: form.expertise,
     experienceYears: Number(form.experienceYears) || 0,
     image: imageUrl || "", // Cloudinary URL
@@ -228,11 +231,12 @@ const handlePickImage = () => {
 
   try {
     const result = await dispatch(addSpecialist(newSpecialist)).unwrap();
-    Alert.alert("Success", "Specialist added successfully!");
+    Alert.alert("Success", "Specialist added successfully.");
     onClose();
     setForm({
       name: "",
-      contactNumber: "",
+      phone:"",
+      email:"",
       expertise: [],
       expertiseInput: "",
       experienceYears: "",
@@ -244,8 +248,8 @@ const handlePickImage = () => {
       endTime: "",
     });
   } catch (err) {
+    Alert.alert("Error", err || "Failed to add specialist. Please try again.");
     console.error("Add Specialist Error:", err);
-    Alert.alert("Error", err.message || "Failed to add specialist. Please try again.");
   }
 };
 
@@ -282,62 +286,24 @@ const handlePickImage = () => {
               onChangeText={(v) => handleChange("name", v)}
             />
             <TextInput
-              placeholder="Contact Number"
+              placeholder="Phone Number"
               style={styles.input}
               keyboardType="phone-pad"
-              value={form.contactNumber}
-              onChangeText={(v) => handleChange("contactNumber", v)}
+              value={form.phone}
+              onChangeText={(v) => handleChange("phone", v)}
+            />
+            <TextInput
+              placeholder="Email"
+              style={styles.input}
+              keyboardType="email-address"
+              value={form.email}
+              onChangeText={(v) => handleChange("email", v)}
             />
 
             <ExpertiesPicker 
               selectedExperties={form.expertise}
               onSelect={(v) => handleChange("expertise", v)}
             />
-
-            {/* Expertise Multi-Add */}
-            {/* <View style={{ marginBottom: 10 }}>
-              <Text style={styles.label}>Expertise</Text>
-              <View style={styles.certRow}>
-                <TextInput
-                  placeholder="Enter expertise (e.g. Hair, Makeup)"
-                  style={[styles.input, { flex: 1, marginBottom: 0 }]}
-                  value={form.expertiseInput}
-                  onChangeText={(v) => handleChange("expertiseInput", v)}
-                />
-                <TouchableOpacity
-                  style={styles.addCertBtn}
-                  onPress={() => {
-                    const val = form.expertiseInput.trim();
-                    if (!val) return;
-                    if (form.expertise.includes(val)) return alert("Already added!");
-                    setForm({
-                      ...form,
-                      expertise: [...form.expertise, val],
-                      expertiseInput: "",
-                    });
-                  }}
-                >
-                  <Icon name="add-circle" size={26} color="#156778" />
-                </TouchableOpacity>
-              </View>
-
-              {form.expertise.length > 0 &&
-                form.expertise.map((exp, idx) => (
-                  <View key={idx} style={styles.certItem}>
-                    <Text style={styles.certText}>{exp}</Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        setForm({
-                          ...form,
-                          expertise: form.expertise.filter((_, i) => i !== idx),
-                        })
-                      }
-                    >
-                      <Icon name="close-circle" size={20} color="red" />
-                    </TouchableOpacity>
-                  </View>
-                ))}
-            </View> */}
 
             {/* Experience */}
             <TextInput

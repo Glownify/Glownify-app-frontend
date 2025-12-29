@@ -31,6 +31,7 @@ const Stack = createNativeStackNavigator();
 const TopTab = createMaterialTopTabNavigator();
 
 // --- AESTHETIC REFINEMENT: Define color palette ---
+
 const colors = {
   primary: '#156778',
   primaryLight: '#E1F5FA',

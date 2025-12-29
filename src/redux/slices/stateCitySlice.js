@@ -63,10 +63,8 @@ export const fetchCities = createAsyncThunk(
 export const fetchCitiesByState = createAsyncThunk(
   "stateCity/fetchCitiesByState",
   async (stateId, { rejectWithValue }) => {
-    console.log("Fetching cities for state ID:", stateId);
     try {
       const res = await axiosInstance.get(`/state-city/get-cities-by-state/${stateId}`);
-      console.log("Fetched cities:", res.data.cities);
       return res.data.cities;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Failed to fetch cities by state");

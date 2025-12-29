@@ -6,10 +6,8 @@ import axiosInstance from "../../api/axiosInstance";
 export const fetchHomeSalonsBySalonCategory = createAsyncThunk(
   "user/fetchHomeSalonsBySalonCategory",
   async ({ category, lat, lng }, { rejectWithValue }) => {
-    console.log("Fetching home salons with params:", { category, lat, lng });
     try {
       const response = await axiosInstance.get(`/user/get-home-salons?category=${category}&lat=${lat}&lng=${lng}`);
-      console.log("Fetched home salons data:", response.data);
       return response.data || [];
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch home salons");
@@ -46,7 +44,6 @@ export const fetchSalonById = createAsyncThunk(
   async (salonId, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/user/get-salon/${salonId}`);
-      console.log("Fetched salon details:", response.data);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch salon by ID");
@@ -57,12 +54,24 @@ export const fetchSalonById = createAsyncThunk(
 export const fetchAllSalonsByCategory = createAsyncThunk(
   "user/fetchAllSalons",
   async ({ category, lat, lng }, { rejectWithValue }) => {
-    console.log("Fetching all salons with params:", { category, lat, lng });
     try {
       const response = await axiosInstance.get(`/user/get-all-salons-by-category?category=${category}&lat=${lat}&lng=${lng}`);
       return response.data.salons || [];
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch all salons");
+    }
+  }
+);
+
+export const fetchServiceItemsByCategory = createAsyncThunk(
+  "user/fetchServiceItemsByCategory",
+  async ({salonId, categoryId}, { rejectWithValue }) => {
+    console.log("Fetching service items for category:", categoryId, "in salon:", salonId);
+    try {
+      const response = await axiosInstance.get(`/user/get-serviceItems-by-category/${salonId}/${categoryId}`);
+      return response.data.services || [];
+    } catch (error) {
+      return rejectWithValue(error.response.data.message || "Failed to fetch service items by category");
     }
   }
 );
@@ -74,6 +83,7 @@ const userSlice = createSlice({
     homeIndependentProsByCategory: [],
     allSalons: [],
     categories: [],
+    serviceItemsByCategory: [],
     salonDetails: null,
     loading: false,
     error: null,
@@ -138,6 +148,18 @@ const userSlice = createSlice({
         state.allSalons = action.payload;
       })
       .addCase(fetchAllSalonsByCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchServiceItemsByCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchServiceItemsByCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.serviceItemsByCategory = action.payload;
+      })
+      .addCase(fetchServiceItemsByCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

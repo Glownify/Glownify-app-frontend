@@ -31,6 +31,7 @@ import PromoBanner2, { PROMO_BANNER_2_DURATION } from './PromoBanner2';
 import SkeletonLoadingScreen from './SkeletonLoadingScreen';
 import { LocationContext } from "../../../components/LocationProvider";
 const { width } = Dimensions.get('window');
+import CategoriesMarquee from './CategoriesMarquee';
 
 const colors = {
   primary: '#156778',
@@ -40,16 +41,6 @@ const colors = {
   textSecondary: '#6B7280',
 };
 
-const CategoryIcon = ({ uri }) => {
-  const isSvg = uri?.endsWith('.svg');
-  if (isSvg) return <SvgUri width={32} height={32} uri={uri} />;
-  return (
-    <Image
-      source={{ uri }}
-      style={{ width: 32, height: 32, resizeMode: 'contain' }}
-    />
-  );
-};
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -117,7 +108,6 @@ export default function HomeScreen({ navigation }) {
         lng,
       }));
     }
-    console.log("User Location in HomeScreen:", homeSalonsBySalonCategory);
   }, [selectedCategory, dispatch, location]);
 
   const displayDuration =
@@ -359,21 +349,7 @@ export default function HomeScreen({ navigation }) {
 
           {/* Categories */}
           <SectionHeader title="What do you want to get?" />
-          <View style={styles.categories}>
-            {categories.map(cat => (
-              <TouchableOpacity
-                key={cat._id}
-                style={styles.categoryItem}
-                accessibilityRole="button"
-                accessibilityLabel={`View services for ${cat.name} category`}
-              >
-                <View style={styles.categoryIcon}>
-                  <CategoryIcon uri={cat.icon} />
-                </View>
-                <Text style={styles.categoryLabel}>{cat.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <CategoriesMarquee categories={categories} />
 
           {/* --- Salon Sections --- */}
           {renderSalonSection(selectedCategory.toUpperCase(), salonList)}
@@ -404,7 +380,7 @@ export default function HomeScreen({ navigation }) {
           />
 
           {/* --- Nearby Offers --- */}
-          <SectionHeader title="Nearby Offers" />
+          <SectionHeader title="Salon Home Services" />
           <View style={{ paddingHorizontal: 16 }}>
             <NearbyOfferCard
               imageUrl={require('../../../assets/featuredSalon.png')}

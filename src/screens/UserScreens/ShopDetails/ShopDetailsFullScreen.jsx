@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -14,7 +15,7 @@ import ServiceCard from './ServiceCard';
 import SpecialistCard from './SpecialistCard';
 import ReviewCard from './ReviewCard';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchSalonById } from '../../../redux/slices/userSlice';
+import { fetchSalonById, fetchServiceItemsByCategory } from '../../../redux/slices/userSlice';
 const { height, width } = Dimensions.get('window');
 
 // Mock Data
@@ -28,44 +29,6 @@ const shopData = {
     require('../../../assets/featuredSalon.png'),
     require('../../../assets/featuredSalon.png'),
     require('../../../assets/featuredSalon.png'),
-  ],
-  services: [
-    {
-      id: '1',
-      name: 'Women Haircut',
-      price: 55,
-      duration: '1.5 hour',
-      description: 'A clean cut does is a shorter hairstyle Spec 1',
-      discount: '-20%',
-      image: require('../../../assets/featuredSalon.png'),
-    },
-    {
-      id: '2',
-      name: 'Bob/ Lob Cut',
-      price: 55,
-      duration: '1.5 hour',
-      description: 'The haircut is a women\'s hairstyle that is cut short...',
-      discount: null,
-      image: require('../../../assets/featuredSalon.png'),
-    },
-    {
-      id: '3',
-      name: 'Medium Length Layer Cut',
-      price: 80,
-      duration: '1 hour',
-      description: 'A layered hair is a hairstyle that gives the illusion of...',
-      discount: null,
-      image: require('../../../assets/featuredSalon.png'),
-    },
-    {
-      id: '4',
-      name: 'V-Shaped Cut',
-      price: 90,
-      duration: '2.5 hour',
-      description: 'There are a lot of variations between which...',
-      discount: '-5%',
-      image: require('../../../assets/featuredSalon.png'),
-    },
   ],
   reviews: [
     {
@@ -100,6 +63,10 @@ export default function ShopDetailsScreen({ navigation, route }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const insets = useSafeAreaInsets();
   const [showHours, setShowHours] = useState(false);
+  const [activeCategoryId, setActiveCategoryId] = useState(null);
+
+  const dispatch = useDispatch();
+  const { salonDetails: salonData, serviceItemsByCategory, loading } = useSelector((state) => state.user);
 
   const defaultOpeningHours = [
     { day: 'Monday', start: '08:00am', end: '09:00pm' },
@@ -112,17 +79,30 @@ export default function ShopDetailsScreen({ navigation, route }) {
     dispatch(fetchSalonById(salonId));
   }, [dispatch, salonId]);
 
-  const dispatch = useDispatch();
-  const salonData = useSelector((state) => state.user.salonDetails);
+  // Set initial category and fetch services when salon data loads
+  useEffect(() => {
+    if (salonData?.serviceCategories?.length > 0 && !activeCategoryId) {
+      const firstCatId = salonData.serviceCategories[0]._id;
+      setActiveCategoryId(firstCatId);
+      dispatch(fetchServiceItemsByCategory({ salonId, categoryId: firstCatId }));
+    }
+  }, [salonData]);
 
-  const specialists = salonData?.specialistsData || [];
-  const serviceCategories = salonData?.serviceCategories || [];
+  const handleSelectCategory = (categoryId) => {
+    setActiveCategoryId(categoryId);
+    dispatch(fetchServiceItemsByCategory({ salonId, categoryId }));
+  };
 
-  console.log(serviceCategories);
-
+  if (!salonData && loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#156778" />
+      </View>
+    );
+  }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: 'transparent' }]} edges={[]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: '#156678' }]} edges={['top']}>
       <View style={styles.container}>
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
@@ -156,14 +136,14 @@ export default function ShopDetailsScreen({ navigation, route }) {
               }}
               scrollEventThrottle={16}
             >
-              {shopData.images.map((image, index) => (
-                <Image key={index} source={image} style={styles.galleryImage} />
+              {salonData?.galleryImages?.map((image, index) => (
+                <Image key={index} source={{ uri: image }} style={styles.galleryImage} />
               ))}
             </ScrollView>
 
             {/* Image Indicators */}
             <View style={styles.imageIndicators}>
-              {shopData.images.map((_, index) => (
+              {salonData?.galleryImages?.map((_, index) => (
                 <View
                   key={index}
                   style={[
@@ -187,17 +167,17 @@ export default function ShopDetailsScreen({ navigation, route }) {
             </View>
 
             {/* Home Service & Open Now Row */}
-<View style={styles.statusRow}>
-  <View style={styles.statusItem1}>
-    <Icon name="home-outline" size={16} color="#ffffffff" />
-    <Text style={styles.statusText}>Home Service Available</Text>
-  </View>
+            <View style={styles.statusRow}>
+              <View style={styles.statusItem1}>
+                <Icon name="home-outline" size={16} color="#ffffffff" />
+                <Text style={styles.statusText}>Home Service Available</Text>
+              </View>
 
-  <View style={styles.statusItem2}>
-    <Icon name="time-outline" size={16} color='#ffffffff' />
-    <Text style={styles.statusText}>Open Now</Text>
-  </View>
-</View>
+              <View style={styles.statusItem2}>
+                <Icon name="time-outline" size={16} color='#ffffffff' />
+                <Text style={styles.statusText}>Open Now</Text>
+              </View>
+            </View>
 
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
@@ -206,13 +186,13 @@ export default function ShopDetailsScreen({ navigation, route }) {
                 <Text style={styles.statSubText}>({shopData.reviewCount || shopData.reviews.length})</Text>
               </View>
 
-              
-              
+
+
               <View style={styles.statDivider} />
- 
-                <Icon name="navigate-outline" size={16} color="#6B7280" />
-                <Text style={styles.statText}>Directions</Text>
-              
+
+              <Icon name="navigate-outline" size={16} color="#6B7280" />
+              <Text style={styles.statText}>Directions</Text>
+
             </View>
           </View>
 
@@ -223,40 +203,39 @@ export default function ShopDetailsScreen({ navigation, route }) {
           </View>
 
           {/* Opening Hours */}
-<View style={styles.section}>
-  <TouchableOpacity 
-    style={styles.openingHeader} 
-    onPress={() => setShowHours(!showHours)}
-  >
-    <Text style={styles.sectionTitle}>Opening Hours</Text>
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.openingHeader}
+              onPress={() => setShowHours(!showHours)}
+            >
+              <Text style={styles.sectionTitle}>Opening Hours</Text>
 
-    <Icon 
-      name={showHours ? "chevron-up-outline" : "chevron-down-outline"} 
-      size={22} 
-      color="#111827" 
-    />
-  </TouchableOpacity>
+              <Icon
+                name={showHours ? "chevron-up-outline" : "chevron-down-outline"}
+                size={22}
+                color="#111827"
+              />
+            </TouchableOpacity>
 
-  {showHours && (
-    <View>
-      {((salonData?.openingHours && salonData.openingHours.length > 0)
-        ? salonData.openingHours
-        : defaultOpeningHours
-      ).map((hour) => (
-        <View key={hour.day} style={styles.hourRow}>
-          <Text style={styles.dayText}>{hour.day}</Text>
+            {showHours && (
+              <View>
+                {((salonData?.openingHours && salonData.openingHours.length > 0)
+                  ? salonData.openingHours
+                  : defaultOpeningHours
+                ).map((hour) => (
+                  <View key={hour.day} style={styles.hourRow}>
+                    <Text style={styles.dayText}>{hour.day}</Text>
 
-          {hour.start && hour.end ? (
-            <Text style={styles.timeText}>{hour.start} - {hour.end}</Text>
-          ) : (
-            <Text style={[styles.timeText, styles.closedText]}>Closed</Text>
-          )}
-        </View>
-      ))}
-    </View>
-  )}
-</View>
-
+                    {hour.start && hour.end ? (
+                      <Text style={styles.timeText}>{hour.start} - {hour.end}</Text>
+                    ) : (
+                      <Text style={[styles.timeText, styles.closedText]}>Closed</Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
 
           {/* Our Services */}
           <View style={styles.section}>
@@ -273,19 +252,33 @@ export default function ShopDetailsScreen({ navigation, route }) {
               showsHorizontalScrollIndicator={false}
               style={styles.filterTabsContainer}
             >
-              {serviceCategories.map((category) => (
-                <TouchableOpacity
-                  key={category.id}
-                  style={[styles.filterTab, /* Add active style conditionally */]}
-                  onPress={()=>console.log(category._id)}
-                >
-                  <Text style={styles.filterTabText}>{category.name}</Text>
-                </TouchableOpacity>
-              ))}
+              {salonData?.serviceCategories?.map((category) => {
+                const isActive = activeCategoryId === category._id;
+                return (
+                  <TouchableOpacity
+                    key={category._id}
+                    style={[
+                      styles.filterTab,
+                      isActive && styles.filterTabActive // Apply green border/bg
+                    ]}
+                    onPress={() => handleSelectCategory(category._id)}
+                  >
+                    <Text style={[
+                      styles.filterTabText,
+                      isActive && styles.filterTabTextActive // Apply green text
+                    ]}>
+                      {category.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
 
-            {shopData.services.map((service) => (
-              <ServiceCard key={service.id} service={service} />
+            {serviceItemsByCategory.map((service) => (
+              <ServiceCard key={service._id} salon={{
+                _id: salonData._id,
+                name: salonData.shopName,
+              }} service={service} />
             ))}
 
             <TouchableOpacity style={styles.viewAllServicesButton}>
@@ -303,8 +296,8 @@ export default function ShopDetailsScreen({ navigation, route }) {
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {shopData.images.map((image, index) => (
-                <Image key={index} source={image} style={styles.galleryThumb} />
+              {salonData?.galleryImages.map((image, index) => (
+                <Image key={index} source={{ uri: image }} style={styles.galleryThumb} />
               ))}
             </ScrollView>
           </View>
@@ -319,10 +312,10 @@ export default function ShopDetailsScreen({ navigation, route }) {
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {specialists.length === 0 ? (
+              {salonData?.specialistsData?.length === 0 ? (
                 <Text style={styles.aboutText}>No specialists available at the moment.</Text>
               ) : (
-                specialists.map((specialist) => (
+                salonData?.specialistsData?.map((specialist) => (
                   <SpecialistCard key={specialist._id} specialist={specialist} />
                 ))
               )}
@@ -369,7 +362,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#156678',
   },
   container: {
     flex: 1,
@@ -434,12 +427,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   openingHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 4,
-  marginBottom: 10,
-},
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
+    marginBottom: 10,
+  },
   shopName: {
     fontSize: 24,
     fontWeight: '700',
@@ -457,34 +450,34 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   statusRow: {
-  flexDirection: 'row',
-  justifyContent: 'flex-start', // or space-between if you want them spread
-  alignItems: 'center',
-  marginBottom: 12,
-  gap: 16, // space between items
-},
-      statusItem1: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#9C6ADE',
-        paddingVertical: 4,
-        paddingHorizontal: 10,
-        borderRadius: 14,
-      },
-      statusItem2: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#47C676',
-        paddingVertical: 4,
-        paddingHorizontal: 10,
-        borderRadius: 14,
-      },
-      statusText: {
-        marginLeft: 4,
-        fontSize: 14,
-        fontWeight: '300',
-        color: '#ffffffff',
-},
+    flexDirection: 'row',
+    justifyContent: 'flex-start', // or space-between if you want them spread
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 16, // space between items
+  },
+  statusItem1: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#9C6ADE',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+  },
+  statusItem2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#47C676',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+  },
+  statusText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '300',
+    color: '#ffffffff',
+  },
   dot: {
     width: 4,
     height: 4,
@@ -548,32 +541,32 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   hourRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingVertical: 12,
-  paddingHorizontal: 4,
-  borderBottomWidth: 0.8,
-  borderBottomColor: '#E5E7EB',
-},
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderBottomWidth: 0.8,
+    borderBottomColor: '#E5E7EB',
+  },
 
-dayText: {
-  fontSize: 15,
-  fontWeight: '600',
-  color: '#111827',
-},
+  dayText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111827',
+  },
 
-timeText: {
-  fontSize: 14,
-  fontWeight: '500',
-  color: '#16A34A', // Green for open time
-},
+  timeText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#16A34A', // Green for open time
+  },
 
-closedText: {
-  fontSize: 14,
-  fontWeight: '600',
-  color: '#DC2626', // Red for closed
-},
+  closedText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#DC2626', // Red for closed
+  },
   viewAllServicesButton: {
     borderWidth: 1,
     borderColor: '#156778',

@@ -2,13 +2,28 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 
 export default function SpecialistCard({ specialist }) {
+  const imageUri =
+    specialist.image && specialist.image.trim().length > 0
+      ? specialist.image
+      : null;
+
   return (
     <View style={styles.container}>
-      <Image source={{uri: specialist.image}} style={styles.image} />
-      <Text style={styles.name} numberOfLines={1}>{specialist.name}</Text>
+      <Image
+        source={
+          imageUri
+            ? { uri: imageUri }
+            : require('../../../assets/gita.jpg')
+        }
+        style={styles.image}
+      />
+      <Text style={styles.name} numberOfLines={1}>
+        {specialist.name || 'Specialist'}
+      </Text>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
