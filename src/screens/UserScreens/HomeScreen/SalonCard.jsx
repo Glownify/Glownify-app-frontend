@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: colors.white,
     marginBottom: 14,
+    height: 250,
     overflow: 'hidden',
     ...Platform.select({
       ios: {

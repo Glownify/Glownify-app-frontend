@@ -9,6 +9,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 // IMPORT SCREENS
 // ========================
 import IndependentProDashboard from '../screens/IndependentProScreens/IndependentProDashboard';
+import IndependentManageServicesScreen from '../screens/IndependentProScreens/IndependentManageServicesScreen';
 import IndependentProProfileScreen from '../screens/IndependentProScreens/IndependentProProfileScreen';
 
 // ========================
@@ -97,8 +98,8 @@ export default function IndependentNavigator() {
 
         {/* ORDERS */}
         <Tab.Screen
-          name="IndependentProBookings"
-          component={IndependentProBookings}
+          name="IndependentManageServicesScreen"
+          component={IndependentManageServicesScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <View style={styles.iconContainer}>
