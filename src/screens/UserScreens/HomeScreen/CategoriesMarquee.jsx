@@ -132,7 +132,7 @@ export default function CategoriesMarquee({ categories }) {
             style={styles.categoryItem}
             activeOpacity={0.7}
             onPress={() => {
-              console.log('Pressed');
+              console.log("Pressed")
             }}
           >
             <View style={styles.categoryIcon}>

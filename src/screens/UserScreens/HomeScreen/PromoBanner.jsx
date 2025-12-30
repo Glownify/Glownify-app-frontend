@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, ScrollView, Animated } from "react-native";
 
 // Animation duration constant - must match HomeScreen's BANNER_DISPLAY_DURATION
-export const PROMO_BANNER_DURATION = 5000; 
+export const PROMO_BANNER_DURATION = 6000; 
 
 // --- Color Palette ---
 const Colors = {

@@ -10,7 +10,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Animation duration constant - must match HomeScreen's BANNER_DISPLAY_DURATION
-export const PROMO_BANNER_2_DURATION = 5000; 
+export const PROMO_BANNER_2_DURATION = 12000; 
 
 // --- Color Palette ---
 const Colors = {
@@ -156,7 +156,7 @@ const StepIcon = ({ iconChar, delay = 0 }) => {
       Animated.sequence([
         Animated.timing(glowAnim, {
           toValue: 1.15,
-          duration: 1500,
+          duration: 15000,
           useNativeDriver: false,
         }),
         Animated.timing(glowAnim, {
@@ -219,7 +219,7 @@ export default function PromoBanner2() {
     Animated.timing(footerFade, {
       toValue: 1,
       duration: 1000,
-      // delay: 1500,
+      delay: 1500,
       useNativeDriver: false,
     }).start();
 
@@ -227,7 +227,7 @@ export default function PromoBanner2() {
     Animated.timing(footerPulse, {
       toValue: 1.15,
       duration: 1000,
-      // delay: 2000,
+      delay: 2000,
       useNativeDriver: false,
     }).start();
   }, [headerFade, headerSlide, headerFloat, footerFade, footerPulse]);

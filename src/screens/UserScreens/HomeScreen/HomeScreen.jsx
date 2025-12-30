@@ -75,7 +75,7 @@ export default function HomeScreen({ navigation }) {
 
   const promoScrollRef = useRef(null);
   const transitionAnim = useRef(new Animated.Value(0)).current;
-  const BANNER_EXIT_DURATION = 500;
+  const BANNER_EXIT_DURATION = 10;
   const [activeBanner, setActiveBanner] = useState(0);
   const [nextBanner, setNextBanner] = useState(1);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -237,7 +237,7 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea}  edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <View style={{ flex: 1, backgroundColor: colors.white }}>
         <HomeHeader user={user} navigation={navigation} />
@@ -349,7 +349,7 @@ export default function HomeScreen({ navigation }) {
 
           {/* Categories */}
           <SectionHeader title="What do you want to get?" />
-          <CategoriesMarquee categories={categories} />
+          <CategoriesMarquee categories={categories} navigation={navigation} />
 
           {/* --- Salon Sections --- */}
           {renderSalonSection(selectedCategory.toUpperCase(), salonList)}

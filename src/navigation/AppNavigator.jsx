@@ -46,16 +46,16 @@ const colors = {
 // --- Tab Icon Images ---
 const tabIcons = {
   home: {
-    active: require('../assets/tab-icons/home.png'),
-    inactive: require('../assets/tab-icons/home.png'),
+    active: require('../assets/tab-icons/GlownifyLogoPng.png'),
+    inactive: require('../assets/tab-icons/GlownifyLogoPng.png'),
   },
   offer: {
     active: require('../assets/tab-icons/offer_fill.png'),
     inactive: require('../assets/tab-icons/offer.png'),
   },
   ai: {
-    active: require('../assets/tab-icons/home.png'),
-    inactive: require('../assets/tab-icons/home.png'),
+    active: require('../assets/tab-icons/GlownifyLogoPng.png'),
+    inactive: require('../assets/tab-icons/GlownifyLogoPng.png'),
   },
   bookings: {
     active: require('../assets/tab-icons/booking_fill.png'),
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 35,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.white,
     shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

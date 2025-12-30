@@ -44,7 +44,7 @@ export default function IndependentProProfile() {
   const subscription = roleDetails?.subscription || {};
 
   // Helper function to format payment status
-  const getPaymentStatusColor = (status) => {
+  const getPaymentStatusColor = status => {
     switch (status?.toLowerCase()) {
       case 'paid':
       case 'active':
@@ -59,7 +59,7 @@ export default function IndependentProProfile() {
     }
   };
 
-  const getPaymentStatusIcon = (status) => {
+  const getPaymentStatusIcon = status => {
     switch (status?.toLowerCase()) {
       case 'paid':
       case 'active':
@@ -75,169 +75,194 @@ export default function IndependentProProfile() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={styles.headerSection}>
-          <Image 
-            source={{ 
-              uri: galleryImages[0] || 'https://via.placeholder.com/150?text=Salon' 
-            }} 
-            style={styles.salonImage} 
-          />
-          <Text style={styles.salonName}>{roleDetails?.shopName || user?.name || 'N/A'}</Text>
-          <View style={styles.ratingRow}>
-            <Icon name="star" size={16} color="#FFD700" />
-            <Text style={styles.rating}>4.8</Text>
-            <Text style={styles.reviews}>(245 reviews)</Text>
-          </View>
-          {governmentId?.idNumber && (
-            <Text style={styles.rating}>
-              {governmentId.idType}: {governmentId.idNumber}
+    <SafeAreaView
+      edges={['top']}
+      style={{ flex: 1, backgroundColor: '#156778' }}
+    >
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {/* Header */}
+          <View style={styles.headerSection}>
+            <Image
+              source={{
+                uri:
+                  galleryImages[0] ||
+                  'https://via.placeholder.com/150?text=Salon',
+              }}
+              style={styles.salonImage}
+            />
+            <Text style={styles.salonName}>
+              {roleDetails?.shopName || user?.name || 'N/A'}
             </Text>
-          )}
-        </View>
-
-        {/* Quick Stats */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
-            <Icon name="business" size={24} color="#156778" />
-            <Text style={styles.statNumber}>{roleDetails?.shopType || 'N/A'}</Text>
-            <Text style={styles.statLabel}>Shop Type</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Icon name="cut" size={24} color="#156778" />
-            <Text style={styles.statNumber}>{roleDetails?.salonCategory || 'N/A'}</Text>
-            <Text style={styles.statLabel}>Category</Text>
-          </View>
-        </View>
-
-        {/* Subscription Details */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Subscription Details</Text>
-            {subscription?.paymentStatus === 'pending' && (
-              <TouchableOpacity onPress={handleUpgrade}>
-                <Text style={styles.upgradeLink}>Upgrade</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <View style={styles.subscriptionCard}>
-            {/* Payment Status */}
-            <View style={styles.subscriptionRow}>
-              <View style={styles.subscriptionLabel}>
-                <Icon name="card" size={20} color="#156778" />
-                <Text style={styles.subscriptionLabelText}>Payment Status</Text>
-              </View>
-              <View style={styles.statusBadge}>
-                <Icon 
-                  name={getPaymentStatusIcon(subscription?.paymentStatus)} 
-                  size={16} 
-                  color={getPaymentStatusColor(subscription?.paymentStatus)} 
-                />
-                <Text 
-                  style={[
-                    styles.statusText, 
-                    { color: getPaymentStatusColor(subscription?.paymentStatus) }
-                  ]}
-                >
-                  {subscription?.paymentStatus?.toUpperCase() || 'N/A'}
-                </Text>
-              </View>
+            <View style={styles.ratingRow}>
+              <Icon name="star" size={16} color="#FFD700" />
+              <Text style={styles.rating}>4.8</Text>
+              <Text style={styles.reviews}>(245 reviews)</Text>
             </View>
-
-            {/* Plan ID */}
-            <View style={styles.subscriptionRow}>
-              <View style={styles.subscriptionLabel}>
-                <Icon name="pricetag" size={20} color="#156778" />
-                <Text style={styles.subscriptionLabelText}>Current Plan</Text>
-              </View>
-              <Text style={styles.subscriptionValue}>
-                {subscription?.planId || 'No Active Plan'}
+            {governmentId?.idNumber && (
+              <Text style={styles.rating}>
+                {governmentId.idType}: {governmentId.idNumber}
               </Text>
-            </View>
-
-            {/* Plan Features/Info */}
-            {!subscription?.planId && (
-              <View style={styles.noPlanCard}>
-                <Icon name="information-circle" size={24} color="#ff9800" />
-                <Text style={styles.noPlanText}>
-                  You don't have an active subscription plan. Upgrade to unlock premium features!
-                </Text>
-              </View>
-            )}
-
-            {subscription?.paymentStatus === 'pending' && subscription?.planId && (
-              <View style={styles.warningCard}>
-                <Icon name="warning" size={20} color="#ff9800" />
-                <Text style={styles.warningText}>
-                  Payment is pending. Please complete your payment to activate your subscription.
-                </Text>
-              </View>
             )}
           </View>
-        </View>
 
-        {/* Contact & Location */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Contact Information</Text>
-
-          <View style={styles.infoItem}>
-            <Icon name="location" size={20} color="#156778" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Location</Text>
-              <Text style={styles.infoText}>
-                {location?.address || 'N/A'}, {location?.city || ''}, {location?.state || ''}
+          {/* Quick Stats */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statBox}>
+              <Icon name="business" size={24} color="#156778" />
+              <Text style={styles.statNumber}>
+                {roleDetails?.shopType || 'N/A'}
               </Text>
-              {location?.pincode && (
-                <Text style={styles.infoText}>PIN: {location.pincode}</Text>
+              <Text style={styles.statLabel}>Shop Type</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Icon name="cut" size={24} color="#156778" />
+              <Text style={styles.statNumber}>
+                {roleDetails?.salonCategory || 'N/A'}
+              </Text>
+              <Text style={styles.statLabel}>Category</Text>
+            </View>
+          </View>
+
+          {/* Subscription Details */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Subscription Details</Text>
+              {subscription?.paymentStatus === 'pending' && (
+                <TouchableOpacity onPress={handleUpgrade}>
+                  <Text style={styles.upgradeLink}>Upgrade</Text>
+                </TouchableOpacity>
               )}
             </View>
+
+            <View style={styles.subscriptionCard}>
+              {/* Payment Status */}
+              <View style={styles.subscriptionRow}>
+                <View style={styles.subscriptionLabel}>
+                  <Icon name="card" size={20} color="#156778" />
+                  <Text style={styles.subscriptionLabelText}>
+                    Payment Status
+                  </Text>
+                </View>
+                <View style={styles.statusBadge}>
+                  <Icon
+                    name={getPaymentStatusIcon(subscription?.paymentStatus)}
+                    size={16}
+                    color={getPaymentStatusColor(subscription?.paymentStatus)}
+                  />
+                  <Text
+                    style={[
+                      styles.statusText,
+                      {
+                        color: getPaymentStatusColor(
+                          subscription?.paymentStatus,
+                        ),
+                      },
+                    ]}
+                  >
+                    {subscription?.paymentStatus?.toUpperCase() || 'N/A'}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Plan ID */}
+              <View style={styles.subscriptionRow}>
+                <View style={styles.subscriptionLabel}>
+                  <Icon name="pricetag" size={20} color="#156778" />
+                  <Text style={styles.subscriptionLabelText}>Current Plan</Text>
+                </View>
+                <Text style={styles.subscriptionValue}>
+                  {subscription?.planId || 'No Active Plan'}
+                </Text>
+              </View>
+
+              {/* Plan Features/Info */}
+              {!subscription?.planId && (
+                <View style={styles.noPlanCard}>
+                  <Icon name="information-circle" size={24} color="#ff9800" />
+                  <Text style={styles.noPlanText}>
+                    You don't have an active subscription plan. Upgrade to
+                    unlock premium features!
+                  </Text>
+                </View>
+              )}
+
+              {subscription?.paymentStatus === 'pending' &&
+                subscription?.planId && (
+                  <View style={styles.warningCard}>
+                    <Icon name="warning" size={20} color="#ff9800" />
+                    <Text style={styles.warningText}>
+                      Payment is pending. Please complete your payment to
+                      activate your subscription.
+                    </Text>
+                  </View>
+                )}
+            </View>
           </View>
 
-          {(roleDetails?.contactNumber || roleDetails?.whatsappNumber) && (
+          {/* Contact & Location */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Contact Information</Text>
+
             <View style={styles.infoItem}>
-              <Icon name="call" size={20} color="#156778" />
+              <Icon name="location" size={20} color="#156778" />
               <View style={styles.infoContent}>
-                {roleDetails?.contactNumber && (
-                  <>
-                    <Text style={styles.infoLabel}>Phone</Text>
-                    <Text style={styles.infoText}>{roleDetails.contactNumber}</Text>
-                  </>
-                )}
-                {roleDetails?.whatsappNumber && (
-                  <>
-                    <Text style={styles.infoLabel}>WhatsApp</Text>
-                    <Text style={styles.infoText}>{roleDetails.whatsappNumber}</Text>
-                  </>
+                <Text style={styles.infoLabel}>Location</Text>
+                <Text style={styles.infoText}>
+                  {location?.address || 'N/A'}, {location?.city || ''},{' '}
+                  {location?.state || ''}
+                </Text>
+                {location?.pincode && (
+                  <Text style={styles.infoText}>PIN: {location.pincode}</Text>
                 )}
               </View>
             </View>
-          )}
 
-          <View style={styles.infoItem}>
-            <Icon name="mail" size={20} color="#156778" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoText}>{user?.email || 'N/A'}</Text>
-            </View>
-          </View>
+            {(roleDetails?.contactNumber || roleDetails?.whatsappNumber) && (
+              <View style={styles.infoItem}>
+                <Icon name="call" size={20} color="#156778" />
+                <View style={styles.infoContent}>
+                  {roleDetails?.contactNumber && (
+                    <>
+                      <Text style={styles.infoLabel}>Phone</Text>
+                      <Text style={styles.infoText}>
+                        {roleDetails.contactNumber}
+                      </Text>
+                    </>
+                  )}
+                  {roleDetails?.whatsappNumber && (
+                    <>
+                      <Text style={styles.infoLabel}>WhatsApp</Text>
+                      <Text style={styles.infoText}>
+                        {roleDetails.whatsappNumber}
+                      </Text>
+                    </>
+                  )}
+                </View>
+              </View>
+            )}
 
-          {user?.phone && (
             <View style={styles.infoItem}>
-              <Icon name="phone-portrait" size={20} color="#156778" />
+              <Icon name="mail" size={20} color="#156778" />
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Personal Phone</Text>
-                <Text style={styles.infoText}>{user.phone}</Text>
+                <Text style={styles.infoLabel}>Email</Text>
+                <Text style={styles.infoText}>{user?.email || 'N/A'}</Text>
               </View>
             </View>
-          )}
-        </View>
 
-        {/* Verification Status */}
-        {/* <View style={styles.section}>
+            {user?.phone && (
+              <View style={styles.infoItem}>
+                <Icon name="phone-portrait" size={20} color="#156778" />
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Personal Phone</Text>
+                  <Text style={styles.infoText}>{user.phone}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+
+          {/* Verification Status */}
+          {/* <View style={styles.section}>
           <Text style={styles.sectionTitle}>Verification Status</Text>
           
           <View style={styles.verificationBox}>
@@ -264,40 +289,48 @@ export default function IndependentProProfile() {
           </View>
         </View> */}
 
-        {/* Service Details */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Service Details</Text>
-          
-          <View style={styles.descriptionBox}>
-            <Text style={styles.descriptionText}>
-              Salon Category: {roleDetails?.salonCategory?.toUpperCase() || 'N/A'}
-            </Text>
-            <Text style={styles.descriptionText}>
-              Home Service: {roleDetails?.offersHomeService ? 'Available' : 'Not Available'}
-            </Text>
-            <Text style={styles.descriptionText}>
-              Status: {user?.status?.toUpperCase() || 'N/A'}
-            </Text>
-            <Text style={styles.descriptionText}>
-              Account Created: {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-            </Text>
+          {/* Service Details */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Service Details</Text>
+
+            <View style={styles.descriptionBox}>
+              <Text style={styles.descriptionText}>
+                Salon Category:{' '}
+                {roleDetails?.salonCategory?.toUpperCase() || 'N/A'}
+              </Text>
+              <Text style={styles.descriptionText}>
+                Home Service:{' '}
+                {roleDetails?.offersHomeService ? 'Available' : 'Not Available'}
+              </Text>
+              <Text style={styles.descriptionText}>
+                Status: {user?.status?.toUpperCase() || 'N/A'}
+              </Text>
+              <Text style={styles.descriptionText}>
+                Account Created:{' '}
+                {user?.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString()
+                  : 'N/A'}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        {/* Action Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-            <Icon name="pencil" size={18} color="#fff" />
-            <Text style={styles.buttonText}>Edit Profile</Text>
-          </TouchableOpacity>
+          {/* Action Buttons */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+              <Icon name="pencil" size={18} color="#fff" />
+              <Text style={styles.buttonText}>Edit Profile</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Icon name="log-out" size={18} color="#fff" />
-            <Text style={styles.buttonText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <Icon name="log-out" size={18} color="#fff" />
+              <Text style={styles.buttonText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

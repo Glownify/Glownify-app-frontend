@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -35,11 +36,15 @@ const colors = {
   shadow: '#000000',
 };
 
+// --- Filter Categories ---
+const filters = ['All', 'Hair', 'Nails', 'Facial', 'Color', 'Makeup'];
+
 export default function AllSalonListScreen({ navigation, route }) {
   const dispatch = useDispatch();
   const { allSalons, loading, error } = useSelector(state => state.user);
   const { category, lat, lng } = route.params;
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('Facial');
 
   useEffect(() => {
     if (category && lat && lng) {
@@ -100,10 +105,24 @@ export default function AllSalonListScreen({ navigation, route }) {
         </Text>
 
         <View style={styles.categoryRow}>
-          <Icon name="cut-outline" size={11} color={colors.primary} />
-          <Text style={styles.categoryText} numberOfLines={1}>
-            Hair & Beauty
-          </Text>
+          <View style={{height:20, flexDirection:'row'}}>
+            <Icon name="cut-outline" style={{marginTop: 2}} size={11} color={colors.primary} />
+            <Text style={styles.categoryText} numberOfLines={1}>
+              Haircut - 299
+            </Text>
+          </View>
+          <View style={{height:20, flexDirection:'row'}}>
+            <Icon name="cut-outline" style={{marginTop: 2}} size={11} color={colors.primary} />
+            <Text style={styles.categoryText} numberOfLines={1}>
+              Wax - 459
+            </Text>
+          </View>
+          <View style={{height:20, flexDirection:'row'}}>
+            <Icon name="cut-outline" style={{marginTop: 2}} size={11} color={colors.primary} />
+            <Text style={styles.categoryText} numberOfLines={1}>
+              Facial - 99
+            </Text>
+          </View>
         </View>
 
         <TouchableOpacity style={styles.bookButton}>
@@ -167,6 +186,36 @@ export default function AllSalonListScreen({ navigation, route }) {
               )}
             </View>
           </View>
+
+          {/* --- Filter ScrollView --- */}
+                    <View style={styles.filterContainer}>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.filterScrollContent}
+                      >
+                        {filters.map(filter => (
+                          <TouchableOpacity
+                            key={filter}
+                            style={[
+                              styles.filterButton,
+                              activeFilter === filter && styles.filterButtonActive,
+                            ]}
+                            onPress={() => setActiveFilter(filter)}
+                            activeOpacity={0.7}
+                          >
+                            <Text
+                              style={[
+                                styles.filterText,
+                                activeFilter === filter && styles.filterTextActive,
+                              ]}
+                            >
+                              {filter}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                    </View>
 
           {/* --- Salon Grid --- */}
           {loading ? (
@@ -251,14 +300,38 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: '500',
   },
-  filterButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 20,
+  filterContainer: {
+    paddingVertical: 16,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
+  filterScrollContent: {
+    paddingHorizontal: 20,
+  },
+  filterButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+    backgroundColor: '#F3F4F6',
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  filterButtonActive: {
+    backgroundColor: colors.filterActive,
+    borderColor: colors.filterBorder,
+  },
+  filterText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  filterTextActive: {
+    color: colors.primary,
+    fontWeight: '700',
+  },
+  
   contentWrapper: {
     flex: 1,
     backgroundColor: colors.background,
@@ -380,8 +453,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   categoryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'col',
+    alignItems: 'flex-start',
     marginBottom: 10,
   },
   categoryText: {
