@@ -19,7 +19,7 @@ const colors = {
   homeServiceText: '#1E40AF',
 };
 
-const SalonHomeServiceCard = ({ imageUrl, category, name, address, rating, reviews, discount }) => {
+const SalonHomeServiceCard = ({ imageUrl, category, name, address, rating, reviews, discount, icon, salonBadge }) => {
   const navigation = useNavigation();
   const [imgSource, setImgSource] = useState(
     typeof imageUrl === 'string' ? { uri: imageUrl } : imageUrl
@@ -33,8 +33,8 @@ const SalonHomeServiceCard = ({ imageUrl, category, name, address, rating, revie
     >
       {/* --- HOME SERVICE BADGE AT TOP RIGHT OF CARD --- */}
       <View style={styles.homeServiceBadge}>
-        <Ionicons name="home" size={12} color={colors.homeServiceText} />
-        <Text style={styles.homeServiceText}>Home Service</Text>
+        <Ionicons name={icon} size={12} color={colors.homeServiceText} />
+        <Text style={styles.homeServiceText}>{salonBadge}</Text>
       </View>
 
       {/* --- IMAGE CONTAINER for positioning badges --- */}

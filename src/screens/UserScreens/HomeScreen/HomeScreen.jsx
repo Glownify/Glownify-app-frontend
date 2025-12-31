@@ -390,6 +390,22 @@ export default function HomeScreen({ navigation }) {
               rating="4.8"
               reviews="3.7k"
               discount="15% Off"
+              icon="home"
+              salonBadge="Home Services"
+            />
+          </View>
+          <SectionHeader title="Unisex Salons" />
+          <View style={{ paddingHorizontal: 16 }}>
+            <NearbyOfferCard
+              imageUrl={require('../../../assets/featuredSalon.png')}
+              category="Hair • Facial • Wax"
+              name="Next Style Salon"
+              address="Sector 24, Ulhas Nagar"
+              rating="4.3"
+              reviews="4.2k"
+              // discount="15% Off"
+              icon="male-female"
+              salonBadge="Unisex"
             />
           </View>
         </ScrollView>
