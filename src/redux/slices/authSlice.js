@@ -64,6 +64,29 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+
+// authThunks.js or inside same file
+
+export const logoutUser = createAsyncThunk(
+  'auth/logoutUser',
+  async (_, { getState }) => {
+    const { user } = getState().auth;
+
+    if (user?._id) {
+      await AsyncStorage.removeItem(`@user_cart_${user._id}`);
+    }
+
+    // also clear guest cart just in case
+    await AsyncStorage.removeItem('@user_cart_guest');
+
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('user');
+
+    return true;
+  }
+);
+
+
 // ✅ Auto-login when app restarts
 export const loadUserFromStorage = createAsyncThunk(
   "auth/loadUserFromStorage",
@@ -194,8 +217,6 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
-      AsyncStorage.removeItem('token');
-      AsyncStorage.removeItem('user');
     },
     clearAuthState: (state) => {
       state.loading = false;
@@ -236,6 +257,11 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      .addCase(logoutUser.fulfilled, (state) => {
+  state.user = null;
+  state.token = null;
+})
 
        // load from storage
       .addCase(loadUserFromStorage.pending, (state) => {

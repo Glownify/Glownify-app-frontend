@@ -26,6 +26,9 @@ import ServicesMenuScreen from '../screens/UserScreens/ServiceAtHomeScreen/Servi
 import ProfessionalsListScreen from '../screens/UserScreens/ServiceAtHomeScreen/ProfessionalsListScreen'
 import ProfessionalDetailScreen from '../screens/UserScreens/ServiceAtHomeScreen/ProfessionalDetailScreen'
 
+import SelectDateAndTime from '../screens/UserScreens/Bookings/SelectDateAndTime';
+import CartScreen from '../screens/UserScreens/CartScreen';
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const TopTab = createMaterialTopTabNavigator();
@@ -89,6 +92,15 @@ const TabIcon = ({ focused, icon, size = 26, showBadge = false }) => {
     </View>
   );
 };
+
+function CartStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CartScreen" component={CartScreen} />
+      <Stack.Screen name="SelectDateAndTime" component={SelectDateAndTime} />
+    </Stack.Navigator>
+  );
+}
 
 // --- Your Navigators ---
 function HomeStack() {
@@ -179,7 +191,7 @@ export default function AppNavigator() {
         {/* --- Screen 2: Offers --- */}
         <Tab.Screen
           name="OfferTab"
-          component={OfferScreen}
+          component={CartStack}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon focused={focused} icon={tabIcons.offer} showBadge={true} />
