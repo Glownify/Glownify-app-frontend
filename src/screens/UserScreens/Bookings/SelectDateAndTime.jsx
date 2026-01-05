@@ -23,7 +23,7 @@ const TIME_SLOTS = [
 export default function SelectDateAndTime({ route }) {
   const navigation = useNavigation();
   const { providerId } = route.params;
-  const [selectedDate, setSelectedDate] = useState('2025-01-01');
+  const [selectedDate, setSelectedDate] = useState('2026-01-01');
   const [selectedTime, setSelectedTime] = useState(null);
 
   console.log("Selected Provider ID:", providerId);

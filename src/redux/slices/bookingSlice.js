@@ -13,7 +13,7 @@ export const createBooking = createAsyncThunk(
       dispatch(showSnackbar({ message: response?.data?.message, type: "success" }));
       return response.data;
     } catch (error) {
-      console.error("Booking Error:", error.response ? error.response.data : error.message);
+      dispatch(showSnackbar({ message: error.response?.data?.message || "Booking failed", type: "error" }));
       return rejectWithValue(error.response.data);
     }
     }

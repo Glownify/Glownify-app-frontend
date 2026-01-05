@@ -20,11 +20,13 @@ import {
   fetchHomeSalonsBySalonCategory,
   fetchHomeIndependentprosByCategory,
   getAllCategories,
+  fetchUnisexSalons,
 } from '../../../redux/slices/userSlice';
 import HomeHeader from '../../../components/HomeHeader';
 import SectionHeader from '../../../components/SectionHeader';
 import SalonCard from './SalonCard';
 import NearbyOfferCard from './NearbyOfferCard';
+import UnisexCard from './UnisexCard';
 import ServiceAtHomeCard from './ServiceAtHomeCard';
 import PromoBanner, { PROMO_BANNER_DURATION } from './PromoBanner';
 import PromoBanner2, { PROMO_BANNER_2_DURATION } from './PromoBanner2';
@@ -50,6 +52,7 @@ export default function HomeScreen({ navigation }) {
     loading,
     homeSalonsBySalonCategory,
     homeIndependentProsByCategory,
+    unisexSalons,
     categories,
   } = useSelector(state => state.user);
 
@@ -107,6 +110,7 @@ export default function HomeScreen({ navigation }) {
         lat,
         lng,
       }));
+      dispatch(fetchUnisexSalons({ lat, lng }));
     }
   }, [selectedCategory, dispatch, location]);
 
@@ -189,6 +193,7 @@ export default function HomeScreen({ navigation }) {
       lat,
       lng,
     }));
+    dispatch(fetchUnisexSalons({ lat, lng }));
     setRefreshing(false);
   };
 
@@ -399,20 +404,29 @@ export default function HomeScreen({ navigation }) {
               salonBadge="Home Services"
             />
           </View>
+          
           <SectionHeader title="Unisex Salons" />
           <View style={{ paddingHorizontal: 16 }}>
-            <NearbyOfferCard
-              imageUrl={require('../../../assets/featuredSalon.png')}
-              category="Hair • Facial • Wax"
-              name="Next Style Salon"
-              address="Sector 24, Ulhas Nagar"
-              rating="4.3"
-              reviews="4.2k"
-              // discount="15% Off"
-              icon="male-female"
-              salonBadge="Unisex"
-            />
-          </View>
+  {unisexSalons.length === 0 ? (
+    <Text style={{ color: '#6B7280', textAlign: 'center' }}>
+      No unisex salons found nearby
+    </Text>
+  ) : (
+    unisexSalons.map(unisexSalon => (
+      <UnisexCard
+        key={unisexSalon._id}
+        unisexSalon={unisexSalon}
+        icon="male-female"
+        salonBadge="Unisex"
+        onPress={() =>
+          navigation.navigate('SalonDetailScreen', {
+            salonId: unisexSalon._id,
+          })
+        }
+      />
+    ))
+  )}
+</View>
         </ScrollView>
       </View>
     </SafeAreaView>

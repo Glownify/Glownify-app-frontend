@@ -56,9 +56,9 @@ const tabIcons = {
     active: require('../assets/tab-icons/offer_fill.png'),
     inactive: require('../assets/tab-icons/offer.png'),
   },
-  ai: {
-    active: require('../assets/tab-icons/GlownifyLogoPng.png'),
-    inactive: require('../assets/tab-icons/GlownifyLogoPng.png'),
+  cart: {
+    active: require('../assets/tab-icons/cart_fill.png'),
+    inactive: require('../assets/tab-icons/cart.png'),
   },
   bookings: {
     active: require('../assets/tab-icons/booking_fill.png'),
@@ -199,17 +199,17 @@ export default function AppNavigator() {
           }}
         />
 
-        {/* --- Screen 3: AI FAB --- */}
+        {/* --- Screen 3: Cart FAB --- */}
         <Tab.Screen
-          name="AIBasedHairs"
+          name="CartTab"
           component={CartStack}
           options={{
             tabBarLabel: () => null,
             tabBarIcon: ({ focused }) => (
-              <Image
-                source={tabIcons.ai.active}
-                style={styles.fabIcon}
-                resizeMode="contain"
+              <TabIcon
+                focused={focused}
+                icon={tabIcons.cart}
+                size={focused ? 34 : 26}  // Increased size when active
               />
             ),
             tabBarButton: (props) => (

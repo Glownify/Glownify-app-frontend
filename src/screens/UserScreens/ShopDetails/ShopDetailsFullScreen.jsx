@@ -105,7 +105,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: '#156678' }]} edges={['top']}>
       <View style={styles.container}>
         {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
             <Icon name="arrow-back" size={24} color="#156778" />
           </TouchableOpacity>
@@ -241,9 +241,9 @@ export default function ShopDetailsScreen({ navigation, route }) {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Our Services</Text>
-              <TouchableOpacity>
+              {/* <TouchableOpacity>
                 <Text style={styles.viewAllText}>View all</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             {/* Service Filter Tabs */}
@@ -281,18 +281,18 @@ export default function ShopDetailsScreen({ navigation, route }) {
               }} service={service} />
             ))}
 
-            <TouchableOpacity style={styles.viewAllServicesButton}>
+            {/* <TouchableOpacity style={styles.viewAllServicesButton}>
               <Text style={styles.viewAllServicesText}>View All Services</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           {/* Gallery */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Gallery</Text>
-              <TouchableOpacity>
+              {/* <TouchableOpacity>
                 <Text style={styles.viewAllText}>View all</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -306,9 +306,9 @@ export default function ShopDetailsScreen({ navigation, route }) {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Our Specialist</Text>
-              <TouchableOpacity>
+              {/* <TouchableOpacity>
                 <Text style={styles.viewAllText}>View all</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -338,7 +338,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
         </ScrollView>
 
         {/* Fixed Bottom Bar */}
-        <View style={styles.bottomBar}>
+        {/* <View style={styles.bottomBar}>
           <View style={styles.priceContainer}>
             <Icon name="checkmark-circle" size={24} color="#156778" />
             <View style={styles.priceInfo}>
@@ -349,13 +349,13 @@ export default function ShopDetailsScreen({ navigation, route }) {
 
           <TouchableOpacity
             style={styles.bookButton}
-            onPress={() => navigation.navigate('OfferTab', {
+            onPress={() => navigation.navigate('HomeTab', {
   screen: 'CartScreen',
 })}
           >
             <Text style={styles.bookButtonText}>Book Now</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );

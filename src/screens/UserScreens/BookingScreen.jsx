@@ -7,274 +7,182 @@ import {
   TouchableOpacity,
   Alert,
   StatusBar,
+  ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useSelector,useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserBookings } from '../../redux/slices/bookingSlice';
-
-// Mock Bookings Data
-const MOCK_BOOKINGS = [
-  {
-    id: 1,
-    salonName: 'Modern Cuts',
-    services: 'Haircut + Beard Trim',
-    date: 'Sunday, October 12, 2025',
-    time: '2:00 PM',
-    location: '123 Main Street',
-    price: 350,
-    status: 'confirmed',
-    type: 'upcoming',
-  },
-  {
-    id: 2,
-    salonName: 'Modern Cuts',
-    services: 'Haircut + Beard Trim',
-    date: 'Sunday, October 12, 2025',
-    time: '2:00 PM',
-    location: '123 Main Street',
-    price: 350,
-    status: 'pending',
-    type: 'upcoming',
-  },
-  {
-    id: 3,
-    salonName: 'Vaishali Salon & Spa',
-    services: 'Hair Spa',
-    date: 'Saturday, October 5, 2025',
-    time: '11:00 AM',
-    location: '456 Park Road',
-    price: 500,
-    status: 'completed',
-    type: 'past',
-  },
-  {
-    id: 4,
-    salonName: 'Premium Beauty',
-    services: 'Coloring',
-    date: 'Friday, October 3, 2025',
-    time: '3:00 PM',
-    location: '789 Oak Avenue',
-    price: 800,
-    status: 'completed',
-    type: 'past',
-  },
-];
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function UserBookingsScreen({ navigation }) {
   const dispatch = useDispatch();
-  const {bookings} = useSelector(state => state.booking); 
+  const { bookings, loading, error } = useSelector(state => state.booking);
   const [activeTab, setActiveTab] = useState('upcoming');
 
-  useEffect(()=>{
-    dispatch(fetchUserBookings());
-  }, [dispatch]);
+ useFocusEffect(
+    React.useCallback(() => {
+      dispatch(fetchUserBookings());
+    }, [dispatch])
+  );
 
   console.log("User Bookings:", bookings);
 
-  const filteredBookings = MOCK_BOOKINGS.filter(
-    (booking) => booking.type === activeTab
+  // Helper to determine if a booking is "past" or "upcoming" based on date
+  const getFilteredData = () => {
+    if (!bookings || bookings.length === 0) return [];
+
+    const now = new Date();
+    return bookings.filter(item => {
+      const bDate = new Date(item?.bookingDate);
+      const type = bDate >= now ? 'upcoming' : 'past';
+      return type === activeTab;
+    });
+  };
+
+  const handleViewDetails = (booking) => {
+  // Extract service names for the alert
+  const serviceNames = booking.serviceItems?.map(s => s.service?.name).join(', ') || "Services";
+
+  Alert.alert(
+    'Booking Details',
+    `ID: ${booking._id}\n` +
+    `Status: ${booking.status.toUpperCase()}\n` +
+    `Services: ${serviceNames}\n` +
+    `Total: ₹${booking.totalAmount}`
   );
+};
+
+  const filteredBookings = getFilteredData();
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmed':
-        return '#4CAF50';
-      case 'pending':
-        return '#FFC107';
-      case 'completed':
-        return '#2196F3';
-      case 'cancelled':
-        return '#f44336';
-      default:
-        return '#999';
+    switch (status?.toLowerCase()) {
+      case 'confirmed': return '#4CAF50';
+      case 'pending': return '#FFC107';
+      case 'completed': return '#2196F3';
+      case 'cancelled': return '#f44336';
+      default: return '#999';
     }
   };
 
   const getStatusBgColor = (status) => {
-    switch (status) {
-      case 'confirmed':
-        return '#E8F5E9';
-      case 'pending':
-        return '#FFF9C4';
-      case 'completed':
-        return '#E3F2FD';
-      case 'cancelled':
-        return '#FFEBEE';
-      default:
-        return '#f5f5f5';
+    switch (status?.toLowerCase()) {
+      case 'confirmed': return '#E8F5E9';
+      case 'pending': return '#FFF9C4';
+      case 'completed': return '#E3F2FD';
+      case 'cancelled': return '#FFEBEE';
+      default: return '#f5f5f5';
     }
   };
 
-  const handleCall = (booking) => {
-    Alert.alert('Call', `Calling salon for booking ${booking.id}`);
-  };
+  const renderBookingCard = (booking) => {
+    // Dynamic Data Extraction with Fallbacks
+    const salonName = booking.shopName || "Modern Cuts"; // Use provider name if available
+    const services = booking.serviceItems?.map(s => s.service?.name).join(', ') || "No services listed";
+    const displayPrice = booking.totalAmount || 0;
+    const displayDate = booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString('en-GB', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    }) : "Date TBD";
+    const displayTime = booking.timeSlot?.start || "TBD";
+    const status = booking.status || 'pending';
 
-  const handleCancel = (booking) => {
-    Alert.alert(
-      'Cancel Booking',
-      'Are you sure you want to cancel this booking?',
-      [
-        { text: 'No', style: 'cancel' },
-        {
-          text: 'Yes, Cancel',
-          style: 'destructive',
-          onPress: () => Alert.alert('Cancelled', 'Booking has been cancelled'),
-        },
-      ]
+    return (
+      <View key={booking._id} style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View style={styles.salonHeader}>
+            <Text style={styles.salonName}>{salonName}</Text>
+            <Text style={styles.services} numberOfLines={1}>{services}</Text>
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(status) }]}>
+            <Text style={[styles.statusText, { color: getStatusColor(status) }]}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.details}>
+          <View style={styles.detailItem}>
+            <Icon name="calendar" size={16} color="#666" />
+            <Text style={styles.detailText}>{displayDate}</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Icon name="time" size={16} color="#666" />
+            <Text style={styles.detailText}>{displayTime}</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Icon name="location" size={16} color="#666" />
+            <Text style={styles.detailText}>{booking.bookingType === 'in_salon' ? 'At Salon' : 'Home Service'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.footer}>
+          <View style={styles.priceContainer}>
+            <Text style={styles.currencySymbol}>₹</Text>
+            <Text style={styles.price}>{displayPrice}</Text>
+          </View>
+
+          <View style={styles.actionButtons}>
+            <TouchableOpacity style={styles.callButton} onPress={() => Alert.alert('Call', 'Contacting provider...')}>
+              <Icon name="call" size={16} color="#156778" />
+              <Text style={styles.callButtonText}>Call</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+  style={styles.viewDetailsButton}
+  onPress={() => handleViewDetails(booking)} // <--- Make sure this is here
+>
+  <Text style={styles.viewDetailsButtonText}>View Details</Text>
+</TouchableOpacity>
+          </View>
+        </View>
+      </View>
     );
   };
-
-  const handleViewDetails = (booking) => {
-    Alert.alert(
-      'View Details',
-      `Booking Details:\n${booking.salonName}\n${booking.services}\n${booking.date} at ${booking.time}`
-    );
-  };
-
-  const renderBookingCard = (booking) => (
-    <View key={booking.id} style={styles.card}>
-      {/* Header with Salon Name and Status */}
-      <View style={styles.cardHeader}>
-        <View style={styles.salonHeader}>
-          <Text style={styles.salonName}>{booking.salonName}</Text>
-          <Text style={styles.services}>{booking.services}</Text>
-        </View>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: getStatusBgColor(booking.status) },
-          ]}
-        >
-          <Text
-            style={[
-              styles.statusText,
-              { color: getStatusColor(booking.status) },
-            ]}
-          >
-            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-          </Text>
-        </View>
-      </View>
-
-      {/* Booking Details */}
-      <View style={styles.details}>
-        <View style={styles.detailItem}>
-          <Icon name="calendar" size={16} color="#666" />
-          <Text style={styles.detailText}>{booking.date}</Text>
-        </View>
-
-        <View style={styles.detailItem}>
-          <Icon name="time" size={16} color="#666" />
-          <Text style={styles.detailText}>{booking.time}</Text>
-        </View>
-
-        <View style={styles.detailItem}>
-          <Icon name="location" size={16} color="#666" />
-          <Text style={styles.detailText}>{booking.location}</Text>
-        </View>
-      </View>
-
-      {/* Price and Action Buttons */}
-      <View style={styles.footer}>
-        <View style={styles.priceContainer}>
-          <Text style={styles.currencySymbol}>₹</Text>
-          <Text style={styles.price}>{booking.price}</Text>
-        </View>
-
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={styles.callButton}
-            onPress={() => handleCall(booking)}
-          >
-            <Icon name="call" size={16} color="#156778" />
-            <Text style={styles.callButtonText}>Call</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => handleCancel(booking)}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.viewDetailsButton}
-            onPress={() => handleViewDetails(booking)}
-          >
-            <Text style={styles.viewDetailsButtonText}>View Details</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
-          <StatusBar barStyle="light-content" backgroundColor="#156778" />
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation?.goBack()}>
-          <Icon name="chevron-back" size={24} color="#ffffffff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Bookings</Text>
-        <View style={styles.headerPlaceholder} />
-      </View>
+      <StatusBar barStyle="light-content" backgroundColor="#156778" />
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation?.goBack()}>
+            <Icon name="chevron-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>My Bookings</Text>
+          <View style={styles.headerPlaceholder} />
+        </View>
 
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab === 'upcoming' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('upcoming')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'upcoming' && styles.activeTabText,
-            ]}
-          >
-            Upcoming
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.tabsContainer}>
+          {['upcoming', 'past'].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[styles.tab, activeTab === tab && styles.activeTab]}
+              onPress={() => setActiveTab(tab)}
+            >
+              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab === 'past' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('past')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'past' && styles.activeTabText,
-            ]}
-          >
-            Past
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Bookings List */}
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {filteredBookings.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Icon name="calendar-outline" size={50} color="#ccc" />
-            <Text style={styles.emptyText}>No {activeTab} bookings</Text>
-          </View>
+        {loading ? (
+          <ActivityIndicator size="large" color="#156778" style={{ marginTop: 50 }} />
         ) : (
-          filteredBookings.map(renderBookingCard)
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            {filteredBookings.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Icon name="calendar-outline" size={50} color="#ccc" />
+                <Text style={styles.emptyText}>No {activeTab} bookings</Text>
+              </View>
+            ) : (
+              filteredBookings.map(renderBookingCard)
+            )}
+          </ScrollView>
         )}
-      </ScrollView>
-    </View>
+      </View>
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

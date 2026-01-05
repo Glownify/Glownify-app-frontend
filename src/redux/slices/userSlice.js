@@ -19,7 +19,7 @@ export const fetchHomeIndependentprosByCategory = createAsyncThunk(
   "user/fetchHomeIndependentprosByCategory",
   async ({ category, lat, lng }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/user/get-home-independentpros?category=${category}}&lat=${lat}&lng=${lng}`);
+      const response = await axiosInstance.get(`/user/get-home-independentpros?category=${category}&lat=${lat}&lng=${lng}`);
       return response.data || [];
     } catch (error) {
       return rejectWithValue(error.response.data.message || "Failed to fetch home independent professionals");
@@ -76,12 +76,28 @@ export const fetchServiceItemsByCategory = createAsyncThunk(
   }
 );
 
+export const fetchUnisexSalons = createAsyncThunk(
+  "user/fetchUnisexSalons",
+  async ({ lat, lng }, { rejectWithValue }) => {
+    try {
+      console.log("Fetching unisex salons for location:", lat, lng);
+      const response = await axiosInstance.get(`/user/get-unisex-salons?lat=${lat}&lng=${lng}`);
+      console.log("Fetched unisex salons:", response.data.salons);
+      return response.data.salons || [];
+    } catch (error) {
+      console.log("Error fetching unisex salons:", error.response.data.message || error.message);
+      return rejectWithValue(error.response.data.message || "Failed to fetch unisex salons");
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
     homeSalonsBySalonCategory: [],
     homeIndependentProsByCategory: [],
     allSalons: [],
+    unisexSalons: [],
     categories: [],
     serviceItemsByCategory: [],
     salonDetails: null,
@@ -160,6 +176,18 @@ const userSlice = createSlice({
         state.serviceItemsByCategory = action.payload;
       })
       .addCase(fetchServiceItemsByCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchUnisexSalons.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUnisexSalons.fulfilled, (state, action) => {
+        state.loading = false;
+        state.unisexSalons = action.payload;
+      })
+      .addCase(fetchUnisexSalons.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

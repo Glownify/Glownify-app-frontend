@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, StatusBar, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Platform, Alert } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getCart, updateCartItem } from '../../utils/cartStorage';
+import { getCart, updateCartItem, removeFromCart } from '../../utils/cartStorage'; // Added removeFromCart
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { createBooking } from '../../redux/slices/bookingSlice';
+import { clearCart } from '../../utils/cartStorage'; // Import clearCart utility
 
-// Added navigation prop to sub-component
-const CartItem = ({ providerId, providerName, services, navigation, selectedDate, selectedTime }) => (
+// Component for individual Cart Items
+const CartItem = ({ providerId, providerName, services, navigation, selectedDate, selectedTime, onRemove }) => (
   <View style={styles.card}>
     <View style={styles.cardHeader}>
       <Text style={styles.salonName}>{providerName}</Text>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => onRemove(providerId)}>
         <Text style={styles.removeText}>Remove</Text>
       </TouchableOpacity>
     </View>
@@ -24,7 +25,6 @@ const CartItem = ({ providerId, providerName, services, navigation, selectedDate
       </View>
     ))}
 
-    {/* 3. Conditional UI: Show Selection OR the Button */}
     {selectedDate ? (
       <TouchableOpacity
         onPress={() => navigation.navigate('SelectDateAndTime', { providerId })}
@@ -45,7 +45,7 @@ const CartItem = ({ providerId, providerName, services, navigation, selectedDate
         style={styles.dateButton}
         onPress={() => navigation.navigate('SelectDateAndTime', { providerId })}
       >
-        <MaterialCommunityIcons name="calendar-month-outline" size={18} color="#8                                                                                                                                                                                                                                                                                                                                                                 A56AC" />
+        <MaterialCommunityIcons name="calendar-month-outline" size={18} color="#8A56AC" />
         <Text style={styles.dateButtonText}>Select Date & Time</Text>
       </TouchableOpacity>
     )}
@@ -56,25 +56,33 @@ export default function CartScreen({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
-  const [isEnabled, setIsEnabled] = useState(true);
   const [cart, setCart] = useState([]);
+  const {loading, error} = useSelector(state => state.booking);
 
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const userId = user?._id || 'guest';
 
-  // 1. Listen for data coming back from SelectDateAndTime
+  // Load cart on mount
+ useFocusEffect(
+    useCallback(() => {
+    loadCartData();
+  }, [user])
+);
+
+  const loadCartData = async () => {
+    const data = await getCart(userId);
+    setCart(data || []);
+  };
+
+  // Listen for navigation params (returned from Date/Time selection)
   useEffect(() => {
     if (route.params?.providerId && route.params?.selectedDate) {
       const { providerId, selectedDate, selectedTime } = route.params;
-      const userId = user?._id || 'guest';
-
+      
       const updateCart = async () => {
-        // 1. Update AsyncStorage
         const updatedCart = await updateCartItem(userId, providerId, {
           selectedDate,
           selectedTime
         });
-
-        // 2. Update Local State so UI refreshes
         setCart(updatedCart);
       };
 
@@ -82,34 +90,37 @@ export default function CartScreen({ route }) {
     }
   }, [route.params]);
 
-  useEffect(() => {
-    const userId = user?._id || 'guest';
-    const loadCart = async () => {
-      const data = await getCart(userId);
-      setCart(data || []);
-    };
-    loadCart();
-  }, [user]);
-  console.log("Cart Data:", cart);
-
-  // 4. Booking Payload
-  const payload = {
-    bookings: cart.map(item => ({
-      providerId: item.providerId,
-      services: item.services.map(s => s._id),
-      bookingDate: item.selectedDate, // "2025-01-01"
-      timeSlot: { start: item.selectedTime, end: item.selectedTime }, // "1:00 PM"
-      bookingType: "in_salon", // or "home_service"
-      serviceLocation: item.serviceLocation || null,
-    })),
+  // Remove item handler
+  const handleRemoveItem = async (providerId) => {
+    const updatedCart = await removeFromCart(userId, providerId);
+    setCart(updatedCart || []);
   };
 
   const handleCreateBooking = () => {
-    dispatch(createBooking(payload));
-  }
+    const payload = {
+      bookings: cart.map(item => ({
+        providerId: item.providerId,
+        services: item.services.map(s => s._id),
+        bookingDate: item.selectedDate,
+        timeSlot: { start: item.selectedTime, end: item.selectedTime },
+        bookingType: "in_salon",
+        serviceLocation: item.serviceLocation || null,
+      })),
+    };
+    dispatch(createBooking(payload))
+  .unwrap()
+  .then(async () => {
+    await clearCart(userId);   // ✅ storage
+    setCart([]);               // ✅ UI
+    navigation.navigate("HomeTab", { screen: "Bookings" }); // optional
+  });
+  };
+
+  // Logic for UI states
+  const isCartEmpty = cart.length === 0;
+    const canBook = !isCartEmpty && cart.every(item => item.selectedDate);
 
   return (
-    // Parent View background matches StatusBar/Header color
     <View style={{ flex: 1, backgroundColor: '#156778' }}>
       <StatusBar barStyle="light-content" backgroundColor="#156778" />
 
@@ -123,35 +134,55 @@ export default function CartScreen({ route }) {
           <View style={{ width: 30 }} />
         </View>
 
-        {/* Gray Background for content area */}
+        {/* Content Area */}
         <View style={styles.contentArea}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            {/* List of Salons */}
-            {cart.map((item, index) => (
-              <CartItem
-                key={index}
-                providerId={item.providerId}
-                providerName={item.providerName}
-                services={item.services}
-                selectedDate={item.selectedDate}
-                selectedTime={item.selectedTime}
-                navigation={navigation}
-              />
-            ))}
-          </ScrollView>
+          {isCartEmpty ? (
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons name="cart-off" size={80} color="#DDD" />
+              <Text style={styles.emptyTitle}>Your cart is empty</Text>
+              <Text style={styles.emptySub}>Looks like you haven't added any services yet.</Text>
+              <TouchableOpacity 
+                style={styles.browseButton} 
+                onPress={() => navigation.navigate('HomeTab', { screen: 'HomeMain' })}
+              >
+                <Text style={styles.browseButtonText}>Browse Salons</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+              {cart.map((item, index) => (
+                <CartItem
+                  key={index}
+                  providerId={item.providerId}
+                  providerName={item.providerName}
+                  services={item.services}
+                  selectedDate={item.selectedDate}
+                  selectedTime={item.selectedTime}
+                  navigation={navigation}
+                  onRemove={handleRemoveItem}
+                />
+              ))}
+            </ScrollView>
+          )}
 
-          {/* Footer Buttons */}
+          {/* Footer */}
           <View style={styles.footer}>
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
               <Text style={styles.backButtonText}>Back</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.payButton, { opacity: cart.every(i => i.selectedDate) ? 1 : 0.6 }]}
-              disabled={!cart.every(i => i.selectedDate)}
-              onPress={handleCreateBooking}
-            >
-              <Text style={styles.payButtonText}>Book</Text>
+            {loading ? (
+              <TouchableOpacity style={[styles.payButton, { opacity: 0.7 }]} disabled={true}>
+                <ActivityIndicator size="small" color="#FFF" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.payButton, canBook ? {} : { backgroundColor: '#CCC' }]}
+                onPress={handleCreateBooking}
+                disabled={!canBook || loading}
+              >
+              <Text style={styles.payButtonText}>Book Now</Text>
             </TouchableOpacity>
+            )}
           </View>
         </View>
       </SafeAreaView>
@@ -161,7 +192,7 @@ export default function CartScreen({ route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  contentArea: { flex: 1, backgroundColor: '#F8F8F8' }, // This ensures the body is gray but header remains teal
+  contentArea: { flex: 1, backgroundColor: '#F8F8F8' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -172,23 +203,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#fff' },
   scrollContent: { padding: 15 },
-  toggleCard: {
-    backgroundColor: '#F9EFFF',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
-  },
-  toggleTitle: { fontWeight: 'bold', fontSize: 16, color: '#444' },
-  toggleSub: { color: '#888', fontSize: 12 },
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 15,
     marginBottom: 15,
-    // Add light shadow for depth
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -197,7 +216,7 @@ const styles = StyleSheet.create({
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
   salonName: { fontWeight: 'bold', fontSize: 15, color: '#333' },
-  removeText: { color: '#FF5A5A', fontSize: 12 },
+  removeText: { color: '#FF5A5A', fontSize: 12, fontWeight: 'bold' },
   serviceRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 4 },
   serviceName: { color: '#666', fontSize: 14 },
   servicePrice: { fontWeight: '600', color: '#8A56AC' },
@@ -212,10 +231,23 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   dateButtonText: { color: '#8A56AC', marginLeft: 8, fontWeight: '500' },
+  
+  // Empty State Styles
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyTitle: { fontSize: 20, fontWeight: 'bold', color: '#333', marginTop: 20 },
+  emptySub: { fontSize: 14, color: '#888', textAlign: 'center', marginTop: 10, marginBottom: 30 },
+  browseButton: { backgroundColor: '#156778', paddingHorizontal: 30, paddingVertical: 12, borderRadius: 25 },
+  browseButtonText: { color: '#fff', fontWeight: 'bold' },
+
   footer: {
     flexDirection: 'row',
     padding: 15,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 15, // Extra padding for iOS bottom bar
+    paddingBottom: Platform.OS === 'ios' ? 30 : 15,
     backgroundColor: '#fff',
     justifyContent: 'space-between',
     borderTopWidth: 1,
