@@ -53,7 +53,7 @@ export default function AllSalonListScreen({ navigation, route }) {
   }, [category, lat, lng, dispatch]);
 
   const filteredSalons = allSalons.filter(salon =>
-    salon.shopName.toLowerCase().includes(searchQuery.toLowerCase())
+    salon.shopName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // --- Salon Card Component ---
@@ -71,7 +71,7 @@ export default function AllSalonListScreen({ navigation, route }) {
           source={require('../../assets/salonInterior.jpg')}
           style={styles.image}
         />
-        
+
         {/* Gradient Overlay */}
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.7)']}
@@ -105,20 +105,35 @@ export default function AllSalonListScreen({ navigation, route }) {
         </Text>
 
         <View style={styles.categoryRow}>
-          <View style={{height:20, flexDirection:'row'}}>
-            <Icon name="cut-outline" style={{marginTop: 2}} size={11} color={colors.primary} />
+          <View style={{ height: 20, flexDirection: 'row' }}>
+            <Icon
+              name="cut-outline"
+              style={{ marginTop: 2 }}
+              size={11}
+              color={colors.primary}
+            />
             <Text style={styles.categoryText} numberOfLines={1}>
               Haircut - 299
             </Text>
           </View>
-          <View style={{height:20, flexDirection:'row'}}>
-            <Icon name="cut-outline" style={{marginTop: 2}} size={11} color={colors.primary} />
+          <View style={{ height: 20, flexDirection: 'row' }}>
+            <Icon
+              name="cut-outline"
+              style={{ marginTop: 2 }}
+              size={11}
+              color={colors.primary}
+            />
             <Text style={styles.categoryText} numberOfLines={1}>
               Wax - 459
             </Text>
           </View>
-          <View style={{height:20, flexDirection:'row'}}>
-            <Icon name="cut-outline" style={{marginTop: 2}} size={11} color={colors.primary} />
+          <View style={{ height: 20, flexDirection: 'row' }}>
+            <Icon
+              name="cut-outline"
+              style={{ marginTop: 2 }}
+              size={11}
+              color={colors.primary}
+            />
             <Text style={styles.categoryText} numberOfLines={1}>
               Facial - 99
             </Text>
@@ -188,34 +203,34 @@ export default function AllSalonListScreen({ navigation, route }) {
           </View>
 
           {/* --- Filter ScrollView --- */}
-                    <View style={styles.filterContainer}>
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.filterScrollContent}
-                      >
-                        {filters.map(filter => (
-                          <TouchableOpacity
-                            key={filter}
-                            style={[
-                              styles.filterButton,
-                              activeFilter === filter && styles.filterButtonActive,
-                            ]}
-                            onPress={() => setActiveFilter(filter)}
-                            activeOpacity={0.7}
-                          >
-                            <Text
-                              style={[
-                                styles.filterText,
-                                activeFilter === filter && styles.filterTextActive,
-                              ]}
-                            >
-                              {filter}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </ScrollView>
-                    </View>
+          <View style={styles.filterContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filterScrollContent}
+            >
+              {filters.map(filter => (
+                <TouchableOpacity
+                  key={filter}
+                  style={[
+                    styles.filterButton,
+                    activeFilter === filter && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setActiveFilter(filter)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.filterText,
+                      activeFilter === filter && styles.filterTextActive,
+                    ]}
+                  >
+                    {filter}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
           {/* --- Salon Grid --- */}
           {loading ? (
@@ -238,7 +253,11 @@ export default function AllSalonListScreen({ navigation, route }) {
             </View>
           ) : filteredSalons.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Icon name="storefront-outline" size={64} color={colors.textSecondary} />
+              <Icon
+                name="storefront-outline"
+                size={64}
+                color={colors.textSecondary}
+              />
               <Text style={styles.emptyText}>No salons found</Text>
               <Text style={styles.emptySubtext}>
                 Try adjusting your search or filters
@@ -331,7 +350,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '700',
   },
-  
+
   contentWrapper: {
     flex: 1,
     backgroundColor: colors.background,

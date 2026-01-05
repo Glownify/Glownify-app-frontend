@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, ScrollView, Animated } from "react-native";
 
 // Animation duration constant - must match HomeScreen's BANNER_DISPLAY_DURATION
-export const PROMO_BANNER_DURATION = 1200; 
+export const PROMO_BANNER_DURATION = 6000; 
 
 // --- Color Palette ---
 const Colors = {
@@ -182,13 +182,13 @@ const PhoneMockup = () => {
         toValue: 0,
         tension: 20,
         friction: 7,
-        delay: 300,
+        // delay: 300,
         useNativeDriver: true,
       }),
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 800,
-        delay: 300,
+        // duration: 800,
+        // delay: 300,
         useNativeDriver: true,
       }),
     ]).start();

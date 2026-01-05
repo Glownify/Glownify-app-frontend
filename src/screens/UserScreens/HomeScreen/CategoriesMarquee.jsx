@@ -20,7 +20,7 @@ const colors = {
 
 const ITEM_WIDTH = 94; // width + marginRight
 
-export default function CategoriesMarquee({ categories }) {
+export default function CategoriesMarquee({ categories, navigation, location, selectedCategory }) {
   const scrollX = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef(null);
   const animationRef = useRef(null);
@@ -132,7 +132,13 @@ export default function CategoriesMarquee({ categories }) {
             style={styles.categoryItem}
             activeOpacity={0.7}
             onPress={() => {
-              console.log("Pressed")
+              const lat = location?.latitude;
+              const lng = location?.longitude;
+              navigation.navigate('AllSalonListScreen', {
+                category: selectedCategory,
+                lat,
+                lng,
+              });
             }}
           >
             <View style={styles.categoryIcon}>

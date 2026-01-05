@@ -191,7 +191,7 @@ export default function AppNavigator() {
         {/* --- Screen 2: Offers --- */}
         <Tab.Screen
           name="OfferTab"
-          component={CartStack}
+          component={OfferScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon focused={focused} icon={tabIcons.offer} showBadge={true} />
@@ -202,7 +202,7 @@ export default function AppNavigator() {
         {/* --- Screen 3: AI FAB --- */}
         <Tab.Screen
           name="AIBasedHairs"
-          component={AIBasedHairs}
+          component={CartStack}
           options={{
             tabBarLabel: () => null,
             tabBarIcon: ({ focused }) => (

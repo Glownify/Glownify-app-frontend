@@ -10,7 +10,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Animation duration constant - must match HomeScreen's BANNER_DISPLAY_DURATION
-export const PROMO_BANNER_2_DURATION = 12000; 
+export const PROMO_BANNER_2_DURATION = 6000; 
 
 // --- Color Palette ---
 const Colors = {
@@ -156,7 +156,7 @@ const StepIcon = ({ iconChar, delay = 0 }) => {
       Animated.sequence([
         Animated.timing(glowAnim, {
           toValue: 1.15,
-          duration: 15000,
+          duration: 1500,
           useNativeDriver: false,
         }),
         Animated.timing(glowAnim, {
