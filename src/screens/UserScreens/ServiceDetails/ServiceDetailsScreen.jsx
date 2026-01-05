@@ -10,18 +10,35 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { addToCart } from '../../../utils/cartStorage';
+import { showSnackbar } from '../../../redux/slices/snackbarSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function ServiceDetailsScreen({ route, navigation }) {
-  const {salon, service} = route?.params;
-  console.log('Service Details Route Params:',salon, service);
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
 
-  const serviceData = {
-    name: 'Woman Medium Blunt Cut',
-    duration: '2.5 hours service',
-    price: 2500,
-    discount: '-20%',
-    image: require('../../../assets/featuredSalon.png'),
-    about: 'A blunt cut bob is a shorter hairstyle that\'s cut into a straight line at the ends. Bobs have proven themselves to be transcending the hair world by continuing to be a top hairstyle year after year. They can be customized to fit your preferences, are low maintenance and look good with many outfits.',
+  const { provider, service } = route?.params || {};
+  const userId = user?._id || 'guest';
+
+  if (!provider || !service) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text style={{ textAlign: 'center', marginTop: 50 }}>
+          Service not found
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  const handleAddToCart = async () => {
+    await addToCart(userId, provider, service);
+
+    dispatch(
+      showSnackbar({
+        message: `${service.name} added to cart`,
+        type: 'success',
+      })
+    );
   };
 
   return (
@@ -39,57 +56,56 @@ export default function ServiceDetailsScreen({ route, navigation }) {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Service Image */}
+          {/* Image */}
           <View style={styles.imageContainer}>
-            <Image source={serviceData.image} style={styles.serviceImage} />
-
-            {/* Image Indicators */}
-            <View style={styles.imageIndicators}>
-              <View style={[styles.indicator, styles.activeIndicator]} />
-              <View style={styles.indicator} />
-              <View style={styles.indicator} />
-            </View>
+            <Image
+              source={require('../../../assets/featuredSalon.png')}
+              style={styles.serviceImage}
+            />
           </View>
 
-          {/* Service Info */}
+          {/* Info */}
           <View style={styles.infoContainer}>
             <Text style={styles.serviceName}>{service.name}</Text>
 
             <View style={styles.durationRow}>
               <Icon name="time-outline" size={18} color="#6B7280" />
-              <Text style={styles.durationText}>{service.durationMins}</Text>
+              <Text style={styles.durationText}>
+                {service.durationMins} mins
+              </Text>
             </View>
 
             <View style={styles.priceRow}>
               <Text style={styles.price}>₹ {service.price}</Text>
-              {service.discountPercent && (
+              {service.discountPercent > 0 && (
                 <View style={styles.discountBadge}>
                   <Icon name="pricetag" size={14} color="#F59E0B" />
-                  <Text style={styles.discountText}>{service.discountPercent}%</Text>
+                  <Text style={styles.discountText}>
+                    {service.discountPercent}%
+                  </Text>
                 </View>
               )}
             </View>
 
-            {/* About Service */}
             <Text style={styles.sectionTitle}>About Service</Text>
             <Text style={styles.aboutText}>{service.description}</Text>
           </View>
         </ScrollView>
 
-        {/* Bottom Button */}
+        {/* Bottom */}
         <View style={styles.bottomBar}>
           <TouchableOpacity
             style={styles.addButton}
-            // onPress={() => navigation.navigate('Booking', { service })}
-            onPress={() => addToCart(salon, service)}
+            onPress={handleAddToCart}
           >
-            <Text style={styles.addButtonText}>Add to Booking Chart</Text>
+            <Text style={styles.addButtonText}>Add to Booking Cart</Text>
           </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   safeArea: {

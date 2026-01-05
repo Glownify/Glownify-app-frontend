@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { logout } from '../../redux/slices/authSlice';
+import { logoutUser } from '../../redux/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutAndGoToSalonRegistration } from '../../utils/NavigationHelper';
 
@@ -123,7 +123,7 @@ export default function UserProfileScreen({ navigation }) {
       {
         text: 'Logout',
         style: 'destructive',
-        onPress: () => dispatch(logout()),
+        onPress: () => dispatch(logoutUser()),
       },
     ]);
   };

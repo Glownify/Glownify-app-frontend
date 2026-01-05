@@ -36,6 +36,7 @@ export default function ManageServicesScreen({ navigation }) {
   const [durationMins, setDurationMins] = useState("30");
   const [discountPercent, setDiscountPercent] = useState("0");
   const [description, setDescription] = useState("");
+  const [serviceMode, setServiceMode] = useState("salon"); // salon or home
 
   // Gender filter states
   const [selectedGenderFilter, setSelectedGenderFilter] = useState("all");
@@ -119,6 +120,7 @@ export default function ManageServicesScreen({ navigation }) {
         service.discountPercent != null ? service.discountPercent.toString() : "0"
       );
       setDescription(service.description || "");
+      setServiceMode(service.serviceMode || "salon");
 
       // Determine modal gender: prefer explicit service.gender, else category.gender
       const serviceGender = service.gender;
@@ -133,6 +135,7 @@ export default function ManageServicesScreen({ navigation }) {
       setDurationMins("30");
       setDiscountPercent("0");
       setDescription("");
+      setServiceMode("salon");
       setModalGenderFilter("all");
     }
     setModalVisible(true);
@@ -151,6 +154,7 @@ export default function ManageServicesScreen({ navigation }) {
       durationMins: Number(durationMins),
       discountPercent: Number(discountPercent),
       description,
+      serviceMode,
       providerType: "Salon",
     };
 
@@ -518,6 +522,32 @@ export default function ManageServicesScreen({ navigation }) {
               onChangeText={setDescription}
             />
 
+            {/* Service Mode Selection */}
+<View style={styles.pickerContainer}>
+  <Text style={styles.pickerLabel}>Service Mode *</Text>
+  <View style={styles.modeToggleContainer}>
+    {["salon", "home", "both"].map((mode) => (
+      <TouchableOpacity
+        key={mode}
+        style={[
+          styles.modeOption,
+          serviceMode === mode && styles.modeOptionActive,
+        ]}
+        onPress={() => setServiceMode(mode)}
+      >
+        <Text
+          style={[
+            styles.modeOptionText,
+            serviceMode === mode && styles.modeOptionTextActive,
+          ]}
+        >
+          {mode.charAt(0).toUpperCase() + mode.slice(1)}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+</View>
+
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, { backgroundColor: "#156778" }]}
@@ -738,6 +768,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 6,
   },
+  modeToggleContainer: {
+  flexDirection: "row",
+  gap: 8,
+  marginBottom: 12,
+},
+modeOption: {
+  flex: 1,
+  paddingVertical: 10,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: "#156778",
+  alignItems: "center",
+  backgroundColor: "#fff",
+},
+modeOptionActive: {
+  backgroundColor: "#156778",
+},
+modeOptionText: {
+  fontSize: 13,
+  fontWeight: "600",
+  color: "#156778",
+},
+modeOptionTextActive: {
+  color: "#fff",
+},
   infoLabel: {
     fontSize: 13,
     fontWeight: "600",

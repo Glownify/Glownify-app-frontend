@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useSelector,useDispatch } from 'react-redux';
+import { fetchUserBookings } from '../../redux/slices/bookingSlice';
 
 // Mock Bookings Data
 const MOCK_BOOKINGS = [
@@ -60,7 +62,15 @@ const MOCK_BOOKINGS = [
 ];
 
 export default function UserBookingsScreen({ navigation }) {
+  const dispatch = useDispatch();
+  const {bookings} = useSelector(state => state.booking); 
   const [activeTab, setActiveTab] = useState('upcoming');
+
+  useEffect(()=>{
+    dispatch(fetchUserBookings());
+  }, [dispatch]);
+
+  console.log("User Bookings:", bookings);
 
   const filteredBookings = MOCK_BOOKINGS.filter(
     (booking) => booking.type === activeTab

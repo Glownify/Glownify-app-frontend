@@ -275,7 +275,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
             </ScrollView>
 
             {serviceItemsByCategory.map((service) => (
-              <ServiceCard key={service._id} salon={{
+              <ServiceCard key={service._id} provider={{
                 _id: salonData._id,
                 name: salonData.shopName,
               }} service={service} />
@@ -343,13 +343,15 @@ export default function ShopDetailsScreen({ navigation, route }) {
             <Icon name="checkmark-circle" size={24} color="#156778" />
             <View style={styles.priceInfo}>
               <Text style={styles.totalLabel}>Total (1 Service)</Text>
-              <Text style={styles.totalPrice}>₹ 2500</Text>
+              <Text style={styles.totalPrice}>₹ 100</Text>
             </View>
           </View>
 
           <TouchableOpacity
             style={styles.bookButton}
-            onPress={() => navigation.navigate('Booking')}
+            onPress={() => navigation.navigate('OfferTab', {
+  screen: 'CartScreen',
+})}
           >
             <Text style={styles.bookButtonText}>Book Now</Text>
           </TouchableOpacity>

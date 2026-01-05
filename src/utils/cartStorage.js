@@ -1,40 +1,90 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CART_KEY = '@user_cart';
+const getCartKey = (userId) => `@user_cart_${userId || 'guest'}`;
 
-export const addToCart = async (salon, service) => {
-    console.log("Adding to cart:", { salon, service });
+/**
+ * Add service to cart (user specific)
+ */
+
+export const addToCart = async (userId, provider, service) => {
   try {
+    const CART_KEY = getCartKey(userId);
+
     const existingCartData = await AsyncStorage.getItem(CART_KEY);
     let cart = existingCartData ? JSON.parse(existingCartData) : [];
 
-    // Find if salon exists in cart
-    const salonIndex = cart.findIndex(item => item.salonId === salon._id);
+    const providerIndex = cart.findIndex(
+      item => item.providerId === provider._id
+    );
 
-    if (salonIndex > -1) {
-      // Salon exists: Check if service is already added
-      const serviceExists = cart[salonIndex].services.find(s => s.id === service.id);
+    if (providerIndex > -1) {
+      const serviceExists = cart[providerIndex].services.some(
+        s => s._id === service._id
+      );
       if (!serviceExists) {
-        cart[salonIndex].services.push(service);
+        cart[providerIndex].services.push(service);
       }
     } else {
-      // New Salon: Add salon and the service
       cart.push({
-        salonId: salon._id,
-        salonName: salon.name,
-        services: [service]
+        providerId: provider._id,
+        providerName: provider.name,
+        services: [service],
       });
     }
 
-    // Save back to AsyncStorage
     await AsyncStorage.setItem(CART_KEY, JSON.stringify(cart));
     return cart;
   } catch (error) {
-    console.error("Error adding to cart", error);
+    console.error('Error adding to cart', error);
+    throw error;
   }
 };
 
-export const getCart = async () => {
-  const data = await AsyncStorage.getItem(CART_KEY);
-  return data ? JSON.parse(data) : [];
+/**
+ * Get cart for user
+ */
+export const getCart = async (userId) => {
+  try {
+    const CART_KEY = getCartKey(userId);
+    const data = await AsyncStorage.getItem(CART_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error getting cart', error);
+    return [];
+  }
+};
+
+
+export const updateCartItem = async (userId, providerId, updates) => {
+  try {
+    const CART_KEY = getCartKey(userId);
+    const data = await AsyncStorage.getItem(CART_KEY);
+    let cart = data ? JSON.parse(data) : [];
+
+    // Map through the cart and update the matching salon
+    cart = cart.map(item => {
+      if (item.providerId === providerId) {
+        return { ...item, ...updates }; // Spread updates (date, time, etc.)
+      }
+      return item;
+    });
+
+    await AsyncStorage.setItem(CART_KEY, JSON.stringify(cart));
+    return cart;
+  } catch (error) {
+    console.error('Error updating cart item', error);
+    return [];
+  }
+};
+
+/**
+ * Clear cart (on logout / order success)
+ */
+export const clearCart = async (userId) => {
+  try {
+    const CART_KEY = getCartKey(userId);
+    await AsyncStorage.removeItem(CART_KEY);
+  } catch (error) {
+    console.error('Error clearing cart', error);
+  }
 };
