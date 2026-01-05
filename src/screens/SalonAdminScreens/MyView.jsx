@@ -109,6 +109,9 @@ export default function MyView({ navigation, route }) {
   const [showHours, setShowHours] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const [isEditingShopName, setIsEditingShopName] = useState(false);
+  const [isEditingAbout, setIsEditingAbout] = useState(false);
+  const [about,setAbout] = useState(userDetails?.roleDetails?.about ||
+                  "The salon will update its details soon! Meanwhile, you're welcome to explore services and enjoy great grooming & beauty care.")
   const [shopName, setShopName] = useState(
     userDetails?.roleDetails?.shopName || '',
   );
@@ -303,14 +306,38 @@ export default function MyView({ navigation, route }) {
             >
               <Text style={styles.sectionTitle}>About</Text>
 
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => setIsEditingAbout(true)}>
                 <Icon name="pencil" size={18} color="#6B7280" />
               </TouchableOpacity>
             </View>
-            <Text style={styles.aboutText}>
-              {userDetails?.roleDetails?.about ||
-                "The salon will update its details soon! Meanwhile, you're welcome to explore services and enjoy great grooming & beauty care."}
-            </Text>
+            {isEditingAbout ? (
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <TextInput
+                  value={about}
+                  onChangeText={setAbout}
+                  style={styles.aboutText}
+                  autoFocus
+                  placeholder="Enter shop name"
+                />
+
+                <TouchableOpacity
+                  onPress={() => setIsEditingAbout(false)}
+                  style={{ marginLeft: 8 }}
+                >
+                  <Icon name="checkmark" size={22} color="#22C55E" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <Text style={styles.aboutText}>
+                {about}
+              </Text>
+            )}
           </View>
 
           {/* Opening Hours */}
@@ -359,7 +386,9 @@ export default function MyView({ navigation, route }) {
               {/* <TouchableOpacity>
                 <Text style={styles.viewAllText}>View all</Text>
               </TouchableOpacity> */}
-              <TouchableOpacity onPress={()=>navigation.navigate("ManageServices")}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ManageServices')}
+              >
                 <Icon name="pencil" size={18} color="#6B7280" />
               </TouchableOpacity>
             </View>
@@ -523,14 +552,14 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   shopNameInput: {
-  flex: 1,
-  fontSize: 24,
-  fontWeight: '700',
-  color: '#111827',
-  borderBottomWidth: 1,
-  borderColor: '#D1D5DB',
-  paddingVertical: 2,
-},
+    flex: 1,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111827',
+    borderBottomWidth: 1,
+    borderColor: '#D1D5DB',
+    paddingVertical: 2,
+  },
   imageIndicators: {
     position: 'absolute',
     bottom: 16,
