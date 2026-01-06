@@ -28,7 +28,7 @@ const SalonHomeServiceCard = ({ imageUrl, category, name, address, rating, revie
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate('ShopDetailsSummary')}
+      onPress={() => navigation.navigate('ShopDetailsFull', { salonId: name._id })}
       activeOpacity={0.8}
     >
       {/* --- HOME SERVICE BADGE AT TOP RIGHT OF CARD --- */}

@@ -36,7 +36,7 @@ const UnisexCard = ({ unisexSalon, icon, salonBadge, onPress }) => {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate('ShopDetailsSummary')}
+      onPress={() => navigation.navigate('ShopDetailsFull', { salonId: unisexSalon._id })}
       activeOpacity={0.8}
     >
       {/* --- HOME SERVICE BADGE AT TOP RIGHT OF CARD --- */}

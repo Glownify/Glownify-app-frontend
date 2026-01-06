@@ -226,7 +226,7 @@ export default function UserProfileScreen({ navigation }) {
             <Text style={styles.userEmail}>{user?.email || 'email@example.com'}</Text>
             <Text style={styles.userPhone}>{user?.phone || '+91 XXXXX XXXXX'}</Text>
           </View>
-          <TouchableOpacity style={styles.editIcon}>
+          <TouchableOpacity onPress={() => navigation.navigate("HomeTab", { screen: "ProfileEditScreen" })} style={styles.editIcon}>
             <Icon name="pencil" size={18} color="#156778" />
           </TouchableOpacity>
         </View>
