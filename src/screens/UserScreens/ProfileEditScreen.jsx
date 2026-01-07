@@ -13,10 +13,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
+import { updateUserProfile } from '../../redux/slices/authSlice';
 
 export default function ProfileEditScreen({ navigation }) {
-  const { user } = useSelector((state) => state.auth);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { user, loading } = useSelector((state) => state.auth);
   const [isEditing, setIsEditing] = useState(false);
 
   // Form states
@@ -39,27 +40,28 @@ export default function ProfileEditScreen({ navigation }) {
     ]);
   };
 
-  const handleSaveChanges = () => {
-    if (!name.trim()) {
-      Alert.alert('Error', 'Please enter name');
-      return;
-    }
-    if (!email.trim()) {
-      Alert.alert('Error', 'Please enter email');
-      return;
-    }
-    if (!phone.trim()) {
-      Alert.alert('Error', 'Please enter phone number');
-      return;
-    }
+  const handleSaveChanges = async () => {
+  if (!name.trim() || !email.trim() || !phone.trim()) {
+    Alert.alert("Error", "All fields are required");
+    return;
+  }
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      Alert.alert('Success', 'Profile updated successfully');
-      setIsEditing(false);
-    }, 1500);
-  };
+  try {
+    const res = await dispatch(
+      updateUserProfile({
+        name,
+        email,
+        phone,
+      })
+    ).unwrap();
+
+    Alert.alert("Success", "Profile updated successfully");
+    setIsEditing(false);
+  } catch (err) {
+    Alert.alert("Error", err);
+  }
+};
+
 
   const getStatusColor = (stat) => {
     switch (stat) {

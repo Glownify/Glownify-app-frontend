@@ -199,6 +199,19 @@ export const signupIndependentProfessional = createAsyncThunk(
   }
 );
 
+export const updateUserProfile = createAsyncThunk(
+  "auth/updateUserProfile",
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.put("/user/edit-profile", profileData);
+      return res.data.user;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Profile update failed"
+      );
+    }
+  }
+);
 
 // -------------------- SLICE --------------------
 const authSlice = createSlice({
@@ -348,6 +361,19 @@ const authSlice = createSlice({
 })
 .addCase(signupIndependentProfessional.rejected, (state, action) => {
   state.signUpLoading = false;
+  state.error = action.payload;
+})
+
+.addCase(updateUserProfile.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase(updateUserProfile.fulfilled, (state, action) => {
+  state.loading = false;
+  state.user = action.payload;
+})
+.addCase(updateUserProfile.rejected, (state, action) => {
+  state.loading = false;
   state.error = action.payload;
 });
   },
