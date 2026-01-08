@@ -68,6 +68,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
   const dispatch = useDispatch();
   const { salonDetails: salonData, serviceItemsByCategory, loading } = useSelector((state) => state.user);
 
+  console.log('Salon Data:', salonData);
   const defaultOpeningHours = [
     { day: 'Monday', start: '08:00am', end: '09:00pm' },
     { day: 'Tuesday', start: '08:00am', end: '09:00pm' },

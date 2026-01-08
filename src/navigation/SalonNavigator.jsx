@@ -41,9 +41,15 @@ function SalonTabs() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+      fontSize: 11,
+      marginTop: 2,
+    },
+    tabBarActiveTintColor: colors.white,
+    tabBarInactiveTintColor: colors.inactive,
         tabBarStyle: {
-          height: 50,
+          height: 60,
           backgroundColor: colors.primary,
           borderTopWidth: 0,
           elevation: 0,
@@ -53,7 +59,7 @@ function SalonTabs() {
       }}
     >
       <Tab.Screen
-        name="SalonDashboard"
+        name="Dashboard"
         component={SalonAdminDashboard}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -85,7 +91,7 @@ function SalonTabs() {
         }}
       />
       <Tab.Screen
-        name="SalonBookings"
+        name="Bookings"
         component={SalonBookingsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -101,7 +107,7 @@ function SalonTabs() {
         }}
       />
       <Tab.Screen
-        name="ManageSpecialist"
+        name="Specialist"
         component={ManageSpecialistScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -117,7 +123,7 @@ function SalonTabs() {
         }}
       />
       <Tab.Screen
-        name="ManageServices"
+        name="Services"
         component={ManageServicesScreen}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -133,7 +139,7 @@ function SalonTabs() {
         }}
       />
       <Tab.Screen
-        name="SalonProfile"
+        name="Profile"
         component={SalonProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (

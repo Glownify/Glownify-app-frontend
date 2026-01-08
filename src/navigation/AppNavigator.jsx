@@ -93,7 +93,7 @@ const TabIcon = ({ focused, icon, size = 26, showBadge = false }) => {
   );
 };
 
-function CartStack() {
+export function CartStackNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="CartScreen" component={CartScreen} />
@@ -101,6 +101,7 @@ function CartStack() {
     </Stack.Navigator>
   );
 }
+
 
 // --- Your Navigators ---
 function HomeStack() {
@@ -155,9 +156,9 @@ export default function AppNavigator() {
               const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
               if (
                 [
-                  'ShopDetailsSummary',
-                  'ShopDetailsFull',
-                  'ServiceDetails',
+                  // 'ShopDetailsSummary',
+                  // 'ShopDetailsFull',
+                  // 'ServiceDetails',
                   'Booking',
                   'SearchScreen',
                 ].includes(routeName)
@@ -195,40 +196,6 @@ export default function AppNavigator() {
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon focused={focused} icon={tabIcons.offer} showBadge={true} />
-            ),
-          }}
-        />
-
-        {/* --- Screen 3: Cart FAB --- */}
-        <Tab.Screen
-          name="CartTab"
-          component={CartStack}
-          options={{
-            tabBarLabel: () => null,
-            tabBarIcon: ({ focused }) => (
-              <TabIcon
-                focused={focused}
-                icon={tabIcons.cart}
-                size={focused ? 34 : 26}  // Increased size when active
-              />
-            ),
-            tabBarButton: (props) => (
-              <TouchableOpacity
-                {...props}
-                style={styles.fabContainer}
-                activeOpacity={0.85}
-              >
-                <View
-                  style={[
-                    styles.fab,
-                    props.accessibilityState?.selected
-                      ? { borderColor: colors.primary }
-                      : { borderColor: colors.white },
-                  ]}
-                >
-                  {props.children}
-                </View>
-              </TouchableOpacity>
             ),
           }}
         />

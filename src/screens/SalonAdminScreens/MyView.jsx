@@ -113,7 +113,7 @@ export default function MyView({ navigation, route }) {
   const [about,setAbout] = useState(userDetails?.roleDetails?.about ||
                   "The salon will update its details soon! Meanwhile, you're welcome to explore services and enjoy great grooming & beauty care.")
   const [shopName, setShopName] = useState(
-    userDetails?.roleDetails?.shopName || '',
+    userDetails?.roleDetails?.shopName || 'Unknown',
   );
 
   const defaultOpeningHours = [

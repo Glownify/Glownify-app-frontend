@@ -13,6 +13,8 @@ import SalesmanNavigator from './SalesmanNavigator';
 import SalesExecutiveNavigator from './SalesExecutiveNavigator'
 import { useSelector, useDispatch } from 'react-redux';
 import { loadUserFromStorage } from '../redux/slices/authSlice';
+import CartPopup from '../components/CartPopup';
+import { CartStackNavigator } from './AppNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -69,9 +71,16 @@ export default function RootNavigator() {
         ) : user.role === 'sales_executive' ? (
           <Stack.Screen name="SalesExecutive" component={SalesExecutiveNavigator} />
         ) : (
-          <Stack.Screen name="App" component={AppNavigator} /> // default user
+          // <Stack.Screen name="App" component={AppNavigator} /> // default user
+          <>
+      {/* Default user app */}
+      <Stack.Screen name="App" component={AppNavigator} />
+      {/* Cart stack outside of tabs */}
+      <Stack.Screen name="CartStack" component={CartStackNavigator} />
+    </>
         )}
       </Stack.Navigator>
+      <CartPopup />
     </NavigationContainer>
   );
 }

@@ -17,6 +17,9 @@ export default function ServiceDetailsScreen({ route, navigation }) {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
 
+  const [modeModalVisible, setModeModalVisible] = React.useState(false);
+const [selectedMode, setSelectedMode] = React.useState(null);
+
   const { provider, service } = route?.params || {};
   const userId = user?._id || 'guest';
 
@@ -31,15 +34,29 @@ export default function ServiceDetailsScreen({ route, navigation }) {
   }
 
   const handleAddToCart = async () => {
-    await addToCart(userId, provider, service);
+  if (service.serviceMode === 'both') {
+    setModeModalVisible(true);
+    return;
+  }
 
-    dispatch(
-      showSnackbar({
-        message: `${service.name} added to cart`,
-        type: 'success',
-      })
-    );
-  };
+  await addToCart(dispatch, userId, provider, {
+    ...service,
+    selectedMode: service.serviceMode, // salon or home
+  });
+};
+
+const confirmModeSelection = async () => {
+  if (!selectedMode) return;
+
+  await addToCart(dispatch, userId, provider, {
+    ...service,
+    selectedMode,
+  });
+
+  setModeModalVisible(false);
+  setSelectedMode(null);
+};
+
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -55,7 +72,8 @@ export default function ServiceDetailsScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false}
+        >
           {/* Image */}
           <View style={styles.imageContainer}>
             <Image
@@ -102,6 +120,51 @@ export default function ServiceDetailsScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Mode Selection Modal */}
+<View>
+  {modeModalVisible && (
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContainer}>
+        <Text style={styles.modalTitle}>Select Service Mode</Text>
+
+        <TouchableOpacity
+          style={[
+            styles.modeOption,
+            selectedMode === 'salon' && styles.modeActive,
+          ]}
+          onPress={() => setSelectedMode('salon')}
+        >
+          <Icon name="cut-outline" size={20} color="#156778" />
+          <Text style={styles.modeText}>At Salon</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.modeOption,
+            selectedMode === 'home' && styles.modeActive,
+          ]}
+          onPress={() => setSelectedMode('home')}
+        >
+          <Icon name="home-outline" size={20} color="#156778" />
+          <Text style={styles.modeText}>At Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.confirmButton,
+            !selectedMode && { opacity: 0.5 },
+          ]}
+          disabled={!selectedMode}
+          onPress={confirmModeSelection}
+        >
+          <Text style={styles.confirmText}>Confirm</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  )}
+</View>
+
     </SafeAreaView>
   );
 }
@@ -238,4 +301,63 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  modalOverlay: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0,0,0,0.4)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+modalContainer: {
+  width: '85%',
+  backgroundColor: '#fff',
+  borderRadius: 16,
+  padding: 20,
+},
+
+modalTitle: {
+  fontSize: 18,
+  fontWeight: '700',
+  marginBottom: 20,
+  textAlign: 'center',
+},
+
+modeOption: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  padding: 14,
+  borderRadius: 12,
+  borderWidth: 1,
+  borderColor: '#E5E7EB',
+  marginBottom: 12,
+},
+
+modeActive: {
+  backgroundColor: '#E6F2F4',
+  borderColor: '#156778',
+},
+
+modeText: {
+  fontSize: 16,
+  marginLeft: 10,
+  color: '#111827',
+},
+
+confirmButton: {
+  backgroundColor: '#156778',
+  paddingVertical: 14,
+  borderRadius: 20,
+  alignItems: 'center',
+  marginTop: 10,
+},
+
+confirmText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: '600',
+},
 });

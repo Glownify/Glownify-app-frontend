@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setCart, showCartPopup } from '../redux/slices/cartSlice';
 
 const getCartKey = (userId) => `@user_cart_${userId || 'guest'}`;
 
@@ -6,7 +7,7 @@ const getCartKey = (userId) => `@user_cart_${userId || 'guest'}`;
  * Add service to cart (user specific)
  */
 
-export const addToCart = async (userId, provider, service) => {
+export const addToCart = async (dispatch, userId, provider, service) => {
   try {
     const CART_KEY = getCartKey(userId);
 
@@ -31,6 +32,9 @@ export const addToCart = async (userId, provider, service) => {
         services: [service],
       });
     }
+
+    dispatch(setCart(cart));
+    dispatch(showCartPopup());
 
     await AsyncStorage.setItem(CART_KEY, JSON.stringify(cart));
     return cart;
@@ -70,6 +74,7 @@ export const updateCartItem = async (userId, providerId, updates) => {
     });
 
     await AsyncStorage.setItem(CART_KEY, JSON.stringify(cart));
+
     return cart;
   } catch (error) {
     console.error('Error updating cart item', error);

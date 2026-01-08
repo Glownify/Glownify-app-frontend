@@ -30,39 +30,39 @@ export default function ManageServicesScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingService, setEditingService] = useState(null);
 
+  // Main service fields
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [durationMins, setDurationMins] = useState("30");
   const [discountPercent, setDiscountPercent] = useState("0");
   const [description, setDescription] = useState("");
-  const [serviceMode, setServiceMode] = useState("salon"); // salon or home
+  const [serviceMode, setServiceMode] = useState("salon");
+
+  // Add-ons state
+  const [addOns, setAddOns] = useState([]);
+  const [showAddOnForm, setShowAddOnForm] = useState(false);
 
   // Gender filter states
   const [selectedGenderFilter, setSelectedGenderFilter] = useState("all");
   const [modalGenderFilter, setModalGenderFilter] = useState("all");
 
-  // Fetch services & categories on mount
   useEffect(() => {
     dispatch(fetchSalonServices());
     dispatch(fetchAllCategories());
   }, [dispatch]);
 
-  // If categories load after modal opened for edit, keep selected category/gender in sync
   useEffect(() => {
     if (editingService) {
-      // Normalize category id if editingService.category is object or string
       const catId =
         typeof editingService.category === "string"
           ? editingService.category
           : editingService.category?._id;
 
-      // If we don't already have the category selected (maybe categories loaded later), set it
       if (catId && !category) {
         setCategory(catId);
       }
 
-      // Determine modal gender: prefer explicit service.gender, else category.gender
       const serviceGender = editingService.gender;
       const catObj = categories.find((c) => c._id === catId);
       const derivedGender = serviceGender || catObj?.gender || "all";
@@ -71,10 +71,8 @@ export default function ManageServicesScreen({ navigation }) {
         setModalGenderFilter(derivedGender);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories, editingService]);
 
-  // Filter categories for modal based on modalGenderFilter
   const getModalFilteredCategories = () => {
     if (!categories) return [];
     if (modalGenderFilter === "all") {
@@ -85,7 +83,6 @@ export default function ManageServicesScreen({ navigation }) {
     );
   };
 
-  // Helper that returns correct gender badge color
   const getGenderBadgeColor = (gender) => {
     switch (gender) {
       case "men":
@@ -99,12 +96,57 @@ export default function ManageServicesScreen({ navigation }) {
     }
   };
 
-  // Open modal: handle both add and edit
+  // Add-on management functions
+  const addNewAddOn = () => {
+    setAddOns([
+      ...addOns,
+      {
+        id: Date.now().toString(), // temporary ID for UI
+        name: "",
+        price: "",
+        duration: "0",
+        isRecommended: false,
+      },
+    ]);
+    setShowAddOnForm(true);
+  };
+
+  const updateAddOn = (index, field, value) => {
+    const updated = [...addOns];
+    updated[index] = { ...updated[index], [field]: value };
+    setAddOns(updated);
+  };
+
+  const removeAddOn = (index) => {
+    Alert.alert("Remove Add-on", "Are you sure you want to remove this add-on?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: () => {
+          const updated = addOns.filter((_, idx) => idx !== index);
+          setAddOns(updated);
+          if (updated.length === 0) {
+            setShowAddOnForm(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const toggleAddOnRecommended = (index) => {
+    const updated = [...addOns];
+    updated[index] = {
+      ...updated[index],
+      isRecommended: !updated[index].isRecommended,
+    };
+    setAddOns(updated);
+  };
+
   const openModal = (service = null) => {
     if (service) {
       setEditingService(service);
 
-      // Normalize category id: service.category can be string or object
       const catId =
         typeof service.category === "string"
           ? service.category
@@ -122,7 +164,23 @@ export default function ManageServicesScreen({ navigation }) {
       setDescription(service.description || "");
       setServiceMode(service.serviceMode || "salon");
 
-      // Determine modal gender: prefer explicit service.gender, else category.gender
+      // Load existing add-ons
+      if (service.addOns && service.addOns.length > 0) {
+        setAddOns(
+          service.addOns.map((addon) => ({
+            id: addon._id || Date.now().toString(),
+            name: addon.name || "",
+            price: addon.price != null ? addon.price.toString() : "",
+            duration: addon.duration != null ? addon.duration.toString() : "0",
+            isRecommended: addon.isRecommended || false,
+          }))
+        );
+        setShowAddOnForm(true);
+      } else {
+        setAddOns([]);
+        setShowAddOnForm(false);
+      }
+
       const serviceGender = service.gender;
       const catObj = categories.find((c) => c._id === catId);
       setModalGenderFilter(serviceGender || catObj?.gender || "all");
@@ -136,6 +194,8 @@ export default function ManageServicesScreen({ navigation }) {
       setDiscountPercent("0");
       setDescription("");
       setServiceMode("salon");
+      setAddOns([]);
+      setShowAddOnForm(false);
       setModalGenderFilter("all");
     }
     setModalVisible(true);
@@ -147,6 +207,26 @@ export default function ManageServicesScreen({ navigation }) {
       return;
     }
 
+    // Validate add-ons
+    const validAddOns = addOns.filter((addon) => addon.name && addon.price);
+    const invalidAddOns = addOns.filter((addon) => !addon.name || !addon.price);
+
+    if (invalidAddOns.length > 0) {
+      Alert.alert(
+        "Invalid Add-ons",
+        "Some add-ons have missing name or price. They will be excluded."
+      );
+    }
+
+    // Format add-ons for backend (remove temporary id field)
+    const formattedAddOns = validAddOns.map((addon) => ({
+      ...(addon._id && { _id: addon._id }), // Include _id only if editing existing addon
+      name: addon.name,
+      price: Number(addon.price),
+      duration: Number(addon.duration),
+      isRecommended: addon.isRecommended,
+    }));
+
     const serviceData = {
       name,
       category,
@@ -156,6 +236,7 @@ export default function ManageServicesScreen({ navigation }) {
       description,
       serviceMode,
       providerType: "Salon",
+      addOns: formattedAddOns,
     };
 
     try {
@@ -172,11 +253,9 @@ export default function ManageServicesScreen({ navigation }) {
 
       setModalVisible(false);
       setEditingService(null);
-      // Refresh services (and categories if you need)
       dispatch(fetchSalonServices());
       dispatch(fetchAllCategories());
     } catch (err) {
-      // err may be an Error object or string depending on your slice
       Alert.alert("Error", (err && err.message) || String(err));
     }
   };
@@ -190,7 +269,6 @@ export default function ManageServicesScreen({ navigation }) {
         onPress: async () => {
           try {
             await dispatch(deleteServiceItem(serviceId)).unwrap();
-            // optionally refresh
             dispatch(fetchSalonServices());
           } catch (err) {
             Alert.alert("Error", (err && err.message) || String(err));
@@ -216,120 +294,180 @@ export default function ManageServicesScreen({ navigation }) {
     }
   };
 
-  const renderServiceCard = (service, index) => (
-    <View key={service._id || index} style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={styles.headerInfo}>
-          <Text style={styles.name}>{service.name}</Text>
-          <View style={styles.categoryRow}>
-            {/*
-              category may be string or object. Try to show icon if available.
-            */}
-            {typeof service.category === "object" && service.category?.icon && (
-              <Icon
-                name={service.category.icon}
-                size={14}
-                color="#156778"
-                style={{ marginRight: 4 }}
-              />
-            )}
-            {/* show category name if available, else empty */}
-            <Text style={styles.categoryText}>
-              {typeof service.category === "object"
-                ? service.category?.name
-                : // if category is id, try to find from categories list
-                  categories.find((c) => c._id === service.category)?.name ||
-                  ""}
-            </Text>
-
-            {/* gender badge: prefer service.gender (explicit) else category.gender */}
-            {(
-              service.gender ||
-              (typeof service.category === "object" && service.category?.gender) ||
-              categories.find((c) => c._id === service.category)?.gender
-            ) && (
-              <View
-                style={[
-                  styles.genderBadge,
-                  {
-                    backgroundColor: getGenderBadgeColor(
-                      service.gender ||
-                        (typeof service.category === "object" &&
-                          service.category?.gender) ||
-                        categories.find((c) => c._id === service.category)?.gender
-                    ),
-                    marginLeft: 8,
-                  },
-                ]}
-              >
-                <Text style={styles.genderBadgeText}>
-                  {(service.gender ||
-                    (typeof service.category === "object" &&
-                      service.category?.gender) ||
-                    categories.find((c) => c._id === service.category)?.gender ||
-                    ""
-                  ).toString()}
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        <View style={styles.statusContainer}>
-          <Text
-            style={[
-              styles.statusText,
-              { color: service.status === "active" ? "#4CAF50" : "#f44336" },
-            ]}
-          >
-            {service.status === "active" ? "Active" : "Inactive"}
+ const renderServiceCard = (service, index) => (
+  <View key={service._id || index} style={styles.card}>
+    <View style={styles.cardHeader}>
+      <View style={styles.headerInfo}>
+        <Text style={styles.name}>{service.name}</Text>
+        <View style={styles.categoryRow}>
+          {typeof service.category === "object" && service.category?.icon && (
+            <Icon
+              name={service.category.icon}
+              size={14}
+              color="#156778"
+              style={{ marginRight: 4 }}
+            />
+          )}
+          <Text style={styles.categoryText}>
+            {typeof service.category === "object"
+              ? service.category?.name
+              : categories.find((c) => c._id === service.category)?.name ||
+                ""}
           </Text>
+
+          {/* Gender Badge */}
+          {(service.gender ||
+            (typeof service.category === "object" &&
+              service.category?.gender) ||
+            categories.find((c) => c._id === service.category)?.gender) && (
+            <View
+              style={[
+                styles.genderBadge,
+                {
+                  backgroundColor: getGenderBadgeColor(
+                    service.gender ||
+                      (typeof service.category === "object" &&
+                        service.category?.gender) ||
+                      categories.find((c) => c._id === service.category)
+                        ?.gender
+                  ),
+                  marginLeft: 8,
+                },
+              ]}
+            >
+              <Text style={styles.genderBadgeText}>
+                {(service.gender ||
+                  (typeof service.category === "object" &&
+                    service.category?.gender) ||
+                  categories.find((c) => c._id === service.category)
+                    ?.gender ||
+                  ""
+                ).toString()}
+              </Text>
+            </View>
+          )}
+
+          {/* Service Mode Badge */}
+          {service.serviceMode && (
+            <View
+              style={[
+                styles.serviceModeBadge,
+                {
+                  backgroundColor:
+                    service.serviceMode === "salon"
+                      ? "#4CAF50"
+                      : service.serviceMode === "home"
+                      ? "#FF9800"
+                      : "#9C27B0",
+                },
+              ]}
+            >
+              <Icon
+                name={
+                  service.serviceMode === "salon"
+                    ? "business"
+                    : service.serviceMode === "home"
+                    ? "home"
+                    : "list"
+                }
+                size={10}
+                color="#fff"
+              />
+              <Text style={styles.serviceModeBadgeText}>
+                {service.serviceMode.charAt(0).toUpperCase() +
+                  service.serviceMode.slice(1)}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 
-      <View style={styles.section}>
-        <View style={styles.rowBetween}>
-          <Text style={styles.priceText}>₹{service.price}</Text>
-          <Text style={styles.durationText}>⏱ {service.durationMins} mins</Text>
-        </View>
-        {service.discountPercent > 0 && (
-          <Text style={styles.discountText}>💸 {service.discountPercent}% off</Text>
-        )}
-      </View>
-
-      {service.description && (
-        <Text style={styles.desc}>{service.description}</Text>
-      )}
-
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: "#156778" }]}
-          onPress={() => openModal(service)}
+      <View style={styles.statusContainer}>
+        <Text
+          style={[
+            styles.statusText,
+            { color: service.status === "active" ? "#4CAF50" : "#f44336" },
+          ]}
         >
-          <Icon name="create-outline" size={16} color="#fff" />
-          <Text style={styles.actionText}>Edit</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: "#4CAF50" }]}
-          onPress={() => toggleStatus(service)}
-        >
-          <Icon name="swap-horizontal-outline" size={16} color="#fff" />
-          <Text style={styles.actionText}>Toggle</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: "#f44336" }]}
-          onPress={() => handleDelete(service._id)}
-        >
-          <Icon name="trash-outline" size={16} color="#fff" />
-          <Text style={styles.actionText}>Delete</Text>
-        </TouchableOpacity>
+          {service.status === "active" ? "Active" : "Inactive"}
+        </Text>
       </View>
     </View>
-  );
 
-  // Filter services by gender
+    <View style={styles.section}>
+      <View style={styles.rowBetween}>
+        <Text style={styles.priceText}>₹{service.price}</Text>
+        <Text style={styles.durationText}>⏱ {service.durationMins} mins</Text>
+      </View>
+      {service.discountPercent > 0 && (
+        <Text style={styles.discountText}>
+          💸 {service.discountPercent}% off
+        </Text>
+      )}
+    </View>
+
+    {/* Display Add-ons */}
+    {service.addOns && service.addOns.length > 0 && (
+      <View style={styles.addOnsPreview}>
+        <View style={styles.addOnsHeader}>
+          <Icon name="add-circle-outline" size={14} color="#156778" />
+          <Text style={styles.addOnsHeaderText}>
+            {service.addOns.length} Add-on{service.addOns.length > 1 ? "s" : ""}
+          </Text>
+        </View>
+        <View style={styles.addOnsList}>
+          {service.addOns.slice(0, 2).map((addon, idx) => (
+            <View key={idx} style={styles.addOnChip}>
+              <Text style={styles.addOnChipText}>
+                {addon.name} (+₹{addon.price})
+              </Text>
+              {addon.isRecommended && (
+                <Icon name="star" size={10} color="#FFD700" />
+              )}
+            </View>
+          ))}
+          {service.addOns.length > 2 && (
+            <Text style={styles.moreAddOns}>
+              +{service.addOns.length - 2} more
+            </Text>
+          )}
+        </View>
+      </View>
+    )}
+
+    {service.description && (
+      <Text style={styles.desc}>{service.description}</Text>
+    )}
+
+    <View style={styles.actions}>
+      <TouchableOpacity
+        style={[styles.actionButton, { backgroundColor: "#156778" }]}
+        onPress={() => openModal(service)}
+      >
+        <Icon name="create-outline" size={16} color="#fff" />
+        <Text style={styles.actionText}>Edit</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.actionButton, { backgroundColor: "#4CAF50" }]}
+        onPress={() => toggleStatus(service)}
+      >
+        <Icon name="swap-horizontal-outline" size={16} color="#fff" />
+        <Text style={styles.actionText}>Toggle</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.actionButton, { backgroundColor: "#f44336" }]}
+        onPress={() => handleDelete(service._id)}
+      >
+        <Icon name="trash-outline" size={16} color="#fff" />
+        <Text style={styles.actionText}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+);
+
+
   const getFilteredServices = () => {
     if (selectedGenderFilter === "all") {
       return services;
@@ -339,7 +477,9 @@ export default function ManageServicesScreen({ navigation }) {
         service.gender ||
         (typeof service.category === "object" && service.category?.gender) ||
         categories.find((c) => c._id === service.category)?.gender;
-      return serviceGender === selectedGenderFilter || serviceGender === "unisex";
+      return (
+        serviceGender === selectedGenderFilter || serviceGender === "unisex"
+      );
     });
   };
 
@@ -352,33 +492,6 @@ export default function ManageServicesScreen({ navigation }) {
         <Text style={styles.count}>{services.length} Total</Text>
       </View>
 
-      {/* Quick Action Buttons */}
-      <View style={styles.quickActionsContainer}>
-        {/* <TouchableOpacity
-          style={[styles.quickActionBtn, { backgroundColor: '#156778' }]}
-          onPress={() => navigation.navigate('ManageCategories')}
-        >
-          <Icon name="folder-outline" size={18} color="#fff" />
-          <Text style={styles.quickActionText}>Categories</Text>
-        </TouchableOpacity> */}
-
-        <TouchableOpacity
-          style={[styles.quickActionBtn, { backgroundColor: '#4CAF50' }]}
-          onPress={() => navigation.navigate('ServiceAddOns')}
-        >
-          <Icon name="layers-outline" size={18} color="#fff" />
-          <Text style={styles.quickActionText}>Add-ons</Text>
-        </TouchableOpacity>
-
-        {/* <TouchableOpacity
-          style={[styles.quickActionBtn, { backgroundColor: '#FF9800' }]}
-          onPress={() => navigation.navigate('ComboPackages')}
-        >
-          <Icon name="gift-outline" size={18} color="#fff" />
-          <Text style={styles.quickActionText}>Combos</Text>
-        </TouchableOpacity> */}
-      </View>
-
       {/* Gender Filter */}
       <View style={styles.filterContainer}>
         <Text style={styles.filterLabel}>Filter by Gender:</Text>
@@ -388,14 +501,16 @@ export default function ManageServicesScreen({ navigation }) {
               key={gender}
               style={[
                 styles.genderFilterButton,
-                selectedGenderFilter === gender && styles.genderFilterButtonActive,
+                selectedGenderFilter === gender &&
+                  styles.genderFilterButtonActive,
               ]}
               onPress={() => setSelectedGenderFilter(gender)}
             >
               <Text
                 style={[
                   styles.genderFilterText,
-                  selectedGenderFilter === gender && styles.genderFilterTextActive,
+                  selectedGenderFilter === gender &&
+                    styles.genderFilterTextActive,
                 ]}
               >
                 {gender.charAt(0).toUpperCase() + gender.slice(1)}
@@ -406,11 +521,18 @@ export default function ManageServicesScreen({ navigation }) {
       </View>
 
       {loading && <Loader />}
-      {error && <Text style={{ color: 'red', textAlign: 'center', marginBottom: 20 }}>{error}</Text>}
+      {error && (
+        <Text style={{ color: "red", textAlign: "center", marginBottom: 20 }}>
+          {error}
+        </Text>
+      )}
 
       {!loading && !error && (
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <TouchableOpacity style={styles.addButton} onPress={() => openModal(null)}>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => openModal(null)}
+          >
             <Icon name="add-circle-outline" size={18} color="#fff" />
             <Text style={styles.addButtonText}>Add Service</Text>
           </TouchableOpacity>
@@ -433,138 +555,250 @@ export default function ManageServicesScreen({ navigation }) {
       {/* Add/Edit Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent={false}>
         <View style={styles.modalContainer}>
-          <ScrollView>
-            <Text style={styles.modalTitle}>
-              {editingService ? "Edit Service" : "Add Service"}
-            </Text>
-
-            <TextInput
-              placeholder="Service Name *"
-              style={styles.input}
-              value={name}
-              onChangeText={setName}
-            />
-
-
-            <View style={styles.pickerContainer}>
-              <Text style={styles.pickerLabel}>Select Category *</Text>
-              <Picker
-                selectedValue={category}
-                onValueChange={(val) => setCategory(val)}
-                style={styles.picker}
+          <ScrollView showsVerticalScrollIndicator={true}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {editingService ? "Edit Service" : "Add Service"}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(false);
+                  setEditingService(null);
+                }}
+                style={styles.closeButton}
               >
-                <Picker.Item label="-- Select Category --" value="" />
-                {getModalFilteredCategories().map((cat) => (
-                  <Picker.Item
-                    key={cat._id}
-                    label={`${cat.name} (${cat.gender})`}
-                    value={cat._id}
-                  />
-                ))}
-              </Picker>
+                <Icon name="close-circle" size={28} color="#f44336" />
+              </TouchableOpacity>
             </View>
 
-            {/* Show selected category gender info */}
-            {category ? (
-              <View style={styles.selectedCategoryInfo}>
-                <Icon name="information-circle" size={16} color="#156778" />
-                <Text style={styles.infoLabel}>Selected Category:</Text>
-                <Text style={styles.infoCategoryName}>
-                  {categories.find((c) => c._id === category)?.name || ""}
-                </Text>
-                <View
-                  style={[
-                    styles.genderBadge,
-                    {
-                      backgroundColor: getGenderBadgeColor(
-                        categories.find((c) => c._id === category)?.gender || "all"
-                      ),
-                      marginLeft: 8,
-                    },
-                  ]}
+            {/* Basic Service Info Section */}
+            <View style={styles.formSection}>
+              <Text style={styles.sectionTitle}>Basic Information</Text>
+
+              <TextInput
+                placeholder="Service Name *"
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+              />
+
+              <View style={styles.pickerContainer}>
+                <Text style={styles.pickerLabel}>Select Category *</Text>
+                <Picker
+                  selectedValue={category}
+                  onValueChange={(val) => setCategory(val)}
+                  style={styles.picker}
                 >
-                  <Text style={styles.genderBadgeText}>
-                    {categories.find((c) => c._id === category)?.gender || "all"}
+                  <Picker.Item label="-- Select Category --" value="" />
+                  {getModalFilteredCategories().map((cat) => (
+                    <Picker.Item
+                      key={cat._id}
+                      label={`${cat.name} (${cat.gender})`}
+                      value={cat._id}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              {category && (
+                <View style={styles.selectedCategoryInfo}>
+                  <Icon name="information-circle" size={16} color="#156778" />
+                  <Text style={styles.infoLabel}>Selected Category:</Text>
+                  <Text style={styles.infoCategoryName}>
+                    {categories.find((c) => c._id === category)?.name || ""}
                   </Text>
+                  <View
+                    style={[
+                      styles.genderBadge,
+                      {
+                        backgroundColor: getGenderBadgeColor(
+                          categories.find((c) => c._id === category)?.gender ||
+                            "all"
+                        ),
+                        marginLeft: 8,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.genderBadgeText}>
+                      {categories.find((c) => c._id === category)?.gender ||
+                        "all"}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              <View style={styles.rowInputs}>
+                <TextInput
+                  placeholder="Price (₹) *"
+                  keyboardType="numeric"
+                  style={[styles.input, styles.halfInput]}
+                  value={price}
+                  onChangeText={setPrice}
+                />
+
+                <TextInput
+                  placeholder="Duration (mins) *"
+                  keyboardType="numeric"
+                  style={[styles.input, styles.halfInput]}
+                  value={durationMins}
+                  onChangeText={setDurationMins}
+                />
+              </View>
+
+              <TextInput
+                placeholder="Discount %"
+                keyboardType="numeric"
+                style={styles.input}
+                value={discountPercent}
+                onChangeText={setDiscountPercent}
+              />
+
+              <TextInput
+                placeholder="Description"
+                style={[styles.input, styles.textArea]}
+                multiline
+                numberOfLines={3}
+                value={description}
+                onChangeText={setDescription}
+              />
+
+              {/* Service Mode Selection */}
+              <View style={styles.pickerContainer}>
+                <Text style={styles.pickerLabel}>Service Mode *</Text>
+                <View style={styles.modeToggleContainer}>
+                  {["salon", "home", "both"].map((mode) => (
+                    <TouchableOpacity
+                      key={mode}
+                      style={[
+                        styles.modeOption,
+                        serviceMode === mode && styles.modeOptionActive,
+                      ]}
+                      onPress={() => setServiceMode(mode)}
+                    >
+                      <Text
+                        style={[
+                          styles.modeOptionText,
+                          serviceMode === mode && styles.modeOptionTextActive,
+                        ]}
+                      >
+                        {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
               </View>
-            ) : null}
+            </View>
 
-            <TextInput
-              placeholder="Price (₹) *"
-              keyboardType="numeric"
-              style={styles.input}
-              value={price}
-              onChangeText={setPrice}
-            />
+            {/* Add-ons Section */}
+            <View style={styles.formSection}>
+              <View style={styles.sectionHeaderRow}>
+                <View style={styles.sectionTitleRow}>
+                  <Text style={styles.sectionTitle}>Add-ons</Text>
+                  <Text style={styles.sectionSubtitle}>(Optional)</Text>
+                </View>
 
-            <TextInput
-              placeholder="Duration (mins) *"
-              keyboardType="numeric"
-              style={styles.input}
-              value={durationMins}
-              onChangeText={setDurationMins}
-            />
+                {!showAddOnForm && (
+                  <TouchableOpacity
+                    style={styles.showAddOnButton}
+                    onPress={() => setShowAddOnForm(true)}
+                  >
+                    <Icon name="add-circle" size={20} color="#156778" />
+                    <Text style={styles.showAddOnButtonText}>Add Add-ons</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
 
-            <TextInput
-              placeholder="Discount %"
-              keyboardType="numeric"
-              style={styles.input}
-              value={discountPercent}
-              onChangeText={setDiscountPercent}
-            />
+              {showAddOnForm && (
+                <>
+                  {addOns.map((addon, index) => (
+                    <View key={addon.id || index} style={styles.addOnCard}>
+                      <View style={styles.addOnHeader}>
+                        <Text style={styles.addOnNumber}>Add-on #{index + 1}</Text>
+                        <View style={styles.addOnActions}>
+                          <TouchableOpacity
+                            onPress={() => toggleAddOnRecommended(index)}
+                            style={styles.recommendedButton}
+                          >
+                            <Icon
+                              name={addon.isRecommended ? "star" : "star-outline"}
+                              size={20}
+                              color={addon.isRecommended ? "#FFD700" : "#999"}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => removeAddOn(index)}>
+                            <Icon name="trash" size={20} color="#f44336" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
 
-            <TextInput
-              placeholder="Description"
-              style={[styles.input, { height: 80, textAlignVertical: "top" }]}
-              multiline
-              value={description}
-              onChangeText={setDescription}
-            />
+                      <TextInput
+                        placeholder="Add-on Name *"
+                        style={styles.input}
+                        value={addon.name}
+                        onChangeText={(val) => updateAddOn(index, "name", val)}
+                      />
 
-            {/* Service Mode Selection */}
-<View style={styles.pickerContainer}>
-  <Text style={styles.pickerLabel}>Service Mode *</Text>
-  <View style={styles.modeToggleContainer}>
-    {["salon", "home", "both"].map((mode) => (
-      <TouchableOpacity
-        key={mode}
-        style={[
-          styles.modeOption,
-          serviceMode === mode && styles.modeOptionActive,
-        ]}
-        onPress={() => setServiceMode(mode)}
-      >
-        <Text
-          style={[
-            styles.modeOptionText,
-            serviceMode === mode && styles.modeOptionTextActive,
-          ]}
-        >
-          {mode.charAt(0).toUpperCase() + mode.slice(1)}
-        </Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-</View>
+                      <View style={styles.rowInputs}>
+                        <TextInput
+                          placeholder="Price (₹) *"
+                          keyboardType="numeric"
+                          style={[styles.input, styles.halfInput]}
+                          value={addon.price}
+                          onChangeText={(val) => updateAddOn(index, "price", val)}
+                        />
+
+                        <TextInput
+                          placeholder="Duration (mins)"
+                          keyboardType="numeric"
+                          style={[styles.input, styles.halfInput]}
+                          value={addon.duration}
+                          onChangeText={(val) =>
+                            updateAddOn(index, "duration", val)
+                          }
+                        />
+                      </View>
+
+                      {addon.isRecommended && (
+                        <View style={styles.recommendedBadge}>
+                          <Icon name="star" size={12} color="#FFD700" />
+                          <Text style={styles.recommendedText}>
+                            Recommended Add-on
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+
+                  <TouchableOpacity
+                    style={styles.addAnotherButton}
+                    onPress={addNewAddOn}
+                  >
+                    <Icon name="add" size={18} color="#156778" />
+                    <Text style={styles.addAnotherText}>Add Another Add-on</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#156778" }]}
+                style={[styles.modalButton, styles.saveButton]}
                 onPress={handleSave}
               >
+                <Icon name="checkmark-circle" size={20} color="#fff" />
                 <Text style={styles.modalButtonText}>
-                  {editingService ? "Update" : "Add"}
+                  {editingService ? "Update Service" : "Add Service"}
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#f44336" }]}
+                style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => {
                   setModalVisible(false);
                   setEditingService(null);
                 }}
               >
+                <Icon name="close-circle" size={20} color="#fff" />
                 <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
@@ -584,29 +818,6 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 24, fontWeight: "bold", color: "#fff" },
   count: { fontSize: 12, color: "#ddd", marginTop: 4 },
-  quickActionsContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  quickActionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 6,
-    gap: 4,
-  },
-  quickActionText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#fff',
-  },
   filterContainer: {
     backgroundColor: "#fff",
     paddingHorizontal: 16,
@@ -701,6 +912,64 @@ const styles = StyleSheet.create({
   priceText: { fontSize: 15, fontWeight: "700", color: "#333" },
   durationText: { fontSize: 13, color: "#666" },
   discountText: { fontSize: 12, color: "#4CAF50", marginTop: 4 },
+  serviceModeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    marginLeft: 6,
+    gap: 3,
+  },
+  serviceModeBadgeText: {
+    fontSize: 10,
+    color: "#fff",
+    fontWeight: "600",
+    textTransform: "capitalize",
+  },
+  // Add-ons preview in card
+  addOnsPreview: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+  },
+  addOnsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 6,
+  },
+  addOnsHeaderText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#156778",
+  },
+  addOnsList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    alignItems: "center",
+  },
+  addOnChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E3F2FD",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  addOnChipText: {
+    fontSize: 11,
+    color: "#156778",
+    fontWeight: "500",
+  },
+  moreAddOns: {
+    fontSize: 11,
+    color: "#999",
+    fontStyle: "italic",
+  },
   desc: { fontSize: 12, color: "#555", marginVertical: 8, lineHeight: 18 },
   actions: { flexDirection: "row", justifyContent: "space-between", gap: 8 },
   actionButton: {
@@ -719,18 +988,58 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 60,
   },
-  emptyText: { fontSize: 16, color: "#999", marginTop: 10, textAlign: "center" },
+  emptyText: {
+    fontSize: 16,
+    color: "#999",
+    marginTop: 10,
+    textAlign: "center",
+  },
   modalContainer: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#fff",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
     paddingTop: 40,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
   },
   modalTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
     color: "#156778",
+  },
+  closeButton: {
+    padding: 4,
+  },
+  formSection: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  sectionTitleRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 6,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#333",
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: "#999",
+    fontStyle: "italic",
   },
   input: {
     borderWidth: 1,
@@ -740,8 +1049,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontSize: 14,
   },
-  modalGenderSection: {
-    marginBottom: 16,
+  textArea: {
+    height: 80,
+    textAlignVertical: "top",
+  },
+  rowInputs: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 0,
+  },
+  halfInput: {
+    flex: 1,
   },
   pickerContainer: {
     marginBottom: 12,
@@ -768,31 +1086,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 6,
   },
-  modeToggleContainer: {
-  flexDirection: "row",
-  gap: 8,
-  marginBottom: 12,
-},
-modeOption: {
-  flex: 1,
-  paddingVertical: 10,
-  borderRadius: 8,
-  borderWidth: 1,
-  borderColor: "#156778",
-  alignItems: "center",
-  backgroundColor: "#fff",
-},
-modeOptionActive: {
-  backgroundColor: "#156778",
-},
-modeOptionText: {
-  fontSize: 13,
-  fontWeight: "600",
-  color: "#156778",
-},
-modeOptionTextActive: {
-  color: "#fff",
-},
   infoLabel: {
     fontSize: 13,
     fontWeight: "600",
@@ -803,18 +1096,132 @@ modeOptionTextActive: {
     fontWeight: "700",
     color: "#156778",
   },
+  modeToggleContainer: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  modeOption: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#156778",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  modeOptionActive: {
+    backgroundColor: "#156778",
+  },
+  modeOptionText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#156778",
+  },
+  modeOptionTextActive: {
+    color: "#fff",
+  },
+  // Add-on form styles
+  showAddOnButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#156778",
+    borderStyle: "dashed",
+  },
+  showAddOnButtonText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#156778",
+  },
+  addOnCard: {
+    backgroundColor: "#f9f9f9",
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  addOnHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  addOnNumber: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#156778",
+  },
+  addOnActions: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+  },
+  recommendedButton: {
+    padding: 4,
+  },
+  recommendedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#FFF9E6",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginTop: 4,
+  },
+  recommendedText: {
+    fontSize: 11,
+    color: "#F57C00",
+    fontWeight: "600",
+  },
+  addAnotherButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#156778",
+    borderStyle: "dashed",
+    backgroundColor: "#fff",
+  },
+  addAnotherText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#156778",
+  },
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
-    marginBottom: 40,
+    padding: 20,
     gap: 10,
+    marginBottom: 20,
   },
   modalButton: {
     flex: 1,
+    flexDirection: "row",
     borderRadius: 8,
     padding: 14,
     alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
   },
-  modalButtonText: { color: "#fff", fontWeight: "bold", fontSize: 15 },
+  saveButton: {
+    backgroundColor: "#156778",
+  },
+  cancelButton: {
+    backgroundColor: "#f44336",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
 });
