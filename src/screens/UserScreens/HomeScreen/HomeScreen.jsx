@@ -244,7 +244,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}  edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-      <View style={{ flex: 1, backgroundColor: colors.white }}>
+      <View style={{ flex: 1, backgroundColor: colors.white}}>
         <HomeHeader user={user} navigation={navigation} />
 
         <ScrollView

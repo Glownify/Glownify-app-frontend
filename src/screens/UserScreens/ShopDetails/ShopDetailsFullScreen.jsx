@@ -15,6 +15,7 @@ import ServiceCard from './ServiceCard';
 import SpecialistCard from './SpecialistCard';
 import ReviewCard from './ReviewCard';
 import { useSelector, useDispatch } from 'react-redux';
+import ShopDetailsSkeleton from './ShopDetailsSkeleton';
 import { fetchSalonById, fetchServiceItemsByCategory } from '../../../redux/slices/userSlice';
 const { height, width } = Dimensions.get('window');
 
@@ -96,9 +97,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
 
   if (!salonData && loading) {
     return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#156778" />
-      </View>
+      <ShopDetailsSkeleton/>
     );
   }
 
@@ -359,6 +358,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
         </View> */}
       </View>
     </SafeAreaView>
+
   );
 }
 
