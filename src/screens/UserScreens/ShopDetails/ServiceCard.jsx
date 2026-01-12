@@ -1,22 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
 export default function ServiceCard({ provider, service }) {
   const navigation = useNavigation();
+  const [quantity, setQuantity] = useState(0);
 
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate('ServiceDetails', { provider, service })}
+      onPress={() =>
+        navigation.navigate('ServiceDetails', { provider, service })
+      }
       activeOpacity={0.8}
     >
       <Image source={service.imageURL} style={styles.image} />
 
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.name} numberOfLines={2}>{service.name}</Text>
+          <Text style={styles.name} numberOfLines={2}>
+            {service.name}
+          </Text>
           {service.discount && (
             <View style={styles.discountBadge}>
               <Icon name="pricetag" size={12} color="#F59E0B" />
@@ -32,12 +37,47 @@ export default function ServiceCard({ provider, service }) {
         </Text>
       </View>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('ServiceDetails', { provider, service })}
       >
         <Icon name="add-circle" size={32} color="#156778" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+
+      {quantity === 0 ? (
+        /* ADD Button */
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setQuantity(1)}
+        >
+          <Text style={styles.addText}>ADD</Text>
+        </TouchableOpacity>
+      ) : (
+        /* - 1 + Button */
+        <View style={styles.counterContainer}>
+          <TouchableOpacity
+            onPress={() =>
+              setQuantity(prev => {
+                if (prev === 1) return 0;
+                return prev - 1;
+              })
+            }
+            style={styles.counterBtn}
+          >
+          
+            <Text style={styles.counterText}>−</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.quantityText}>{quantity}</Text>
+
+          <TouchableOpacity
+            onPress={() => setQuantity(prev => prev + 1)}
+            style={styles.counterBtn}
+          >
+            <Text style={styles.counterText}>+</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </TouchableOpacity>
   );
 }
@@ -63,6 +103,44 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
     justifyContent: 'space-between',
+  },
+  addButton: {
+    borderWidth: 1.5,
+    borderColor: '#156778',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 28,
+    backgroundColor: '#fff',
+  },
+  addText: {
+    color: '#156778',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  counterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#156778',
+    borderRadius: 10,
+    height: 40,
+    marginTop: 20
+    // paddingHorizontal: 7,
+    // paddingVertical: 4,
+  },
+  counterBtn: {
+    paddingHorizontal: 8,
+    marginVertical: -20,
+  },
+  counterText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  quantityText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginHorizontal: 10,
   },
   header: {
     flexDirection: 'row',

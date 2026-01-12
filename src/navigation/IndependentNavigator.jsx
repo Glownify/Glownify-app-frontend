@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import IndependentProDashboard from '../screens/IndependentProScreens/IndependentProDashboard';
 import IndependentManageServicesScreen from '../screens/IndependentProScreens/IndependentManageServicesScreen';
 import IndependentProProfileScreen from '../screens/IndependentProScreens/IndependentProProfileScreen';
+import IndependentProProfileEditScreen from '../screens/IndependentProScreens/IndependentProProfileEditScreen';
 
 // ========================
 //  MOCK SCREENS (TABS)
@@ -53,6 +54,7 @@ function SalesHomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Independent" component={IndependentProDashboard} />
+      <Stack.Screen name="IndependentProProfileEdit" component={IndependentProProfileEditScreen} />
 
       {/* Screens not shown in tab bar */}
       <Stack.Screen name="CustomerDetails" component={CustomerDetailsScreen} />

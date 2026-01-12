@@ -8,6 +8,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -54,6 +55,7 @@ export default function ManageSalonsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="#156778" barStyle="light-content" />
       {/* Header */}
       <View style={styles.header}>
         <View>
