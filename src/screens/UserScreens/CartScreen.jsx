@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,12 +16,14 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import {
   getCart,
   removeFromCart,
+  removeServiceFromCart,
   clearCart,
 } from '../../utils/cartStorage';
+import { hideCartPopup, setCart, setCartScreenFocused } from '../../redux/slices/cartSlice';
 import { createBooking } from '../../redux/slices/bookingSlice';
 
 // ... CartItem component remains largely the same, just minor style tweaks if needed ...
-const CartItem = ({ item, onRemove, navigation }) => {
+const CartItem = ({ item, onRemove, onRemoveService, navigation }) => {
   const grouped = item.services.reduce(
     (acc, s) => {
       if (s.selectedMode === 'home') acc.home.push(s);
@@ -44,11 +46,22 @@ const CartItem = ({ item, onRemove, navigation }) => {
         <>
           <Text style={styles.modeHeader}>✂️ At Salon</Text>
           {grouped.salon.map(s => (
-            <View key={s._id} style={styles.serviceRow}>
-              <Text style={styles.serviceName}>{s.name}</Text>
-              <Text style={styles.servicePrice}>₹{s.price}</Text>
-            </View>
-          ))}
+  <View key={s._id} style={styles.serviceRow}>
+    <Text style={styles.serviceName}>{s.name}</Text>
+
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Text style={styles.servicePrice}>₹{s.price}</Text>
+      <TouchableOpacity
+        onPress={() =>
+          onRemoveService(item.providerId, s._id, s.selectedMode)
+        }
+      >
+        <Icon name="close-circle" size={18} color="#f44336" />
+      </TouchableOpacity>
+    </View>
+  </View>
+))}
+
         </>
       )}
 
@@ -56,11 +69,21 @@ const CartItem = ({ item, onRemove, navigation }) => {
         <>
           <Text style={styles.modeHeader}>🏠 At Home</Text>
           {grouped.home.map(s => (
-            <View key={s._id} style={styles.serviceRow}>
-              <Text style={styles.serviceName}>{s.name}</Text>
-              <Text style={styles.servicePrice}>₹{s.price}</Text>
-            </View>
-          ))}
+  <View key={s._id} style={styles.serviceRow}>
+    <Text style={styles.serviceName}>{s.name}</Text>
+
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Text style={styles.servicePrice}>₹{s.price}</Text>
+      <TouchableOpacity
+        onPress={() =>
+          onRemoveService(item.providerId, s._id, s.selectedMode)
+        }
+      >
+        <Icon name="close-circle" size={18} color="#f44336" />
+      </TouchableOpacity>
+    </View>
+  </View>
+))}
         </>
       )}
 
@@ -89,33 +112,97 @@ export default function CartScreen() {
   const { user } = useSelector(state => state.auth);
   const userId = user?._id || 'guest';
 
-  const [cart, setCart] = useState([]);
+  const [localCart, setLocalCart] = useState([]);
   const { loading } = useSelector(state => state.booking);
 
-  useFocusEffect(
-    useCallback(() => {
-      loadCart();
-    }, [])
-  );
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     dispatch(hideCartPopup());
+  //     loadCart();
+  //   }, [])
+  // );
+
+  // Inside CartScreen component
+useFocusEffect(
+  useCallback(() => {
+    // 1. Tell Redux we are on the Cart Screen (Hide Popup)
+    dispatch(setCartScreenFocused(true));
+    dispatch(hideCartPopup());
+    
+    loadCart();
+
+    return () => {
+      // 2. Tell Redux we left the Cart Screen (Allow Popup again)
+      dispatch(setCartScreenFocused(false));
+    };
+  }, [dispatch])
+);
 
   const loadCart = async () => {
     const data = await getCart(userId);
-    setCart(data);
+    setLocalCart(data);
+    dispatch(setCart(data));
   };
 
-  const isBookingDisabled = cart.some(
+  const isBookingDisabled = localCart.some(
   item => !item.selectedDate || !item.selectedTime
 );
 
 
   const handleRemove = async (providerId) => {
     const updated = await removeFromCart(userId, providerId);
-    setCart(updated);
+    setLocalCart(updated);
+    dispatch(setCart(updated));
   };
+
+  const handleRemoveService = async (providerId, serviceId, selectedMode) => {
+  const updated = await removeServiceFromCart(
+    userId,
+    providerId,
+    serviceId,
+    selectedMode
+  );
+
+  setLocalCart(updated);
+  dispatch(setCart(updated));
+};
+
+// Place this inside your CartScreen component function
+const calculateTotals = () => {
+  let subtotal = 0;
+  let totalHomeFees = 0;
+  const HOME_FEE_PER_SALON = 149;
+
+  localCart.forEach(salonGroup => {
+    // 1. Calculate price for all services in this salon group
+    const salonServicesTotal = salonGroup.services.reduce(
+      (sum, s) => sum + (Number(s.price) || 0), 
+      0
+    );
+    subtotal += salonServicesTotal;
+
+    // 2. Check if this specific salon has ANY home services
+    const hasHomeService = salonGroup.services.some(s => s.selectedMode === 'home');
+    
+    // 3. If yes, add the fee once for this salon
+    if (hasHomeService) {
+      totalHomeFees += HOME_FEE_PER_SALON;
+    }
+  });
+
+  return {
+    subtotal,
+    totalHomeFees,
+    finalTotal: subtotal + totalHomeFees,
+  };
+};
+
+const totals = calculateTotals();
 
   const handleBooking = () => {
     const payload = {
-      bookings: cart.map(item => ({
+      bookings: localCart.map(item => ({
         providerId: item.providerId,
         bookingDate: item.selectedDate,
         timeSlot: { start: item.selectedTime, end: item.selectedTime },
@@ -130,7 +217,9 @@ export default function CartScreen() {
       .unwrap()
       .then(async () => {
         await clearCart(userId);
-        setCart([]);
+        setLocalCart([]);
+        dispatch(setCart([]));
+        dispatch(hideCartPopup());
         navigation.navigate('HomeTab', { screen: 'Bookings' });
       });
   };
@@ -150,41 +239,63 @@ export default function CartScreen() {
 
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {cart.length === 0 ? (
+          {localCart.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Icon name="cart-outline" size={60} color="#ccc" />
               <Text style={styles.emptyText}>Your cart is empty</Text>
             </View>
           ) : (
-            cart.map(item => (
+            localCart.map(item => (
               <CartItem
                 key={item.providerId}
                 item={item}
                 onRemove={handleRemove}
+                onRemoveService={handleRemoveService}
                 navigation={navigation}
               />
             ))
           )}
         </ScrollView>
 
-        {cart.length > 0 && (
-          <View style={styles.footerAction}>
-           <TouchableOpacity
-  style={[
-    styles.bookBtn,
-    (loading || isBookingDisabled) && { opacity: 0.5 },
-  ]}
-  onPress={handleBooking}
-  disabled={loading || isBookingDisabled}
->
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.bookText}>Proceed to Book</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        )}
+        {localCart.length > 0 && (
+  <View style={styles.footerAction}>
+    <View style={styles.priceContainer}>
+      <View style={styles.priceRow}>
+        <Text style={styles.priceLabel}>Items Subtotal</Text>
+        <Text style={styles.priceValue}>₹{totals.subtotal}</Text>
+      </View>
+
+      {totals.totalHomeFees > 0 && (
+        <View style={styles.priceRow}>
+          <Text style={styles.priceLabel}>Home Service Fees (Per Salon)</Text>
+          <Text style={styles.priceValue}>₹{totals.totalHomeFees}</Text>
+        </View>
+      )}
+
+      <View style={[styles.priceRow, styles.totalDivider]}>
+        <Text style={styles.totalLabel}>Total Amount</Text>
+        <Text style={styles.totalValue}>₹{totals.finalTotal}</Text>
+      </View>
+    </View>
+
+    <TouchableOpacity
+      style={[
+        styles.bookBtn,
+        (loading || isBookingDisabled) && { opacity: 0.5 },
+      ]}
+      onPress={handleBooking}
+      disabled={loading || isBookingDisabled}
+    >
+      {loading ? (
+        <ActivityIndicator color="#fff" />
+      ) : (
+        <Text style={styles.bookText}>
+          Proceed to Book • ₹{totals.finalTotal}
+        </Text>
+      )}
+    </TouchableOpacity>
+  </View>
+)}
       </View>
     </SafeAreaView>
   );
@@ -313,5 +424,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
     marginTop: 12,
+  },
+  priceContainer: {
+    marginBottom: 15,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  priceLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  priceValue: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  totalDivider: {
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    marginTop: 10,
+    paddingTop: 10,
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+  },
+  totalValue: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#156778',
   },
 });

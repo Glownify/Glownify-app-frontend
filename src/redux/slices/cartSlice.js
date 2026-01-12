@@ -5,6 +5,7 @@ const cartSlice = createSlice({
   initialState: {
     items: [],
     visible: false,
+    isCartScreenFocused: false, // New property
   },
   reducers: {
     setCart(state, action) {
@@ -15,6 +16,10 @@ const cartSlice = createSlice({
     },
     hideCartPopup(state) {
       state.visible = false;
+    },
+    // New reducers to control global visibility
+    setCartScreenFocused(state, action) {
+      state.isCartScreenFocused = action.payload;
     },
     clearCartState(state) {
       state.items = [];
@@ -27,6 +32,7 @@ export const {
   setCart,
   showCartPopup,
   hideCartPopup,
+  setCartScreenFocused, // Export this
   clearCartState
 } = cartSlice.actions;
 

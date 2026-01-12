@@ -11,7 +11,7 @@ import { hideCartPopup } from '../redux/slices/cartSlice';
 import { useNavigation } from '@react-navigation/native';
 
 export default function CartPopup() {
-  const { items, visible } = useSelector(state => state.cart);
+  const { items, visible, isCartScreenFocused } = useSelector(state => state.cart);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -24,7 +24,7 @@ export default function CartPopup() {
   );
 
   // Show cart permanently when items exist
-  const shouldShow = totalServices > 0;
+  const shouldShow = totalServices > 0 && !isCartScreenFocused;
 
   // Slide in/out animation
   useEffect(() => {
@@ -70,10 +70,11 @@ export default function CartPopup() {
     }
   }, [visible, totalServices]);
 
-  if (totalServices === 0) return null;
+  if (totalServices === 0 || isCartScreenFocused) return null;
 
   return (
     <Animated.View
+      key={totalServices}
       style={[
         styles.container,
         { transform: [{ translateY: slideAnim }] }
@@ -132,8 +133,8 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 100,
-    left: 60,
-    right: 60,
+    left: 90,
+    right: 90,
     zIndex: 1000,
   },
   cartButton: {

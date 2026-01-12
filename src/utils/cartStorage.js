@@ -106,6 +106,43 @@ export const removeFromCart = async (userId, providerId) => {
   }
 };
 
+
+/**
+ * REMOVE SINGLE SERVICE FROM CART
+ */
+export const removeServiceFromCart = async (
+  userId,
+  providerId,
+  serviceId,
+  selectedMode
+) => {
+  try {
+    const CART_KEY = getCartKey(userId);
+    const data = await AsyncStorage.getItem(CART_KEY);
+    let cart = data ? JSON.parse(data) : [];
+
+    cart = cart
+      .map(item => {
+        if (item.providerId !== providerId) return item;
+
+        const updatedServices = item.services.filter(
+          s => !(s._id === serviceId && s.selectedMode === selectedMode)
+        );
+
+        return { ...item, services: updatedServices };
+      })
+      // 🔥 remove provider if no services left
+      .filter(item => item.services.length > 0);
+
+    await AsyncStorage.setItem(CART_KEY, JSON.stringify(cart));
+    return cart;
+  } catch (error) {
+    console.error('Remove service error:', error);
+    return [];
+  }
+};
+
+
 /**
  * CLEAR CART
  */

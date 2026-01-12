@@ -138,7 +138,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
     setSelectedMode(null);
     setSelectedService(null);
 
-    dispatch(showSnackbar({ message: 'Added to cart', type: 'success' }));
+    // dispatch(showSnackbar({ message: 'Added to cart', type: 'success' }));
   };
 
 
