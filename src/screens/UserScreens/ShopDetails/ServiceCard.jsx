@@ -3,15 +3,11 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
-export default function ServiceCard({ provider, service }) {
+export default function ServiceCard({ service, onAdd }) {
   const navigation = useNavigation();
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={() => navigation.navigate('ServiceDetails', { provider, service })}
-      activeOpacity={0.8}
-    >
+    <View style={styles.container}>
       <Image source={service.imageURL} style={styles.image} />
 
       <View style={styles.content}>
@@ -34,11 +30,11 @@ export default function ServiceCard({ provider, service }) {
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('ServiceDetails', { provider, service })}
+        onPress={() => onAdd(service)}
       >
         <Icon name="add-circle" size={32} color="#156778" />
       </TouchableOpacity>
-    </TouchableOpacity>
+    </View>
   );
 }
 

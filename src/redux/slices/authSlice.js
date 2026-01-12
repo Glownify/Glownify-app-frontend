@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
 import { showSnackbar } from '../../redux/slices/snackbarSlice';
+import { hideCartPopup } from './cartSlice';
 
 // -------------------- THUNKS --------------------
 // 0️⃣ Signup user
@@ -71,6 +72,8 @@ export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { getState }) => {
     const { user } = getState().auth;
+
+    //dispatch close cart also
 
     if (user?._id) {
       await AsyncStorage.removeItem(`@user_cart_${user._id}`);
