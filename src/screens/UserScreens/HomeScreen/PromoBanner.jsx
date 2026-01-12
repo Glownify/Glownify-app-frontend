@@ -6,8 +6,8 @@ export const PROMO_BANNER_DURATION = 6000;
 
 // --- Color Palette ---
 const Colors = {
-  primary: "#5E38A8",
-  secondary: "#C0B3E0",
+  primary: "#156778",
+  secondary: "#156778",
   textPrimary: "#1F2937",
   textSecondary: "#6B7280",
   white: "#FFFFFF",

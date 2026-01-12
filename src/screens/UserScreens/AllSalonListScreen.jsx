@@ -37,20 +37,20 @@ const colors = {
 };
 
 // --- Filter Categories ---
-const filters = ['All', 'Hair', 'Nails', 'Facial', 'Color', 'Makeup'];
+const filters = ['All', 'Hairs','Spa' ,'Nails', 'Coloring', 'Wax', 'Makeup', 'Facial', 'Manicure'];
 
 export default function AllSalonListScreen({ navigation, route }) {
   const dispatch = useDispatch();
   const { allSalons, loading, error } = useSelector(state => state.user);
-  const { category, lat, lng } = route.params;
+  const { category, subCat, lat, lng } = route.params;
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('Facial');
+  const [activeFilter, setActiveFilter] = useState(subCat);
 
   useEffect(() => {
     if (category && lat && lng) {
-      dispatch(fetchAllSalonsByCategory({ category, lat, lng }));
+      dispatch(fetchAllSalonsByCategory({ category, subCat, lat, lng }));
     }
-  }, [category, lat, lng, dispatch]);
+  }, [category, subCat, lat, lng, dispatch]);
 
   const filteredSalons = allSalons.filter(salon =>
     salon.shopName.toLowerCase().includes(searchQuery.toLowerCase()),

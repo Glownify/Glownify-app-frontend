@@ -76,7 +76,9 @@ export default function ServiceCard({ service, onAdd }) {
 
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.name} numberOfLines={2}>{service.name}</Text>
+          <Text style={styles.name} numberOfLines={2}>
+            {service.name}
+          </Text>
           {service.discount && (
             <View style={styles.discountBadge}>
               <Icon name="pricetag" size={12} color="#F59E0B" />
@@ -141,6 +143,44 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 14,
     justifyContent: 'space-between',
+  },
+  addButton: {
+    borderWidth: 1.5,
+    borderColor: '#156778',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 28,
+    backgroundColor: '#fff',
+  },
+  addText: {
+    color: '#156778',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  counterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#156778',
+    borderRadius: 10,
+    height: 40,
+    marginTop: 20
+    // paddingHorizontal: 7,
+    // paddingVertical: 4,
+  },
+  counterBtn: {
+    paddingHorizontal: 8,
+    marginVertical: -20,
+  },
+  counterText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  quantityText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    marginHorizontal: 10,
   },
   header: {
     flexDirection: 'row',

@@ -1,17 +1,26 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
-import { LocationContext } from "../components/LocationProvider";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { getAddressFromCoords } from "../utils/geocoding";
+import React, { useContext, useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Image,
+} from 'react-native';
+import { LocationContext } from '../components/LocationProvider';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { getAddressFromCoords } from '../utils/geocoding';
 import { LinearGradient } from 'react-native-linear-gradient';
 
 export default function HomeHeader({ user, navigation }) {
   const { location, loading } = useContext(LocationContext);
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState('');
 
   useEffect(() => {
     if (location) {
-      getAddressFromCoords(location.latitude, location.longitude).then(setAddress);
+      getAddressFromCoords(location.latitude, location.longitude).then(
+        setAddress,
+      );
     }
   }, [location]);
 
@@ -32,7 +41,10 @@ export default function HomeHeader({ user, navigation }) {
             <Ionicons name="location-sharp" size={14} color="#fff" />
           </View>
           <Text style={styles.locationText} numberOfLines={1}>
-            {address || `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`}
+            {address ||
+              `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(
+                4,
+              )}`}
           </Text>
           <TouchableOpacity style={styles.changeLocationBtn}>
             <Ionicons name="chevron-down" size={14} color="#fff" />
@@ -59,23 +71,30 @@ export default function HomeHeader({ user, navigation }) {
       <View style={styles.header}>
         <View style={styles.leftContainer}>
           <View style={styles.greetingRow}>
-            <Text style={styles.waveEmoji}>👋</Text>
-            <Text style={styles.headerTitle}>Hello, {user?.name || 'Guest'}!</Text>
+            {/* <Text style={styles.waveEmoji}>👋</Text>
+            <Text style={styles.headerTitle}>Hello, {user?.name || 'Guest'}!</Text> */}
+            <Image
+              source={require('../assets/tab-icons/GlownifyLogoPng.png')}
+              style={styles.glonifyLogo}
+            />
+            <Text style={styles.headerTitle}>lonify</Text>
           </View>
-          <Text style={styles.headerSubtitle}>Find the service you want, and book now!</Text>
+          <Text style={styles.headerSubtitle}>
+            Find the service you want, and book now!
+          </Text>
           {renderLocation()}
         </View>
 
         <View style={styles.rightContainer}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("SearchScreen")}
+            onPress={() => navigation.navigate('SearchScreen')}
             style={styles.searchButton}
           >
             <Ionicons name="search-outline" size={20} color="#156778" />
           </TouchableOpacity>
-          
+
           <TouchableOpacity
-            onPress={() => navigation.navigate("Notifications")}
+            onPress={() => navigation.navigate('Notifications')}
             style={styles.notificationButton}
           >
             <Ionicons name="notifications-outline" size={20} color="#fff" />
@@ -90,18 +109,19 @@ export default function HomeHeader({ user, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  glonifyLogo:{ width: 25, height: 25, marginTop:7 },
   gradientHeader: {
     paddingTop: 10,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 8,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     paddingHorizontal: 20,
     // paddingVertical: 8,
     paddingBottom: 14,
@@ -111,8 +131,8 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   greetingRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 6,
   },
   waveEmoji: {
@@ -121,43 +141,43 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: "800",
-    color: "#fff",
+    fontWeight: '800',
+    color: '#fff',
     letterSpacing: 0.3,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: "#E1F5FA",
+    color: '#E1F5FA',
     marginBottom: 12,
     lineHeight: 18,
     opacity: 0.9,
   },
   locationBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
-    maxWidth: "95%",
+    maxWidth: '95%',
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
-    shadowColor: "#000",
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   locationIconContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 10,
     padding: 3,
     marginRight: 6,
   },
   locationText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600',
     flex: 1,
     letterSpacing: 0.2,
   },
@@ -166,52 +186,51 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   rightContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 10,
   },
   searchButton: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     padding: 12,
     borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 5,
   },
   notificationButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     padding: 12,
     borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
-    position: "relative",
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    position: 'relative',
   },
   notificationBadge: {
-    position: "absolute",
+    position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: "#FF4757",
+    backgroundColor: '#FF4757',
     borderRadius: 10,
     minWidth: 18,
     height: 18,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: '#fff',
   },
   badgeText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 10,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 });
-
 
 // import React, { useContext, useState, useEffect } from 'react';
 // import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
@@ -331,4 +350,3 @@ const styles = StyleSheet.create({
 //     alignItems: 'center',
 //   },
 // });
-

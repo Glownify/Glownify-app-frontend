@@ -13,7 +13,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { logout } from '../../redux/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
-export default function IndependentProProfile() {
+export default function IndependentProProfile({navigation}) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
@@ -313,10 +313,9 @@ export default function IndependentProProfile() {
               </Text>
             </View>
           </View>
-
           {/* Action Buttons */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+            <TouchableOpacity style={styles.editButton} onPress={()=>(navigation.navigate("IndependentProProfileEdit"))}>
               <Icon name="pencil" size={18} color="#fff" />
               <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>

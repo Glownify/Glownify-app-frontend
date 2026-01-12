@@ -51,6 +51,14 @@ export default function Onboarding4({ navigation }) {
             <Text style={styles.emailButtonText}>Join with Email</Text>
           </TouchableOpacity>
 
+          {/* Join for exploring app */}
+          <TouchableOpacity
+            style={[styles.button, styles.emailButton]}
+            onPress={() =>  navigation.navigate('Auth', { screen: 'Register' })}>
+            <Feather name="mail" size={20} color="#FFFFFF" style={styles.icon} />
+            <Text style={styles.emailButtonText}>Join with Email</Text>
+          </TouchableOpacity>
+
           {/* Sign In Link */}
           <TouchableOpacity onPress={() =>  navigation.navigate('Auth', { screen: 'Login' })}>
             <Text style={styles.footerText}>
@@ -72,6 +80,7 @@ const styles = StyleSheet.create({
   imageBackground: {
     flex: 1,
     justifyContent: 'flex-end', // Aligns content to the bottom
+    paddingBottom: 60
   },
   overlay: {
     ...StyleSheet.absoluteFillObject, // Covers the entire parent

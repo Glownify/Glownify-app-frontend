@@ -97,7 +97,11 @@ export default function SearchScreen({ navigation }) {
 
       {/* Search Bar */}
       <View style={styles.searchBarContainer}>
-        <Icon name="search-outline" size={22} color="#9CA3AF" />
+        {/* <Icon name="search-outline" size={22} color="#9CA3AF" /> */}
+        <Image
+          source={require('../../assets/tab-icons/GlownifyLogoPng.png')}
+          style={styles.glonifyLogo}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Search salon or service.."
@@ -161,13 +165,15 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   headerTitle: { fontSize: 20, fontWeight: '600', color: '#ffffffff' },
+  glonifyLogo:{width:25,height:25},
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F3F4F6',
     borderRadius: 12,
     marginHorizontal: 20,
-    marginTop: 20,
+    marginVertical: 10,
+    
     paddingHorizontal: 15,
     height: 48,
   },

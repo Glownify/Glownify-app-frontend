@@ -136,6 +136,7 @@ export default function CategoriesMarquee({ categories, navigation, location, se
               const lng = location?.longitude;
               navigation.navigate('AllSalonListScreen', {
                 category: selectedCategory,
+                subCat: cat.name,
                 lat,
                 lng,
               });
