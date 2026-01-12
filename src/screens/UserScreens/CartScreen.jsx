@@ -267,7 +267,7 @@ const totals = calculateTotals();
 
       {totals.totalHomeFees > 0 && (
         <View style={styles.priceRow}>
-          <Text style={styles.priceLabel}>Home Service Fees (Per Salon)</Text>
+          <Text style={styles.priceLabel}>Home Visit Fees (Per Salon)</Text>
           <Text style={styles.priceValue}>₹{totals.totalHomeFees}</Text>
         </View>
       )}
