@@ -77,7 +77,7 @@ export default function HomeHeader({ user, navigation }) {
               source={require('../assets/tab-icons/GlownifyLogoPng.png')}
               style={styles.glonifyLogo}
             />
-            <Text style={styles.headerTitle}>lonify</Text>
+            <Text style={styles.headerTitle}>lownify</Text>
           </View>
           <Text style={styles.headerSubtitle}>
             Find the service you want, and book now!

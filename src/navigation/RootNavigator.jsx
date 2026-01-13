@@ -69,12 +69,13 @@ export default function RootNavigator() {
         ) : user.role === 'salesman' ? (
           <Stack.Screen name="Salesman" component={SalesmanNavigator} />
         ) : user.role === 'sales_executive' ? (
-          <Stack.Screen
-            name="SalesExecutive"
-            component={SalesExecutiveNavigator}
-          />
-        ) : (
-          // <Stack.Screen name="App" component={AppNavigator} /> // default user
+          <Stack.Screen name="SalesExecutive" component={SalesExecutiveNavigator} />
+        ) : user.role == 'App' ? (
+          <Stack.Screen name="App" component={AppNavigator} /> 
+
+        ):
+        
+        (
           <>
             {/* Default user app */}
             <Stack.Screen name="App" component={AppNavigator} />
