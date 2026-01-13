@@ -51,12 +51,12 @@ export default function Onboarding4({ navigation }) {
             <Text style={styles.emailButtonText}>Join with Email</Text>
           </TouchableOpacity>
 
-          {/* Join for exploring app */}
+          {/* Continue Without Register */}
           <TouchableOpacity
-            style={[styles.button, styles.emailButton]}
-            onPress={() =>  navigation.navigate('Auth', { screen: 'Register' })}>
-            <Feather name="mail" size={20} color="#FFFFFF" style={styles.icon} />
-            <Text style={styles.emailButtonText}>Join with Email</Text>
+            style={[styles.button, {borderWidth: 2.5,borderColor: '#156778',backgroundColor: '#0789a3'}]}
+            onPress={() =>  navigation.navigate('App', { screen: 'HomeMain' })}>
+            {/* <Feather name="mail" size={20} color="#FFFFFF" style={styles.icon} /> */}
+            <Text style={styles.emailButtonText}>Continue Without Register</Text>
           </TouchableOpacity>
 
           {/* Sign In Link */}

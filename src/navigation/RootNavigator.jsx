@@ -10,7 +10,7 @@ import SalonNavigator from './SalonNavigator';
 import SuperAdminNavigator from './SuperAdminNavigator';
 import IndependentNavigator from './IndependentNavigator';
 import SalesmanNavigator from './SalesmanNavigator';
-import SalesExecutiveNavigator from './SalesExecutiveNavigator'
+import SalesExecutiveNavigator from './SalesExecutiveNavigator';
 import { useSelector, useDispatch } from 'react-redux';
 import { loadUserFromStorage } from '../redux/slices/authSlice';
 import CartPopup from '../components/CartPopup';
@@ -23,9 +23,9 @@ export default function RootNavigator() {
   const [isFirstLaunch, setIsFirstLaunch] = useState(false);
   const dispatch = useDispatch();
 
-  const { user, loading } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector(state => state.auth);
 
-// ✅ Check first launch (for onboarding)
+  // ✅ Check first launch (for onboarding)
   useEffect(() => {
     const checkLaunch = async () => {
       try {
@@ -43,7 +43,7 @@ export default function RootNavigator() {
     checkLaunch();
   }, []);
 
-    // ✅ Load stored user/token on app startup
+  // ✅ Load stored user/token on app startup
   useEffect(() => {
     dispatch(loadUserFromStorage());
   }, [dispatch]);
@@ -69,15 +69,18 @@ export default function RootNavigator() {
         ) : user.role === 'salesman' ? (
           <Stack.Screen name="Salesman" component={SalesmanNavigator} />
         ) : user.role === 'sales_executive' ? (
-          <Stack.Screen name="SalesExecutive" component={SalesExecutiveNavigator} />
+          <Stack.Screen
+            name="SalesExecutive"
+            component={SalesExecutiveNavigator}
+          />
         ) : (
           // <Stack.Screen name="App" component={AppNavigator} /> // default user
           <>
-      {/* Default user app */}
-      <Stack.Screen name="App" component={AppNavigator} />
-      {/* Cart stack outside of tabs */}
-      <Stack.Screen name="CartStack" component={CartStackNavigator} />
-    </>
+            {/* Default user app */}
+            <Stack.Screen name="App" component={AppNavigator} />
+            {/* Cart stack outside of tabs */}
+            <Stack.Screen name="CartStack" component={CartStackNavigator} />
+          </>
         )}
       </Stack.Navigator>
       <CartPopup />
