@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import { updateCartItem } from '../../../utils/cartStorage';
+import { useSelector } from 'react-redux';
 
 const TIME_SLOTS = [
   { time: '9:00 AM', },
@@ -21,25 +23,27 @@ const TIME_SLOTS = [
 ];
 
 export default function SelectDateAndTime({ route }) {
-  const navigation = useNavigation();
   const { providerId } = route.params;
+  const navigation = useNavigation();
+  const {user} = useSelector(state => state.auth);
+
+  const userId = user?._id || 'guest';
   const [selectedDate, setSelectedDate] = useState('2026-01-01');
   const [selectedTime, setSelectedTime] = useState(null);
 
-  console.log("Selected Provider ID:", providerId);
   // In DateTimePickerScreen.js
-const handleConfirm = () => {
+const handleConfirm = async () => {
   if (!selectedDate || !selectedTime) {
     alert("Please select both date and time");
     return;
   }
 
-  // Pass data back to the previous screen (CartScreen)
-  navigation.navigate('CartScreen', {
-    providerId,
+  await updateCartItem(userId, providerId, {
     selectedDate,
     selectedTime,
   });
+
+  navigation.goBack();
 };
 
   const getSlotStyle = (status, isSelected) => {

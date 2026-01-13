@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  TouchableWithoutFeedback
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -18,6 +19,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import ShopDetailsSkeleton from './ShopDetailsSkeleton';
 import { fetchSalonById, fetchServiceItemsByCategory } from '../../../redux/slices/userSlice';
 const { height, width } = Dimensions.get('window');
+import { addToCart } from '../../../utils/cartStorage';
+import { showSnackbar } from '../../../redux/slices/snackbarSlice';
 
 // Mock Data
 const shopData = {
@@ -69,6 +72,13 @@ export default function ShopDetailsScreen({ navigation, route }) {
   const dispatch = useDispatch();
   const { salonDetails: salonData, serviceItemsByCategory, loading } = useSelector((state) => state.user);
 
+  const [modeModalVisible, setModeModalVisible] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedMode, setSelectedMode] = useState(null);
+
+  const { user } = useSelector(state => state.auth);
+  const userId = user?._id || 'guest';
+
   console.log('Salon Data:', salonData);
   const defaultOpeningHours = [
     { day: 'Monday', start: '08:00am', end: '09:00pm' },
@@ -95,9 +105,47 @@ export default function ShopDetailsScreen({ navigation, route }) {
     dispatch(fetchServiceItemsByCategory({ salonId, categoryId }));
   };
 
+  const handleAddService = async (service) => {
+    if (service.serviceMode === 'both') {
+      setSelectedService(service);
+      setModeModalVisible(true);
+      return;
+    }
+
+   await addToCart(
+      dispatch,
+      userId,
+      { _id: salonData._id, name: salonData.shopName },
+      service,
+      service.serviceMode
+    );
+
+    // dispatch(showSnackbar({ message: 'Added to cart', type: 'success' }));
+  };
+
+  const confirmModeSelection = async () => {
+    if (!selectedMode || !selectedService) return;
+
+    await addToCart(
+      dispatch,
+      userId,
+      { _id: salonData._id, name: salonData.shopName },
+      selectedService,
+      selectedMode
+    );
+
+    setModeModalVisible(false);
+    setSelectedMode(null);
+    setSelectedService(null);
+
+    // dispatch(showSnackbar({ message: 'Added to cart', type: 'success' }));
+  };
+
+
+
   if (!salonData && loading) {
     return (
-      <ShopDetailsSkeleton/>
+      <ShopDetailsSkeleton />
     );
   }
 
@@ -275,15 +323,13 @@ export default function ShopDetailsScreen({ navigation, route }) {
             </ScrollView>
 
             {serviceItemsByCategory.map((service) => (
-              <ServiceCard key={service._id} provider={{
-                _id: salonData._id,
-                name: salonData.shopName,
-              }} service={service} />
+              <ServiceCard
+                key={service._id}
+                service={service}
+                onAdd={handleAddService}
+              />
             ))}
 
-            {/* <TouchableOpacity style={styles.viewAllServicesButton}>
-              <Text style={styles.viewAllServicesText}>View All Services</Text>
-            </TouchableOpacity> */}
           </View>
 
           {/* Gallery */}
@@ -357,6 +403,73 @@ export default function ShopDetailsScreen({ navigation, route }) {
           </TouchableOpacity>
         </View> */}
       </View>
+
+  {modeModalVisible && (
+  <TouchableWithoutFeedback onPress={() => {
+    setModeModalVisible(false);
+    setSelectedMode(null);
+    setSelectedService(null);
+  }}>
+    <View style={styles.modalOverlay}>
+      
+      {/* Stop propagation so modal itself doesn’t close */}
+      <TouchableWithoutFeedback>
+        <View style={styles.modalContainer}>
+
+          {/* Close Icon */}
+          <TouchableOpacity
+            style={styles.closeIcon}
+            onPress={() => {
+              setModeModalVisible(false);
+              setSelectedMode(null);
+              setSelectedService(null);
+            }}
+          >
+            <Icon name="close" size={22} color="#6B7280" />
+          </TouchableOpacity>
+
+          <Text style={styles.modalTitle}>Select Service Mode</Text>
+
+          <TouchableOpacity
+            style={[
+              styles.modeOption,
+              selectedMode === 'salon' && styles.modeActive
+            ]}
+            onPress={() => setSelectedMode('salon')}
+          >
+            <Icon name="cut-outline" size={20} color="#156778" />
+            <Text style={styles.modeText}>At Salon</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.modeOption,
+              selectedMode === 'home' && styles.modeActive
+            ]}
+            onPress={() => setSelectedMode('home')}
+          >
+            <Icon name="home-outline" size={20} color="#156778" />
+            <Text style={styles.modeText}>At Home</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.confirmButton,
+              !selectedMode && { opacity: 0.5 }
+            ]}
+            disabled={!selectedMode}
+            onPress={confirmModeSelection}
+          >
+            <Text style={styles.confirmText}>Confirm</Text>
+          </TouchableOpacity>
+
+        </View>
+      </TouchableWithoutFeedback>
+    </View>
+  </TouchableWithoutFeedback>
+)}
+
+
     </SafeAreaView>
 
   );
@@ -665,4 +778,68 @@ const styles = StyleSheet.create({
     color: '#156778',
     fontWeight: '600',
   },
+    modalOverlay: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0,0,0,0.4)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+modalContainer: {
+  width: '85%',
+  backgroundColor: '#fff',
+  borderRadius: 16,
+  padding: 20,
+},
+
+modalTitle: {
+  fontSize: 18,
+  fontWeight: '700',
+  marginBottom: 20,
+  textAlign: 'center',
+},
+
+modeOption: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  padding: 14,
+  borderRadius: 12,
+  borderWidth: 1,
+  borderColor: '#E5E7EB',
+  marginBottom: 12,
+},
+
+modeActive: {
+  backgroundColor: '#E6F2F4',
+  borderColor: '#156778',
+},
+modeText: {
+  fontSize: 16,
+  marginLeft: 10,
+  color: '#111827',
+},
+
+confirmButton: {
+  backgroundColor: '#156778',
+  paddingVertical: 14,
+  borderRadius: 20,
+  alignItems: 'center',
+  marginTop: 10,
+},
+
+confirmText: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: '600',
+},
+closeIcon: {
+  position: 'absolute',
+  top: 12,
+  right: 12,
+  zIndex: 10,
+},
 });
