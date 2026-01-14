@@ -6,22 +6,24 @@ const getCartKey = (userId) => `@user_cart_${userId || 'guest'}`;
 /**
  * ADD TO CART
  */
+/**
+ * ADD TO CART (Optimized)
+ */
 export const addToCart = async (dispatch, userId, provider, service, selectedMode) => {
   try {
     const CART_KEY = getCartKey(userId);
     const data = await AsyncStorage.getItem(CART_KEY);
     let cart = data ? JSON.parse(data) : [];
 
-    const providerIndex = cart.findIndex(
-      item => item.providerId === provider._id
-    );
+    const providerIndex = cart.findIndex(item => item.providerId === provider._id);
 
     const serviceWithMode = {
       ...service,
-      selectedMode, // 🔥 PER SERVICE MODE
+      selectedMode, 
     };
 
     if (providerIndex > -1) {
+      // Check if this specific service with this specific mode already exists
       const serviceExists = cart[providerIndex].services.some(
         s => s._id === service._id && s.selectedMode === selectedMode
       );
@@ -30,19 +32,22 @@ export const addToCart = async (dispatch, userId, provider, service, selectedMod
         cart[providerIndex].services.push(serviceWithMode);
       }
     } else {
+      // New Provider Entry
       cart.push({
         providerId: provider._id,
         providerName: provider.name,
         services: [serviceWithMode],
-        selectedDate: null,
-        selectedTime: null,
+        // Separate keys for different modes
+        selectedDateSalon: null,
+        selectedTimeSalon: null,
+        selectedDateHome: null,
+        selectedTimeHome: null,
       });
     }
 
     await AsyncStorage.setItem(CART_KEY, JSON.stringify(cart));
     dispatch(setCart(cart));
     dispatch(showCartPopup());
-
     return cart;
   } catch (error) {
     console.error('Add to cart error:', error);
@@ -67,11 +72,19 @@ export const getCart = async (userId) => {
 /**
  * UPDATE DATE / TIME
  */
-export const updateCartItem = async (userId, providerId, updates) => {
+/**
+ * UPDATE DATE / TIME (Mode Specific)
+ */
+export const updateCartDateTime = async (userId, providerId, mode, date, time) => {
   try {
     const CART_KEY = getCartKey(userId);
     const data = await AsyncStorage.getItem(CART_KEY);
     let cart = data ? JSON.parse(data) : [];
+
+    // Determine which keys to update based on mode
+    const updates = mode === 'salon' 
+      ? { selectedDateSalon: date, selectedTimeSalon: time }
+      : { selectedDateHome: date, selectedTimeHome: time };
 
     cart = cart.map(item =>
       item.providerId === providerId
