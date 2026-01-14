@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useContext,
+} from 'react';
 import {
   View,
   Text,
@@ -31,7 +37,7 @@ import ServiceAtHomeCard from './ServiceAtHomeCard';
 import PromoBanner, { PROMO_BANNER_DURATION } from './PromoBanner';
 import PromoBanner2, { PROMO_BANNER_2_DURATION } from './PromoBanner2';
 import SkeletonLoadingScreen from './SkeletonLoadingScreen';
-import { LocationContext } from "../../../components/LocationProvider";
+import { LocationContext } from '../../../components/LocationProvider';
 const { width } = Dimensions.get('window');
 import CategoriesMarquee from './CategoriesMarquee';
 
@@ -42,7 +48,6 @@ const colors = {
   background: '#FFFFFF',
   textSecondary: '#6B7280',
 };
-
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -100,16 +105,20 @@ export default function HomeScreen({ navigation }) {
       const lat = location.latitude;
       const lng = location.longitude;
       dispatch(getAllCategories(selectedCategory));
-      dispatch(fetchHomeSalonsBySalonCategory({
-        category: selectedCategory,
-        lat,
-        lng,
-      }));
-      dispatch(fetchHomeIndependentprosByCategory({
-        category: selectedCategory,
-        lat,
-        lng,
-      }));
+      dispatch(
+        fetchHomeSalonsBySalonCategory({
+          category: selectedCategory,
+          lat,
+          lng,
+        }),
+      );
+      dispatch(
+        fetchHomeIndependentprosByCategory({
+          category: selectedCategory,
+          lat,
+          lng,
+        }),
+      );
       dispatch(fetchUnisexSalons({ lat, lng }));
     }
   }, [selectedCategory, dispatch, location]);
@@ -178,21 +187,23 @@ export default function HomeScreen({ navigation }) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-     const lat = location?.latitude;
+    const lat = location?.latitude;
     const lng = location?.longitude;
     dispatch(getAllCategories(selectedCategory));
-     dispatch(
-    fetchHomeSalonsBySalonCategory({
-      category: selectedCategory,
-      lat,
-      lng,
-    })
-  );
-    dispatch(fetchHomeIndependentprosByCategory({
-      category: selectedCategory,
-      lat,
-      lng,
-    }));
+    dispatch(
+      fetchHomeSalonsBySalonCategory({
+        category: selectedCategory,
+        lat,
+        lng,
+      }),
+    );
+    dispatch(
+      fetchHomeIndependentprosByCategory({
+        category: selectedCategory,
+        lat,
+        lng,
+      }),
+    );
     dispatch(fetchUnisexSalons({ lat, lng }));
     setRefreshing(false);
   };
@@ -216,10 +227,10 @@ export default function HomeScreen({ navigation }) {
           showViewAll
           onPress={() =>
             navigation.navigate('AllSalonListScreen', {
-            category: selectedCategory,
-            lat,
-            lng,
-          })
+              category: selectedCategory,
+              lat,
+              lng,
+            })
           }
         />
         <ScrollView
@@ -242,9 +253,9 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}  edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-      <View style={{ flex: 1, backgroundColor: colors.white}}>
+      <View style={{ flex: 1, backgroundColor: colors.white }}>
         <HomeHeader user={user} navigation={navigation} />
 
         <ScrollView
@@ -354,7 +365,7 @@ export default function HomeScreen({ navigation }) {
 
           {/* Categories */}
           <SectionHeader title="What do you want to get?" />
-          <CategoriesMarquee 
+          <CategoriesMarquee
             categories={categories}
             navigation={navigation}
             location={location}
@@ -365,9 +376,9 @@ export default function HomeScreen({ navigation }) {
           {renderSalonSection(selectedCategory.toUpperCase(), salonList)}
 
           {/* --- Service at Home Card --- */}
-          <SectionHeader 
-            title="Service At Home" 
-            onPress={()=>(navigation.navigate("ProfessionalsListScreen"))} 
+          <SectionHeader
+            title="Service At Home"
+            onPress={() => navigation.navigate('ProfessionalsListScreen')}
           />
           <FlatList
             ref={prosScrollRef}
@@ -384,7 +395,7 @@ export default function HomeScreen({ navigation }) {
               />
             )}
             horizontal
-            pagingEnabled // smooth snap
+            pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScrollToIndexFailed={() => {}}
           />
@@ -404,29 +415,35 @@ export default function HomeScreen({ navigation }) {
               salonBadge="Home Services"
             />
           </View>
-          
+
           <SectionHeader title="Unisex Salons" />
           <View style={{ paddingHorizontal: 16 }}>
-  {unisexSalons.length === 0 ? (
-    <Text style={{ color: '#6B7280', textAlign: 'center' }}>
-      No unisex salons found nearby
-    </Text>
-  ) : (
-    unisexSalons.map(unisexSalon => (
-      <UnisexCard
-        key={unisexSalon._id}
-        unisexSalon={unisexSalon}
-        icon="male-female"
-        salonBadge="Unisex"
-        onPress={() =>
-          navigation.navigate('SalonDetailScreen', {
-            salonId: unisexSalon._id,
-          })
-        }
-      />
-    ))
-  )}
-</View>
+            {unisexSalons.length === 0 ? (
+              <Text style={{ color: '#6B7280', textAlign: 'center' }}>
+                No unisex salons found nearby
+              </Text>
+            ) : (
+              unisexSalons.map(unisexSalon => (
+                <UnisexCard
+                  key={unisexSalon._id}
+                  unisexSalon={unisexSalon}
+                  icon="male-female"
+                  salonBadge="Unisex"
+                  onPress={() =>
+                    navigation.navigate('SalonDetailScreen', {
+                      salonId: unisexSalon._id,
+                    })
+                  }
+                />
+              ))
+            )}
+          </View>
+          <View style={[styles.footerLogoContainer]}>
+            <Image 
+              source={require('../../../assets/GlownifyLogoPng.png')} 
+              style={styles.glownify}
+            />
+          </View>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -549,4 +566,10 @@ const styles = StyleSheet.create({
   bannerSlide: {
     width: '100%',
   },
+  footerLogoContainer: {
+    alignItems: 'center',
+    opacity: 0.5,
+    paddingBottom: 20
+  },
+  glownify:{height: 100, width: 110}
 });
