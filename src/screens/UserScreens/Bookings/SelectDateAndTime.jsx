@@ -4,8 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import { updateCartItem } from '../../../utils/cartStorage';
-import { useSelector } from 'react-redux';
+import { updateCartDateTime } from '../../../utils/cartStorage';
+import { setCart } from '../../../redux/slices/cartSlice';
+import { useSelector, useDispatch } from 'react-redux';
 
 const TIME_SLOTS = [
   { time: '9:00 AM', },
@@ -23,25 +24,28 @@ const TIME_SLOTS = [
 ];
 
 export default function SelectDateAndTime({ route }) {
-  const { providerId } = route.params;
+  const { providerId, mode } = route.params; // mode is 'salon' or 'home'
   const navigation = useNavigation();
-  const {user} = useSelector(state => state.auth);
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
 
   const userId = user?._id || 'guest';
   const [selectedDate, setSelectedDate] = useState('2026-01-01');
   const [selectedTime, setSelectedTime] = useState(null);
 
-  // In DateTimePickerScreen.js
-const handleConfirm = async () => {
-  if (!selectedDate || !selectedTime) {
-    alert("Please select both date and time");
-    return;
-  }
+  const handleConfirm = async () => {
+  const updates = mode === 'salon' 
+    ? { selectedDateSalon: selectedDate, selectedTimeSalon: selectedTime }
+    : { selectedDateHome: selectedDate, selectedTimeHome: selectedTime };
 
-  await updateCartItem(userId, providerId, {
-    selectedDate,
-    selectedTime,
-  });
+  // 1. SAVE TO DISK (Permanent)
+  // This updates the local storage so data isn't lost on refresh
+  const updatedCart = await updateCartDateTime(userId, providerId, mode, selectedDate, selectedTime);
+
+  // 2. UPDATE UI (Instant)
+  // This updates the Redux store. Because your CartScreen uses 'useSelector',
+  // it will see this change and update the UI the millisecond you go back.
+  dispatch(setCart(updatedCart));
 
   navigation.goBack();
 };
