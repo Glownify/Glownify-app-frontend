@@ -13,6 +13,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../redux/slices/authSlice'; // ✅ import thunk
 import { showSnackbar } from '../../redux/slices/snackbarSlice';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -36,6 +37,20 @@ export default function LoginScreen({ navigation }) {
     }
     dispatch(loginUser({ email, password }));
   };
+
+  const signInWithGoogle = async () => {
+  try {
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+
+    const idToken = userInfo.idToken;
+
+    // Send this token to backend
+    console.log(idToken);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   return (
     <View style={styles.container}>
@@ -103,7 +118,7 @@ export default function LoginScreen({ navigation }) {
       <Text style={styles.orText}>or</Text>
 
       {/* Google Sign-In */}
-      <TouchableOpacity style={styles.googleButton}>
+      <TouchableOpacity onPress={signInWithGoogle} style={styles.googleButton}>
         <Image
           source={require('../../assets/google-logo.png')}
           style={styles.googleIcon}

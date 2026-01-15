@@ -205,7 +205,7 @@ export default function IndependentProProfile({navigation}) {
             <Text style={styles.sectionTitle}>Contact Information</Text>
 
             <View style={styles.infoItem}>
-              <Icon name="location" size={20} color="#156778" />
+              <Icon name="location" style={{marginTop: 10}} size={20} color="#156778" />
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Location</Text>
                 <Text style={styles.infoText}>
@@ -220,7 +220,7 @@ export default function IndependentProProfile({navigation}) {
 
             {(roleDetails?.contactNumber || roleDetails?.whatsappNumber) && (
               <View style={styles.infoItem}>
-                <Icon name="call" size={20} color="#156778" />
+                <Icon name="call" style={{marginTop: 10}} size={20} color="#156778" />
                 <View style={styles.infoContent}>
                   {roleDetails?.contactNumber && (
                     <>
@@ -243,7 +243,7 @@ export default function IndependentProProfile({navigation}) {
             )}
 
             <View style={styles.infoItem}>
-              <Icon name="mail" size={20} color="#156778" />
+              <Icon name="mail" style={{marginTop: 10}} size={20} color="#156778" />
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Email</Text>
                 <Text style={styles.infoText}>{user?.email || 'N/A'}</Text>
@@ -252,7 +252,7 @@ export default function IndependentProProfile({navigation}) {
 
             {user?.phone && (
               <View style={styles.infoItem}>
-                <Icon name="phone-portrait" size={20} color="#156778" />
+                <Icon name="phone-portrait" style={{marginTop: 10}} size={20} color="#156778" />
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Personal Phone</Text>
                   <Text style={styles.infoText}>{user.phone}</Text>
