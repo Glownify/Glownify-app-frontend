@@ -17,7 +17,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
-  const { loading, user } = useSelector((state) => state.auth);
+  const { loading, user } = useSelector(state => state.auth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,18 +39,19 @@ export default function LoginScreen({ navigation }) {
   };
 
   const signInWithGoogle = async () => {
-  try {
-    await GoogleSignin.hasPlayServices();
-    const userInfo = await GoogleSignin.signIn();
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      console.log(userInfo);
 
-    const idToken = userInfo.idToken;
+      const idToken = userInfo.data.idToken;
 
-    // Send this token to backend
-    console.log(idToken);
-  } catch (error) {
-    console.log(error);
-  }
-};
+      // Send this token to backend
+      console.log(idToken);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -87,7 +88,8 @@ export default function LoginScreen({ navigation }) {
             onChangeText={setPassword}
           />
           <TouchableOpacity
-            onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+          >
             <Feather
               name={isPasswordVisible ? 'eye' : 'eye-off'}
               size={20}
@@ -106,7 +108,8 @@ export default function LoginScreen({ navigation }) {
       <TouchableOpacity
         style={styles.signInButton}
         onPress={handleLogin}
-        disabled={loading}>
+        disabled={loading}
+      >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
@@ -129,8 +132,7 @@ export default function LoginScreen({ navigation }) {
       {/* Register */}
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.footerText}>
-          Don’t have an account?{' '}
-          <Text style={styles.joinNow}>Join Now</Text>
+          Don’t have an account? <Text style={styles.joinNow}>Join Now</Text>
         </Text>
       </TouchableOpacity>
     </View>

@@ -15,6 +15,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from '../../redux/slices/authSlice';
 import Loader from '../../components/Loader';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
   const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const regexPnoneNo = /^[6-9]\d{9}$/;
@@ -55,6 +56,21 @@ export default function RegisterScreen({navigation}) {
       Alert.alert("Signup Failed", error);
     }
   };
+
+  const signInWithGoogle = async () => {
+      try {
+        await GoogleSignin.hasPlayServices();
+        const userInfo = await GoogleSignin.signIn();
+        console.log(userInfo);
+  
+        const idToken = userInfo.data.idToken;
+  
+        // Send this token to backend
+        console.log(idToken);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   return (
     <View style={styles.container}>
@@ -170,7 +186,7 @@ export default function RegisterScreen({navigation}) {
         <Text style={styles.orText}>or</Text>
 
         {/* Google Sign-Up */}
-        <TouchableOpacity style={styles.googleButton}>
+        <TouchableOpacity onPress={signInWithGoogle} style={styles.googleButton}>
           <Image
             source={require('../../assets/google-logo.png')}
             style={styles.googleIcon}
