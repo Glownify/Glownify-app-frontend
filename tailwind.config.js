@@ -9,7 +9,6 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
-      // 🎨 Color System
       colors: {
         primary: {
           50: '#fff1f2',
@@ -51,42 +50,56 @@ module.exports = {
         info: '#3b82f6',
       },
 
-      // 🔤 Typography
       fontFamily: {
-        primary: ['Inter'],
+        primary: 'Inter',
       },
 
       fontSize: {
-        xs: ['12px', { lineHeight: '16px' }],
-        sm: ['14px', { lineHeight: '20px' }],
-        base: ['16px', { lineHeight: '24px' }],
-        lg: ['18px', { lineHeight: '28px' }],
-        xl: ['20px', { lineHeight: '28px' }],
-        '2xl': ['24px', { lineHeight: '32px' }],
-        '3xl': ['30px', { lineHeight: '36px' }],
-        '4xl': ['36px', { lineHeight: '40px' }],
+        xs: 12,
+        sm: 14,
+        base: 16,
+        lg: 18,
+        xl: 20,
+        '2xl': 24,
+        '3xl': 30,
+        '4xl': 36,
       },
 
-      // 📏 Spacing (4pt grid system)
+      lineHeight: {
+        sm: 20,
+        md: 24,
+        lg: 28,
+        xl: 32,
+        '2xl': 36,
+        '3xl': 40,
+      },
+
+      width:{
+        '32px': 32,
+        '40px': 40,
+        sm : 120,
+        md : 160,
+        lg : 200,
+        xl : 240,
+        '2xl' : 280,
+        '3xl' : 320,
+      },
+
       spacing: {
-        18: 72,
-        22: 88,
-        26: 104,
+        xs: 8,
+        sm: 12,
+        md: 16,
+        lg: 20,
+        xl: 24,
+        '2xl': 28,
+        '3xl': 32,
       },
 
-      // 🔘 Border Radius
       borderRadius: {
         button: 9999,
         card: 16,
         input: 12,
         avatar: 9999,
-      },
-
-      // 🌑 Shadows (NativeWind-compatible)
-      boxShadow: {
-        sm: '0 1px 2px rgba(0,0,0,0.05)',
-        md: '0 4px 6px rgba(0,0,0,0.1)',
-        lg: '0 10px 15px rgba(0,0,0,0.15)',
       },
     },
   },
