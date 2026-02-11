@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Image,
   StatusBar,
   ActivityIndicator,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../../redux/slices/authSlice'; // ✅ import thunk
+import { loginUser } from '../../redux/slices/authSlice';
 import { showSnackbar } from '../../redux/slices/snackbarSlice';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -38,186 +38,99 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <Text style={styles.welcome}>Welcome back,</Text>
-      <Text style={styles.subtitle}>
-        Glad to meet you again! Please login to use the app.
-      </Text>
-
-      <View style={styles.inputBox}>
-        {/* Email Input */}
-        <View style={styles.inputWrapper}>
-          <Feather name="mail" size={20} color="#888" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#999"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-1 bg-white px-6 justify-center">
+        <View className="gap-md">
+          <Text className="text-4xl font-bold text-neutral-900">
+            Welcome back,
+          </Text>
+          <Text className="text-neutral-500 text-base">
+            Glad to meet you again! Please login to use the app.
+          </Text>
         </View>
 
-        {/* Password Input */}
-        <View style={styles.inputWrapper}>
-          <Feather name="lock" size={20} color="#888" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
-            secureTextEntry={!isPasswordVisible}
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TouchableOpacity
-            onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
-            <Feather
-              name={isPasswordVisible ? 'eye' : 'eye-off'}
-              size={20}
-              color="#888"
+        <View className="my-20">
+          {/* Email Input */}
+          <View className="flex-row items-center bg-[#F0F3F6] border border-[#F0F3F6] rounded-full px-4 mb-4">
+            <Feather name="mail" size={20} color="#888" className="mr-2.5" />
+            <TextInput
+              className="flex-1 py-4 text-base text-neutral-800"
+              placeholder="Email"
+              placeholderTextColor="#999"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
+          </View>
+
+          {/* Password Input */}
+          <View className="flex-row items-center bg-[#F0F3F6] border border-[#F0F3F6] rounded-full px-4 mb-4">
+            <Feather name="lock" size={20} color="#888" className="mr-2.5" />
+            <TextInput
+              className="flex-1 py-4 text-base text-neutral-800"
+              placeholder="Password"
+              placeholderTextColor="#999"
+              secureTextEntry={!isPasswordVisible}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity
+              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+            >
+              <Feather
+                name={isPasswordVisible ? 'eye' : 'eye-off'}
+                size={20}
+                color="#888"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Forgot Password */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ForgotPassword')}
+          >
+            <Text className="text-[#1E90FF] self-end mb-8 font-semibold">
+              Forgot password?
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Forgot Password */}
-        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-          <Text style={styles.forgotText}>Forgot password?</Text>
+        {/* Sign In Button */}
+        <TouchableOpacity
+          className="bg-[#156778] py-[18px] rounded-full items-center mb-8 shadow-sm"
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text className="text-white font-bold text-base">Sign In</Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Divider */}
+        <Text className="text-center text-neutral-400 mb-8">or</Text>
+
+        {/* Google Sign-In */}
+        <TouchableOpacity className="flex-row items-center bg-white border border-neutral-200 rounded-full py-4 justify-center mb-10">
+          <Image
+            source={require('../../assets/google-logo.png')}
+            className="w-[22px] h-[22px] mr-3"
+          />
+          <Text className="text-neutral-700 font-semibold text-base">
+            Sign in with Google
+          </Text>
+        </TouchableOpacity>
+
+        {/* Register */}
+        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <Text className="text-center text-neutral-500 text-[15px]">
+            Don’t have an account?{' '}
+            <Text className="text-[#1E90FF] font-bold">Join Now</Text>
+          </Text>
         </TouchableOpacity>
       </View>
-
-      {/* Sign In Button */}
-      <TouchableOpacity
-        style={styles.signInButton}
-        onPress={handleLogin}
-        disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.signInText}>Sign In</Text>
-        )}
-      </TouchableOpacity>
-
-      {/* Divider */}
-      <Text style={styles.orText}>or</Text>
-
-      {/* Google Sign-In */}
-      <TouchableOpacity style={styles.googleButton}>
-        <Image
-          source={require('../../assets/google-logo.png')}
-          style={styles.googleIcon}
-        />
-        <Text style={styles.googleText}>Sign in with Google</Text>
-      </TouchableOpacity>
-
-      {/* Register */}
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.footerText}>
-          Don’t have an account?{' '}
-          <Text style={styles.joinNow}>Join Now</Text>
-        </Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 25,
-    justifyContent: 'center',
-  },
-  welcome: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#1A1A1A',
-  },
-  subtitle: {
-    color: '#888',
-    marginBottom: 40,
-    fontSize: 16,
-  },
-  inputBox: {
-    marginVertical: 80,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0F3F6',
-    borderWidth: 1,
-    borderColor: '#F0F3F6',
-    borderRadius: 30,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 15,
-    fontSize: 16,
-    color: '#333',
-  },
-  forgotText: {
-    color: '#1E90FF',
-    alignSelf: 'flex-end',
-    marginBottom: 30,
-    fontWeight: '600',
-  },
-  signInButton: {
-    backgroundColor: '#156778',
-    paddingVertical: 18,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginBottom: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  signInText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  orText: {
-    textAlign: 'center',
-    color: '#999',
-    marginBottom: 30,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 30,
-    paddingVertical: 15,
-    justifyContent: 'center',
-    marginBottom: 40,
-  },
-  googleIcon: {
-    width: 22,
-    height: 22,
-    marginRight: 12,
-  },
-  googleText: {
-    color: '#444',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  footerText: {
-    textAlign: 'center',
-    color: '#888',
-    fontSize: 15,
-  },
-  joinNow: {
-    color: '#1E90FF',
-    fontWeight: 'bold',
-  },
-});
