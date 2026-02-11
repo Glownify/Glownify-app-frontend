@@ -9,6 +9,7 @@ import { store } from './src/redux/store';
 import RootNavigator from './src/navigation/RootNavigator';
 import LocationProvider from './src/components/LocationProvider';
 import GlobalSnackbar from './src/components/GlobalSnackbar';
+import './global.css';
 
 export default function App() {
   return (
