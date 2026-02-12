@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../../redux/slices/authSlice';
+import { loginUser, skipLogin } from '../../redux/slices/authSlice';
 import { showSnackbar } from '../../redux/slices/snackbarSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -129,6 +129,14 @@ export default function LoginScreen({ navigation }) {
             Don’t have an account?{' '}
             <Text className="text-[#1E90FF] font-bold">Join Now</Text>
           </Text>
+        </TouchableOpacity>
+
+        {/* Skip for now */}
+        <TouchableOpacity
+          className="items-center justify-center"
+          onPress={() => dispatch(skipLogin())}
+        >
+          <Text className="text-center text-blue-500 text-[15px]">Skip for now</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

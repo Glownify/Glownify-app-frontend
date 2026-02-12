@@ -1,16 +1,11 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Header from '../../components/common/Header';
 
 export default function RoleSelectionScreen({ navigation }) {
-  const handleRoleSelect = (role) => {
+  const handleRoleSelect = role => {
     if (role === 'salon_owner') {
       navigation?.navigate('SalonOwnerRegistration');
     } else if (role === 'independent') {
@@ -19,35 +14,35 @@ export default function RoleSelectionScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView className="flex-1 bg-[#f5f5f5]">
+      <View className="flex-1">
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation?.goBack()}>
-            <Icon name="chevron-back" size={24} color="#333" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Register As</Text>
-          <View style={styles.headerPlaceholder} />
-        </View>
+        <Header title="Register As" onBack={() => navigation?.goBack()} />
 
         {/* Title */}
-        <Text style={styles.title}>Choose Your Role</Text>
-        <Text style={styles.subtitle}>
-          Select how you'd like to join our platform
-        </Text>
+        <View>
+          <Text className="text-2xl font-bold text-[#333] px-4 mt-5">
+            Choose Your Role
+          </Text>
+          <Text className="text-sm text-[#999] px-4 mb-6 mt-1">
+            Select how you'd like to join our platform
+          </Text>
+        </View>
 
         {/* Salon Owner Option */}
         <TouchableOpacity
-          style={styles.roleCard}
+          className="mx-4 mb-3 bg-white rounded-xl p-4 flex-row items-center justify-between shadow-sm"
           onPress={() => handleRoleSelect('salon_owner')}
         >
-          <View style={styles.roleCardContent}>
-            <View style={[styles.iconContainer, styles.iconSalon]}>
+          <View className="flex-1 flex-row items-center gap-3">
+            <View className="w-[60px] h-[60px] rounded-full justify-center items-center bg-[#E8F4F8]">
               <Icon name="storefront" size={40} color="#156778" />
             </View>
-            <View style={styles.roleInfo}>
-              <Text style={styles.roleName}>Salon Owner</Text>
-              <Text style={styles.roleDescription}>
+            <View className="flex-1">
+              <Text className="text-[15px] font-bold text-[#333] mb-1">
+                Salon Owner
+              </Text>
+              <Text className="text-xs text-[#666] leading-4">
                 Register your salon and manage bookings, staff, and services
               </Text>
             </View>
@@ -57,17 +52,20 @@ export default function RoleSelectionScreen({ navigation }) {
 
         {/* Independent Professional Option */}
         <TouchableOpacity
-          style={styles.roleCard}
+          className="mx-4 mb-3 bg-white rounded-xl p-4 flex-row items-center justify-between shadow-sm"
           onPress={() => handleRoleSelect('independent')}
         >
-          <View style={styles.roleCardContent}>
-            <View style={[styles.iconContainer, styles.iconIndependent]}>
+          <View className="flex-1 flex-row items-center gap-3">
+            <View className="w-[60px] h-[60px] rounded-full justify-center items-center bg-[#FCE4EC]">
               <Icon name="person" size={40} color="#E91E63" />
             </View>
-            <View style={styles.roleInfo}>
-              <Text style={styles.roleName}>Independent Professional</Text>
-              <Text style={styles.roleDescription}>
-                Freelance beautician/barber. Work independently and manage your schedule
+            <View className="flex-1">
+              <Text className="text-[15px] font-bold text-[#333] mb-1">
+                Independent Professional
+              </Text>
+              <Text className="text-xs text-[#666] leading-4">
+                Freelance beautician/barber. Work independently and manage your
+                schedule
               </Text>
             </View>
           </View>
@@ -75,203 +73,70 @@ export default function RoleSelectionScreen({ navigation }) {
         </TouchableOpacity>
 
         {/* Features Info */}
-        <View style={styles.infoSection}>
-          <Text style={styles.infoTitle}>Why Register With Us?</Text>
+        <View className="mx-4 my-6 bg-white rounded-xl p-4">
+          <Text className="text-base font-bold text-[#333] mb-4">
+            Why Register With Us?
+          </Text>
 
-          <View style={styles.featureItem}>
+          <View className="flex-row items-start mb-3 gap-2.5">
             <Icon name="checkmark-circle" size={20} color="#4CAF50" />
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Easy Setup</Text>
-              <Text style={styles.featureDesc}>
+            <View className="flex-1">
+              <Text className="text-[13px] font-semibold text-[#333]">
+                Easy Setup
+              </Text>
+              <Text className="text-xs text-[#999] mt-0.5 leading-4">
                 Complete registration in just 3 steps
               </Text>
             </View>
           </View>
 
-          <View style={styles.featureItem}>
+          <View className="flex-row items-start mb-3 gap-2.5">
             <Icon name="checkmark-circle" size={20} color="#4CAF50" />
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Instant Bookings</Text>
-              <Text style={styles.featureDesc}>
+            <View className="flex-1">
+              <Text className="text-[13px] font-semibold text-[#333]">
+                Instant Bookings
+              </Text>
+              <Text className="text-xs text-[#999] mt-0.5 leading-4">
                 Start receiving customer bookings immediately
               </Text>
             </View>
           </View>
 
-          <View style={styles.featureItem}>
+          <View className="flex-row items-start mb-3 gap-2.5">
             <Icon name="checkmark-circle" size={20} color="#4CAF50" />
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Secure & Verified</Text>
-              <Text style={styles.featureDesc}>
+            <View className="flex-1">
+              <Text className="text-[13px] font-semibold text-[#333]">
+                Secure & Verified
+              </Text>
+              <Text className="text-xs text-[#999] mt-0.5 leading-4">
                 All professionals are verified for quality assurance
               </Text>
             </View>
           </View>
 
-          <View style={styles.featureItem}>
+          <View className="flex-row items-start mb-3 gap-2.5">
             <Icon name="checkmark-circle" size={20} color="#4CAF50" />
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Dedicated Support</Text>
-              <Text style={styles.featureDesc}>
+            <View className="flex-1">
+              <Text className="text-[13px] font-semibold text-[#333]">
+                Dedicated Support
+              </Text>
+              <Text className="text-xs text-[#999] mt-0.5 leading-4">
                 24/7 customer support for all your needs
               </Text>
             </View>
           </View>
         </View>
-      </ScrollView>
 
-      {/* Back to Login */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Already registered? </Text>
-        <TouchableOpacity onPress={() => navigation?.navigate('Login')}>
-          <Text style={styles.loginLink}>Sign In</Text>
-        </TouchableOpacity>
+        {/* Back to Login */}
+        <View className="absolute bottom-0 left-0 right-0 flex-row justify-center items-center py-4">
+          <Text className="text-[13px] text-[#666]">Already registered? </Text>
+          <TouchableOpacity onPress={() => navigation?.navigate('Login')}>
+            <Text className="text-[13px] font-bold text-[#1E90FF]">Sign In</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    paddingBottom: 80,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  headerPlaceholder: {
-    width: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    paddingHorizontal: 16,
-    marginTop: 20,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#999',
-    paddingHorizontal: 16,
-    marginBottom: 24,
-    marginTop: 4,
-  },
-  roleCard: {
-    marginHorizontal: 16,
-    marginBottom: 12,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  roleCardContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconSalon: {
-    backgroundColor: '#E8F4F8',
-  },
-  iconIndependent: {
-    backgroundColor: '#FCE4EC',
-  },
-  roleInfo: {
-    flex: 1,
-  },
-  roleName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 4,
-  },
-  roleDescription: {
-    fontSize: 12,
-    color: '#666',
-    lineHeight: 16,
-  },
-  infoSection: {
-    marginHorizontal: 16,
-    marginVertical: 24,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 16,
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-    gap: 10,
-  },
-  featureContent: {
-    flex: 1,
-  },
-  featureTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#333',
-  },
-  featureDesc: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 2,
-    lineHeight: 16,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 16,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-  },
-  footerText: {
-    fontSize: 13,
-    color: '#666',
-  },
-  loginLink: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1E90FF',
-  },
-});
