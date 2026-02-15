@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Image,
@@ -99,23 +98,23 @@ const MENU_ITEMS = [
 
 export default function UserProfileScreen({ navigation }) {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { user } = useSelector(state => state.auth);
 
-  const handleMenuPress = (item) => {
-  switch (item.title) {
-    case 'Bookings':
-      navigation.navigate("HomeTab", { screen: "UserBookingsScreen" });
-      break;
-    case 'My Profile':
-      navigation.navigate("HomeTab", { screen: "ProfileEditScreen" });
-      break;
+  const handleMenuPress = item => {
+    switch (item.title) {
+      case 'Bookings':
+        navigation.navigate('HomeTab', { screen: 'UserBookingsScreen' });
+        break;
+      case 'My Profile':
+        navigation.navigate('HomeTab', { screen: 'ProfileEditScreen' });
+        break;
       case 'Earn With Us':
-      logoutAndGoToSalonRegistration(navigation, dispatch);
-      break;
-    default:
-      Alert.alert(item.title, `${item.subtitle} - Coming soon!`);
-  }
-};
+        logoutAndGoToSalonRegistration(navigation, dispatch);
+        break;
+      default:
+        Alert.alert(item.title, `${item.subtitle} - Coming soon!`);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -129,38 +128,54 @@ export default function UserProfileScreen({ navigation }) {
   };
 
   const renderMenuSection = (sectionTitle, sectionKey) => {
-    const items = MENU_ITEMS.filter((item) => item.section === sectionKey);
+    const items = MENU_ITEMS.filter(item => item.section === sectionKey);
 
     if (items.length === 0) return null;
 
     return (
-      <View key={sectionKey} style={styles.sectionContainer}>
+      <View key={sectionKey} className="mx-4 my-3">
         {sectionTitle && (
-          <Text style={styles.sectionLabel}>{sectionTitle}</Text>
+          <Text className="text-xs font-semibold text-[#999] mb-2 ml-1 uppercase">
+            {sectionTitle}
+          </Text>
         )}
-        <View style={styles.menuItemsContainer}>
+        <View
+          className="bg-white rounded-xl overflow-hidden"
+          style={{
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.08,
+            shadowRadius: 2,
+            elevation: 2,
+          }}
+        >
           {items.map((item, index) => (
             <TouchableOpacity
               key={item.id}
-              style={[
-                styles.menuItem,
-                index !== items.length - 1 && styles.menuItemBorder,
-              ]}
+              className={`flex-row justify-between items-center px-4 py-3.5 ${
+                index !== items.length - 1 ? 'border-b border-[#f0f0f0]' : ''
+              }`}
               onPress={() => handleMenuPress(item)}
             >
-              <View style={styles.menuItemLeft}>
-                <View style={styles.iconContainer}>
+              <View className="flex-1 flex-row items-center">
+                <View className="w-10 h-10 rounded-full bg-[#f0f0f0] justify-center items-center mr-3">
                   <Icon name={item.icon} size={22} color="#156778" />
                 </View>
-                <View style={styles.menuTextContainer}>
-                  <Text style={styles.menuTitle}>{item.title}</Text>
-                  <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold text-[#333]">
+                    {item.title}
+                  </Text>
+                  <Text className="text-[11px] text-[#999] mt-0.5">
+                    {item.subtitle}
+                  </Text>
                 </View>
               </View>
-              <View style={styles.menuItemRight}>
+              <View className="flex-row items-center gap-2">
                 {item.badge && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{item.badge}</Text>
+                  <View className="bg-[#4CAF50] px-2 py-0.5 rounded">
+                    <Text className="text-[10px] font-semibold text-white">
+                      {item.badge}
+                    </Text>
                   </View>
                 )}
                 <Icon name="chevron-forward" size={20} color="#ccc" />
@@ -175,26 +190,30 @@ export default function UserProfileScreen({ navigation }) {
   // If not logged in, show login prompt
   if (!user) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
+      <View className="flex-1 bg-[#f5f5f5]">
+        <View className="bg-[#156778] px-4 py-4 flex-row items-center justify-between">
+          <TouchableOpacity className="p-2">
             <Icon name="chevron-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Your Profile</Text>
-          <View style={styles.headerPlaceholder} />
+          <Text className="text-lg font-bold text-white">Your Profile</Text>
+          <View className="w-10" />
         </View>
 
-        <View style={styles.loginPromptContainer}>
+        <View className="flex-1 justify-center items-center px-7">
           <Icon name="person-circle" size={80} color="#ddd" />
-          <Text style={styles.loginPromptTitle}>Sign In Required</Text>
-          <Text style={styles.loginPromptText}>
+          <Text className="text-xl font-bold text-[#333] mt-5">
+            Sign In Required
+          </Text>
+          <Text className="text-sm text-[#666] text-center mt-2.5 mb-7">
             Please login to access your profile
           </Text>
           <TouchableOpacity
-            style={styles.loginButton}
+            className="bg-[#7C5FED] px-7 py-3 rounded-lg"
             onPress={() => navigation?.navigate('Auth')}
           >
-            <Text style={styles.loginButtonText}>Sign In Now</Text>
+            <Text className="text-sm font-semibold text-white">
+              Sign In Now
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -202,250 +221,77 @@ export default function UserProfileScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.safeArea}>
-          <StatusBar barStyle="light-content" backgroundColor="#156778" />
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
-            <Icon name="chevron-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Your Profile</Text>
-          <View style={styles.headerPlaceholder} />
-        </View>
-
-        {/* User Info Card */}
-        <View style={styles.userCard}>
-          <Image
-            source={{ uri: user?.image || 'https://via.placeholder.com/80?text=User' }}
-            style={styles.userImage}
-          />
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>{user?.name || 'User'}</Text>
-            <Text style={styles.userEmail}>{user?.email || 'email@example.com'}</Text>
-            <Text style={styles.userPhone}>{user?.phone || '+91 XXXXX XXXXX'}</Text>
+    <SafeAreaView edges={['top']} className="flex-1 bg-[#156778]">
+      <StatusBar barStyle="light-content" backgroundColor="#156778" />
+      <View className="flex-1 bg-[#f5f5f5]">
+        <ScrollView className="pb-7">
+          {/* Header */}
+          <View className="bg-[#156778] px-4 py-4 flex-row items-center justify-between">
+            <TouchableOpacity className="p-2">
+              <Icon name="chevron-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            <Text className="text-lg font-bold text-white">Your Profile</Text>
+            <View className="w-10" />
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("HomeTab", { screen: "ProfileEditScreen" })} style={styles.editIcon}>
-            <Icon name="pencil" size={18} color="#156778" />
-          </TouchableOpacity>
-        </View>
 
-        {/* Menu Sections */}
-        {renderMenuSection(null, 'account')}
-        {renderMenuSection('Earn With Us', 'earnwithus')}
-        {renderMenuSection('Rewards', 'rewards')}
-        {renderMenuSection('Other Information', 'other')}
+          {/* User Info Card */}
+          <View
+            className="bg-white mx-4 my-4 rounded-xl p-4 flex-row items-center"
+            style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 3,
+              elevation: 3,
+            }}
+          >
+            <Image
+              source={{
+                uri: user?.image || 'https://via.placeholder.com/80?text=User',
+              }}
+              className="w-[60px] h-[60px] rounded-full bg-[#e0e0e0]"
+            />
+            <View className="flex-1 ml-3">
+              <Text className="text-base font-bold text-[#333]">
+                {user?.name || 'User'}
+              </Text>
+              <Text className="text-xs text-[#666] mt-1">
+                {user?.email || 'email@example.com'}
+              </Text>
+              <Text className="text-xs text-[#999] mt-0.5">
+                {user?.phone || '+91 XXXXX XXXXX'}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('HomeTab', { screen: 'ProfileEditScreen' })
+              }
+              className="p-2"
+            >
+              <Icon name="pencil" size={18} color="#156778" />
+            </TouchableOpacity>
+          </View>
 
-        {/* Logout Button */}
-        <View style={styles.logoutContainer}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Icon name="log-out" size={18} color="#f44336" />
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+          {/* Menu Sections */}
+          {renderMenuSection(null, 'account')}
+          {renderMenuSection('Earn With Us', 'earnwithus')}
+          {renderMenuSection('Rewards', 'rewards')}
+          {renderMenuSection('Other Information', 'other')}
+
+          {/* Logout Button */}
+          <View className="mx-4 my-6">
+            <TouchableOpacity
+              className="flex-row justify-center items-center border-2 border-[#f44336] rounded-[10px] py-3 gap-1.5"
+              onPress={handleLogout}
+            >
+              <Icon name="log-out" size={18} color="#f44336" />
+              <Text className="text-sm font-semibold text-[#f44336]">
+                Logout
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#156778',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    paddingBottom: 30,
-  },
-  header: {
-    backgroundColor: '#156778',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  headerPlaceholder: {
-    width: 40,
-  },
-  userCard: {
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginVertical: 16,
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  userImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#e0e0e0',
-  },
-  userInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  userEmail: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  userPhone: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 2,
-  },
-  editIcon: {
-    padding: 8,
-  },
-  sectionContainer: {
-    marginHorizontal: 16,
-    marginVertical: 12,
-  },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#999',
-    marginBottom: 8,
-    marginLeft: 4,
-    textTransform: 'uppercase',
-  },
-  menuItemsContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  menuItemBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  menuItemLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  menuTextContainer: {
-    flex: 1,
-  },
-  menuTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
-  menuSubtitle: {
-    fontSize: 11,
-    color: '#999',
-    marginTop: 2,
-  },
-  menuItemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  badge: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  logoutContainer: {
-    marginHorizontal: 16,
-    marginVertical: 24,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#f44336',
-    borderRadius: 10,
-    paddingVertical: 12,
-    gap: 6,
-  },
-  logoutText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#f44336',
-  },
-  loginPromptContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 30,
-  },
-  loginPromptTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-    marginTop: 20,
-  },
-  loginPromptText: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 10,
-    marginBottom: 30,
-  },
-  loginButton: {
-    backgroundColor: '#7C5FED',
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  loginButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-  },
-});
