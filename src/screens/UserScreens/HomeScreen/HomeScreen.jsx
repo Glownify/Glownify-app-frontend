@@ -9,7 +9,6 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
   Image,
   StatusBar,
   FlatList,
@@ -40,14 +39,6 @@ import SkeletonLoadingScreen from './SkeletonLoadingScreen';
 import { LocationContext } from '../../../components/LocationProvider';
 const { width } = Dimensions.get('window');
 import CategoriesMarquee from './CategoriesMarquee';
-
-const colors = {
-  primary: '#156778',
-  primaryLight: '#E1F5FA',
-  white: '#FFFFFF',
-  background: '#FFFFFF',
-  textSecondary: '#6B7280',
-};
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -221,7 +212,7 @@ export default function HomeScreen({ navigation }) {
     const lng = location?.longitude;
 
     return (
-      <View style={{ marginBottom: 20 }}>
+      <View className="mb-5">
         <SectionHeader
           title={title}
           showViewAll
@@ -236,10 +227,10 @@ export default function HomeScreen({ navigation }) {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={styles.horizontalScroll}
+          className="pl-4 py-2.5"
         >
           {listData.map(salon => (
-            <View key={salon._id} style={styles.salonCardWrapper}>
+            <View key={salon._id} className="mr-4">
               <SalonCard salon={salon} />
             </View>
           ))}
@@ -253,9 +244,9 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-      <View style={{ flex: 1, backgroundColor: colors.white }}>
+    <SafeAreaView className="flex-1 bg-[#156778]" edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor="#156778" />
+      <View className="flex-1 bg-white">
         <HomeHeader user={user} navigation={navigation} />
 
         <ScrollView
@@ -265,42 +256,40 @@ export default function HomeScreen({ navigation }) {
           }
         >
           {/* Banner Slideshow - mounts only the active banner so animations restart */}
-          <View style={styles.bannerContainer}>
+          <View
+            className="w-full overflow-hidden relative"
+            style={{ height: 'auto' }}
+          >
             {isTransitioning ? (
               <>
                 <Animated.View
-                  style={[
-                    styles.bannerSlide,
-                    {
-                      transform: [
-                        {
-                          translateX: transitionAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -width],
-                          }),
-                        },
-                      ],
-                    },
-                  ]}
+                  className="w-full"
+                  style={{
+                    transform: [
+                      {
+                        translateX: transitionAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, -width],
+                        }),
+                      },
+                    ],
+                  }}
                 >
                   {activeBanner === 0 ? <PromoBanner /> : <PromoBanner2 />}
                 </Animated.View>
 
                 <Animated.View
-                  style={[
-                    styles.bannerSlide,
-                    StyleSheet.absoluteFill,
-                    {
-                      transform: [
-                        {
-                          translateX: transitionAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [width, 0],
-                          }),
-                        },
-                      ],
-                    },
-                  ]}
+                  className="w-full absolute top-0 left-0 right-0 bottom-0"
+                  style={{
+                    transform: [
+                      {
+                        translateX: transitionAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [width, 0],
+                        }),
+                      },
+                    ],
+                  }}
                 >
                   {nextBanner === 0 ? <PromoBanner /> : <PromoBanner2 />}
                 </Animated.View>
@@ -313,50 +302,44 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           {/* Gender Category Toggle */}
-          <View style={styles.toggleContainer}>
+          <View className="flex-row mx-4 my-4 rounded-[30px] bg-[#E1F5FA] p-1 border border-[#156778]">
             <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                styles.toggleButtonLeft,
-                selectedCategory === 'women' && styles.toggleButtonActive,
-              ]}
+              className={`flex-1 flex-row items-center justify-center py-3 px-5 gap-2 rounded-[30px] ${
+                selectedCategory === 'women' ? 'bg-[#156778] shadow-md' : ''
+              }`}
               onPress={() => handleSelectSalonCategory('women')}
               activeOpacity={0.8}
             >
               <Image
-                style={styles.toggleIcon}
+                className="w-[30px] h-[30px] mr-1.5"
                 source={womenImage}
                 resizeMode="contain"
               />
               <Text
-                style={[
-                  styles.toggleText,
-                  selectedCategory === 'women' && styles.toggleTextActive,
-                ]}
+                className={`text-base font-semibold ${
+                  selectedCategory === 'women' ? 'text-white' : 'text-[#156778]'
+                }`}
               >
                 Women
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                styles.toggleButtonRight,
-                selectedCategory === 'men' && styles.toggleButtonActive,
-              ]}
+              className={`flex-1 flex-row items-center justify-center py-3 px-5 gap-2 rounded-[30px] ${
+                selectedCategory === 'men' ? 'bg-[#156778] shadow-md' : ''
+              }`}
               onPress={() => handleSelectSalonCategory('men')}
               activeOpacity={0.8}
             >
               <Image
-                style={styles.toggleIcon}
+                className="w-[30px] h-[30px] mr-1.5"
                 source={menImage}
                 resizeMode="contain"
               />
               <Text
-                style={[
-                  styles.toggleText,
-                  selectedCategory === 'men' && styles.toggleTextActive,
-                ]}
+                className={`text-base font-semibold ${
+                  selectedCategory === 'men' ? 'text-white' : 'text-[#156778]'
+                }`}
               >
                 Men
               </Text>
@@ -402,7 +385,7 @@ export default function HomeScreen({ navigation }) {
 
           {/* --- Nearby Offers --- */}
           <SectionHeader title="Salon Home Services" />
-          <View style={{ paddingHorizontal: 16 }}>
+          <View className="px-4">
             <NearbyOfferCard
               imageUrl={require('../../../assets/featuredSalon.png')}
               category="Hair • Facial"
@@ -417,9 +400,9 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           <SectionHeader title="Unisex Salons" />
-          <View style={{ paddingHorizontal: 16 }}>
+          <View className="px-4">
             {unisexSalons.length === 0 ? (
-              <Text style={{ color: '#6B7280', textAlign: 'center' }}>
+              <Text className="text-neutral-500 text-center">
                 No unisex salons found nearby
               </Text>
             ) : (
@@ -438,10 +421,10 @@ export default function HomeScreen({ navigation }) {
               ))
             )}
           </View>
-          <View style={[styles.footerLogoContainer]}>
-            <Image 
-              source={require('../../../assets/GlownifyLogoPng.png')} 
-              style={styles.glownify}
+          <View className="items-center opacity-50 pb-5">
+            <Image
+              source={require('../../../assets/GlownifyLogoPng.png')}
+              className="h-[100px] w-[110px]"
             />
           </View>
         </ScrollView>
@@ -449,127 +432,3 @@ export default function HomeScreen({ navigation }) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.primary,
-  },
-  promoContainer: {
-    borderRadius: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    overflow: 'hidden',
-  },
-  promoImage: {
-    width: width - 32,
-    height: 180,
-    borderRadius: 12,
-    marginRight: 16,
-  },
-  categories: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 16,
-    marginTop: 8,
-    justifyContent: 'flex-start',
-    gap: 10, // ⭐ adds equal space between items
-  },
-
-  categoryItem: {
-    alignItems: 'center',
-    width: '23%', // ⭐ adjust to fit 4 items per row OR 3 (your choice)
-    marginBottom: 16,
-  },
-  categoryIcon: {
-    backgroundColor: colors.primaryLight,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  categoryLabel: {
-    fontSize: 13,
-    color: colors.primary,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-
-  // Toggle Styles
-  toggleContainer: {
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    marginVertical: 16,
-    borderRadius: 30,
-    backgroundColor: colors.primaryLight,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  toggleButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    gap: 8,
-  },
-  toggleButtonLeft: {
-    borderRadius: 30,
-  },
-  toggleButtonRight: {
-    borderRadius: 30,
-  },
-  toggleButtonActive: {
-    backgroundColor: colors.primary,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  toggleIcon: {
-    width: 30,
-    height: 30,
-    marginRight: 6,
-  },
-  toggleText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  toggleTextActive: {
-    color: colors.white,
-  },
-
-  horizontalScroll: {
-    paddingLeft: 16,
-    paddingVertical: 10,
-  },
-  salonCardWrapper: {
-    marginRight: 16,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bannerContainer: {
-    width: '100%',
-    height: 'auto',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  bannerSlide: {
-    width: '100%',
-  },
-  footerLogoContainer: {
-    alignItems: 'center',
-    opacity: 0.5,
-    paddingBottom: 20
-  },
-  glownify:{height: 100, width: 110}
-});

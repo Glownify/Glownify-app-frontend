@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   TextInput,
@@ -15,11 +14,31 @@ import TimeSlot from './TimeSlot';
 
 // Mock Data
 const specialists = [
-  { id: '1', name: 'Ronald', image: require('../../../assets/featuredSalon.png') },
-  { id: '2', name: 'Merry', image: require('../../../assets/featuredSalon.png') },
-  { id: '3', name: 'Bella', image: require('../../../assets/featuredSalon.png') },
-  { id: '4', name: 'Joseph', image: require('../../../assets/featuredSalon.png') },
-  { id: '5', name: 'Sarah', image: require('../../../assets/featuredSalon.png') },
+  {
+    id: '1',
+    name: 'Ronald',
+    image: require('../../../assets/featuredSalon.png'),
+  },
+  {
+    id: '2',
+    name: 'Merry',
+    image: require('../../../assets/featuredSalon.png'),
+  },
+  {
+    id: '3',
+    name: 'Bella',
+    image: require('../../../assets/featuredSalon.png'),
+  },
+  {
+    id: '4',
+    name: 'Joseph',
+    image: require('../../../assets/featuredSalon.png'),
+  },
+  {
+    id: '5',
+    name: 'Sarah',
+    image: require('../../../assets/featuredSalon.png'),
+  },
 ];
 
 const timeSlots = [
@@ -38,7 +57,7 @@ export default function BookingScreen({ navigation }) {
   const [month, setMonth] = useState('March, 2021');
   const [notes, setNotes] = useState('');
 
-  const handleMonthChange = (direction) => {
+  const handleMonthChange = direction => {
     // Handle month change logic here
     console.log('Month change:', direction);
   };
@@ -49,26 +68,33 @@ export default function BookingScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
+    <SafeAreaView className="flex-1 bg-[#156778]" edges={['top']}>
+      <View className="flex-1 bg-white">
         {/* Header */}
-        <View style={styles.header}>
+        <View className="flex-row justify-between items-center px-4 py-4 border-b border-[#F3F4F6]">
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name="arrow-back" size={24} color="#156778" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Book Service</Text>
-          <View style={{ width: 24 }} />
+          <Text className="text-lg font-semibold text-[#111827]">
+            Book Service
+          </Text>
+          <View className="w-6" />
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} style={styles.content}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1 px-4 pt-5"
+        >
           {/* Specialist */}
-          <Text style={styles.sectionTitle}>Specialist</Text>
+          <Text className="text-base font-semibold text-[#111827] mb-4 mt-2">
+            Specialist
+          </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.specialistContainer}
+            className="mb-6"
           >
-            {specialists.map((specialist) => (
+            {specialists.map(specialist => (
               <SpecialistSelector
                 key={specialist.id}
                 specialist={specialist}
@@ -79,7 +105,9 @@ export default function BookingScreen({ navigation }) {
           </ScrollView>
 
           {/* Date */}
-          <Text style={styles.sectionTitle}>Date</Text>
+          <Text className="text-base font-semibold text-[#111827] mb-4 mt-2">
+            Date
+          </Text>
           <DatePicker
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
@@ -88,9 +116,11 @@ export default function BookingScreen({ navigation }) {
           />
 
           {/* Time */}
-          <Text style={styles.sectionTitle}>Time</Text>
-          <View style={styles.timeContainer}>
-            {timeSlots.map((time) => (
+          <Text className="text-base font-semibold text-[#111827] mb-4 mt-2">
+            Time
+          </Text>
+          <View className="flex-row flex-wrap mb-6">
+            {timeSlots.map(time => (
               <TimeSlot
                 key={time}
                 time={time}
@@ -101,9 +131,11 @@ export default function BookingScreen({ navigation }) {
           </View>
 
           {/* Notes */}
-          <Text style={styles.sectionTitle}>Notes</Text>
+          <Text className="text-base font-semibold text-[#111827] mb-4 mt-2">
+            Notes
+          </Text>
           <TextInput
-            style={styles.notesInput}
+            className="bg-[#F9FAFB] rounded-xl p-4 text-sm text-[#111827] min-h-[100px] mb-[100px]"
             placeholder="Type your notes here"
             placeholderTextColor="#9CA3AF"
             multiline
@@ -115,130 +147,33 @@ export default function BookingScreen({ navigation }) {
         </ScrollView>
 
         {/* Bottom Bar */}
-        <View style={styles.bottomBar}>
-          <View style={styles.priceContainer}>
-            <View style={styles.cartIcon}>
+        <View
+          className="absolute bottom-0 left-0 right-0 flex-row bg-white px-4 py-4 border-t border-[#E5E7EB]"
+          style={{
+            shadowColor: '#000',
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 8,
+          }}
+        >
+          <View className="flex-row items-center flex-1">
+            <View className="w-12 h-12 rounded-full bg-[#E1F5FA] justify-center items-center mr-3">
               <Icon name="cart-outline" size={24} color="#156778" />
             </View>
-            <View style={styles.priceInfo}>
-              <Text style={styles.totalLabel}>Total (1 Service)</Text>
-              <Text style={styles.totalPrice}>₹ 2500</Text>
+            <View className="flex-1">
+              <Text className="text-xs text-[#6B7280]">Total (1 Service)</Text>
+              <Text className="text-lg font-bold text-[#111827]">₹ 2500</Text>
             </View>
           </View>
 
-          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
-            <Text style={styles.checkoutButtonText}>Checkout</Text>
+          <TouchableOpacity
+            className="bg-[#156778] px-8 py-4 rounded-[25px] justify-center"
+            onPress={handleCheckout}
+          >
+            <Text className="text-base font-semibold text-white">Checkout</Text>
           </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#156778',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 16,
-    marginTop: 8,
-  },
-  specialistContainer: {
-    marginBottom: 24,
-  },
-  timeContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 24,
-  },
-  notesInput: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 14,
-    color: '#111827',
-    minHeight: 100,
-    marginBottom: 100,
-  },
-  bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  cartIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#E1F5FA',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  priceInfo: {
-    flex: 1,
-  },
-  totalLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  totalPrice: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  checkoutButton: {
-    backgroundColor: '#156778',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 25,
-    justifyContent: 'center',
-  },
-  checkoutButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-});

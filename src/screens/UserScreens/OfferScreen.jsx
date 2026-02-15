@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   TouchableOpacity,
   ScrollView,
@@ -13,74 +12,91 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function OfferScreen({ navigation }) {
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
+    <SafeAreaView edges={['top']} className="flex-1 bg-[#156778]">
       <StatusBar barStyle="light-content" backgroundColor="#156778" />
 
-      {/* ---------- SAME HEADER AS BOOKINGS ---------- */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation?.goBack()}
-        >
+      {/* ---------- HEADER ---------- */}
+      <View className="flex-row justify-between items-center px-4 py-4 bg-[#156778] border-b border-[#f0f0f0]">
+        <TouchableOpacity className="p-2" onPress={() => navigation?.goBack()}>
           <Icon name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Offers</Text>
+        <Text className="text-lg font-bold text-white">Offers</Text>
 
-        <View style={styles.headerPlaceholder} />
+        <View className="w-6" />
       </View>
 
       {/* --------------- BODY --------------- */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={{ padding: 16, backgroundColor: '#fff', flex: 1 }}
+        className="p-4 bg-white flex-1"
       >
         {/* -------- Top 2 Cards -------- */}
-        <View style={styles.topRow}>
-          <TouchableOpacity style={styles.smallCard}>
+        <View className="flex-row justify-between my-4">
+          <TouchableOpacity
+            className="flex-row items-center w-[48%] py-3.5 px-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]"
+            style={{ elevation: 2 }}
+          >
             <Icon name="pricetag-outline" size={22} color="#3B82F6" />
-            <Text style={styles.cardText}>3 Coupons</Text>
+            <Text className="ml-2.5 text-[15px] font-semibold text-[#1E293B]">
+              3 Coupons
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.smallCard}>
+          <TouchableOpacity
+            className="flex-row items-center w-[48%] py-3.5 px-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]"
+            style={{ elevation: 2 }}
+          >
             <Icon name="wallet-outline" size={22} color="#059669" />
-            <Text style={styles.cardText}>₹299 Wallet</Text>
+            <Text className="ml-2.5 text-[15px] font-semibold text-[#1E293B]">
+              ₹299 Wallet
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* -------- Refer & Earn Banner -------- */}
-        <View style={styles.banner}>
+        <View
+          className="mt-1 bg-[#E0E7FF] p-4.5 rounded-2xl mb-5 overflow-hidden relative"
+          style={{ minHeight: 200 }}
+        >
           <View>
-            <Text style={styles.bannerTitle}>
+            <Text className="text-[22px] font-extrabold text-[#1E3A8A]">
               Refer & Earn{'\n'}Free Services
             </Text>
 
-            <TouchableOpacity style={styles.knowMoreBtn}>
-              <Text style={styles.knowMoreText}>KNOW MORE</Text>
+            <TouchableOpacity className="bg-[#FACC15] px-3.5 py-2 self-start rounded-[10px] mt-2.5">
+              <Text className="font-bold text-[#1F2937]">KNOW MORE</Text>
             </TouchableOpacity>
           </View>
 
           <Image
             source={require('../../assets/offer/offer.png')}
-            style={styles.bannerImage}
+            className="w-[200px] h-[200px] absolute bottom-0 -right-[30px]"
             resizeMode="contain"
           />
         </View>
 
         {/* -------- 10% OFF Banner -------- */}
-        <View style={styles.offerBanner}>
+        <View
+          className="bg-[#FEF9C3] p-4.5 rounded-2xl relative"
+          style={{ minHeight: 200 }}
+        >
           <View>
-            <Text style={styles.offerTitle}>Get{'\n'}10% OFF</Text>
-            <Text style={styles.offerSubtitle}>on every booking!</Text>
+            <Text className="text-[28px] font-black text-black">
+              Get{'\n'}10% OFF
+            </Text>
+            <Text className="text-base mt-1 text-[#374151]">
+              on every booking!
+            </Text>
 
-            <TouchableOpacity style={styles.viewBtn}>
-              <Text style={styles.viewBtnText}>VIEW BENEFITS</Text>
+            <TouchableOpacity className="bg-black px-4 py-2.5 rounded-[10px] self-start mt-3">
+              <Text className="text-white font-bold">VIEW BENEFITS</Text>
             </TouchableOpacity>
           </View>
 
           <Image
             source={require('../../assets/offer/refer.png')}
-            style={styles.offerImage}
+            className="w-[200px] h-[200px] absolute -bottom-2.5 right-0"
             resizeMode="contain"
           />
         </View>
@@ -88,136 +104,3 @@ export default function OfferScreen({ navigation }) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  /* ---------- HEADER STYLES (Copied from Booking Screen) ---------- */
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: '#156778',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerPlaceholder: {
-    width: 24,
-  },
-
-  /* ---------- EXISTING OFFER SCREEN STYLES ---------- */
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 16,
-  },
-
-  smallCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '48%',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    elevation: 2,
-  },
-
-  cardText: {
-    marginLeft: 10,
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1E293B',
-  },
-
-  banner: {
-    marginTop: 4,
-    backgroundColor: '#E0E7FF',
-    padding: 18,
-    borderRadius: 16,
-    marginBottom: 20,
-    overflow: 'hidden',
-    position: 'relative',
-    minHeight: 200,
-  },
-
-  bannerTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#1E3A8A',
-  },
-
-  knowMoreBtn: {
-    backgroundColor: '#FACC15',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    alignSelf: 'flex-start',
-    borderRadius: 10,
-    marginTop: 10,
-  },
-
-  knowMoreText: {
-    fontWeight: '700',
-    color: '#1F2937',
-  },
-
-  bannerImage: {
-    width: 200,
-    height: 200,
-    position: 'absolute',
-    bottom: 0,
-    right: -30,
-  },
-
-  offerBanner: {
-    backgroundColor: '#FEF9C3',
-    padding: 18,
-    borderRadius: 16,
-    position: 'relative',
-    minHeight: 200,
-  },
-
-  offerTitle: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#000',
-  },
-
-  offerSubtitle: {
-    fontSize: 16,
-    marginTop: 4,
-    color: '#374151',
-  },
-
-  viewBtn: {
-    backgroundColor: '#000',
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderRadius: 10,
-    alignSelf: 'flex-start',
-    marginTop: 12,
-  },
-
-  viewBtnText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-
-  offerImage: {
-    width: 200,
-    height: 200,
-    position: 'absolute',
-    bottom: -10,
-    right: 0,
-  },
-});
