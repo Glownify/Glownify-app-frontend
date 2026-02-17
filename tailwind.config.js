@@ -27,6 +27,7 @@ module.exports = {
         secondary: {
           pink: '#ec4899',
           orange: '#f97316',
+          teal: '#14b8a6',
         },
 
         neutral: {
@@ -44,6 +45,20 @@ module.exports = {
           black: '#000000',
         },
 
+        // Teal shades for the design
+        teal: {
+          50: '#E8F6F8',
+          100: '#D1EDF1',
+          200: '#A3DBE3',
+          300: '#75C9D5',
+          400: '#47B7C7',
+          500: '#14b8a6',
+          600: '#156778',
+          700: '#0d9488',
+          800: '#0f766e',
+          900: '#115e59',
+        },
+
         success: '#10b981',
         warning: '#f59e0b',
         error: '#ef4444',
@@ -52,6 +67,10 @@ module.exports = {
 
       fontFamily: {
         primary: 'Inter',
+        regular: 'Inter-Regular',
+        medium: 'Inter-Medium',
+        semibold: 'Inter-SemiBold',
+        bold: 'Inter-Bold',
       },
 
       fontSize: {
@@ -66,6 +85,9 @@ module.exports = {
       },
 
       lineHeight: {
+        tight: 1.2,
+        normal: 1.5,
+        relaxed: 1.75,
         sm: 20,
         md: 24,
         lg: 28,
@@ -74,15 +96,15 @@ module.exports = {
         '3xl': 40,
       },
 
-      width:{
+      width: {
         '32px': 32,
         '40px': 40,
-        sm : 120,
-        md : 160,
-        lg : 200,
-        xl : 240,
-        '2xl' : 280,
-        '3xl' : 320,
+        sm: 120,
+        md: 160,
+        lg: 200,
+        xl: 240,
+        '2xl': 280,
+        '3xl': 320,
       },
 
       spacing: {
@@ -93,6 +115,8 @@ module.exports = {
         xl: 24,
         '2xl': 28,
         '3xl': 32,
+        '4xl': 40,
+        '5xl': 48,
       },
 
       borderRadius: {
@@ -100,6 +124,26 @@ module.exports = {
         card: 16,
         input: 12,
         avatar: 9999,
+        'xl': 12,
+        '2xl': 16,
+        '3xl': 24,
+        '4xl': 32,
+      },
+
+      boxShadow: {
+        sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        card: '0 2px 8px rgba(0, 0, 0, 0.08)',
+      },
+
+      // Custom gradient backgrounds
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #156778 0%, #14b8a6 100%)',
+        'gradient-pink-orange': 'linear-gradient(to right, #fda4af, #fed7aa)',
+        'gradient-purple-blue': 'linear-gradient(to right, #f3e8ff, #dbeafe)',
       },
     },
   },
