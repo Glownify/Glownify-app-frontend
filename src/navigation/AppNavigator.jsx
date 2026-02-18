@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, StatusBar, TouchableOpacity, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -12,7 +18,7 @@ import HomeScreen from '../screens/UserScreens/HomeScreen/HomeScreen';
 import BookingScreen from '../screens/UserScreens/Bookings/BookingScreen';
 import SearchScreen from '../screens/UserScreens/SearchScreen';
 import MessageScreen from '../screens/UserScreens/MessageScreen';
-import OfferScreen from '../screens/UserScreens/OfferScreen'
+import OfferScreen from '../screens/UserScreens/OfferScreen';
 import ShopDetailsSummaryScreen from '../screens/UserScreens/ShopDetails/ShopDetailsSummaryScreen';
 import ShopDetailsFullScreen from '../screens/UserScreens/ShopDetails/ShopDetailsFullScreen';
 import ServiceDetailsScreen from '../screens/UserScreens/ServiceDetails/ServiceDetailsScreen';
@@ -22,11 +28,12 @@ import AIBasedHairs from '../screens/UserScreens/AIBasedHairs';
 import SalonsListScreen from '../screens/UserScreens/SalonsListScreen';
 import AllSalonListScreen from '../screens/UserScreens/AllSalonListScreen';
 import ProfileEditScreen from '../screens/UserScreens/ProfileEditScreen';
-import ServicesMenuScreen from '../screens/UserScreens/ServiceAtHomeScreen/ServicesMenuScreen'
-import ProfessionalsListScreen from '../screens/UserScreens/ServiceAtHomeScreen/ProfessionalsListScreen'
-import ProfessionalDetailScreen from '../screens/UserScreens/ServiceAtHomeScreen/ProfessionalDetailScreen'
+import ServicesMenuScreen from '../screens/UserScreens/ServiceAtHomeScreen/ServicesMenuScreen';
+import ProfessionalsListScreen from '../screens/UserScreens/ServiceAtHomeScreen/ProfessionalsListScreen';
+import ProfessionalDetailScreen from '../screens/UserScreens/ServiceAtHomeScreen/ProfessionalDetailScreen';
 
 import SelectDateAndTime from '../screens/UserScreens/Bookings/SelectDateAndTime';
+import BookingComplete from '../screens/UserScreens/Bookings/BookingComplete';
 import CartScreen from '../screens/UserScreens/CartScreen';
 
 const Tab = createBottomTabNavigator();
@@ -75,10 +82,7 @@ const TabIcon = ({ focused, icon, size = 26, showBadge = false }) => {
   return (
     <View style={styles.iconContainer}>
       {focused && <View style={styles.activeBar} />}
-      <View style={[
-        styles.iconWrapper,
-        focused && styles.iconWrapperActive
-      ]}>
+      <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
         <Image
           source={focused ? icon.active : icon.inactive}
           style={{
@@ -98,10 +102,10 @@ export function CartStackNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="CartScreen" component={CartScreen} />
       <Stack.Screen name="SelectDateAndTime" component={SelectDateAndTime} />
+      <Stack.Screen name="BookingComplete" component={BookingComplete} />
     </Stack.Navigator>
   );
 }
-
 
 // --- Your Navigators ---
 function HomeStack() {
@@ -109,25 +113,37 @@ function HomeStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
-      <Stack.Screen name="ShopDetailsSummary" component={ShopDetailsSummaryScreen} />
+      <Stack.Screen name="BookingComplete" component={BookingComplete} />
+      <Stack.Screen
+        name="ShopDetailsSummary"
+        component={ShopDetailsSummaryScreen}
+      />
       <Stack.Screen name="ShopDetailsFull" component={ShopDetailsFullScreen} />
       <Stack.Screen name="ServiceDetails" component={ServiceDetailsScreen} />
       <Stack.Screen name="Booking" component={BookingScreen} />
       <Stack.Screen name="UserBookingsScreen" component={UserBookingsScreen} />
       <Stack.Screen name="ProfileEditScreen" component={ProfileEditScreen} />
       <Stack.Screen name="SalonsListScreen" component={SalonsListScreen} />
-      <Stack.Screen name="ServicesMenuScreen" component={ServicesMenuScreen}/>
-      <Stack.Screen name="ProfessionalsListScreen" component={ProfessionalsListScreen} />
-      <Stack.Screen name="ProfessionalDetailScreen" component={ProfessionalDetailScreen} />
+      <Stack.Screen name="ServicesMenuScreen" component={ServicesMenuScreen} />
+      <Stack.Screen
+        name="ProfessionalsListScreen"
+        component={ProfessionalsListScreen}
+      />
+      <Stack.Screen
+        name="ProfessionalDetailScreen"
+        component={ProfessionalDetailScreen}
+      />
       <Stack.Screen name="AllSalonListScreen" component={AllSalonListScreen} />
-
     </Stack.Navigator>
   );
 }
 
 export default function AppNavigator() {
   return (
-    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.primary }}>
+    <SafeAreaView
+      edges={['bottom']}
+      style={{ flex: 1, backgroundColor: colors.primary }}
+    >
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
@@ -152,8 +168,9 @@ export default function AppNavigator() {
           name="HomeTab"
           component={HomeStack}
           options={({ route }) => ({
-            tabBarStyle: ((route) => {
-              const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
+            tabBarStyle: (route => {
+              const routeName =
+                getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
               if (
                 [
                   // 'ShopDetailsSummary',
@@ -183,7 +200,7 @@ export default function AppNavigator() {
               <TabIcon
                 focused={focused}
                 icon={tabIcons.home}
-                size={focused ? 34 : 26}  // Increased size when active
+                size={focused ? 34 : 26} // Increased size when active
               />
             ),
           })}
@@ -195,7 +212,11 @@ export default function AppNavigator() {
           component={OfferScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} icon={tabIcons.offer} showBadge={true} />
+              <TabIcon
+                focused={focused}
+                icon={tabIcons.offer}
+                showBadge={true}
+              />
             ),
           }}
         />
@@ -253,16 +274,16 @@ const styles = StyleSheet.create({
     width: 54,
     height: 54,
   },
-  
+
   // --- Icon Container Styles ---
   iconContainer: {
     width: 50,
     height: 36,
-    justifyContent: 'flex-end', 
+    justifyContent: 'flex-end',
     alignItems: 'center',
     position: 'relative',
   },
-  
+
   // Icon Wrapper for background effect
   iconWrapper: {
     width: 44,
@@ -272,11 +293,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'transparent',
   },
-  
+
   iconWrapperActive: {
     backgroundColor: colors.primaryLight,
   },
-  
+
   // Badge
   badge: {
     position: 'absolute',
@@ -289,7 +310,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.white,
   },
-  
+
   // Active Bar Indicator
   activeBar: {
     position: 'absolute',

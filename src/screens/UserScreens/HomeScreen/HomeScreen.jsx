@@ -155,36 +155,11 @@ export default function HomeScreen({ navigation }) {
       <StatusBar barStyle="light-content" backgroundColor="#156778" />
       <View className="flex-1 bg-white">
         {/* Header */}
-        {/* <View className="bg-[#156778] px-5 pb-4">
-          <View className="flex-row items-center justify-between mb-2">
-            <View className="flex-1">
-              <Text className="text-white text-xl font-bold">
-                Hello, {user?.name || 'Raman'}
-              </Text>
-              <Text className="text-white/80 text-sm mt-1">
-                Find the service you want, and book now!
-              </Text>
-            </View>
-            <TouchableOpacity 
-              className="w-12 h-12 bg-white rounded-full items-center justify-center"
-              onPress={() => navigation.navigate('SearchScreen')}
-            >
-              {/* TODO: Replace with actual Search icon */}
-              {/* <Text className="text-[#156778] text-xl">🔍</Text>
-            </TouchableOpacity>
-          </View>
-          <View className="flex-row items-center">
-            {/* TODO: Replace with actual Location pin icon */}
-            {/* <Text className="text-white/90 text-xs mr-1">📍</Text>
-            <Text className="text-white/90 text-xs" numberOfLines={1}>
-              {location?.address || 'Jalgaon, Jalgaon District, Maharashtra, 425001, India'} */}
-            {/* </Text> */}
-          {/* </View> */}
-        {/* </View> */}
-        <HomeHeader/>
+        <HomeHeader />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
+          stickyHeaderIndices={[1]}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -198,8 +173,12 @@ export default function HomeScreen({ navigation }) {
                   <Text className="text-2xl">💇</Text>
                 </View>
                 <View>
-                  <Text className="text-xs text-gray-600">Step 1 Choose Your</Text>
-                  <Text className="text-sm font-semibold text-gray-800">Beautician</Text>
+                  <Text className="text-xs text-gray-600">
+                    Step 1 Choose Your
+                  </Text>
+                  <Text className="text-sm font-semibold text-gray-800">
+                    Beautician
+                  </Text>
                 </View>
               </View>
               <Text className="text-xs text-gray-500">
@@ -215,66 +194,78 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           {/* Gender Category Toggle */}
-          <View className="flex-row mx-4 mb-4 rounded-full bg-[#E8F6F8] p-1.5 border-2 border-[#156778]">
-            <TouchableOpacity
-              className={`flex-1 flex-row items-center justify-center py-2.5 px-4 rounded-full ${
-                selectedCategory === 'women' ? 'bg-[#156778]' : ''
-              }`}
-              onPress={() => handleSelectSalonCategory('women')}
-              activeOpacity={0.8}
-            >
-              {/* TODO: Replace with actual woman icon */}
-              <View className="w-8 h-8 mr-2">
-                <Text className="text-2xl">👩</Text>
-              </View>
-              <Text
-                className={`text-base font-semibold ${
-                  selectedCategory === 'women' ? 'text-white' : 'text-[#156778]'
+          <View className="bg-white py-4">
+            <View className="flex-row mx-4 rounded-full bg-[#E8F6F8] p-1.5 border-2 border-[#156778]">
+              <TouchableOpacity
+                className={`flex-1 flex-row items-center justify-center py-2.5 px-4 rounded-full ${
+                  selectedCategory === 'women' ? 'bg-[#156778]' : ''
                 }`}
+                onPress={() => handleSelectSalonCategory('women')}
+                activeOpacity={0.8}
               >
-                Women
-              </Text>
-            </TouchableOpacity>
+                {/* TODO: Replace with actual woman icon */}
+                <View className="w-8 h-8 mr-2">
+                  <Text className="text-2xl">👩</Text>
+                </View>
+                <Text
+                  className={`text-base font-semibold ${
+                    selectedCategory === 'women'
+                      ? 'text-white'
+                      : 'text-[#156778]'
+                  }`}
+                >
+                  Women
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              className={`flex-1 flex-row items-center justify-center py-2.5 px-4 rounded-full ${
-                selectedCategory === 'men' ? 'bg-[#156778]' : ''
-              }`}
-              onPress={() => handleSelectSalonCategory('men')}
-              activeOpacity={0.8}
-            >
-              {/* TODO: Replace with actual man icon */}
-              <View className="w-8 h-8 mr-2">
-                <Text className="text-2xl">👨</Text>
-              </View>
-              <Text
-                className={`text-base font-semibold ${
-                  selectedCategory === 'men' ? 'text-white' : 'text-[#156778]'
+              <TouchableOpacity
+                className={`flex-1 flex-row items-center justify-center py-2.5 px-4 rounded-full ${
+                  selectedCategory === 'men' ? 'bg-[#156778]' : ''
                 }`}
+                onPress={() => handleSelectSalonCategory('men')}
+                activeOpacity={0.8}
               >
-                Men
-              </Text>
-            </TouchableOpacity>
+                {/* TODO: Replace with actual man icon */}
+                <View className="w-8 h-8 mr-2">
+                  <Text className="text-2xl">👨</Text>
+                </View>
+                <Text
+                  className={`text-base font-semibold ${
+                    selectedCategory === 'men' ? 'text-white' : 'text-[#156778]'
+                  }`}
+                >
+                  Men
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Categories Section */}
-          <View className="px-4 mb-5">
-            <View className="flex-row items-center justify-between mb-3">
+          <View className="mb-5">
+            <View className="px-4 flex-row items-center justify-between mb-3">
               <Text className="text-base font-semibold text-gray-800">
                 What do you want to get?
               </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('AllCategoriesScreen')}>
-                <Text className="text-sm text-[#14b8a6] font-medium">View all</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AllCategoriesScreen')}
+              >
+                <Text className="text-sm text-[#14b8a6] font-medium">
+                  View all
+                </Text>
               </TouchableOpacity>
             </View>
-            
-            {/* Categories Grid - 4 columns, 2 rows */}
-            <View className="flex-row flex-wrap">
+
+            {/* Categories Horizontal Scroll */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 16 }}
+            >
               {serviceCategories.map((category, index) => (
                 <TouchableOpacity
                   key={category.id}
-                  className="w-1/4 items-center mb-4"
-                  onPress={() => 
+                  className="items-center mr-6"
+                  onPress={() =>
                     navigation.navigate('CategoryServicesScreen', {
                       categoryId: category.id,
                       categoryName: category.name,
@@ -284,9 +275,21 @@ export default function HomeScreen({ navigation }) {
                   {/* TODO: Replace with actual category icons/images */}
                   <View className="w-16 h-16 bg-[#E8F6F8] rounded-full items-center justify-center mb-2">
                     <Text className="text-3xl">
-                      {index === 0 ? '💇' : index === 1 ? '🧖' : index === 2 ? '💅' : 
-                       index === 3 ? '🎨' : index === 4 ? '🕯️' : index === 5 ? '💄' : 
-                       index === 6 ? '✨' : '⭐'}
+                      {index === 0
+                        ? '💇'
+                        : index === 1
+                        ? '🧖'
+                        : index === 2
+                        ? '💅'
+                        : index === 3
+                        ? '🎨'
+                        : index === 4
+                        ? '🕯️'
+                        : index === 5
+                        ? '💄'
+                        : index === 6
+                        ? '✨'
+                        : '⭐'}
                     </Text>
                   </View>
                   <Text className="text-xs text-gray-700 text-center">
@@ -294,7 +297,7 @@ export default function HomeScreen({ navigation }) {
                   </Text>
                 </TouchableOpacity>
               ))}
-            </View>
+            </ScrollView>
           </View>
 
           {/* Salon Cards Section - WOMEN */}
@@ -313,10 +316,12 @@ export default function HomeScreen({ navigation }) {
                     })
                   }
                 >
-                  <Text className="text-sm text-[#14b8a6] font-medium">View all</Text>
+                  <Text className="text-sm text-[#14b8a6] font-medium">
+                    View all
+                  </Text>
                 </TouchableOpacity>
               </View>
-              
+
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -336,7 +341,9 @@ export default function HomeScreen({ navigation }) {
                     {/* TODO: Replace with actual salon image - dynamic data from API */}
                     <View className="relative">
                       <View className="w-full h-40 bg-gray-200 items-center justify-center">
-                        <Text className="text-gray-400 text-xs">Salon Image</Text>
+                        <Text className="text-gray-400 text-xs">
+                          Salon Image
+                        </Text>
                       </View>
                       {/* Favorite Icon */}
                       <TouchableOpacity className="absolute top-2 right-2 w-9 h-9 bg-white rounded-full items-center justify-center">
@@ -349,23 +356,33 @@ export default function HomeScreen({ navigation }) {
                         </Text>
                       </View>
                     </View>
-                    
+
                     <View className="p-3">
-                      <Text className="text-sm font-semibold text-gray-800 mb-1" numberOfLines={1}>
+                      <Text
+                        className="text-sm font-semibold text-gray-800 mb-1"
+                        numberOfLines={1}
+                      >
                         {salon.name || 'Evita beauty Parlour'}
                       </Text>
-                      <Text className="text-xs text-gray-500 mb-2" numberOfLines={1}>
+                      <Text
+                        className="text-xs text-gray-500 mb-2"
+                        numberOfLines={1}
+                      >
                         {salon.category || 'No categories available'}
                       </Text>
                       <View className="flex-row items-center justify-between">
                         <View className="flex-row items-center">
                           <Text className="text-xs text-gray-600 mr-1">📍</Text>
                           <Text className="text-xs text-gray-600">
-                            {salon.distance ? `${salon.distance} km` : '321.7 km'}
+                            {salon.distance
+                              ? `${salon.distance} km`
+                              : '321.7 km'}
                           </Text>
                         </View>
                         <View className="flex-row items-center">
-                          <Text className="text-xs text-amber-500 mr-1">⭐</Text>
+                          <Text className="text-xs text-amber-500 mr-1">
+                            ⭐
+                          </Text>
                           <Text className="text-xs font-medium text-gray-700">
                             {salon.rating || '4.8'} ({salon.reviews || '200'})
                           </Text>
@@ -385,12 +402,16 @@ export default function HomeScreen({ navigation }) {
                 <Text className="text-base font-semibold text-gray-800">
                   Service At Home
                 </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('ProfessionalsListScreen')}>
-                  <Text className="text-sm text-[#14b8a6] font-medium">View all</Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('ProfessionalsListScreen')}
+                >
+                  <Text className="text-sm text-[#14b8a6] font-medium">
+                    View all
+                  </Text>
                 </TouchableOpacity>
               </View>
 
-              {independentProsList.slice(0, 3).map((pro) => (
+              {independentProsList.slice(0, 3).map(pro => (
                 <TouchableOpacity
                   key={pro._id}
                   className="mx-4 mb-3 bg-white rounded-2xl p-4 flex-row items-center border border-gray-100 shadow-sm"
@@ -404,20 +425,28 @@ export default function HomeScreen({ navigation }) {
                   <View className="w-16 h-16 bg-[#E8F6F8] rounded-full items-center justify-center mr-4">
                     <Text className="text-3xl">👤</Text>
                   </View>
-                  
+
                   <View className="flex-1">
                     <Text className="text-base font-semibold text-gray-800 mb-1">
                       {pro.name || 'Abhishek'}
                     </Text>
                     <View className="flex-row items-center mb-1">
-                      <Text className="text-xs text-gray-500 mr-3">📍 {pro.availability || 'Not available'}</Text>
+                      <Text className="text-xs text-gray-500 mr-3">
+                        📍 {pro.availability || 'Not available'}
+                      </Text>
                     </View>
                     <View className="flex-row items-center mb-1">
-                      <Text className="text-xs text-gray-500 mr-3">💼 {pro.experience || '4 yrs Exp'}</Text>
+                      <Text className="text-xs text-gray-500 mr-3">
+                        💼 {pro.experience || '4 yrs Exp'}
+                      </Text>
                     </View>
                     <View className="flex-row items-center">
-                      <Text className="text-xs text-gray-500 mr-3">✂️ {pro.services || 'Hairs'}</Text>
-                      <Text className="text-xs text-gray-500">👤 {pro.gender || 'MALE'}</Text>
+                      <Text className="text-xs text-gray-500 mr-3">
+                        ✂️ {pro.services || 'Hairs'}
+                      </Text>
+                      <Text className="text-xs text-gray-500">
+                        👤 {pro.gender || 'MALE'}
+                      </Text>
                     </View>
                   </View>
 
@@ -438,27 +467,35 @@ export default function HomeScreen({ navigation }) {
             </View>
           )}
 
-          {/* Nearby Offers */}
+          {/* Nearby Salons */}
           <View className="mb-5">
             <View className="px-4 flex-row items-center justify-between mb-3">
               <Text className="text-base font-semibold text-gray-800">
-                Nearby Offers
+                Nearby Salons
               </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('OffersScreen')}>
-                <Text className="text-sm text-[#14b8a6] font-medium">View all</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('OffersScreen')}
+              >
+                <Text className="text-sm text-[#14b8a6] font-medium">
+                  View all
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               className="mx-4 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
-              onPress={() => navigation.navigate('ShopDetailsFull', { salonId: 'sample-id' })}
+              onPress={() =>
+                navigation.navigate('ShopDetailsFull', { salonId: 'sample-id' })
+              }
             >
               <View className="relative">
                 {/* TODO: Replace with actual offer image - dynamic data from API */}
                 <View className="w-full h-48 bg-gray-200 items-center justify-center">
-                  <Text className="text-gray-400 text-xs">Salon Offer Image</Text>
+                  <Text className="text-gray-400 text-xs">
+                    Salon Offer Image
+                  </Text>
                 </View>
-                
+
                 {/* Discount Badge */}
                 <View className="absolute bottom-3 left-3 bg-red-500 px-3 py-1.5 rounded-lg">
                   <Text className="text-white text-xs font-bold">15% Off</Text>
@@ -472,7 +509,9 @@ export default function HomeScreen({ navigation }) {
 
               <View className="p-4">
                 <View className="bg-[#E8F6F8] px-2 py-1 rounded self-start mb-2">
-                  <Text className="text-[#156778] text-xs font-medium">HAIR • FACIAL</Text>
+                  <Text className="text-[#156778] text-xs font-medium">
+                    HAIR • FACIAL
+                  </Text>
                 </View>
                 <Text className="text-base font-semibold text-gray-800 mb-1">
                   Maroon's Luxury Salon
@@ -483,7 +522,137 @@ export default function HomeScreen({ navigation }) {
                 <View className="flex-row items-center">
                   <View className="flex-row items-center mr-3">
                     <Text className="text-xs text-amber-500 mr-1">⭐</Text>
-                    <Text className="text-xs font-medium text-gray-700">4.8 (3.7k)</Text>
+                    <Text className="text-xs font-medium text-gray-700">
+                      4.8 (3.7k)
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Nearby Offers */}
+          <View className="mb-5">
+            <View className="px-4 flex-row items-center justify-between mb-3">
+              <Text className="text-base font-semibold text-gray-800">
+                Nearby Offers
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('OffersScreen')}
+              >
+                <Text className="text-sm text-[#14b8a6] font-medium">
+                  View all
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              className="mx-4 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+              onPress={() =>
+                navigation.navigate('ShopDetailsFull', { salonId: 'sample-id' })
+              }
+            >
+              <View className="relative">
+                {/* TODO: Replace with actual offer image - dynamic data from API */}
+                <View className="w-full h-48 bg-gray-200 items-center justify-center">
+                  <Text className="text-gray-400 text-xs">
+                    Salon Offer Image
+                  </Text>
+                </View>
+
+                {/* Discount Badge */}
+                <View className="absolute bottom-3 left-3 bg-red-500 px-3 py-1.5 rounded-lg">
+                  <Text className="text-white text-xs font-bold">15% Off</Text>
+                </View>
+
+                {/* Favorite Icon */}
+                <TouchableOpacity className="absolute top-3 right-3 w-9 h-9 bg-white rounded-full items-center justify-center">
+                  <Text className="text-red-400 text-lg">🤍</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View className="p-4">
+                <View className="bg-[#E8F6F8] px-2 py-1 rounded self-start mb-2">
+                  <Text className="text-[#156778] text-xs font-medium">
+                    HAIR • FACIAL
+                  </Text>
+                </View>
+                <Text className="text-base font-semibold text-gray-800 mb-1">
+                  Maroon's Luxury Salon
+                </Text>
+                <Text className="text-xs text-gray-500 mb-2">
+                  Kukatpally, Hyderabad
+                </Text>
+                <View className="flex-row items-center">
+                  <View className="flex-row items-center mr-3">
+                    <Text className="text-xs text-amber-500 mr-1">⭐</Text>
+                    <Text className="text-xs font-medium text-gray-700">
+                      4.8 (3.7k)
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Nearby Offers */}
+          <View className="mb-5">
+            <View className="px-4 flex-row items-center justify-between mb-3">
+              <Text className="text-base font-semibold text-gray-800">
+                Nearby Offers
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('OffersScreen')}
+              >
+                <Text className="text-sm text-[#14b8a6] font-medium">
+                  View all
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              className="mx-4 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+              onPress={() =>
+                navigation.navigate('ShopDetailsFull', { salonId: 'sample-id' })
+              }
+            >
+              <View className="relative">
+                {/* TODO: Replace with actual offer image - dynamic data from API */}
+                <View className="w-full h-48 bg-gray-200 items-center justify-center">
+                  <Text className="text-gray-400 text-xs">
+                    Salon Offer Image
+                  </Text>
+                </View>
+
+                {/* Discount Badge */}
+                <View className="absolute bottom-3 left-3 bg-red-500 px-3 py-1.5 rounded-lg">
+                  <Text className="text-white text-xs font-bold">15% Off</Text>
+                </View>
+
+                {/* Favorite Icon */}
+                <TouchableOpacity className="absolute top-3 right-3 w-9 h-9 bg-white rounded-full items-center justify-center">
+                  <Text className="text-red-400 text-lg">🤍</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View className="p-4">
+                <View className="bg-[#E8F6F8] px-2 py-1 rounded self-start mb-2">
+                  <Text className="text-[#156778] text-xs font-medium">
+                    HAIR • FACIAL
+                  </Text>
+                </View>
+                <Text className="text-base font-semibold text-gray-800 mb-1">
+                  Maroon's Luxury Salon
+                </Text>
+                <Text className="text-xs text-gray-500 mb-2">
+                  Kukatpally, Hyderabad
+                </Text>
+                <View className="flex-row items-center">
+                  <View className="flex-row items-center mr-3">
+                    <Text className="text-xs text-amber-500 mr-1">⭐</Text>
+                    <Text className="text-xs font-medium text-gray-700">
+                      4.8 (3.7k)
+                    </Text>
                   </View>
                 </View>
               </View>
