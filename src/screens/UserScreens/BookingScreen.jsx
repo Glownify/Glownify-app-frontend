@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   StatusBar,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -20,13 +20,13 @@ export default function UserBookingsScreen({ navigation }) {
   const { bookings, loading, error } = useSelector(state => state.booking);
   const [activeTab, setActiveTab] = useState('upcoming');
 
- useFocusEffect(
+  useFocusEffect(
     React.useCallback(() => {
       dispatch(fetchUserBookings());
-    }, [dispatch])
+    }, [dispatch]),
   );
 
-  console.log("User Bookings:", bookings);
+  console.log('User Bookings:', bookings);
 
   // Helper to determine if a booking is "past" or "upcoming" based on date
   const getFilteredData = () => {
@@ -40,50 +40,68 @@ export default function UserBookingsScreen({ navigation }) {
     });
   };
 
-  const handleViewDetails = (booking) => {
-  // Extract service names for the alert
-  const serviceNames = booking.serviceItems?.map(s => s.service?.name).join(', ') || "Services";
+  const handleViewDetails = booking => {
+    // Extract service names for the alert
+    const serviceNames =
+      booking.serviceItems?.map(s => s.service?.name).join(', ') || 'Services';
 
-  Alert.alert(
-    'Booking Details',
-    `ID: ${booking._id}\n` +
-    `Status: ${booking.status.toUpperCase()}\n` +
-    `Services: ${serviceNames}\n` +
-    `Total: ₹${booking.totalAmount}`
-  );
-};
+    Alert.alert(
+      'Booking Details',
+      `ID: ${booking._id}\n` +
+        `Status: ${booking.status.toUpperCase()}\n` +
+        `Services: ${serviceNames}\n` +
+        `Total: ₹${booking.totalAmount}`,
+    );
+  };
 
   const filteredBookings = getFilteredData();
 
-  const getStatusColor = (status) => {
+  const getStatusColor = status => {
     switch (status?.toLowerCase()) {
-      case 'confirmed': return '#4CAF50';
-      case 'pending': return '#FFC107';
-      case 'completed': return '#2196F3';
-      case 'cancelled': return '#f44336';
-      default: return '#999';
+      case 'confirmed':
+        return '#4CAF50';
+      case 'pending':
+        return '#FFC107';
+      case 'completed':
+        return '#2196F3';
+      case 'cancelled':
+        return '#f44336';
+      default:
+        return '#999';
     }
   };
 
-  const getStatusBgColor = (status) => {
+  const getStatusBgColor = status => {
     switch (status?.toLowerCase()) {
-      case 'confirmed': return '#E8F5E9';
-      case 'pending': return '#FFF9C4';
-      case 'completed': return '#E3F2FD';
-      case 'cancelled': return '#FFEBEE';
-      default: return '#f5f5f5';
+      case 'confirmed':
+        return '#E8F5E9';
+      case 'pending':
+        return '#FFF9C4';
+      case 'completed':
+        return '#E3F2FD';
+      case 'cancelled':
+        return '#FFEBEE';
+      default:
+        return '#f5f5f5';
     }
   };
 
-  const renderBookingCard = (booking) => {
+  const renderBookingCard = booking => {
     // Dynamic Data Extraction with Fallbacks
-    const salonName = booking.shopName || "Modern Cuts"; // Use provider name if available
-    const services = booking.serviceItems?.map(s => s.service?.name).join(', ') || "No services listed";
+    const salonName = booking.shopName || 'Modern Cuts'; // Use provider name if available
+    const services =
+      booking.serviceItems?.map(s => s.service?.name).join(', ') ||
+      'No services listed';
     const displayPrice = booking.totalAmount || 0;
-    const displayDate = booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString('en-GB', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    }) : "Date TBD";
-    const displayTime = booking.timeSlot?.start || "TBD";
+    const displayDate = booking.bookingDate
+      ? new Date(booking.bookingDate).toLocaleDateString('en-GB', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : 'Date TBD';
+    const displayTime = booking.timeSlot?.start || 'TBD';
     const status = booking.status || 'pending';
 
     return (
@@ -91,10 +109,19 @@ export default function UserBookingsScreen({ navigation }) {
         <View style={styles.cardHeader}>
           <View style={styles.salonHeader}>
             <Text style={styles.salonName}>{salonName}</Text>
-            <Text style={styles.services} numberOfLines={1}>{services}</Text>
+            <Text style={styles.services} numberOfLines={1}>
+              {services}
+            </Text>
           </View>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(status) }]}>
-            <Text style={[styles.statusText, { color: getStatusColor(status) }]}>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: getStatusBgColor(status) },
+            ]}
+          >
+            <Text
+              style={[styles.statusText, { color: getStatusColor(status) }]}
+            >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </Text>
           </View>
@@ -111,7 +138,9 @@ export default function UserBookingsScreen({ navigation }) {
           </View>
           <View style={styles.detailItem}>
             <Icon name="location" size={16} color="#666" />
-            <Text style={styles.detailText}>{booking.bookingType === 'in_salon' ? 'At Salon' : 'Home Service'}</Text>
+            <Text style={styles.detailText}>
+              {booking.bookingType === 'in_salon' ? 'At Salon' : 'Home Service'}
+            </Text>
           </View>
         </View>
 
@@ -122,17 +151,20 @@ export default function UserBookingsScreen({ navigation }) {
           </View>
 
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.callButton} onPress={() => Alert.alert('Call', 'Contacting provider...')}>
+            <TouchableOpacity
+              style={styles.callButton}
+              onPress={() => Alert.alert('Call', 'Contacting provider...')}
+            >
               <Icon name="call" size={16} color="#156778" />
               <Text style={styles.callButtonText}>Call</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-  style={styles.viewDetailsButton}
-  onPress={() => handleViewDetails(booking)} // <--- Make sure this is here
->
-  <Text style={styles.viewDetailsButtonText}>View Details</Text>
-</TouchableOpacity>
+              style={styles.viewDetailsButton}
+              onPress={() => handleViewDetails(booking)} // <--- Make sure this is here
+            >
+              <Text style={styles.viewDetailsButtonText}>View Details</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -144,7 +176,10 @@ export default function UserBookingsScreen({ navigation }) {
       <StatusBar barStyle="light-content" backgroundColor="#156778" />
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation?.goBack()}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation?.goBack()}
+          >
             <Icon name="chevron-back" size={24} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>My Bookings</Text>
@@ -152,13 +187,18 @@ export default function UserBookingsScreen({ navigation }) {
         </View>
 
         <View style={styles.tabsContainer}>
-          {['upcoming', 'past'].map((tab) => (
+          {['upcoming', 'past'].map(tab => (
             <TouchableOpacity
               key={tab}
               style={[styles.tab, activeTab === tab && styles.activeTab]}
               onPress={() => setActiveTab(tab)}
             >
-              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab && styles.activeTabText,
+                ]}
+              >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </Text>
             </TouchableOpacity>
@@ -166,7 +206,11 @@ export default function UserBookingsScreen({ navigation }) {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#156778" style={{ marginTop: 50 }} />
+          <ActivityIndicator
+            size="large"
+            color="#156778"
+            style={{ marginTop: 50 }}
+          />
         ) : (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             {filteredBookings.length === 0 ? (

@@ -1,5 +1,12 @@
 import React, { use, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  StatusBar,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -9,18 +16,18 @@ import { setCart } from '../../../redux/slices/cartSlice';
 import { useSelector, useDispatch } from 'react-redux';
 
 const TIME_SLOTS = [
-  { time: '9:00 AM', },
-  { time: '10:00 AM', },
-  { time: '11:00 AM', },
-  { time: '12:00 PM', },
-  { time: '1:00 PM', },
-  { time: '2:00 PM', },
-  { time: '3:00 PM', },
-  { time: '4:00 PM', },
-  { time: '5:00 PM', },
-  { time: '6:00 PM', },
-  { time: '7:00 PM', },
-  { time: '8:00 PM', },
+  { time: '9:00 AM' },
+  { time: '10:00 AM' },
+  { time: '11:00 AM' },
+  { time: '12:00 PM' },
+  { time: '1:00 PM' },
+  { time: '2:00 PM' },
+  { time: '3:00 PM' },
+  { time: '4:00 PM' },
+  { time: '5:00 PM' },
+  { time: '6:00 PM' },
+  { time: '7:00 PM' },
+  { time: '8:00 PM' },
 ];
 
 export default function SelectDateAndTime({ route }) {
@@ -34,21 +41,28 @@ export default function SelectDateAndTime({ route }) {
   const [selectedTime, setSelectedTime] = useState(null);
 
   const handleConfirm = async () => {
-  const updates = mode === 'salon' 
-    ? { selectedDateSalon: selectedDate, selectedTimeSalon: selectedTime }
-    : { selectedDateHome: selectedDate, selectedTimeHome: selectedTime };
+    const updates =
+      mode === 'salon'
+        ? { selectedDateSalon: selectedDate, selectedTimeSalon: selectedTime }
+        : { selectedDateHome: selectedDate, selectedTimeHome: selectedTime };
 
-  // 1. SAVE TO DISK (Permanent)
-  // This updates the local storage so data isn't lost on refresh
-  const updatedCart = await updateCartDateTime(userId, providerId, mode, selectedDate, selectedTime);
+    // 1. SAVE TO DISK (Permanent)
+    // This updates the local storage so data isn't lost on refresh
+    const updatedCart = await updateCartDateTime(
+      userId,
+      providerId,
+      mode,
+      selectedDate,
+      selectedTime,
+    );
 
-  // 2. UPDATE UI (Instant)
-  // This updates the Redux store. Because your CartScreen uses 'useSelector',
-  // it will see this change and update the UI the millisecond you go back.
-  dispatch(setCart(updatedCart));
+    // 2. UPDATE UI (Instant)
+    // This updates the Redux store. Because your CartScreen uses 'useSelector',
+    // it will see this change and update the UI the millisecond you go back.
+    dispatch(setCart(updatedCart));
 
-  navigation.goBack();
-};
+    navigation.navigate('BookingComplete', { providerId, mode });
+  };
 
   const getSlotStyle = (status, isSelected) => {
     if (status === 'unavailable') return styles.slotUnavailable;
@@ -67,7 +81,7 @@ export default function SelectDateAndTime({ route }) {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F8F8F8" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -77,7 +91,10 @@ export default function SelectDateAndTime({ route }) {
         <View style={{ width: 30 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Calendar Card */}
         <View style={styles.card}>
           <Calendar
@@ -99,21 +116,33 @@ export default function SelectDateAndTime({ route }) {
         {/* Time Selection Card */}
         <View style={styles.card}>
           <View style={styles.timeHeader}>
-            <MaterialCommunityIcons name="clock-outline" size={22} color="#8A56AC" />
+            <MaterialCommunityIcons
+              name="clock-outline"
+              size={22}
+              color="#8A56AC"
+            />
             <Text style={styles.timeTitle}>Select Time</Text>
           </View>
 
           <View style={styles.slotsGrid}>
             {TIME_SLOTS.map((slot, index) => {
               const isSelected = selectedTime === slot.time;
-              
+
               return (
                 <TouchableOpacity
                   key={index}
                   onPress={() => setSelectedTime(slot.time)}
-                  style={[styles.slotBase, getSlotStyle(slot.status, isSelected)]}
+                  style={[
+                    styles.slotBase,
+                    getSlotStyle(slot.status, isSelected),
+                  ]}
                 >
-                  <Text style={[styles.slotText, getTextStyle(slot.status, isSelected)]}>
+                  <Text
+                    style={[
+                      styles.slotText,
+                      getTextStyle(slot.status, isSelected),
+                    ]}
+                  >
                     {slot.time}
                   </Text>
                 </TouchableOpacity>
@@ -141,7 +170,10 @@ export default function SelectDateAndTime({ route }) {
 
       {/* Footer Buttons */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={() => navigation.goBack()}
+        >
           <Text style={styles.cancelText}>cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleConfirm} style={styles.confirmButton}>
@@ -197,7 +229,11 @@ const styles = StyleSheet.create({
   textFew: { color: '#92400E' },
   textUnavailable: { color: '#9CA3AF' },
   textSelected: { color: '#fff' },
-  legendRow: { flexDirection: 'row', marginTop: 10, justifyContent: 'flex-start' },
+  legendRow: {
+    flexDirection: 'row',
+    marginTop: 10,
+    justifyContent: 'flex-start',
+  },
   legendItem: { flexDirection: 'row', alignItems: 'center', marginRight: 15 },
   dot: { width: 8, height: 8, borderRadius: 4, marginRight: 5 },
   legendText: { fontSize: 12, color: '#666' },
@@ -222,4 +258,3 @@ const styles = StyleSheet.create({
   },
   confirmText: { color: '#fff', fontWeight: '500' },
 });
-

@@ -49,7 +49,7 @@ export default function BookingScreen({ navigation, route }) {
       date: selectedDate,
       time: selectedTime,
     });
-    navigation.navigate('Checkout');
+    navigation.navigate('BookingComplete');
   };
 
   const handleMonthChange = (direction) => {
