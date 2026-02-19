@@ -36,22 +36,6 @@ const DUMMY_OFFER = {
 };
 // ─────────────────────────────────────────────
 
-/* Small confetti square */
-const Confetti = ({ style }) => (
-  <View
-    style={[
-      {
-        position: 'absolute',
-        width: 7,
-        height: 7,
-        borderRadius: 2,
-        opacity: 0.85,
-      },
-      style,
-    ]}
-  />
-);
-
 /* Render star-rating row */
 const StarRating = ({ rating = 4.5 }) => {
   const full = Math.floor(rating);
@@ -84,7 +68,7 @@ const BookingComplete = () => {
   const { salonDetails } = useSelector(state => state.user);
 
   // Animation refs
-  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const imageAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
 
@@ -96,21 +80,23 @@ const BookingComplete = () => {
 
   useEffect(() => {
     Animated.sequence([
-      Animated.spring(scaleAnim, {
+      // Image springs in
+      Animated.spring(imageAnim, {
         toValue: 1,
-        tension: 60,
-        friction: 6,
+        tension: 55,
+        friction: 7,
         useNativeDriver: true,
       }),
+      // Then text/cards fade + slide up
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 400,
+          duration: 380,
           useNativeDriver: true,
         }),
         Animated.timing(slideAnim, {
           toValue: 0,
-          duration: 400,
+          duration: 380,
           useNativeDriver: true,
         }),
       ]),
@@ -125,223 +111,32 @@ const BookingComplete = () => {
   return (
     <SafeAreaView className="flex-1 bg-primary-50">
       <ScrollView
-        contentContainerStyle={{ alignItems: 'center', paddingBottom: 40 }}
+        contentContainerStyle={{ alignItems: 'center' }}
         showsVerticalScrollIndicator={false}
       >
         {/* ── Illustration Area ── */}
-        <View
-          className="items-center mt-6 mb-2"
-          style={{ height: 260, width: width }}
+        <Animated.View
+          style={{
+            alignItems: 'center',
+            marginTop: 16,
+            // marginBottom: 8,
+            opacity: imageAnim,
+            transform: [
+              {
+                scale: imageAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.7, 1],
+                }),
+              },
+            ],
+          }}
         >
-          {/* Scattered confetti */}
-          <Confetti
-            style={{ top: 40, left: width * 0.12, backgroundColor: '#F472B6' }}
+          <Image
+            source={require('../../../assets/BookingComplete.png')}
+            style={{ width: width * 0.82, height: width * 0.82 }}
+            // resizeMode="cover"
           />
-          <Confetti
-            style={{
-              top: 20,
-              left: width * 0.28,
-              backgroundColor: '#FCD34D',
-              transform: [{ rotate: '30deg' }],
-            }}
-          />
-          <Confetti
-            style={{ top: 55, left: width * 0.72, backgroundColor: '#FB923C' }}
-          />
-          <Confetti
-            style={{
-              top: 15,
-              left: width * 0.63,
-              backgroundColor: '#A78BFA',
-              transform: [{ rotate: '45deg' }],
-            }}
-          />
-          <Confetti
-            style={{ top: 80, left: width * 0.82, backgroundColor: '#34D399' }}
-          />
-          <Confetti
-            style={{
-              top: 90,
-              left: width * 0.1,
-              backgroundColor: '#60A5FA',
-              transform: [{ rotate: '20deg' }],
-            }}
-          />
-          <Confetti
-            style={{ top: 130, left: width * 0.08, backgroundColor: '#FCD34D' }}
-          />
-          <Confetti
-            style={{
-              top: 120,
-              left: width * 0.85,
-              backgroundColor: '#F472B6',
-              transform: [{ rotate: '60deg' }],
-            }}
-          />
-
-          {/* Decorative ribbon-like arcs */}
-          <View
-            style={{
-              position: 'absolute',
-              top: 30,
-              left: width * 0.18,
-              width: 40,
-              height: 3,
-              borderRadius: 4,
-              backgroundColor: '#F9A8D4',
-              transform: [{ rotate: '-30deg' }],
-              opacity: 0.7,
-            }}
-          />
-          <View
-            style={{
-              position: 'absolute',
-              top: 60,
-              right: width * 0.18,
-              width: 30,
-              height: 3,
-              borderRadius: 4,
-              backgroundColor: '#FCD34D',
-              transform: [{ rotate: '20deg' }],
-              opacity: 0.7,
-            }}
-          />
-
-          {/* Gift Box */}
-          <Animated.View
-            style={{
-              position: 'absolute',
-              bottom: 10,
-              alignSelf: 'center',
-              transform: [{ scale: scaleAnim }],
-            }}
-          >
-            {/* Box lid */}
-            <View
-              style={{
-                width: 110,
-                height: 28,
-                backgroundColor: '#F9A8D4',
-                borderRadius: 6,
-                alignSelf: 'center',
-                marginBottom: -4,
-                zIndex: 2,
-                shadowColor: '#f43f5e',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 4,
-              }}
-            >
-              {/* Ribbon on lid */}
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  left: '50%',
-                  marginLeft: -5,
-                  width: 10,
-                  backgroundColor: '#E11D48',
-                  borderRadius: 3,
-                }}
-              />
-            </View>
-
-            {/* Box body */}
-            <View
-              style={{
-                width: 100,
-                height: 80,
-                backgroundColor: '#FEE2E2',
-                borderRadius: 10,
-                alignSelf: 'center',
-                overflow: 'hidden',
-                shadowColor: '#f43f5e',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 8,
-                elevation: 5,
-              }}
-            >
-              {/* Vertical ribbon strip */}
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  left: '50%',
-                  marginLeft: -5,
-                  width: 10,
-                  backgroundColor: '#FDA4AF',
-                }}
-              />
-              {/* Horizontal ribbon strip */}
-              <View
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  top: '50%',
-                  marginTop: -4,
-                  height: 8,
-                  backgroundColor: '#FDA4AF',
-                }}
-              />
-            </View>
-
-            {/* Stars/sparkles around box */}
-            <View style={{ position: 'absolute', top: -10, left: -15 }}>
-              <Icon name="star" size={16} color="#FBBF24" />
-            </View>
-            <View style={{ position: 'absolute', top: 20, right: -18 }}>
-              <Icon name="star" size={12} color="#FCD34D" />
-            </View>
-            <View style={{ position: 'absolute', bottom: 10, left: -20 }}>
-              <Icon name="star-outline" size={10} color="#F9A8D4" />
-            </View>
-          </Animated.View>
-
-          {/* Checkmark circle — floating above the box */}
-          <Animated.View
-            style={{
-              position: 'absolute',
-              top: 10,
-              alignSelf: 'center',
-              transform: [{ scale: scaleAnim }],
-            }}
-          >
-            {/* Outer glow ring */}
-            <View
-              style={{
-                width: 92,
-                height: 92,
-                borderRadius: 46,
-                backgroundColor: 'rgba(244,63,94,0.08)',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {/* White circle */}
-              <View
-                style={{
-                  width: 76,
-                  height: 76,
-                  borderRadius: 38,
-                  backgroundColor: '#FFFFFF',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  shadowColor: '#f43f5e',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 10,
-                  elevation: 6,
-                }}
-              >
-                <Icon name="checkmark" size={44} color="#F43F5E" />
-              </View>
-            </View>
-          </Animated.View>
-        </View>
+        </Animated.View>
 
         {/* ── Heading ── */}
         <Animated.View
@@ -349,7 +144,7 @@ const BookingComplete = () => {
             opacity: fadeAnim,
             transform: [{ translateY: slideAnim }],
             alignItems: 'center',
-            paddingHorizontal: 24,
+            // paddingHorizontal: 24,
           }}
         >
           <Text
