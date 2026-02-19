@@ -40,7 +40,7 @@ const DUMMY_SERVICE_CATEGORIES = [
 
 // TODO: Replace with serviceItemsByCategory from API (keyed by category id)
 const DUMMY_SERVICES = {
-  '1': [
+  1: [
     {
       _id: 's1',
       name: 'Haircut & Styling',
@@ -68,11 +68,12 @@ const DUMMY_SERVICES = {
       salonPrice: 1200,
       homePrice: null,
       serviceMode: 'salon',
-      image: 'https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=200',
+      image:
+        'https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=200',
       badge: 'Opt.',
     },
   ],
-  '2': [
+  2: [
     {
       _id: 's4',
       name: 'Facial Treatment',
@@ -80,7 +81,8 @@ const DUMMY_SERVICES = {
       salonPrice: 800,
       homePrice: 950,
       serviceMode: 'both',
-      image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200',
+      image:
+        'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200',
       badge: null,
     },
     {
@@ -90,11 +92,12 @@ const DUMMY_SERVICES = {
       salonPrice: 500,
       homePrice: 600,
       serviceMode: 'both',
-      image: 'https://images.unsplash.com/photo-1596704017254-9b121068ec31?w=200',
+      image:
+        'https://images.unsplash.com/photo-1596704017254-9b121068ec31?w=200',
       badge: '*STEALDEAL',
     },
   ],
-  '3': [
+  3: [
     {
       _id: 's6',
       name: 'Full Arms Waxing',
@@ -102,11 +105,12 @@ const DUMMY_SERVICES = {
       salonPrice: 300,
       homePrice: 400,
       serviceMode: 'both',
-      image: 'https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?w=200',
+      image:
+        'https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?w=200',
       badge: null,
     },
   ],
-  '4': [
+  4: [
     {
       _id: 's7',
       name: 'Bridal Makeup',
@@ -114,7 +118,8 @@ const DUMMY_SERVICES = {
       salonPrice: 3500,
       homePrice: 4000,
       serviceMode: 'both',
-      image: 'https://images.unsplash.com/photo-1596704017254-9b121068ec31?w=200',
+      image:
+        'https://images.unsplash.com/photo-1596704017254-9b121068ec31?w=200',
       badge: null,
     },
   ],
@@ -137,13 +142,45 @@ const DUMMY_REVIEWS = [
   },
 ];
 
+// TODO: Replace with salonData.ourServices (category highlights) from API
+// Each item: { id, name, image } — image can be a URI string or null for placeholder
+const DUMMY_OUR_SERVICES = [
+  {
+    id: '1',
+    name: 'Hair',
+    image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=200',
+  },
+  {
+    id: '2',
+    name: 'Facial',
+    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200',
+  },
+  {
+    id: '3',
+    name: 'Wax',
+    image: 'https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?w=200',
+  },
+  {
+    id: '4',
+    name: 'Makeup',
+    image: null, // placeholder circle when no image
+  },
+  {
+    id: '5',
+    name: 'More',
+    image: null,
+  },
+];
+
 // ============================================================
 // SUB-COMPONENTS
 // ============================================================
 
 /** Booking mode toggle (Salon at Home / Visit Salon) */
 function BookingModeToggle({ mode, onChange }) {
-  const translateX = useRef(new Animated.Value(mode === 'home' ? 0 : 1)).current;
+  const translateX = useRef(
+    new Animated.Value(mode === 'home' ? 0 : 1),
+  ).current;
 
   const handlePress = next => {
     Animated.spring(translateX, {
@@ -214,9 +251,7 @@ function BookingModeCard({ mode, onBook }) {
           {isHome ? 'Salon at Home' : 'Visit Salon'}
         </Text>
         <Text className="text-neutral-500 text-xs text-center mt-1">
-          {isHome
-            ? 'Service at your doorstep'
-            : 'Get pampered at our salon'}
+          {isHome ? 'Service at your doorstep' : 'Get pampered at our salon'}
         </Text>
         <TouchableOpacity
           className={`mt-3 w-full py-2 rounded-button items-center ${
@@ -281,7 +316,9 @@ function ServiceItem({ service, selectedMode, cartItems, onAdd }) {
         </View>
         <View className="flex-row items-center mt-1">
           <Icon name="time-outline" size={12} color="#9CA3AF" />
-          <Text className="text-neutral-400 text-xs ml-1">{service.duration}</Text>
+          <Text className="text-neutral-400 text-xs ml-1">
+            {service.duration}
+          </Text>
         </View>
         <Text className="text-neutral-900 font-bold text-sm mt-1">
           ₹{price.toLocaleString()}
@@ -349,7 +386,8 @@ export default function ShopDetailsScreen({ navigation, route }) {
   // ============================================================
   const salonImages = salonData?.galleryImages || DUMMY_IMAGES;
   const salonName = salonData?.shopName || 'Glamour Beauty Salon';
-  const salonTagline = salonData?.tagline || 'Elegant & Luxurious Beauty Services';
+  const salonTagline =
+    salonData?.tagline || 'Elegant & Luxurious Beauty Services';
   const salonRating = salonData?.rating || 4.8;
   const reviewCount = salonData?.reviewCount || 120;
   const distance = salonData?.distance || '2.5 km away';
@@ -363,10 +401,9 @@ export default function ShopDetailsScreen({ navigation, route }) {
     'Experienced Beauty Experts Est. 2015',
   ];
   // TODO: Replace with salonData.serviceCategories from API
-  const serviceCategories =
-     DUMMY_SERVICE_CATEGORIES;
+  const serviceCategories = DUMMY_SERVICE_CATEGORIES;
   // TODO: Replace with serviceItemsByCategory from API
-  const servicesMap =  DUMMY_SERVICES;
+  const servicesMap = DUMMY_SERVICES;
   const reviews = salonData?.reviews || DUMMY_REVIEWS;
 
   // Set default active category
@@ -538,8 +575,12 @@ export default function ShopDetailsScreen({ navigation, route }) {
         ============================================================ */}
         <View className="mx-md mt-md">
           {/* TODO: Use salonData.shopName, tagline, openHours from API */}
-          <Text className="text-2xl font-bold text-neutral-900">{salonName}</Text>
-          <Text className="text-neutral-500 text-sm mt-0.5">{salonTagline}</Text>
+          <Text className="text-2xl font-bold text-neutral-900">
+            {salonName}
+          </Text>
+          <Text className="text-neutral-500 text-sm mt-0.5">
+            {salonTagline}
+          </Text>
           <View className="flex-row items-center mt-1">
             <Icon name="time-outline" size={14} color="#10b981" />
             <Text className="text-success text-sm ml-1">
@@ -548,7 +589,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
           </View>
         </View>
 
-                {/* ============================================================
+        {/* ============================================================
             DATE & ADDRESS INFO (shown below cards)
         ============================================================ */}
         <View className="mx-md mt-md bg-neutral-white rounded-card p-md">
@@ -559,8 +600,8 @@ export default function ShopDetailsScreen({ navigation, route }) {
               </View>
               <View>
                 <Text className="text-neutral-400 text-xs">Date & Time</Text> */}
-                {/* TODO: Use selected date/time from booking state */}
-               {/* <Text className="text-neutral-900 text-sm font-medium">
+          {/* TODO: Use selected date/time from booking state */}
+          {/* <Text className="text-neutral-900 text-sm font-medium">
                   Thu, Apr 25 · 10:00 AM
                 </Text>
               </View>
@@ -585,7 +626,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
                   numberOfLines={1}
                 >
                   {salonAddress}
-                </Text> 
+                </Text>
               </View>
             </View>
             <TouchableOpacity>
@@ -624,17 +665,69 @@ export default function ShopDetailsScreen({ navigation, route }) {
               <View className="flex-row flex-wrap mt-2 gap-2">
                 {/* TODO: Use salonData.aboutBadges from API */}
                 {aboutBadges.map((badge, i) => (
-                  <View
-                    key={i}
-                    className="flex-row items-center"
-                  >
+                  <View key={i} className="flex-row items-center">
                     <Icon name="checkmark-circle" size={14} color="#10b981" />
-                    <Text className="text-neutral-600 text-xs ml-1">{badge}</Text>
+                    <Text className="text-neutral-600 text-xs ml-1">
+                      {badge}
+                    </Text>
                   </View>
                 ))}
               </View>
             </View>
           )}
+        </View>
+
+        {/* ============================================================
+            OUR SERVICES — CIRCULAR CATEGORY SHORTCUTS
+        ============================================================ */}
+        <View className="mx-md mt-md">
+          <Text className="text-base font-bold text-neutral-900 mb-3">
+            Our Services
+          </Text>
+          {/* TODO: Replace DUMMY_OUR_SERVICES with salonData.ourServices from API */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingRight: 8 }}
+          >
+            {DUMMY_OUR_SERVICES.map(service => (
+              <TouchableOpacity
+                key={service.id}
+                className="items-center mr-4"
+                activeOpacity={0.75}
+                onPress={() => setActiveCategory(service.id)}
+              >
+                {/* Circle image / placeholder */}
+                <View
+                  className="w-16 h-16 rounded-full overflow-hidden bg-neutral-100 items-center justify-center"
+                  style={{
+                    borderWidth: activeCategory === service.id ? 2 : 0,
+                    borderColor: '#EA8491',
+                  }}
+                >
+                  {service.image ? (
+                    <Image
+                      source={{ uri: service.image }}
+                      style={{ width: 64, height: 64 }}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View className="flex-1 w-full items-center justify-center bg-neutral-200">
+                      <Text className="text-neutral-400 text-xs font-semibold">
+                        {service.name.slice(0, 2)}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <Text
+                  className="text-xs text-neutral-700 font-medium mt-1.5"
+                  numberOfLines={1}
+                >
+                  {service.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
         {/* ============================================================
@@ -645,28 +738,28 @@ export default function ShopDetailsScreen({ navigation, route }) {
         {/* ============================================================
             BOOKING MODE CARDS
         ============================================================ */}
-        <View className="mx-md mt-md flex-row gap-3">
+        {/* <View className="mx-md mt-md flex-row gap-3">
           <BookingModeCard mode="home" onBook={handleBookMode} />
           <BookingModeCard mode="salon" onBook={handleBookMode} />
-        </View>
+        </View> */}
 
         {/* ============================================================
             OUR SERVICES — CATEGORY TABS
         ============================================================ */}
         <View className="mx-md mt-xl">
-          <Text className="text-lg font-bold text-neutral-900 mb-md">
+          {/* <Text className="text-lg font-bold text-neutral-900 mb-md">
             Our Services
-          </Text>
+          </Text> */}
 
           {/* Category Tabs */}
-          <ScrollView
+          {/* <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             className="mb-3"
             contentContainerStyle={{ paddingRight: 16 }}
-          >
+          > */}
             {/* TODO: Map through salonData.serviceCategories from API */}
-            {serviceCategories.map(cat => {
+            {/* {serviceCategories.map(cat => {
               const isActive = activeCategory === cat.id;
               return (
                 <TouchableOpacity
@@ -688,7 +781,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
                 </TouchableOpacity>
               );
             })}
-          </ScrollView>
+          </ScrollView> */}
 
           {/* All Services header row */}
           <View className="flex-row items-center justify-between mb-2">
@@ -699,7 +792,12 @@ export default function ShopDetailsScreen({ navigation, route }) {
               <Text className="text-neutral-600 text-xs">
                 Cat {currentServices.length} Items
               </Text>
-              <Icon name="chevron-down" size={12} color="#6B7280" className="ml-1" />
+              <Icon
+                name="chevron-down"
+                size={12}
+                color="#6B7280"
+                className="ml-1"
+              />
             </View>
           </View>
 
@@ -745,7 +843,9 @@ export default function ShopDetailsScreen({ navigation, route }) {
               {[1, 2, 3, 4, 5].map(star => (
                 <Icon
                   key={star}
-                  name={star <= Math.floor(salonRating) ? 'star' : 'star-outline'}
+                  name={
+                    star <= Math.floor(salonRating) ? 'star' : 'star-outline'
+                  }
                   size={14}
                   color="#FBBF24"
                 />
@@ -799,7 +899,9 @@ export default function ShopDetailsScreen({ navigation, route }) {
         {cartItems.length > 0 ? (
           <TouchableOpacity
             className="bg-primary-500 py-md rounded-button flex-row items-center justify-between px-md"
-            onPress={() => navigation.navigate('Booking', { cartItems, bookingMode })}
+            onPress={() =>
+              navigation.navigate('Booking', { cartItems, bookingMode })
+            }
           >
             <View>
               <Text className="text-neutral-white text-md">
