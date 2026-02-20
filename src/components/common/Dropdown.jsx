@@ -47,7 +47,7 @@ const Dropdown = ({
         onPress={() => !disabled && setIsOpen(true)}
         disabled={disabled}
         className={`
-          flex-row items-center px-md py-4 border bg-gray-100 rounded-input
+          flex-row items-center px-md py-4 border bg-gray-100 rounded-full
           ${error ? 'border-error' : 'border-neutral-200'}
           ${disabled ? 'opacity-50 bg-neutral-50' : 'active:bg-neutral-50'}
           ${iconPosition === 'left' ? 'justify-start' : 'justify-between'}

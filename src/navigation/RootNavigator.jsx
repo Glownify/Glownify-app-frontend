@@ -69,21 +69,19 @@ export default function RootNavigator() {
         ) : user.role === 'salesman' ? (
           <Stack.Screen name="Salesman" component={SalesmanNavigator} />
         ) : user.role === 'sales_executive' ? (
-          <Stack.Screen name="SalesExecutive" component={SalesExecutiveNavigator} />
-        ) : user.role == 'App' ? (
-          <Stack.Screen name="App" component={AppNavigator} /> 
-
-        ):
-        
-        (
+          <Stack.Screen
+            name="SalesExecutive"
+            component={SalesExecutiveNavigator}
+          />
+        ) : (
           <>
-            {/* Default user app */}
+            {/* Covers user + guest + fallback */}
             <Stack.Screen name="App" component={AppNavigator} />
-            {/* Cart stack outside of tabs */}
             <Stack.Screen name="CartStack" component={CartStackNavigator} />
           </>
         )}
       </Stack.Navigator>
+
       <CartPopup />
     </NavigationContainer>
   );
