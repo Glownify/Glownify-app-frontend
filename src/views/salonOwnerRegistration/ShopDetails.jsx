@@ -2,13 +2,15 @@ import React from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Image,
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
+import {LabeledInput} from '../../components/common/Labeledinput';
+
+const ACCENT = '#E91E63'; 
 
 export default function ShopDetailsStep({
   galleryImages,
@@ -32,177 +34,241 @@ export default function ShopDetailsStep({
 }) {
   return (
     <View>
-      <Text className="text-2xl font-bold text-neutral-700">Shop Details</Text>
-      <Text className="text-sm text-neutral-400 mt-1">
+      <Text style={{ fontSize: 26, fontWeight: '800', color: '#1F2937', marginBottom: 4 }}>
+        Shop Details
+      </Text>
+      <Text style={{ fontSize: 14, color: '#9CA3AF', marginBottom: 24 }}>
         Showcase your salon to customers
       </Text>
 
       {/* Shop Images */}
-      <Text className="text-base font-semibold text-neutral-700 mt-lg">
-        Shop Images *
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 4 }}>
+        Shop Images <Text style={{ color: ACCENT }}>*</Text>
       </Text>
-      <Text className="text-sm text-neutral-600 mt-xs">
-        Upload 1-4 high-quality images of your salon
+      <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 12 }}>
+        Upload 1–4 high-quality images of your salon
       </Text>
 
-      <View className="flex-row flex-wrap gap-sm mt-sm">
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 28 }}>
         {galleryImages.map((image, index) => (
           <TouchableOpacity
             key={index}
-            className="w-[calc(50%-6px)] aspect-square bg-neutral-100 rounded-input items-center justify-center border-2 border-dashed border-neutral-300"
+            style={{
+              width: '47%',
+              aspectRatio: 1,
+              backgroundColor: '#F9FAFB',
+              borderRadius: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1.5,
+              borderStyle: 'dashed',
+              borderColor: image ? ACCENT : '#D1D5DB',
+              overflow: 'hidden',
+            }}
             onPress={() => handleUploadShopImage(index)}
+            activeOpacity={0.8}
           >
             {image ? (
               <Image
                 source={{ uri: image }}
-                className="w-full h-full rounded-input"
+                style={{ width: '100%', height: '100%' }}
                 resizeMode="cover"
               />
             ) : (
-              <Icon name="image" size={40} color="#999" />
+              <Icon name="image-outline" size={36} color="#D1D5DB" />
             )}
           </TouchableOpacity>
         ))}
       </View>
 
       {/* Shop Location */}
-      <Text className="text-base font-semibold text-neutral-700 mt-lg">
-        Shop Location *
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 4 }}>
+        Shop Location <Text style={{ color: ACCENT }}>*</Text>
       </Text>
-      <Text className="text-sm text-neutral-600 mt-xs">Help customers find you</Text>
+      <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 14 }}>
+        Help customers find you
+      </Text>
 
-      <View className="gap-md mt-sm">
-        <View>
-          <Text className="text-sm font-semibold text-neutral-700 mb-xs">
-            Complete Address *
+      <LabeledInput
+        label="Complete Address"
+        required
+        placeholder="House No, Area, Road"
+        value={completeAddress}
+        onChangeText={setCompleteAddress}
+        autoCapitalize="words"
+      />
+
+      {/* State & City row */}
+      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+            State <Text style={{ color: ACCENT }}>*</Text>
           </Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="House No, Area, Road"
-            value={completeAddress}
-            onChangeText={setCompleteAddress}
-          />
+          <View
+            style={{
+              backgroundColor: '#FAFAFA',
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              borderRadius: 12,
+              overflow: 'hidden',
+            }}
+          >
+            <Picker
+              selectedValue={state}
+              onValueChange={(itemValue) => {
+                setState(itemValue);
+                setCity('');
+              }}
+              dropdownIconColor={ACCENT}
+              mode="dropdown"
+            >
+              <Picker.Item label="Select State" value="" />
+              {states.map((s) => (
+                <Picker.Item key={s._id} label={s.name} value={s.code || s._id} />
+              ))}
+            </Picker>
+          </View>
         </View>
 
-        <View className="flex-row gap-sm">
-          <View className="flex-1">
-            <Text className="text-sm font-semibold text-neutral-700 mb-xs">State *</Text>
-            <View className="bg-neutral-white border border-neutral-200 rounded-input overflow-hidden">
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+            City <Text style={{ color: ACCENT }}>*</Text>
+          </Text>
+          <View
+            style={{
+              backgroundColor: '#FAFAFA',
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              borderRadius: 12,
+              overflow: 'hidden',
+            }}
+          >
+            {isCitiesLoading ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14 }}>
+                <ActivityIndicator size="small" color={ACCENT} />
+                <Text style={{ fontSize: 12, color: '#9CA3AF' }}>Loading...</Text>
+              </View>
+            ) : (
               <Picker
-                selectedValue={state}
-                onValueChange={(itemValue) => {
-                  setState(itemValue);
-                  setCity(''); // Reset city when state changes
-                }}
-                dropdownIconColor="#7C5FED"
+                selectedValue={city}
+                onValueChange={setCity}
+                dropdownIconColor={ACCENT}
                 mode="dropdown"
+                enabled={!!state && citiesByState.length > 0}
               >
-                <Picker.Item label="Select State" value="" />
-                {states.map((s) => (
-                  <Picker.Item key={s._id} label={s.name} value={s.code || s._id} />
+                <Picker.Item
+                  label={
+                    !state
+                      ? 'Select State First'
+                      : citiesByState.length === 0
+                      ? 'No Cities Found'
+                      : 'Select City'
+                  }
+                  value=""
+                />
+                {citiesByState.map((c) => (
+                  <Picker.Item key={c._id} label={c.name} value={c._id} />
                 ))}
               </Picker>
-            </View>
-          </View>
-
-          <View className="flex-1">
-            <Text className="text-sm font-semibold text-neutral-700 mb-xs">City *</Text>
-            <View className="bg-neutral-white border border-neutral-200 rounded-input overflow-hidden">
-              {isCitiesLoading ? (
-                <View className="flex-row items-center justify-center gap-xs py-md">
-                  <ActivityIndicator size="small" color="#7C5FED" />
-                  <Text className="text-xs text-neutral-400">Loading Cities...</Text>
-                </View>
-              ) : (
-                <Picker
-                  selectedValue={city}
-                  onValueChange={setCity}
-                  dropdownIconColor="#7C5FED"
-                  mode="dropdown"
-                  enabled={!!state && citiesByState.length > 0}
-                >
-                  <Picker.Item
-                    label={
-                      !state
-                        ? 'Select State First'
-                        : citiesByState.length === 0
-                        ? 'No Cities Found'
-                        : 'Select City'
-                    }
-                    value=""
-                  />
-                  {citiesByState.map((c) => (
-                    <Picker.Item key={c._id} label={c.name} value={c._id} />
-                  ))}
-                </Picker>
-              )}
-            </View>
-          </View>
-        </View>
-
-        <View>
-          <Text className="text-sm font-semibold text-neutral-700 mb-xs">Pincode *</Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="Enter Pincode (6 digits)"
-            keyboardType="numeric"
-            maxLength={6}
-            value={pincode}
-            onChangeText={setPincode}
-          />
-        </View>
-
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">
-            Pin Exact Location on Map (using current coordinates)
-          </Text>
-          <TouchableOpacity
-            className={`border-2 border-dashed rounded-input py-xl items-center justify-center gap-xs ${
-              locationSet
-                ? 'bg-success/10 border-success'
-                : 'bg-neutral-50 border-neutral-300'
-            }`}
-            onPress={handleSetLocation}
-          >
-            {locationSet ? (
-              <>
-                <Icon name="checkmark-circle" size={40} color="#10b981" />
-                <Text className="text-sm font-semibold text-success">
-                  Location Set ✓
-                </Text>
-                <Text className="text-xs text-neutral-500 text-center px-md">
-                  {locationData.address}, {locationData.city}
-                </Text>
-              </>
-            ) : (
-              <>
-                <Icon name="location" size={40} color="#999" />
-                <Text className="text-sm font-semibold text-neutral-600">
-                  Click To Pin your exact location
-                </Text>
-                <Text className="text-xs text-neutral-400">
-                  Ensure address is filled first
-                </Text>
-              </>
             )}
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
 
-      {/* Navigation Buttons */}
-      <View className="flex-row gap-sm mt-xl">
+      <LabeledInput
+        label="Pincode"
+        required
+        placeholder="Enter Pincode (6 digits)"
+        value={pincode}
+        onChangeText={setPincode}
+        keyboardType="numeric"
+        maxLength={6}
+      />
+
+      {/* Pin on Map */}
+      <View style={{ marginBottom: 28 }}>
+        <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 8 }}>
+          Pin Exact Location on Map (using current coordinates)
+        </Text>
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-xs border border-[#7C5FED] py-md rounded-input"
-          onPress={handleBack}
+          style={{
+            borderWidth: 1.5,
+            borderStyle: 'dashed',
+            borderColor: locationSet ? '#10b981' : '#D1D5DB',
+            borderRadius: 14,
+            paddingVertical: 28,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            backgroundColor: locationSet ? '#F0FDF4' : '#F9FAFB',
+          }}
+          onPress={handleSetLocation}
+          activeOpacity={0.8}
         >
-          <Icon name="chevron-back" size={18} color="#7C5FED" />
-          <Text className="text-base font-bold text-[#7C5FED]">Back</Text>
+          {locationSet ? (
+            <>
+              <Icon name="checkmark-circle" size={40} color="#10b981" />
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#10b981' }}>
+                Location Set ✓
+              </Text>
+              <Text style={{ fontSize: 12, color: '#6B7280', textAlign: 'center', paddingHorizontal: 16 }}>
+                {locationData.address}, {locationData.city}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Icon name="location-outline" size={40} color="#D1D5DB" />
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>
+                Click To Pin your exact location
+              </Text>
+              <Text style={{ fontSize: 12, color: '#9CA3AF' }}>
+                Ensure address is filled first
+              </Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {/* Navigation Buttons */}
+      <View style={{ flexDirection: 'row', gap: 12 }}>
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            borderWidth: 1.5,
+            borderColor: ACCENT,
+            paddingVertical: 16,
+            borderRadius: 14,
+          }}
+          onPress={handleBack}
+          activeOpacity={0.8}
+        >
+          <Icon name="chevron-back" size={18} color={ACCENT} />
+          <Text style={{ fontSize: 15, fontWeight: '700', color: ACCENT }}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-xs bg-[#7C5FED] py-md rounded-input"
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            backgroundColor: ACCENT,
+            paddingVertical: 16,
+            borderRadius: 14,
+            shadowColor: ACCENT,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 4,
+          }}
           onPress={handleNext}
+          activeOpacity={0.85}
         >
-          <Text className="text-base font-bold text-neutral-white">Next</Text>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#fff' }}>Next Step</Text>
           <Icon name="arrow-forward" size={18} color="#fff" />
         </TouchableOpacity>
       </View>

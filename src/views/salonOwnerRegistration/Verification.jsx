@@ -2,13 +2,15 @@ import React from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Image,
   ActivityIndicator,
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {LabeledInput} from '../../components/common/Labeledinput';
+
+const ACCENT = '#E91E63';
 
 const ID_TYPES = [
   'Aadhaar Card',
@@ -32,115 +34,185 @@ export default function VerificationStep({
 }) {
   return (
     <View>
-      <Text className="text-2xl font-bold text-neutral-700">
+      <Text
+        style={{
+          fontSize: 26,
+          fontWeight: '800',
+          color: '#1F2937',
+          marginBottom: 4,
+        }}
+      >
         Verification Documents
       </Text>
-      <Text className="text-sm text-neutral-400 mt-1">
+      <Text style={{ fontSize: 14, color: '#9CA3AF', marginBottom: 24 }}>
         Upload your ID proof for verification
       </Text>
 
-      <View className="gap-md mt-lg">
-        {/* ID Proof Type */}
-        <View>
-          <Text className="text-sm font-semibold text-neutral-700 mb-xs">
-            ID Proof Type *
-          </Text>
-          <TouchableOpacity
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm flex-row items-center justify-between"
-            onPress={() =>
-              Alert.alert('Select ID Type', '', [
-                ...ID_TYPES.map((type) => ({
-                  text: type,
-                  onPress: () => setIdType(type),
-                })),
-                { text: 'Cancel', style: 'cancel' },
-              ])
-            }
+      {/* ID Proof Type */}
+      <View style={{ marginBottom: 16 }}>
+        <Text
+          style={{
+            fontSize: 13,
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: 6,
+          }}
+        >
+          ID Proof Type <Text style={{ color: ACCENT }}>*</Text>
+        </Text>
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#FAFAFA',
+            borderWidth: 1,
+            borderColor: '#E5E7EB',
+            borderRadius: 12,
+            paddingHorizontal: 14,
+            paddingVertical: 14,
+          }}
+          onPress={() =>
+            Alert.alert('Select ID Type', '', [
+              ...ID_TYPES.map(type => ({
+                text: type,
+                onPress: () => setIdType(type),
+              })),
+              { text: 'Cancel', style: 'cancel' },
+            ])
+          }
+          activeOpacity={0.8}
+        >
+          <Text
+            style={{
+              fontSize: 15,
+              color: idType ? '#1F2937' : '#C0C0C0',
+            }}
           >
-            <Text
-              className={`text-sm ${
-                idType ? 'text-neutral-700' : 'text-neutral-400'
-              }`}
-            >
-              {idType || 'Select ID proof type'}
-            </Text>
-            <Icon name="chevron-down" size={18} color="#999" />
-          </TouchableOpacity>
-        </View>
-
-        {/* ID Number */}
-        <View>
-          <Text className="text-sm font-semibold text-neutral-700 mb-xs">
-            ID Number *
+            {idType || 'Select ID proof type'}
           </Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="Enter ID number"
-            value={idNumber}
-            onChangeText={setIdNumber}
-          />
-        </View>
+          <Icon name="chevron-down" size={18} color="#C0C0C0" />
+        </TouchableOpacity>
+      </View>
 
-        {/* Upload ID Proof */}
-        <View>
-          <Text className="text-sm font-semibold text-neutral-700 mb-xs">
-            Upload ID Proof *
-          </Text>
-          <TouchableOpacity
-            className={`border-2 border-dashed rounded-input py-xl items-center justify-center gap-xs ${
-              idImageUrl
-                ? 'bg-[#F5F0FF] border-[#7C5FED]'
-                : 'bg-neutral-50 border-neutral-300'
-            }`}
-            onPress={handleUploadIDProof}
-          >
-            {idImageUrl ? (
-              <View className="items-center gap-xs">
-                <Image
-                  source={{ uri: idImageUrl }}
-                  className="w-32 h-20 rounded-input"
-                  resizeMode="cover"
-                />
-                <Text className="text-sm font-semibold text-success">
-                  ✓ Image Selected
-                </Text>
-                <Text className="text-xs text-neutral-400">Tap to change</Text>
-              </View>
-            ) : (
-              <>
-                <Icon name="cloud-upload" size={40} color="#7C5FED" />
-                <Text className="text-sm font-semibold text-neutral-600">
-                  Click to upload ID proof
-                </Text>
-                <Text className="text-xs text-neutral-400">
-                  PNG, JPG up to 5MB (Front/Back)
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </View>
+      {/* ID Number */}
+      <LabeledInput
+        label="ID Number"
+        required
+        placeholder="Enter ID number"
+        value={idNumber}
+        onChangeText={setIdNumber}
+        autoCapitalize="characters"
+      />
+
+      {/* Upload ID Proof */}
+      <View style={{ marginBottom: 28 }}>
+        <Text
+          style={{
+            fontSize: 13,
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: 6,
+          }}
+        >
+          Upload ID Proof <Text style={{ color: ACCENT }}>*</Text>
+        </Text>
+        <TouchableOpacity
+          style={{
+            borderWidth: 1.5,
+            borderStyle: 'dashed',
+            borderColor: idImageUrl ? ACCENT : '#D1D5DB',
+            borderRadius: 14,
+            paddingVertical: 32,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            backgroundColor: idImageUrl ? '#FFF0F5' : '#F9FAFB',
+          }}
+          onPress={handleUploadIDProof}
+          activeOpacity={0.8}
+        >
+          {idImageUrl ? (
+            <View style={{ alignItems: 'center', gap: 8 }}>
+              <Image
+                source={{ uri: idImageUrl }}
+                style={{ width: 130, height: 82, borderRadius: 10 }}
+                resizeMode="cover"
+              />
+              <Text
+                style={{ fontSize: 13, fontWeight: '600', color: '#10b981' }}
+              >
+                ✓ Image Selected
+              </Text>
+              <Text style={{ fontSize: 12, color: '#9CA3AF' }}>
+                Tap to change
+              </Text>
+            </View>
+          ) : (
+            <>
+              <Icon name="cloud-upload-outline" size={40} color={ACCENT} />
+              <Text
+                style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}
+              >
+                Click to upload ID proof
+              </Text>
+              <Text style={{ fontSize: 12, color: '#9CA3AF' }}>
+                PNG, JPG up to 5MB (Front/Back)
+              </Text>
+            </>
+          )}
+        </TouchableOpacity>
       </View>
 
       {/* Navigation Buttons */}
-      <View className="flex-row gap-sm mt-xl">
+      <View style={{ flexDirection: 'row', gap: 12 }}>
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-xs border border-[#7C5FED] py-md rounded-input"
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            borderWidth: 1.5,
+            borderColor: ACCENT,
+            paddingVertical: 16,
+            borderRadius: 14,
+          }}
           onPress={handleBack}
+          activeOpacity={0.8}
         >
-          <Icon name="chevron-back" size={18} color="#7C5FED" />
-          <Text className="text-base font-bold text-[#7C5FED]">Back</Text>
+          <Icon name="chevron-back" size={18} color={ACCENT} />
+          <Text style={{ fontSize: 15, fontWeight: '700', color: ACCENT }}>
+            Back
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-xs bg-[#7C5FED] py-md rounded-input"
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            backgroundColor: isButtonDisabled ? '#F9A8C9' : ACCENT,
+            paddingVertical: 16,
+            borderRadius: 14,
+            shadowColor: ACCENT,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 4,
+          }}
           onPress={handleSubmit}
           disabled={isButtonDisabled}
+          activeOpacity={0.85}
         >
           {showSpinner ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>
-              <Text className="text-base font-bold text-neutral-white">
-                Submit Registration
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#fff' }}>
+                Submit
               </Text>
               <Icon name="checkmark-circle" size={18} color="#fff" />
             </>
