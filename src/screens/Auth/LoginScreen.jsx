@@ -32,12 +32,13 @@ export default function LoginScreen({ navigation }) {
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 bg-white px-6 justify-center">
 
-        {/* Header */}
-        <View className="gap-md mb-20">
+        {/* Header - "back," in pink */}
+        <View className="mb-10">
           <Text className="text-4xl font-bold text-neutral-900">
-            Welcome back,
+            Welcome{' '}
+            <Text className="text-[#E91E63]">back,</Text>
           </Text>
-          <Text className="text-neutral-500 text-base">
+          <Text className="text-neutral-500 text-base mt-2">
             Glad to meet you again! Please login to use the app.
           </Text>
         </View>
@@ -59,26 +60,31 @@ export default function LoginScreen({ navigation }) {
           secureTextEntry
         />
 
-        {/* Forgot Password */}
+        {/* Forgot Password - pink */}
         <TouchableOpacity
           onPress={() => navigation.navigate('ForgotPassword')}
-          className="self-end mb-8"
+          className="self-end mb-6"
         >
-          <Text className="text-[#1E90FF] font-semibold">
+          <Text className="text-[#E91E63] font-semibold">
             Forgot password?
           </Text>
         </TouchableOpacity>
 
-        {/* Sign In */}
+        {/* Sign In - pink button */}
         <AppButton
           label="Sign In"
           onPress={handleLogin}
           loading={loading}
-          className="mb-8"
+          className="mb-6"
+          style={{ backgroundColor: '#E91E63' }}
         />
 
-        {/* Divider */}
-        <Text className="text-center text-neutral-400 mb-8">or</Text>
+        {/* Divider with lines */}
+        <View className="flex-row items-center mb-6">
+          <View className="flex-1 h-px bg-neutral-200" />
+          <Text className="text-neutral-400 mx-3">or</Text>
+          <View className="flex-1 h-px bg-neutral-200" />
+        </View>
 
         {/* Google Sign-In */}
         <AppButton
@@ -86,26 +92,27 @@ export default function LoginScreen({ navigation }) {
           variant="outline"
           icon={{ source: require('../../assets/google-logo.png') }}
           onPress={() => {}}
-          className="mb-10"
+          className="mb-8"
         />
 
-        {/* Register */}
+        {/* Register - "Join Now" in dark bold */}
         <TouchableOpacity
           onPress={() => navigation.navigate('Register')}
           className="mb-4"
         >
           <Text className="text-center text-neutral-500 text-[15px]">
             Don't have an account?{' '}
-            <Text className="text-[#1E90FF] font-bold">Join Now</Text>
+            <Text className="text-neutral-900 font-bold">Join Now</Text>
           </Text>
         </TouchableOpacity>
 
-        {/* Skip */}
-        <AppButton
-          label="Skip for now"
-          variant="ghost"
+        {/* Skip - pink text */}
+        <TouchableOpacity
           onPress={() => dispatch(skipLogin())}
-        />
+          className="items-center py-2"
+        >
+          <Text className="text-[#E91E63] text-[15px]">Skip for now</Text>
+        </TouchableOpacity>
 
       </View>
     </SafeAreaView>

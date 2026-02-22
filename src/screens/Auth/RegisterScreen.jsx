@@ -53,11 +53,11 @@ export default function RegisterScreen({ navigation }) {
 
         {/* ── Header ───────────────────────────────────────────────── */}
         <View className="gap-2">
-          <Text className="text-3xl font-bold text-black">
-            Create an account,
+          <Text className="text-3xl font-bold text-[#1a1a2e]">
+            Create an account
           </Text>
           <Text className="text-base text-gray-500">
-            Please type full information below and we can {'\n'}create your account
+            Please type full information below and we can create your account for Salone.
           </Text>
         </View>
 
@@ -111,14 +111,16 @@ export default function RegisterScreen({ navigation }) {
         </View>
 
         {/* ── Terms ────────────────────────────────────────────────── */}
-        <View className="items-center justify-center">
-          <Text className="text-sm text-center text-neutral-400">
-            By signing up you agree to our{' '}
+        <Text className="text-sm text-center text-neutral-400">
+          By signing up you agree to our{' '}
+          <Text className="text-[#E91E63] font-semibold" onPress={() => {}}>
+            Terms of use
           </Text>
-          <Text className="font-semibold text-info">
-            Terms of use and privacy notice
+          <Text className="text-neutral-400"> and </Text>
+          <Text className="text-[#E91E63] font-semibold" onPress={() => {}}>
+            privacy notice
           </Text>
-        </View>
+        </Text>
 
         {/* ── Actions ──────────────────────────────────────────────── */}
         <View className="gap-4">
@@ -126,13 +128,19 @@ export default function RegisterScreen({ navigation }) {
             label="Join Now"
             onPress={handleRegister}
             loading={signUpLoading}
+            style={{ backgroundColor: '#E91E63' }}
           />
 
           {error && (
             <Text className="text-sm text-center text-error">{error}</Text>
           )}
 
-          <Text className="text-center text-neutral-400">or</Text>
+          {/* Divider with lines + uppercase OR */}
+          <View className="flex-row items-center">
+            <View className="flex-1 h-px bg-neutral-200" />
+            <Text className="text-neutral-400 mx-3 text-xs font-semibold tracking-widest">OR</Text>
+            <View className="flex-1 h-px bg-neutral-200" />
+          </View>
 
           <AppButton
             label="Join with Google"
@@ -143,28 +151,26 @@ export default function RegisterScreen({ navigation }) {
         </View>
 
         {/* ── Sign In ──────────────────────────────────────────────── */}
-        <TouchableOpacity>
-          <Text className="text-center text-sm text-neutral-500">
-            Already have an account?{' '}
-            <Text
-              onPress={() => navigation.navigate('Login')}
-              className="font-bold text-info"
-            >
-              Sign In
-            </Text>
+        <Text className="text-center text-sm text-neutral-500">
+          Already have an account?{' '}
+          <Text
+            onPress={() => navigation.navigate('Login')}
+            className="font-bold text-[#E91E63]"
+          >
+            Sign In
           </Text>
-        </TouchableOpacity>
+        </Text>
 
         {/* ── Service Provider ─────────────────────────────────────── */}
         <TouchableOpacity
-          className="items-center py-4 gap-1 bg-primary-50 rounded-2xl"
+          className="items-center py-5 bg-[#FFF0F3] rounded-2xl"
           onPress={() => navigation.navigate('RoleSelection')}
         >
-          <Text className="text-sm font-semibold text-primary-900">
-            Are You a Service Provider?
+          <Text className="text-sm text-neutral-700 font-medium mb-1">
+            Are you a Service Provider?
           </Text>
-          <Text className="text-base font-bold text-primary-500">
-            Register as Partner
+          <Text className="text-base font-bold text-[#E91E63]">
+            Register as Partner →
           </Text>
         </TouchableOpacity>
 

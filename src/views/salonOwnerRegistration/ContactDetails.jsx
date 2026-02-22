@@ -2,11 +2,13 @@ import React from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
+import {LabeledInput} from '../../components/common/Labeledinput';
+
+const ACCENT = '#E91E63';
 
 export default function ContactDetailsStep({
   ownershipType,
@@ -33,55 +35,80 @@ export default function ContactDetailsStep({
 }) {
   return (
     <View>
-      <Text className="text-2xl font-bold text-neutral-700">Contact Details</Text>
-      <Text className="text-sm text-neutral-400 mt-1">
+      {/* Title */}
+      <Text style={{ fontSize: 26, fontWeight: '800', color: '#1F2937', marginBottom: 4 }}>
+        Contact Details
+      </Text>
+      <Text style={{ fontSize: 14, color: '#9CA3AF', marginBottom: 24 }}>
         Tell us about your business ownership
       </Text>
 
       {/* Shop Ownership Type */}
-      <Text className="text-base font-semibold text-neutral-700 mt-lg">
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 12 }}>
         Shop Ownership Type
       </Text>
-      <View className="flex-row gap-sm mt-sm">
+      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 28 }}>
+        {/* Personal */}
         <TouchableOpacity
-          className={`flex-1 flex-row items-center justify-center gap-xs py-sm px-md rounded-input border ${
-            ownershipType === 'personal'
-              ? 'bg-[#F5F0FF] border-[#7C5FED]'
-              : 'bg-neutral-white border-neutral-200'
-          }`}
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            paddingVertical: 14,
+            borderRadius: 12,
+            borderWidth: 1.5,
+            borderColor: ownershipType === 'personal' ? ACCENT : '#E5E7EB',
+            backgroundColor: ownershipType === 'personal' ? '#FFF0F5' : '#fff',
+          }}
           onPress={() => setOwnershipType('personal')}
+          activeOpacity={0.8}
         >
           <Icon
             name="person"
-            size={20}
-            color={ownershipType === 'personal' ? '#7C5FED' : '#999'}
+            size={18}
+            color={ownershipType === 'personal' ? ACCENT : '#9CA3AF'}
           />
           <Text
-            className={`text-sm font-semibold ${
-              ownershipType === 'personal' ? 'text-[#7C5FED]' : 'text-neutral-400'
-            }`}
+            style={{
+              fontSize: 14,
+              fontWeight: '600',
+              color: ownershipType === 'personal' ? ACCENT : '#9CA3AF',
+            }}
           >
             Personal
           </Text>
         </TouchableOpacity>
 
+        {/* Partnership */}
         <TouchableOpacity
-          className={`flex-1 flex-row items-center justify-center gap-xs py-sm px-md rounded-input border ${
-            ownershipType === 'partnership'
-              ? 'bg-[#F5F0FF] border-[#7C5FED]'
-              : 'bg-neutral-white border-neutral-200'
-          }`}
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            paddingVertical: 14,
+            borderRadius: 12,
+            borderWidth: 1.5,
+            borderColor: ownershipType === 'partnership' ? ACCENT : '#E5E7EB',
+            backgroundColor: ownershipType === 'partnership' ? '#FFF0F5' : '#fff',
+          }}
           onPress={() => setOwnershipType('partnership')}
+          activeOpacity={0.8}
         >
           <Icon
             name="people"
-            size={20}
-            color={ownershipType === 'partnership' ? '#7C5FED' : '#999'}
+            size={18}
+            color={ownershipType === 'partnership' ? ACCENT : '#9CA3AF'}
           />
           <Text
-            className={`text-sm font-semibold ${
-              ownershipType === 'partnership' ? 'text-[#7C5FED]' : 'text-neutral-400'
-            }`}
+            style={{
+              fontSize: 14,
+              fontWeight: '600',
+              color: ownershipType === 'partnership' ? ACCENT : '#9CA3AF',
+            }}
           >
             Partnership
           </Text>
@@ -89,182 +116,218 @@ export default function ContactDetailsStep({
       </View>
 
       {/* Owner Details */}
-      <Text className="text-base font-semibold text-neutral-700 mt-lg">
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 14 }}>
         Owner Details
       </Text>
 
-      <View className="gap-md mt-sm">
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Owner Full Name *</Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="Enter owner's full name"
-            value={ownerName}
-            onChangeText={setOwnerName}
-          />
-        </View>
+      <LabeledInput
+        label="Owner Full Name"
+        required
+        placeholder="e.g. John Doe"
+        value={ownerName}
+        onChangeText={setOwnerName}
+        autoCapitalize="words"
+      />
 
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Email Address *</Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="Enter email address"
-            value={ownerEmail}
-            onChangeText={setOwnerEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
+      <LabeledInput
+        label="Email Address"
+        required
+        placeholder="e.g. name@salon.com"
+        value={ownerEmail}
+        onChangeText={setOwnerEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
 
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Password *</Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="Enter password"
-            value={ownerPassword}
-            onChangeText={setOwnerPassword}
-            secureTextEntry={true}
-          />
-        </View>
+      <LabeledInput
+        label="Password"
+        required
+        placeholder="Min. 8 characters"
+        value={ownerPassword}
+        onChangeText={setOwnerPassword}
+        secureTextEntry
+      />
 
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Contact Number *</Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="Enter contact number"
-            value={contactNumber}
-            onChangeText={setContactNumber}
-            keyboardType="phone-pad"
-          />
-        </View>
+      <LabeledInput
+        label="Contact Number"
+        required
+        placeholder="+1 (555) 000-0000"
+        value={contactNumber}
+        onChangeText={setContactNumber}
+        keyboardType="phone-pad"
+      />
 
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">WhatsApp Number</Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="Enter WhatsApp number"
-            value={whatsappNumber}
-            onChangeText={setWhatsappNumber}
-            keyboardType="phone-pad"
-          />
-        </View>
-      </View>
+      <LabeledInput
+        label="WhatsApp Number"
+        placeholder="Same as contact number"
+        value={whatsappNumber}
+        onChangeText={setWhatsappNumber}
+        keyboardType="phone-pad"
+        style={{ marginBottom: 28 }}
+      />
 
       {/* Shop Information */}
-      <Text className="text-base font-semibold text-neutral-700 mt-lg">
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 14 }}>
         Shop Information
       </Text>
 
-      <View className="gap-md mt-sm">
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Shop/Salon Name *</Text>
-          <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-            placeholder="Enter your shop name"
-            value={shopName}
-            onChangeText={setShopName}
-          />
-        </View>
+      <LabeledInput
+        label="Shop/Salon Name"
+        required
+        placeholder="Enter your shop name"
+        value={shopName}
+        onChangeText={setShopName}
+        autoCapitalize="words"
+      />
 
-        {/* Salon Category */}
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Salon Category *</Text>
-          <View className="bg-neutral-white border border-neutral-200 rounded-input overflow-hidden">
-            <Picker
-              selectedValue={salonCategory}
-              onValueChange={(value) => setSalonCategory(value)}
-              dropdownIconColor="#7C5FED"
-              mode="dropdown"
-            >
-              <Picker.Item label="Select Category" value="" />
-              <Picker.Item label="Men Salon" value="men" />
-              <Picker.Item label="Women Salon" value="women" />
-            </Picker>
-          </View>
+      {/* Salon Category */}
+      <View style={{ marginBottom: 28 }}>
+        <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+          Salon Category <Text style={{ color: ACCENT }}>*</Text>
+        </Text>
+        <View
+          style={{
+            backgroundColor: '#FAFAFA',
+            borderWidth: 1,
+            borderColor: '#E5E7EB',
+            borderRadius: 12,
+            overflow: 'hidden',
+          }}
+        >
+          <Picker
+            selectedValue={salonCategory}
+            onValueChange={(value) => setSalonCategory(value)}
+            dropdownIconColor={ACCENT}
+            mode="dropdown"
+          >
+            <Picker.Item label="Select Category" value="" color="#C0C0C0" />
+            <Picker.Item label="Men Salon" value="men" />
+            <Picker.Item label="Women Salon" value="women" />
+          </Picker>
         </View>
       </View>
 
       {/* Partners Details (if Partnership) */}
       {ownershipType === 'partnership' && (
-        <View className="mt-lg">
-          <Text className="text-base font-semibold text-neutral-700">
+        <View style={{ marginBottom: 28 }}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 14 }}>
             Partners Details
           </Text>
-          <View className="gap-sm mt-sm">
-            {partners.map((partner, index) => (
-              <View
-                key={partner.id}
-                className="bg-neutral-white border border-neutral-200 rounded-card p-md"
-              >
-                <Text className="text-sm font-bold text-neutral-700 mb-sm">
-                  Partner {index + 1}
-                </Text>
 
-                <View className="gap-md">
-                  <View>
-                    <Text className="text-sm text-neutral-600 mb-xs">Partner Name *</Text>
-                    <TextInput
-                      className="bg-neutral-50 border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-                      placeholder="Enter partner's full name"
-                      value={partner.name}
-                      onChangeText={(text) => updatePartner(index, 'name', text)}
-                    />
-                  </View>
+          {partners.map((partner, index) => (
+            <View
+              key={partner.id}
+              style={{
+                backgroundColor: '#fff',
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+                borderRadius: 14,
+                padding: 16,
+                marginBottom: 12,
+              }}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#1F2937', marginBottom: 12 }}>
+                Partner {index + 1}
+              </Text>
 
-                  <View>
-                    <Text className="text-sm text-neutral-600 mb-xs">Contact Number *</Text>
-                    <TextInput
-                      className="bg-neutral-50 border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-                      placeholder="Enter contact number"
-                      value={partner.contact}
-                      onChangeText={(text) => updatePartner(index, 'contact', text)}
-                      keyboardType="phone-pad"
-                    />
-                  </View>
+              <LabeledInput
+                label="Partner Name"
+                required
+                placeholder="Enter partner's full name"
+                value={partner.name}
+                onChangeText={(text) => updatePartner(index, 'name', text)}
+                autoCapitalize="words"
+              />
 
-                  <View>
-                    <Text className="text-sm text-neutral-600 mb-xs">WhatsApp Number</Text>
-                    <TextInput
-                      className="bg-neutral-50 border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
-                      placeholder="Enter WhatsApp number"
-                      value={partner.whatsapp}
-                      onChangeText={(text) => updatePartner(index, 'whatsapp', text)}
-                      keyboardType="phone-pad"
-                    />
-                  </View>
+              <LabeledInput
+                label="Contact Number"
+                required
+                placeholder="+1 (555) 000-0000"
+                value={partner.contact}
+                onChangeText={(text) => updatePartner(index, 'contact', text)}
+                keyboardType="phone-pad"
+              />
 
-                  {partners.length > 1 && (
-                    <TouchableOpacity
-                      className="flex-row items-center justify-center gap-xs py-xs bg-error/10 rounded-input"
-                      onPress={() => removePartner(index)}
-                    >
-                      <Icon name="trash" size={16} color="#ef4444" />
-                      <Text className="text-sm font-semibold text-error">Remove</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            ))}
+              <LabeledInput
+                label="WhatsApp Number"
+                placeholder="Same as contact number"
+                value={partner.whatsapp}
+                onChangeText={(text) => updatePartner(index, 'whatsapp', text)}
+                keyboardType="phone-pad"
+                style={{ marginBottom: 0 }}
+              />
 
-            {partners.length < 2 && (
-              <TouchableOpacity
-                className="flex-row items-center justify-center gap-xs py-sm border border-[#7C5FED] rounded-input"
-                onPress={addPartner}
-              >
-                <Icon name="add-circle" size={20} color="#7C5FED" />
-                <Text className="text-sm font-semibold text-[#7C5FED]">Add Partner</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+              {partners.length > 1 && (
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    paddingVertical: 10,
+                    marginTop: 12,
+                    backgroundColor: '#FEF2F2',
+                    borderRadius: 10,
+                  }}
+                  onPress={() => removePartner(index)}
+                >
+                  <Icon name="trash" size={15} color="#ef4444" />
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#ef4444' }}>
+                    Remove
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+
+          {partners.length < 2 && (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                paddingVertical: 14,
+                borderWidth: 1.5,
+                borderColor: ACCENT,
+                borderRadius: 12,
+                backgroundColor: '#FFF0F5',
+              }}
+              onPress={addPartner}
+            >
+              <Icon name="add-circle" size={20} color={ACCENT} />
+              <Text style={{ fontSize: 14, fontWeight: '600', color: ACCENT }}>
+                Add Partner
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
-      {/* Next Button */}
+      {/* Next Step Button */}
       <TouchableOpacity
-        className="flex-row items-center justify-center gap-xs bg-[#7C5FED] py-md rounded-input mt-xl"
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          backgroundColor: ACCENT,
+          paddingVertical: 18,
+          borderRadius: 14,
+          marginTop: 8,
+          marginBottom: 8,
+          shadowColor: ACCENT,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 4,
+        }}
         onPress={handleNext}
+        activeOpacity={0.85}
       >
-        <Text className="text-base font-bold text-neutral-white">Next</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
+          Next Step
+        </Text>
         <Icon name="arrow-forward" size={18} color="#fff" />
       </TouchableOpacity>
     </View>
