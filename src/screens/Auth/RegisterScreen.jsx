@@ -81,7 +81,7 @@ export default function RegisterScreen({ navigation }) {
           />
 
           {/* Mobile + Country Code */}
-          <View className="flex-row items-center gap-2">
+          <View className="flex-row gap-2">
             <View className="w-32">
               <Dropdown
                 options={countryCodes}
