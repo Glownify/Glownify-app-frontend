@@ -1,5 +1,6 @@
+// components/Serviceathomsection.jsx
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import IndependentProCard from './Independentprocard';
 
 const DUMMY_PROS = [
@@ -23,6 +24,26 @@ const DUMMY_PROS = [
     rating: '4.8',
     image: null,
   },
+  {
+    _id: 'dummy-pro-3',
+    name: 'Rahul Verma',
+    availability: 'Available now',
+    experience: '3 yrs Exp',
+    services: 'Facial',
+    gender: 'MALE',
+    rating: '4.3',
+    image: null,
+  },
+  {
+    _id: 'dummy-pro-4',
+    name: 'Sneha Kulkarni',
+    availability: 'Not available',
+    experience: '8 yrs Exp',
+    services: 'Waxing',
+    gender: 'FEMALE',
+    rating: '4.9',
+    image: null,
+  },
 ];
 
 export default function ServiceAtHomeSection({
@@ -34,25 +55,44 @@ export default function ServiceAtHomeSection({
     independentProsList?.length > 0 ? independentProsList : DUMMY_PROS;
 
   return (
-    <View className="mb-lg">
-      <View className="px-md flex-row items-center justify-between mb-3">
-        <Text className="text-base font-semibold text-neutral-800">
-          Service At Home
-        </Text>
-        <TouchableOpacity onPress={onViewAll}>
-          <Text className="text-sm font-medium text-secondary-teal">
-            View all
+    <View className="mb-4">
+      {/* Header */}
+      <View className="px-4 flex-row items-center justify-between mb-3">
+        <View>
+          <Text className="text-base font-bold text-gray-900 uppercase">
+            Home Service
           </Text>
+          <Text className="text-xs text-gray-400 mt-0.5">
+            {displayList.length} professionals nearby
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={onViewAll}
+          className="flex-row items-center gap-1 bg-teal-50 border border-teal-100 rounded-full px-3 py-1"
+        >
+          <Text className="text-xs font-semibold text-teal-600">View all</Text>
+          <Text className="text-teal-500 text-sm">›</Text>
         </TouchableOpacity>
       </View>
 
-      {displayList.slice(0, 3).map(pro => (
-        <IndependentProCard
-          key={pro._id}
-          pro={pro}
-          onPress={() => onProPress(pro._id)}
-        />
-      ))}
+      {/* Horizontal scroll — shows 2–2.5 cards */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingLeft: 16, paddingRight: 8, gap: 10, paddingVertical: 14 }}
+        decelerationRate="fast"
+        snapToInterval={158} // card width (148) + gap (10)
+        snapToAlignment="start"
+      >
+        {displayList.map((pro, index) => (
+          <IndependentProCard
+            key={pro._id}
+            pro={pro}
+            index={index}
+            onPress={() => onProPress?.(pro._id)}
+          />
+        ))}
+      </ScrollView>
     </View>
   );
 }

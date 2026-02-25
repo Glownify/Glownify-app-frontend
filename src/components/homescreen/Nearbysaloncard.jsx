@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = width * 0.44;
 
 const DUMMY_IMAGES = [
   'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400&q=80', // barber/salon
@@ -26,15 +29,13 @@ export default function NearbySalonCard({
   return (
     <TouchableOpacity
       style={{
-        marginHorizontal: 16,
-        marginBottom: 12,
+        width: CARD_WIDTH,
+        marginRight: 12,
         backgroundColor: '#ffffff',
         borderRadius: 16,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: '#f0f0f0',
-        flexDirection: 'row',
-        height: 110,
         shadowColor: '#000',
         shadowOpacity: 0.07,
         shadowRadius: 8,
@@ -44,11 +45,11 @@ export default function NearbySalonCard({
       onPress={onPress}
       activeOpacity={0.85}
     >
-      {/* Left — Square Thumbnail */}
-      <View style={{ width: 110, height: 110, position: 'relative' }}>
+      {/* Top — Square Thumbnail */}
+      <View style={{ height: CARD_WIDTH * 0.85, position: 'relative' }}>
         <Image
           source={{ uri: imageUri }}
-          style={{ width: 110, height: 110 }}
+          style={{ width: '100%', height: '100%' }}
           resizeMode="cover"
         />
 
@@ -78,12 +79,12 @@ export default function NearbySalonCard({
           <Text style={{ fontSize: 12 }}>{favorited ? '❤️' : '🤍'}</Text>
         </TouchableOpacity>
 
-        {/* Discount badge — bottom left */}
+        {/* Discount badge — top left */}
         {discount && (
           <View
             style={{
               position: 'absolute',
-              bottom: 8,
+              top: 8,
               left: 8,
               backgroundColor: '#ef4444',
               borderRadius: 8,
@@ -96,10 +97,49 @@ export default function NearbySalonCard({
             </Text>
           </View>
         )}
+
+        {/* Rating and Location — bottom left/right */}
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 8,
+            left: 8,
+            right: 8,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              paddingHorizontal: 6,
+              paddingVertical: 4,
+              borderRadius: 6,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 10, color: '#ffffff' }}>📍 2.5 km</Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              paddingHorizontal: 6,
+              paddingVertical: 4,
+              borderRadius: 6,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 10, color: '#ffffff' }}>
+              ⭐ {rating} ({reviews})
+            </Text>
+          </View>
+        </View>
       </View>
 
-      {/* Right — Info */}
-      <View style={{ flex: 1, paddingHorizontal: 12, paddingVertical: 12, justifyContent: 'center' }}>
+      {/* Bottom — Info */}
+      <View style={{ padding: 10 }}>
         {/* Tags */}
         <Text
           style={{
@@ -109,6 +149,7 @@ export default function NearbySalonCard({
             letterSpacing: 0.5,
             marginBottom: 4,
           }}
+          numberOfLines={1}
         >
           {tags}
         </Text>
@@ -116,7 +157,7 @@ export default function NearbySalonCard({
         {/* Name */}
         <Text
           style={{
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: '700',
             color: '#1a1a1a',
             marginBottom: 2,
@@ -138,13 +179,23 @@ export default function NearbySalonCard({
           {address}
         </Text>
 
-        {/* Rating */}
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 11, marginRight: 3 }}>⭐</Text>
-          <Text style={{ fontSize: 11, fontWeight: '600', color: '#374151' }}>
-            {rating}{' '}
-            <Text style={{ fontWeight: '400', color: '#9ca3af' }}>({reviews})</Text>
-          </Text>
+        {/* Popular Services */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 }}>
+          {['Hair Trim', 'Shave', 'Facial'].map((service, idx) => (
+            <View
+              key={idx}
+              style={{
+                backgroundColor: '#f3f4f6',
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                borderRadius: 4,
+                marginRight: 4,
+                marginBottom: 4,
+              }}
+            >
+              <Text style={{ fontSize: 10, color: '#4b5563' }}>{service}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </TouchableOpacity>

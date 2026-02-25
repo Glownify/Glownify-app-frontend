@@ -16,6 +16,7 @@ const CARD_WIDTH = width - 32; // 16px margin each side
 /**
  * SalonImageCarousel
  * Props:
+ *   title       string     — salon name to show over image
  *   images      string[]   — gallery image URIs
  *   rating      number     — e.g. 4.8
  *   reviewCount number     — e.g. 120
@@ -26,6 +27,7 @@ const CARD_WIDTH = width - 32; // 16px margin each side
  *   onViewMap   () => void
  */
 export default function SalonImageCarousel({
+  title = '',
   images = [],
   rating,
   reviewCount,
@@ -38,15 +40,19 @@ export default function SalonImageCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
-    <View className="mx-4 mt-4 rounded-3xl overflow-hidden" style={{ height: 260 }}>
-
+    <View
+      className="mx-4 mt-4 rounded-3xl overflow-hidden"
+      style={{ height: 260 }}
+    >
       {/* Scrollable images */}
       <ScrollView
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onScroll={e =>
-          setCurrentIndex(Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH))
+          setCurrentIndex(
+            Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH),
+          )
         }
         scrollEventThrottle={16}
       >
@@ -60,27 +66,45 @@ export default function SalonImageCarousel({
         ))}
       </ScrollView>
 
+      {/* Title */}
+      {/* {title ? (
+            <View className="">
+              <Text className="text-white text-xl font-bold" numberOfLines={1}>
+                {title}
+              </Text>
+            </View>
+          ) : null} */}
+
       {/* Dark gradient overlay (bottom) */}
-      <View
-        className="absolute bottom-0 left-0 right-0 h-32"
+      {/* <View
+        className="absolute bottom-0 left-0 right-0 h-40"
         style={{
-          background: 'transparent',
-          // RN doesn't support CSS gradient; use a semi-opaque overlay
-          backgroundColor: 'rgba(0,0,0,0)',
+          backgroundColor: 'transparent',
         }}
         pointerEvents="none"
-      />
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} />
+      </View> */}
 
       {/* Top controls — back & favourite */}
       <View className="absolute top-3 left-3 right-3 flex-row justify-between">
-        <TouchableOpacity
-          className="w-9 h-9 rounded-full bg-black/30 items-center justify-center"
-          onPress={onBack}
-          activeOpacity={0.8}
-        >
-          <Icon name="chevron-back" size={20} color="#fff" />
-        </TouchableOpacity>
-
+        <View className="flex-row gap-2 ">
+          <TouchableOpacity
+            className="w-9 h-9 rounded-full bg-black/30 items-center justify-center"
+            onPress={onBack}
+            activeOpacity={0.8}
+          >
+            <Icon name="chevron-back" size={20} color="#fff" />
+          </TouchableOpacity>
+          {/* Title */}
+          {title ? (
+            <View className="">
+              <Text className="text-white text-xl font-bold" numberOfLines={1}>
+                {title}
+              </Text>
+            </View>
+          ) : null}
+        </View>
         <TouchableOpacity
           className={`w-9 h-9 rounded-full items-center justify-center ${
             isFavourite ? 'bg-[#EA8491]' : 'bg-black/30'
@@ -112,7 +136,6 @@ export default function SalonImageCarousel({
 
       {/* Bottom info row */}
       <View className="absolute bottom-3 left-3 right-3 flex-row items-center justify-between">
-
         {/* Rating pill */}
         <View className="flex-row items-center bg-black/40 rounded-xl px-3 py-1.5 gap-1">
           <Icon name="star" size={13} color="#FBBF24" />

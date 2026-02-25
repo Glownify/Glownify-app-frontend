@@ -1,131 +1,110 @@
+// components/Independentprocard.jsx
 import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 
 const DUMMY_AVATARS = [
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80', // male
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80', // female
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80', // male 2
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80', // female 2
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80',
 ];
 
-let avatarIndex = 0;
+const AvailabilityDot = ({ available }) => (
+  <View
+    className={`w-2 h-2 rounded-full mr-1.5 ${
+      available ? 'bg-green-400' : 'bg-gray-300'
+    }`}
+  />
+);
 
 export default function IndependentProCard({ pro, onPress, index = 0 }) {
   const imageUri = pro.image || DUMMY_AVATARS[index % DUMMY_AVATARS.length];
+  const isAvailable =
+    pro.availability?.toLowerCase().includes('available now') ?? false;
 
   return (
     <TouchableOpacity
+      className="bg-white rounded-2xl overflow-hidden border border-gray-100"
       style={{
-        marginHorizontal: 16,
-        marginBottom: 12,
-        backgroundColor: '#ffffff',
-        borderRadius: 16,
-        padding: 14,
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#f0f0f0',
+        width: 148,
         shadowColor: '#000',
-        shadowOpacity: 0.06,
+        shadowOpacity: 0.07,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        elevation: 3,
       }}
       onPress={onPress}
       activeOpacity={0.85}
     >
-      {/* Avatar with rating badge */}
-      <View style={{ marginRight: 14, position: 'relative' }}>
+      {/* Top image section */}
+      <View className="relative">
         <Image
           source={{ uri: imageUri }}
-          style={{
-            width: 64,
-            height: 64,
-            borderRadius: 32,
-            borderWidth: 2,
-            borderColor: '#e6f7f5',
-          }}
+          className="w-full"
+          style={{ height: 120 }}
           resizeMode="cover"
         />
-        {/* Rating badge — bottom center of avatar */}
+
+        {/* Availability pill — top right */}
         <View
-          style={{
-            position: 'absolute',
-            bottom: -8,
-            alignSelf: 'center',
-            left: 0,
-            right: 0,
-            alignItems: 'center',
-          }}
+          className={`absolute top-2 right-2 flex-row items-center rounded-full px-2 py-0.5 ${
+            isAvailable ? 'bg-green-500/90' : 'bg-black/40'
+          }`}
         >
-          <View
-            style={{
-              backgroundColor: '#16a34a',
-              borderRadius: 10,
-              paddingHorizontal: 6,
-              paddingVertical: 2,
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderWidth: 1.5,
-              borderColor: '#ffffff',
-            }}
-          >
-            <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '700', marginRight: 2 }}>
+          <View className="w-1.5 h-1.5 rounded-full bg-white mr-1" />
+          <Text className="text-white text-[10px] font-semibold">
+            {isAvailable ? 'Available' : 'Busy'}
+          </Text>
+        </View>
+
+        {/* Rating badge — bottom left */}
+        <View className="absolute bottom-0 left-0 right-0 px-2 pb-2 flex-row justify-between items-end">
+          <View className="bg-green-600 rounded-lg px-1.5 py-0.5 flex-row items-center gap-0.5">
+            <Text className="text-white text-[11px] font-bold">
               {pro.rating || '4.5'}
             </Text>
-            <Text style={{ fontSize: 8 }}>⭐</Text>
+            <Text className="text-[9px]">⭐</Text>
+          </View>
+          {/* Gender chip */}
+          <View className="bg-black/30 rounded-lg px-1.5 py-0.5">
+            <Text className="text-white text-[10px] font-semibold">
+              {pro.gender || 'MALE'}
+            </Text>
           </View>
         </View>
       </View>
 
-      {/* Details */}
-      <View style={{ flex: 1, paddingTop: 2 }}>
-        <Text
-          style={{
-            fontSize: 15,
-            fontWeight: '700',
-            color: '#0d9488',
-            marginBottom: 6,
-          }}
-        >
-          {pro.name || 'Abhishek'}
+      {/* Body */}
+      <View className="px-3 pt-2.5 pb-3 gap-1.5">
+        {/* Name */}
+        <Text className="text-sm font-bold text-teal-700" numberOfLines={1}>
+          {pro.name || 'Professional'}
         </Text>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 3 }}>
-          <Text style={{ fontSize: 11, color: '#9ca3af', marginRight: 4 }}>📍</Text>
-          <Text style={{ fontSize: 11, color: '#9ca3af' }}>
-            {pro.availability || 'Not available'}
-          </Text>
-        </View>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 3 }}>
-          <Text style={{ fontSize: 11, color: '#9ca3af', marginRight: 4 }}>🧳</Text>
-          <Text style={{ fontSize: 11, color: '#9ca3af' }}>
+        {/* Experience */}
+        <View className="flex-row items-center">
+          <Text className="text-[11px] mr-1">🧳</Text>
+          <Text className="text-[11px] text-gray-400 font-medium">
             {pro.experience || '4 yrs Exp'}
           </Text>
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 11, color: '#9ca3af', marginRight: 4 }}>✂️</Text>
-          <Text style={{ fontSize: 11, color: '#9ca3af' }}>
-            {pro.services || 'Hairs'} • {pro.gender || 'MALE'}
+        {/* Services */}
+        <View className="flex-row items-center">
+          <Text className="text-[11px] mr-1">✂️</Text>
+          <Text className="text-[11px] text-gray-400 font-medium" numberOfLines={1}>
+            {pro.services || 'Hair'}
           </Text>
         </View>
-      </View>
 
-      {/* Arrow */}
-      <View
-        style={{
-          width: 28,
-          height: 28,
-          borderRadius: 14,
-          backgroundColor: '#f4faf9',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginLeft: 8,
-        }}
-      >
-        <Text style={{ color: '#0d9488', fontSize: 18, fontWeight: '300', marginTop: -1 }}>›</Text>
+        {/* Book button */}
+        <TouchableOpacity
+          className="mt-1 bg-teal-50 border border-teal-200 rounded-xl py-1.5 items-center"
+          onPress={onPress}
+          activeOpacity={0.8}
+        >
+          <Text className="text-teal-700 text-xs font-bold">Book Now</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );

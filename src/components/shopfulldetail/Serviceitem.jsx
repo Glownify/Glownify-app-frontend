@@ -11,14 +11,20 @@ import Icon from 'react-native-vector-icons/Ionicons';
  *   cartItems    Array<{ _id }>
  *   onAdd        (service) => void
  */
-export default function ServiceItem({ service, selectedMode, cartItems, onAdd }) {
+export default function ServiceItem({
+  service,
+  selectedMode,
+  cartItems,
+  onAdd,
+}) {
   const price =
     selectedMode === 'home' && service.homePrice != null
       ? service.homePrice
       : service.salonPrice;
 
   const isInCart = cartItems.some(c => c._id === service._id);
-  const isUnavailable = selectedMode === 'home' && service.serviceMode === 'salon';
+  const isUnavailable =
+    selectedMode === 'home' && service.serviceMode === 'salon';
 
   return (
     <View
@@ -27,7 +33,7 @@ export default function ServiceItem({ service, selectedMode, cartItems, onAdd })
       }`}
     >
       {/* Thumbnail */}
-      <View className="w-[60px] h-[60px] rounded-2xl overflow-hidden bg-gray-100 mr-3 flex-shrink-0">
+      <View className="w-[60px] h-[60px] rounded-2xl overflow-hidden bg-gray-100 mr-3 flex-shrink-0 relative">
         {service.image ? (
           <Image
             source={{ uri: service.image }}
@@ -39,6 +45,17 @@ export default function ServiceItem({ service, selectedMode, cartItems, onAdd })
             <Icon name="cut-outline" size={22} color="#EA8491" />
           </View>
         )}
+
+        {/* Info Icon over image */}
+        <TouchableOpacity
+          className="absolute bottom-1 right-1 w-5 h-5 bg-black/50 rounded-full items-center justify-center"
+          activeOpacity={0.8}
+          onPress={() =>
+            alert(`About ${service.name}: A premium service tailored for you.`)
+          }
+        >
+          <Icon name="information" size={12} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       {/* Details */}
@@ -90,7 +107,9 @@ export default function ServiceItem({ service, selectedMode, cartItems, onAdd })
         </TouchableOpacity>
       ) : (
         <View className="ml-2 bg-gray-100 rounded-lg px-2.5 py-1.5">
-          <Text className="text-gray-400 text-[10px] font-semibold">Salon only</Text>
+          <Text className="text-gray-400 text-[10px] font-semibold">
+            Salon only
+          </Text>
         </View>
       )}
     </View>
