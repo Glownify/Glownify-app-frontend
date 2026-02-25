@@ -44,8 +44,7 @@ export default function SalonListSection({
     <View className="mb-lg">
       <View className="px-md flex-row items-center justify-between mb-3">
         <Text className="text-base font-bold text-neutral-800 uppercase">
-          {/* {selectedCategory === 'women' ? 'WOMEN' : 'MEN'} */}
-          Nearby Salons
+          {selectedCategory === 'unisex' ? 'Unisex' : 'Nearby Salons'}
         </Text>
         <TouchableOpacity onPress={onViewAll}>
           <Text className="text-sm font-medium text-secondary-teal">

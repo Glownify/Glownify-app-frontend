@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.55;
+const CARD_WIDTH = width * 0.44;
 
 const DUMMY_IMAGES = [
   'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80', // pink salon
@@ -75,29 +75,45 @@ export default function SalonCardItem({
           <Text style={{ fontSize: 15 }}>{isFavorited ? '❤️' : '🤍'}</Text>
         </TouchableOpacity>
 
-        {/* Category label — bottom left */}
+        {/* Rating and Location — bottom left/right */}
         <View
           style={{
             position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            paddingHorizontal: 10,
-            paddingVertical: 6,
-            backgroundColor: 'rgba(0,0,0,0.32)',
+            bottom: 8,
+            left: 8,
+            right: 8,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
           }}
         >
-          <Text
+          <View
             style={{
-              color: '#ffffff',
-              fontSize: 10,
-              fontWeight: '700',
-              letterSpacing: 1,
-              textTransform: 'uppercase',
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              paddingHorizontal: 6,
+              paddingVertical: 4,
+              borderRadius: 6,
+              flexDirection: 'row',
+              alignItems: 'center',
             }}
           >
-            {selectedCategory === 'men' ? 'MEN' : 'WOMEN'}
-          </Text>
+            <Text style={{ fontSize: 10, color: '#ffffff' }}>
+              📍 {salon.distance ? `${salon.distance} km` : '321.7 km'}
+            </Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              paddingHorizontal: 6,
+              paddingVertical: 4,
+              borderRadius: 6,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 10, color: '#ffffff' }}>
+              ⭐ {salon.rating || '4.8'} ({salon.reviews || '200'})
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -125,25 +141,23 @@ export default function SalonCardItem({
           {salon.category || 'No categories available'}
         </Text>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 11, color: '#6b7280' }}>📍 </Text>
-            <Text style={{ fontSize: 11, color: '#6b7280' }}>
-              {salon.distance ? `${salon.distance} km` : '321.7 km'}
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 11 }}>⭐ </Text>
-            <Text style={{ fontSize: 11, fontWeight: '600', color: '#374151' }}>
-              {salon.rating || '4.8'} ({salon.reviews || '200'})
-            </Text>
-          </View>
+        {/* Popular Services */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 }}>
+          {['Haircut', 'Massage', 'Facial'].map((service, idx) => (
+            <View
+              key={idx}
+              style={{
+                backgroundColor: '#f3f4f6',
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                borderRadius: 4,
+                marginRight: 4,
+                marginBottom: 4,
+              }}
+            >
+              <Text style={{ fontSize: 10, color: '#4b5563' }}>{service}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </TouchableOpacity>

@@ -57,6 +57,14 @@ export default function HomeScreen({ navigation }) {
     ? homeIndependentProsByCategory.data
     : [];
 
+  const unisexList = Array.isArray(
+    homeSalonsBySalonCategory?.data?.unisexSalons,
+  )
+    ? homeSalonsBySalonCategory.data.unisexSalons
+    : Array.isArray(homeSalonsBySalonCategory?.data)
+    ? homeSalonsBySalonCategory.data
+    : [];
+
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('women');
 
@@ -86,7 +94,11 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     if (selectedCategory && location?.latitude && location?.longitude) {
-      fetchCategoryData(selectedCategory, location.latitude, location.longitude);
+      fetchCategoryData(
+        selectedCategory,
+        location.latitude,
+        location.longitude,
+      );
     }
   }, [selectedCategory, location]);
 
@@ -107,8 +119,7 @@ export default function HomeScreen({ navigation }) {
 
   // Only show full skeleton on very first load
   if (isFirstLoad.current && salonLoading) {
-    const SkeletonLoadingScreen =
-      require('./SkeletonLoadingScreen').default;
+    const SkeletonLoadingScreen = require('./SkeletonLoadingScreen').default;
     return <SkeletonLoadingScreen />;
   }
 
@@ -189,6 +200,22 @@ export default function HomeScreen({ navigation }) {
             data={[]}
             onViewAll={() => navigation.navigate('OffersScreen')}
             onCardPress={() =>
+              navigation.navigate('ShopDetailsFull', { salonId: 'sample-id' })
+            }
+          />
+
+          {/* 6 — Unisex Salons */}
+          <SalonListSection
+            salonList={unisexList}
+            selectedCategory="unisex"
+            onViewAll={() =>
+              navigation.navigate('AllSalonListScreen', {
+                category: 'unisex',
+                lat: location?.latitude,
+                lng: location?.longitude,
+              })
+            }
+            onSalonPress={salonId =>
               navigation.navigate('ShopDetailsFull', { salonId: 'sample-id' })
             }
           />

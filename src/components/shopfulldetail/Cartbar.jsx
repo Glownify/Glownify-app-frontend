@@ -1,4 +1,4 @@
-// components/CartBar.jsx
+// components/shopfulldetail/Cartbar.jsx
 import React, { useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -6,22 +6,41 @@ import Icon from 'react-native-vector-icons/Ionicons';
 /**
  * CartBar — fixed bottom bar
  * Props:
- *   cartItems    Array<{ _id, salonPrice, homePrice }>
+ *   cartItems    Array<{ _id, salonPrice?, homePrice?, price?, chosenMode? }>
  *   bookingMode  'home' | 'salon'
  *   onContinue   () => void
+ *
+ * Price resolution order per item:
+ *   1. item.price          — flat price set by sub-service sheet
+ *   2. mode-aware price    — homePrice / salonPrice from service card
+ *   3. fallback 0          — prevents NaN
  */
+function resolveItemPrice(item, bookingMode) {
+  // Sub-services added via bottom sheet carry a flat `price` field
+  if (item.price != null && !isNaN(item.price)) return item.price;
+
+  // Main services carry salonPrice / homePrice
+  const mode = item.chosenMode ?? bookingMode;
+  if (mode === 'home' && item.homePrice != null && !isNaN(item.homePrice)) {
+    return item.homePrice;
+  }
+  if (item.salonPrice != null && !isNaN(item.salonPrice)) {
+    return item.salonPrice;
+  }
+  return 0;
+}
+
 export default function CartBar({ cartItems = [], bookingMode, onContinue }) {
   const slideAnim = useRef(new Animated.Value(80)).current;
   const hasItems = cartItems.length > 0;
 
   const cartTotal = cartItems.reduce(
-    (sum, item) =>
-      sum +
-      (bookingMode === 'home' && item.homePrice != null
-        ? item.homePrice
-        : item.salonPrice),
+    (sum, item) => sum + resolveItemPrice(item, bookingMode),
     0,
   );
+
+  // Count only "top-level" services (not sub-items) for the badge
+  const serviceCount = cartItems.filter(item => !item.parentId).length;
 
   useEffect(() => {
     Animated.spring(slideAnim, {
@@ -37,7 +56,6 @@ export default function CartBar({ cartItems = [], bookingMode, onContinue }) {
       className="absolute bottom-0 left-0 right-0"
       style={{ transform: [{ translateY: slideAnim }] }}
     >
-      {/* Gradient fade above bar */}
       <View className="h-6 bg-transparent" pointerEvents="none" />
 
       <View className="bg-white px-4 pt-3 pb-5 border-t border-gray-100 shadow-lg">
@@ -47,15 +65,15 @@ export default function CartBar({ cartItems = [], bookingMode, onContinue }) {
             onPress={onContinue}
             activeOpacity={0.85}
           >
-            {/* Left: price + count badge */}
+            {/* Left: count badge + total */}
             <View className="flex-row items-center gap-2">
               <View className="bg-white/20 rounded-lg px-2 py-0.5">
                 <Text className="text-white text-xs font-bold">
-                  {cartItems.length} {cartItems.length > 1 ? 'items' : 'item'}
+                  {serviceCount} {serviceCount === 1 ? 'service' : 'services'}
                 </Text>
               </View>
               <Text className="text-white text-base font-semibold">
-                ₹{cartTotal.toLocaleString()}
+                ₹{cartTotal.toLocaleString('en-IN')}
               </Text>
             </View>
 
