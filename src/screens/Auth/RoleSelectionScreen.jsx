@@ -10,7 +10,8 @@ const ROLES = [
   {
     key: 'salon_owner',
     title: 'Salon Owner',
-    description: 'Register your salon and manage bookings, staff, and services efficiently.',
+    description:
+      'Register your salon and manage bookings, staff, and services efficiently.',
     iconName: 'storefront',
     iconColor: '#2EC4B6',
     iconBg: '#E0F5F3',
@@ -19,7 +20,8 @@ const ROLES = [
   {
     key: 'independent',
     title: 'Independent Professional',
-    description: 'Freelance beautician/barber. Work independently and manage your schedule.',
+    description:
+      'Freelance beautician/barber. Work independently and manage your schedule.',
     iconName: 'person',
     iconColor: '#E91E63',
     iconBg: '#FCE4EC',
@@ -28,30 +30,41 @@ const ROLES = [
 ];
 
 const FEATURES = [
-  { title: 'Easy Setup',         description: 'Complete registration in just 3 steps' },
-  { title: 'Instant Bookings',   description: 'Start receiving customer bookings immediately' },
-  { title: 'Secure & Verified',  description: 'All professionals are verified for quality assurance' },
-  { title: 'Dedicated Support',  description: '24/7 customer support for all your needs' },
+  { title: 'Easy Setup', description: 'Complete registration in just 3 steps' },
+  {
+    title: 'Instant Bookings',
+    description: 'Start receiving customer bookings immediately',
+  },
+  {
+    title: 'Secure & Verified',
+    description: 'All professionals are verified for quality assurance',
+  },
+  {
+    title: 'Dedicated Support',
+    description: '24/7 customer support for all your needs',
+  },
 ];
 
 export default function RoleSelectionScreen({ navigation }) {
   return (
     <SafeAreaView className="flex-1 bg-[#EEF3F3]">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+      {/* ── Header ───────────────────────────────────────────────── */}
+      <View className="flex-row items-center px-4 py-4">
+        <TouchableOpacity
+          onPress={() => navigation?.goBack()}
+          className="w-10 h-10 rounded-full bg-white items-center justify-center shadow-sm"
+        >
+          <Icon name="chevron-back" size={20} color="#333" />
+        </TouchableOpacity>
+        <Text className="flex-1 text-center text-base font-bold text-neutral-800 mr-10">
+          Register As
+        </Text>
+      </View>
 
-        {/* ── Header ───────────────────────────────────────────────── */}
-        <View className="flex-row items-center px-4 py-4">
-          <TouchableOpacity
-            onPress={() => navigation?.goBack()}
-            className="w-10 h-10 rounded-full bg-white items-center justify-center shadow-sm"
-          >
-            <Icon name="chevron-back" size={20} color="#333" />
-          </TouchableOpacity>
-          <Text className="flex-1 text-center text-base font-bold text-neutral-800 mr-10">
-            Register As
-          </Text>
-        </View>
-
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 32, flexGrow: 1 }}
+      >
         {/* ── Title ────────────────────────────────────────────────── */}
         <View className="px-5 mt-2 mb-6">
           <Text className="text-[32px] font-bold text-[#1a1a2e] leading-tight">
@@ -81,8 +94,12 @@ export default function RoleSelectionScreen({ navigation }) {
 
               {/* Text */}
               <View className="flex-1">
-                <Text className="text-base font-bold text-[#1a1a2e] mb-1">{role.title}</Text>
-                <Text className="text-sm text-gray-500 leading-5">{role.description}</Text>
+                <Text className="text-base font-bold text-[#1a1a2e] mb-1">
+                  {role.title}
+                </Text>
+                <Text className="text-sm text-gray-500 leading-5">
+                  {role.description}
+                </Text>
               </View>
 
               {/* Chevron */}
@@ -118,7 +135,6 @@ export default function RoleSelectionScreen({ navigation }) {
             Sign In
           </Text>
         </Text>
-
       </ScrollView>
     </SafeAreaView>
   );

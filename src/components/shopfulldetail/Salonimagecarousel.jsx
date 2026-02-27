@@ -11,16 +11,16 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - 32; // 16px margin each side
+const CARD_WIDTH = width - 32;
 
 /**
  * SalonImageCarousel
  * Props:
- *   title       string     — salon name to show over image
- *   images      string[]   — gallery image URIs
- *   rating      number     — e.g. 4.8
- *   reviewCount number     — e.g. 120
- *   distance    string     — e.g. "2.5 km away"
+ *   title       string
+ *   images      string[]
+ *   rating      number
+ *   reviewCount number
+ *   distance    string
  *   isFavourite boolean
  *   onBack      () => void
  *   onFavourite () => void
@@ -38,21 +38,24 @@ export default function SalonImageCarousel({
   onViewMap,
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollRef = useRef(null);
+
+  const goToIndex = (i) => {
+    scrollRef.current?.scrollTo({ x: i * CARD_WIDTH, animated: true });
+    setCurrentIndex(i);
+  };
 
   return (
-    <View
-      className="mx-4 mt-4 rounded-3xl overflow-hidden"
-      style={{ height: 260 }}
-    >
-      {/* Scrollable images */}
+    <View className="mx-4 mt-4 rounded-3xl overflow-hidden" style={{ height: 280 }}>
+
+      {/* ── Images ── */}
       <ScrollView
+        ref={scrollRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onScroll={e =>
-          setCurrentIndex(
-            Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH),
-          )
+          setCurrentIndex(Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH))
         }
         scrollEventThrottle={16}
       >
@@ -60,54 +63,69 @@ export default function SalonImageCarousel({
           <Image
             key={index}
             source={{ uri }}
-            style={{ width: CARD_WIDTH, height: 260 }}
+            style={{ width: CARD_WIDTH, height: 280 }}
             resizeMode="cover"
           />
         ))}
       </ScrollView>
 
-      {/* Title */}
-      {/* {title ? (
-            <View className="">
-              <Text className="text-white text-xl font-bold" numberOfLines={1}>
-                {title}
-              </Text>
-            </View>
-          ) : null} */}
-
-      {/* Dark gradient overlay (bottom) */}
-      {/* <View
-        className="absolute bottom-0 left-0 right-0 h-40"
-        style={{
-          backgroundColor: 'transparent',
-        }}
+      {/* ── Gradient overlays ── */}
+      {/* Top fade */}
+      <View
         pointerEvents="none"
-      >
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} />
-      </View> */}
+        className="absolute top-0 left-0 right-0"
+        style={{
+          height: 90,
+          background: 'transparent',
+          backgroundImage:
+            'linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)',
+          // RN fallback — use a solid semi-transparent for top
+          backgroundColor: undefined,
+        }}
+      />
+      {/* Bottom fade */}
+      <View
+        pointerEvents="none"
+        className="absolute bottom-0 left-0 right-0"
+        style={{
+          height: 100,
+          backgroundColor: 'rgba(0,0,0,0)',
+          // layered with the bottom info bar background
+        }}
+      />
 
-      {/* Top controls — back & favourite */}
-      <View className="absolute top-3 left-3 right-3 flex-row justify-between">
-        <View className="flex-row gap-2 ">
-          <TouchableOpacity
-            className="w-9 h-9 rounded-full bg-black/30 items-center justify-center"
-            onPress={onBack}
-            activeOpacity={0.8}
+      {/* ── Top bar: back + title + favourite ── */}
+      <View className="absolute top-3 left-3 right-3 flex-row justify-between items-center">
+
+        {/* Back button */}
+        <TouchableOpacity
+          className="w-9 h-9 rounded-full bg-black/40 items-center justify-center"
+          onPress={onBack}
+          activeOpacity={0.8}
+        >
+          <Icon name="chevron-back" size={20} color="#fff" />
+        </TouchableOpacity>
+
+        {/* Title pill — centered */}
+        {title ? (
+          <View
+            className="flex-1 mx-3 bg-black/35 rounded-full px-4 py-1.5 items-center"
           >
-            <Icon name="chevron-back" size={20} color="#fff" />
-          </TouchableOpacity>
-          {/* Title */}
-          {title ? (
-            <View className="">
-              <Text className="text-white text-xl font-bold" numberOfLines={1}>
-                {title}
-              </Text>
-            </View>
-          ) : null}
-        </View>
+            <Text
+              className="text-white text-[14px] font-semibold"
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+          </View>
+        ) : (
+          <View className="flex-1" />
+        )}
+
+        {/* Favourite */}
         <TouchableOpacity
           className={`w-9 h-9 rounded-full items-center justify-center ${
-            isFavourite ? 'bg-[#EA8491]' : 'bg-black/30'
+            isFavourite ? 'bg-[#EA8491]' : 'bg-black/40'
           }`}
           onPress={onFavourite}
           activeOpacity={0.8}
@@ -120,16 +138,34 @@ export default function SalonImageCarousel({
         </TouchableOpacity>
       </View>
 
-      {/* Dot indicators */}
+      {/* ── Image counter badge (top-right corner below fav) ── */}
+      {/* {images.length > 1 && (
+        <View className="absolute top-14 right-3 bg-black/40 rounded-lg px-2 py-0.5">
+          <Text className="text-white text-[11px] font-semibold">
+            {currentIndex + 1} / {images.length}
+          </Text>
+        </View>
+      )} */}
+
+      {/* ── Dot indicators (tappable) ── */}
       {images.length > 1 && (
-        <View className="absolute bottom-14 left-0 right-0 flex-row justify-center gap-1">
+        <View className="absolute bottom-[52px] left-0 right-0 flex-row justify-center gap-1.5">
           {images.map((_, i) => (
-            <View
+            <TouchableOpacity
               key={i}
-              className={`h-1 rounded-full ${
-                currentIndex === i ? 'bg-white w-5' : 'bg-white/40 w-1'
-              }`}
-            />
+              onPress={() => goToIndex(i)}
+              activeOpacity={0.7}
+            >
+              <View
+                style={{
+                  height: 4,
+                  borderRadius: 2,
+                  width: currentIndex === i ? 20 : 6,
+                  backgroundColor:
+                    currentIndex === i ? '#fff' : 'rgba(255,255,255,0.45)',
+                }}
+              />
+            </TouchableOpacity>
           ))}
         </View>
       )}
