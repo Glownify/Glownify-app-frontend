@@ -320,11 +320,11 @@ export default function ShopDetailsScreen({ navigation, route }) {
         />
 
         {/* 2. Salon name / tagline / hours */}
-        <SalonInfo
+        {/* <SalonInfo
           name={salonName}
           tagline={salonTagline}
           openHours={openHours}
-        />
+        /> */}
 
         {/* 3. Address card */}
         <SalonAddressCard address={salonAddress} onEdit={() => {}} />
@@ -338,7 +338,7 @@ export default function ShopDetailsScreen({ navigation, route }) {
         />
 
         {/* ── NEW: 5. Gallery section ── */}
-        <SalonGallery images={salonImages} />
+        {/* <SalonGallery images={salonImages} /> */}
 
         {/* 6. Circular category shortcuts */}
         <OurServicesCarousel
