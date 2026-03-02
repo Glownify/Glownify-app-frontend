@@ -1,280 +1,223 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import ServicesList from '../../../components/shopfulldetail/Serviceslist';
+import CartBar from '../../../components/shopfulldetail/Cartbar';
+import SubServiceBottomSheet from '../../../components/shopfulldetail/Subservicebottomsheet';
+import AppHeader, { HeaderIconButton } from '../../../components/common/Header'; // TODO: adjust path
 
-const services = [
-  { id: 1, title: 'Haircut & Styling', duration: '30 min', certification: "L'Oréal Certified", price: '₹149' },
-  { id: 2, title: 'Full Body Spa', duration: '90 min', certification: "Ayurveda Certified", price: '₹149' },
-  { id: 3, title: 'Facial Treatment', duration: '45 min', certification: "Derma Certified", price: '₹599' },
-  { id: 4, title: 'Manicure & Pedicure', duration: '60 min', certification: "OPI Certified", price: '₹799' },
-  { id: 5, title: 'Manicure & Pedicure', duration: '60 min', certification: "OPI Certified", price: '₹799' },
-  { id: 6, title: 'Manicure & Pedicure', duration: '60 min', certification: "OPI Certified", price: '₹799' },
-  { id: 7, title: 'Manicure & Pedicure', duration: '60 min', certification: "OPI Certified", price: '₹799' },
-];
-
-const ServicesComponrnt = ({ service }) => {
-  return (
-    <TouchableOpacity style={styles.serviceCard}>
-      <View style={styles.serviceLeft}>
-        <Text style={styles.serviceTitle}>{service.title}</Text>
-        <View style={styles.serviceInfoRow}>
-          <Ionicons name="time-outline" size={16} color="#6C6C6C" />
-          <Text style={styles.serviceInfoText}>{service.duration}</Text>
-          <Ionicons
-            name="ribbon-outline"
-            size={16}
-            color="#CE8F32"
-            style={{ marginLeft: 10 }}
-          />
-          <Text style={styles.serviceInfoText}>{service.certification}</Text>
-        </View>
-      </View>
-      <Text style={styles.servicePrice}>{service.price}</Text>
-    </TouchableOpacity>
-  );
+// ─── Dummy / static data (replace with API response) ────────────────────────
+const PROFESSIONAL = {
+  name: 'Priya Sharma',
+  avatar: 'https://i.pravatar.cc/150?img=47',
+  rating: 4.9,
+  reviewCount: 234,
+  experience: '6 yrs exp',
+  speciality: 'Hair & Skin Expert',
+  homeVisitFee: 99,
+  distanceKm: 2.5,
+  tags: [
+    { label: 'Top Rated', icon: 'ribbon-outline', color: '#fff' },
+    { label: 'Female',    icon: 'woman-outline',  color: '#fff' },
+    { label: 'Verified',  icon: 'checkmark-circle-outline', color: '#fff' },
+  ],
 };
 
+const TAG_COLORS = ['bg-warning', 'bg-secondary-pink', 'bg-info'];
+
+const originalServices = [
+  { id: 1, title: 'Haircut & Styling',  duration: '30 min',  certification: "L'Oréal Certified", price: '₹149'  },
+  { id: 2, title: 'Full Body Spa',      duration: '90 min',  certification: 'Ayurveda Certified', price: '₹149'  },
+  { id: 3, title: 'Facial Treatment',   duration: '45 min',  certification: 'Derma Certified',    price: '₹599'  },
+  { id: 4, title: 'Manicure & Pedicure',duration: '60 min',  certification: 'OPI Certified',      price: '₹799'  },
+  { id: 5, title: 'Threading',          duration: '15 min',  certification: 'Certified',          price: '₹99'   },
+  { id: 6, title: 'Waxing (Full Arms)', duration: '30 min',  certification: 'Certified',          price: '₹299'  },
+  { id: 7, title: 'Bridal Makeup',      duration: '120 min', certification: 'MAC Certified',      price: '₹2499' },
+];
+
+const PRO_SERVICES = originalServices.map(s => ({
+  _id: `pro_s_${s.id}`,
+  name: s.title,
+  duration: s.duration,
+  salonPrice: null,
+  homePrice: parseInt(s.price.replace('₹', ''), 10),
+  serviceMode: 'home',
+  badge: s.certification,
+  image: null,
+}));
+// ─────────────────────────────────────────────────────────────────────────────
+
 const ProfessionalDetailsScreen = ({ navigation }) => {
+  const [cartItems, setCartItems] = useState([]);
+  const [subSheetVisible, setSubSheetVisible] = useState(false);
+  const [serviceForSub, setServiceForSub] = useState(null);
+  const [isFav, setIsFav] = useState(false);
+
+  const handleAddService = service => {
+    const alreadyIn = cartItems.find(c => c._id === service._id);
+    if (alreadyIn) {
+      setCartItems(prev => prev.filter(c =>
+        c._id !== service._id &&
+        !c._id.startsWith(service._id + '-sub') &&
+        c.parentId !== service._id,
+      ));
+      return;
+    }
+    setServiceForSub(service);
+    setSubSheetVisible(true);
+  };
+
+  const confirmSubServices = selectedSubs => {
+    setSubSheetVisible(false);
+    const service = serviceForSub;
+    const subItems = selectedSubs.map(s => ({
+      ...s, parentId: service._id, parentName: service.name, chosenMode: 'home',
+    }));
+    setCartItems(prev => [...prev, { ...service, chosenMode: 'home' }, ...subItems]);
+    setServiceForSub(null);
+  };
+
+  const dismissSubSheet = () => { setSubSheetVisible(false); setServiceForSub(null); };
+
   return (
-    // Outer View sets the color for the "Notch" / Status Bar area on iOS & Android
-    <View style={{ flex: 1, backgroundColor: '#156778' }}>
-      <StatusBar backgroundColor="#156778" barStyle="light-content" translucent={false} />
-      
-      <SafeAreaView style={styles.container} edges={['top']}>
-        {/* Main Content Wrapper - This holds your off-white background */}
-        <View style={styles.contentWrapper}>
-          
-          {/* ---------- PROFILE HEADER ---------- */}
-          <View style={styles.header}>
-            <Image
-              source={{ uri: 'https://i.pravatar.cc/150?img=47' }}
-              style={styles.profileImg}
-            />
-            <View style={styles.headerRight}>
-              <Text style={styles.name}>Priya Sharma</Text>
-              <View style={styles.ratingRow}>
-                <Ionicons name="star" size={16} color="#F4A100" />
-                <Text style={styles.ratingValue}>4.9</Text>
-                <Text style={styles.reviewText}>(234 reviews)</Text>
+    <SafeAreaView className="flex-1 bg-primary" edges={['top']}>
+      <AppHeader
+        title="Professional Profile"
+        onBack={() => navigation.goBack()}
+        variant="primary"
+        rightElement={
+          <HeaderIconButton
+            name={isFav ? 'heart' : 'heart-outline'}
+            onPress={() => setIsFav(f => !f)}
+            color="#fff"
+          />
+        }
+      />
+
+      <ScrollView
+        className="flex-1 bg-neutral-100 rounded-t-3xl"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 110, paddingTop: 20 }}
+      >
+        {/* ── Floating Profile Card ── */}
+        <View
+          className="mx-md mb-lg bg-neutral-white rounded-3xl overflow-hidden"
+          style={{ elevation: 4, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}
+        >
+          {/* Primary colour banner strip at top of card */}
+          <View className="bg-white h-16 w-full" />
+
+          {/* Avatar — overlaps the banner */}
+          <View className="px-md pb-md" style={{ marginTop: -36 }}>
+            <View className="flex-row items-end justify-between mb-md">
+              <View className="relative">
+                <Image
+                  source={{ uri: PROFESSIONAL.avatar }}
+                  className="w-20 h-20 rounded-2xl border-4 border-neutral-white"
+                  // TODO: replace with API → professional.avatarUrl
+                />
+                <View
+                  className="absolute -bottom-1.5 -right-1.5 bg-neutral-white rounded-full p-0.5"
+                  style={{ elevation: 2 }}
+                >
+                  <Ionicons name="shield-checkmark" size={16} color="#3b82f6" />
+                </View>
+              </View>
+
+              {/* Rating pill — top-right of card body */}
+              <View className="flex-row items-center bg-warning px-2.5 py-1 rounded-full mb-1">
+                <Ionicons name="star" size={12} color="#fff" />
+                <Text className="text-white text-xs font-bold ml-1">
+                  {PROFESSIONAL.rating}
+                </Text>
+                <Text className="text-white text-xs ml-1 opacity-80">
+                  ({PROFESSIONAL.reviewCount})
+                </Text>
               </View>
             </View>
-            <View style={styles.verifiedBadge}>
-              <Ionicons name="shield-checkmark" size={20} color="#3A9BFF" />
+
+            {/* Name + speciality */}
+            <Text className="text-xl font-bold text-neutral-900">
+              {PROFESSIONAL.name}
+              {/* TODO: replace with API → professional.name */}
+            </Text>
+            <View className="flex-row items-center mt-0.5 mb-md">
+              <Text className="text-sm text-neutral-500">{PROFESSIONAL.speciality}</Text>
+              <View className="mx-2 w-px h-3 bg-neutral-200" />
+              <Text className="text-xs text-neutral-400">{PROFESSIONAL.experience}</Text>
+            </View>
+
+            {/* Tags */}
+            <View className="flex-row flex-wrap gap-2 mb-md">
+              {PROFESSIONAL.tags.map((tag, i) => (
+                <View key={tag.label} className={`flex-row items-center py-1 px-sm rounded-full ${TAG_COLORS[i]}`}>
+                  <Ionicons name={tag.icon} size={12} color="#fff" />
+                  <Text className="text-xs font-semibold text-white ml-1">{tag.label}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Divider */}
+            <View className="h-px bg-neutral-100 mb-md" />
+
+            {/* Stats Row */}
+            <View className="flex-row justify-around">
+              <View className="items-center">
+                <View className="w-10 h-10 rounded-xl bg-primary-50 items-center justify-center mb-1.5">
+                  <Ionicons name="home-outline" size={20} color="#f43f5e" />
+                </View>
+                <Text className="text-sm font-bold text-neutral-900">₹{PROFESSIONAL.homeVisitFee}</Text>
+                <Text className="text-xs text-neutral-400 mt-0.5">Home Visit</Text>
+              </View>
+              <View className="w-px bg-neutral-100" />
+              <View className="items-center">
+                <View className="w-10 h-10 rounded-xl bg-teal-50 items-center justify-center mb-1.5">
+                  <Ionicons name="location-outline" size={20} color="#14b8a6" />
+                </View>
+                <Text className="text-sm font-bold text-neutral-900">{PROFESSIONAL.distanceKm} km</Text>
+                <Text className="text-xs text-neutral-400 mt-0.5">Distance</Text>
+              </View>
+              <View className="w-px bg-neutral-100" />
+              <View className="items-center">
+                <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center mb-1.5">
+                  <Ionicons name="calendar-outline" size={20} color="#3b82f6" />
+                </View>
+                <Text className="text-sm font-bold text-neutral-900">Mon–Sat</Text>
+                <Text className="text-xs text-neutral-400 mt-0.5">Availability</Text>
+              </View>
             </View>
           </View>
-
-          {/* ---------- TAGS ---------- */}
-          <View style={styles.tagsRow}>
-            <View style={[styles.tag, { backgroundColor: '#FFC928' }]}>
-              <Ionicons name="ribbon-outline" size={16} color="#fff" />
-              <Text style={styles.tagText}>Top Rated</Text>
-            </View>
-            <View style={[styles.tag, { backgroundColor: '#D633D8' }]}>
-              <Ionicons name="woman-outline" size={16} color="#fff" />
-              <Text style={styles.tagText}>Female</Text>
-            </View>
-            <View style={[styles.tag, { backgroundColor: '#009DFF' }]}>
-              <Ionicons name="checkmark-circle-outline" size={16} color="#fff" />
-              <Text style={styles.tagText}>Verified</Text>
-            </View>
-          </View>
-
-          {/* ---------- INFO CARDS ---------- */}
-          <View style={styles.infoCard}>
-            <View style={styles.infoItem}>
-              <Ionicons name="home-outline" size={26} color="#ED4E85" />
-              <Text style={styles.infoTitle}>Home Visit</Text>
-              <Text style={styles.infoValue}>₹99</Text>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.infoItem}>
-              <Ionicons name="location-outline" size={26} color="#2DB27B" />
-              <Text style={styles.infoTitle}>Distance</Text>
-              <Text style={styles.infoValue}>2.5 km</Text>
-            </View>
-          </View>
-
-          {/* ---------- SERVICES OFFERED ---------- */}
-          <Text style={styles.sectionTitle}>Services Offered</Text>
-
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {services.map((service) => (
-              <ServicesComponrnt key={service.id} service={service} />
-            ))}
-          </ScrollView>
         </View>
-      </SafeAreaView>
-    </View>
+
+        {/* Services heading */}
+        <View className="px-md mb-sm">
+          <Text className="text-base font-bold text-neutral-900">Services Offered</Text>
+          <Text className="text-xs text-neutral-400 mt-0.5">Select services to add to your booking</Text>
+        </View>
+
+        <ServicesList
+          services={PRO_SERVICES}
+          selectedMode="home"
+          cartItems={cartItems}
+          onAdd={handleAddService}
+        />
+      </ScrollView>
+
+      <CartBar
+        cartItems={cartItems}
+        bookingMode="home"
+        onContinue={() => navigation.navigate('Booking', { cartItems, bookingMode: 'home' })}
+      />
+
+      <SubServiceBottomSheet
+        visible={subSheetVisible}
+        service={serviceForSub}
+        onDismiss={dismissSubSheet}
+        onConfirm={confirmSubServices}
+      />
+    </SafeAreaView>
   );
 };
 
 export default ProfessionalDetailsScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  contentWrapper: {
-    flex: 1,
-    backgroundColor: '#FAF6F4',
-    padding: 16,
-    // Removed the large paddingTop so SafeAreaView can do its job
-  },
-
-  /* ----- HEADER ----- */
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    position: 'relative',
-    marginTop: 10,
-  },
-  profileImg: {
-    width: 85,
-    height: 85,
-    borderRadius: 50,
-  },
-  headerRight: {
-    marginLeft: 14,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#333',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  ratingValue: {
-    fontSize: 16,
-    marginLeft: 4,
-    fontWeight: '600',
-    color: '#333',
-  },
-  reviewText: {
-    fontSize: 14,
-    marginLeft: 4,
-    color: '#666',
-  },
-  verifiedBadge: {
-    position: 'absolute',
-    bottom: 0,
-    left: 65,
-    backgroundColor: '#fff',
-    padding: 4,
-    borderRadius: 15,
-    elevation: 3,
-  },
-
-  /* ----- TAGS ----- */
-  tagsRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    flexWrap: 'wrap',
-  },
-  tag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  tagText: {
-    color: '#fff',
-    marginLeft: 4,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-
-  /* ----- INFO CARD ----- */
-  infoCard: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingVertical: 16,
-    justifyContent: 'space-around',
-    marginBottom: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  infoItem: {
-    alignItems: 'center',
-  },
-  infoTitle: {
-    marginTop: 6,
-    color: '#7E7E7E',
-    fontSize: 14,
-  },
-  infoValue: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 4,
-  },
-  divider: {
-    width: 1,
-    height: '60%',
-    backgroundColor: '#E0E0E0',
-    alignSelf: 'center',
-  },
-
-  /* ----- SERVICES ----- */
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 12,
-    color: '#333',
-  },
-  serviceCard: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 14,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  serviceLeft: {
-    maxWidth: '70%',
-  },
-  serviceTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  serviceInfoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  serviceInfoText: {
-    marginLeft: 4,
-    fontSize: 12,
-    color: '#666',
-  },
-  servicePrice: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#156778', // Changed to match theme
-  },
-});

@@ -77,7 +77,7 @@ export default function IndependentProCard({ pro, onPress, index = 0 }) {
       {/* Body */}
       <View className="px-3 pt-2.5 pb-3 gap-1.5">
         {/* Name */}
-        <Text className="text-sm font-bold text-teal-700" numberOfLines={1}>
+        <Text className="text-sm font-bold text-primary-700" numberOfLines={1}>
           {pro.name || 'Professional'}
         </Text>
 
@@ -92,18 +92,21 @@ export default function IndependentProCard({ pro, onPress, index = 0 }) {
         {/* Services */}
         <View className="flex-row items-center">
           <Text className="text-[11px] mr-1">✂️</Text>
-          <Text className="text-[11px] text-gray-400 font-medium" numberOfLines={1}>
+          <Text
+            className="text-[11px] text-gray-400 font-medium"
+            numberOfLines={1}
+          >
             {pro.services || 'Hair'}
           </Text>
         </View>
 
         {/* Book button */}
         <TouchableOpacity
-          className="mt-1 bg-teal-50 border border-teal-200 rounded-xl py-1.5 items-center"
+          className="mt-1 bg-primary-50 border border-primary-200 rounded-xl py-1.5 items-center"
           onPress={onPress}
           activeOpacity={0.8}
         >
-          <Text className="text-teal-700 text-xs font-bold">Book Now</Text>
+          <Text className="text-primary-700 text-xs font-bold">Book Now</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>

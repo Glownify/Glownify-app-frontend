@@ -59,13 +59,18 @@ export default function ServiceItem({
           )}
 
           {/* Info Icon over image */}
-          <TouchableOpacity
-            className="absolute bottom-1 right-1 w-5 h-5 bg-black/50 rounded-full items-center justify-center"
-            activeOpacity={0.8}
+          <Pressable
+            className="absolute bottom-1 right-1 w-6 h-6 bg-black/60 rounded-full items-center justify-center"
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.6 : 1,
+              zIndex: 10,
+              elevation: 5,
+            })}
             onPress={() => setModalVisible(true)}
+            hitSlop={10}
           >
-            <Icon name="information" size={12} color="#fff" />
-          </TouchableOpacity>
+            <Icon name="information" size={14} color="#fff" />
+          </Pressable>
         </View>
 
         {/* Details */}
@@ -98,14 +103,19 @@ export default function ServiceItem({
 
         {/* CTA */}
         {!isUnavailable ? (
-          <TouchableOpacity
-            className={`ml-2 px-4 py-2 rounded-xl border ${
+          <Pressable
+            className={`ml-2 px-5 py-2.5 rounded-xl border ${
               isInCart
                 ? 'bg-[#EA8491] border-[#EA8491]'
                 : 'bg-white border-[#EA8491]'
             }`}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.7 : 1,
+              zIndex: 10,
+              elevation: 2,
+            })}
             onPress={() => onAdd(service)}
-            activeOpacity={0.8}
+            hitSlop={8}
           >
             <Text
               className={`text-xs font-bold ${
@@ -114,7 +124,7 @@ export default function ServiceItem({
             >
               {isInCart ? '✓ Added' : '+ Add'}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : (
           <View className="ml-2 bg-gray-100 rounded-lg px-2.5 py-1.5">
             <Text className="text-gray-400 text-[10px] font-semibold">
@@ -217,7 +227,11 @@ export default function ServiceItem({
                   {service.salonPrice != null && (
                     <View className="flex-row justify-between items-center">
                       <View className="flex-row items-center gap-1.5">
-                        <Icon name="storefront-outline" size={14} color="#EA8491" />
+                        <Icon
+                          name="storefront-outline"
+                          size={14}
+                          color="#EA8491"
+                        />
                         <Text className="text-gray-600 text-sm">At Salon</Text>
                       </View>
                       <Text className="text-gray-900 font-bold text-sm">

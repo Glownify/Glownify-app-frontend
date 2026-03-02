@@ -6,95 +6,44 @@ import {
   TouchableOpacity,
   Image,
   Alert,
-  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { logoutUser } from '../../redux/slices/authSlice';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
+import { logoutUser } from '../../redux/slices/authSlice';
 import { logoutAndGoToSalonRegistration } from '../../utils/NavigationHelper';
+import AppHeader, { HeaderIconButton } from '../../components/common/Header'; // TODO: adjust path
 
-// Menu Items
+// ─── Menu config ─────────────────────────────────────────────────────────────
 const MENU_ITEMS = [
-  {
-    id: 1,
-    title: 'My Profile',
-    subtitle: 'View and edit profile',
-    icon: 'person',
-    section: 'account',
-  },
-  {
-    id: 2,
-    title: 'Bookings',
-    subtitle: 'View your bookings',
-    icon: 'calendar',
-    section: 'account',
-  },
-  {
-    id: 3,
-    title: 'Saved Salons',
-    subtitle: 'Your favorite salons',
-    icon: 'heart',
-    section: 'account',
-  },
-  {
-    id: 4,
-    title: 'Refer & Earn',
-    subtitle: 'Earn rewards with referral',
-    icon: 'gift',
-    section: 'rewards',
-    badge: 'New',
-  },
-  {
-    id: 5,
-    title: 'Promotions',
-    subtitle: 'Active deals & offers',
-    icon: 'pricetag',
-    section: 'rewards',
-  },
-  {
-    id: 6,
-    title: 'Wallet',
-    subtitle: 'Check your balance',
-    icon: 'wallet',
-    section: 'rewards',
-  },
-  {
-    id: 7,
-    title: 'About Us',
-    subtitle: 'Learn more about us',
-    icon: 'information-circle',
-    section: 'other',
-  },
-  {
-    id: 8,
-    title: 'Privacy Policy',
-    subtitle: 'Terms & conditions',
-    icon: 'lock-closed',
-    section: 'other',
-  },
-  {
-    id: 9,
-    title: 'Notification Preferences',
-    subtitle: 'Manage notifications',
-    icon: 'notifications',
-    section: 'other',
-  },
-  {
-    id: 10,
-    title: 'Contact Us',
-    subtitle: 'Get in touch',
-    icon: 'call',
-    section: 'other',
-  },
-  {
-    id: 11,
-    title: 'Earn With Us',
-    subtitle: 'Become a partner',
-    icon: 'briefcase',
-    section: 'earnwithus',
-  },
+  { id: 1,  title: 'My Profile',               subtitle: 'View and edit profile',      icon: 'person-outline',           section: 'account'    },
+  { id: 2,  title: 'Bookings',                  subtitle: 'View your bookings',          icon: 'calendar-outline',         section: 'account'    },
+  { id: 3,  title: 'Saved Salons',              subtitle: 'Your favorite salons',        icon: 'heart-outline',            section: 'account'    },
+  { id: 4,  title: 'Refer & Earn',              subtitle: 'Earn rewards with referral',  icon: 'gift-outline',             section: 'rewards',   badge: 'New' },
+  { id: 5,  title: 'Promotions',                subtitle: 'Active deals & offers',       icon: 'pricetag-outline',         section: 'rewards'    },
+  { id: 6,  title: 'Wallet',                    subtitle: 'Check your balance',          icon: 'wallet-outline',           section: 'rewards'    },
+  { id: 7,  title: 'About Us',                  subtitle: 'Learn more about us',         icon: 'information-circle-outline', section: 'other'  },
+  { id: 8,  title: 'Privacy Policy',            subtitle: 'Terms & conditions',          icon: 'lock-closed-outline',      section: 'other'      },
+  { id: 9,  title: 'Notification Preferences',  subtitle: 'Manage notifications',        icon: 'notifications-outline',    section: 'other'      },
+  { id: 10, title: 'Contact Us',                subtitle: 'Get in touch',                icon: 'call-outline',             section: 'other'      },
+  { id: 11, title: 'Earn With Us',              subtitle: 'Become a partner',            icon: 'briefcase-outline',        section: 'earnwithus' },
 ];
+
+// Icon bg tints per section
+const ICON_TINT = {
+  account:    { bg: 'bg-primary-50',  color: '#f43f5e' },
+  rewards:    { bg: 'bg-yellow-50',   color: '#f59e0b' },
+  other:      { bg: 'bg-neutral-100', color: '#6b7280' },
+  earnwithus: { bg: 'bg-teal-50',     color: '#14b8a6' },
+};
+
+const SECTION_LABELS = {
+  account:    null,
+  earnwithus: 'Earn With Us',
+  rewards:    'Rewards',
+  other:      'Other Information',
+};
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function UserProfileScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -112,73 +61,60 @@ export default function UserProfileScreen({ navigation }) {
         logoutAndGoToSalonRegistration(navigation, dispatch);
         break;
       default:
-        Alert.alert(item.title, `${item.subtitle} - Coming soon!`);
+        Alert.alert(item.title, `${item.subtitle} — Coming soon!`);
     }
   };
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: () => dispatch(logoutUser()),
-      },
+      { text: 'Logout', style: 'destructive', onPress: () => dispatch(logoutUser()) },
     ]);
   };
 
-  const renderMenuSection = (sectionTitle, sectionKey) => {
-    const items = MENU_ITEMS.filter(item => item.section === sectionKey);
-
-    if (items.length === 0) return null;
+  const renderMenuSection = sectionKey => {
+    const items = MENU_ITEMS.filter(i => i.section === sectionKey);
+    if (!items.length) return null;
+    const label = SECTION_LABELS[sectionKey];
+    const tint  = ICON_TINT[sectionKey] ?? ICON_TINT.other;
 
     return (
-      <View key={sectionKey} className="mx-4 my-3">
-        {sectionTitle && (
-          <Text className="text-xs font-semibold text-[#999] mb-2 ml-1 uppercase">
-            {sectionTitle}
+      <View key={sectionKey} className="mx-md mb-sm">
+        {label && (
+          <Text className="text-xs font-semibold text-neutral-400 mb-2 ml-1 uppercase tracking-wider">
+            {label}
           </Text>
         )}
         <View
-          className="bg-white rounded-xl overflow-hidden"
-          style={{
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.08,
-            shadowRadius: 2,
-            elevation: 2,
-          }}
+          className="bg-neutral-white rounded-2xl overflow-hidden"
+          style={{ elevation: 2, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } }}
         >
           {items.map((item, index) => (
             <TouchableOpacity
               key={item.id}
-              className={`flex-row justify-between items-center px-4 py-3.5 ${
-                index !== items.length - 1 ? 'border-b border-[#f0f0f0]' : ''
-              }`}
+              className={`flex-row items-center px-md py-sm ${index !== items.length - 1 ? 'border-b border-neutral-100' : ''}`}
               onPress={() => handleMenuPress(item)}
+              activeOpacity={0.7}
             >
-              <View className="flex-1 flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-[#f0f0f0] justify-center items-center mr-3">
-                  <Icon name={item.icon} size={22} color="#156778" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-sm font-semibold text-[#333]">
-                    {item.title}
-                  </Text>
-                  <Text className="text-[11px] text-[#999] mt-0.5">
-                    {item.subtitle}
-                  </Text>
-                </View>
+              {/* Icon */}
+              <View className={`w-9 h-9 rounded-xl items-center justify-center mr-sm ${tint.bg}`}>
+                <Ionicons name={item.icon} size={18} color={tint.color} />
               </View>
+
+              {/* Text */}
+              <View className="flex-1">
+                <Text className="text-sm font-semibold text-neutral-800">{item.title}</Text>
+                <Text className="text-xs text-neutral-400 mt-0.5">{item.subtitle}</Text>
+              </View>
+
+              {/* Badge + chevron */}
               <View className="flex-row items-center gap-2">
                 {item.badge && (
-                  <View className="bg-[#4CAF50] px-2 py-0.5 rounded">
-                    <Text className="text-[10px] font-semibold text-white">
-                      {item.badge}
-                    </Text>
+                  <View className="bg-success px-2 py-0.5 rounded-full">
+                    <Text className="text-xs font-bold text-white">{item.badge}</Text>
                   </View>
                 )}
-                <Icon name="chevron-forward" size={20} color="#ccc" />
+                <Ionicons name="chevron-forward" size={16} color="#d1d5db" />
               </View>
             </TouchableOpacity>
           ))}
@@ -187,111 +123,128 @@ export default function UserProfileScreen({ navigation }) {
     );
   };
 
-  // If not logged in, show login prompt
+  // ── Not logged in ──────────────────────────────────────────────────────────
   if (!user) {
     return (
-      <View className="flex-1 bg-[#f5f5f5]">
-        <View className="bg-[#156778] px-4 py-4 flex-row items-center justify-between">
-          <TouchableOpacity className="p-2">
-            <Icon name="chevron-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text className="text-lg font-bold text-white">Your Profile</Text>
-          <View className="w-10" />
-        </View>
-
-        <View className="flex-1 justify-center items-center px-7">
-          <Icon name="person-circle" size={80} color="#ddd" />
-          <Text className="text-xl font-bold text-[#333] mt-5">
-            Sign In Required
-          </Text>
-          <Text className="text-sm text-[#666] text-center mt-2.5 mb-7">
-            Please login to access your profile
+      <SafeAreaView edges={['top']} className="flex-1 bg-primary">
+        <AppHeader title="Your Profile" variant="primary" />
+        <View className="flex-1 bg-neutral-100 rounded-t-3xl justify-center items-center px-xl">
+          <View
+            className="w-24 h-24 rounded-3xl bg-neutral-white items-center justify-center mb-lg"
+            style={{ elevation: 3, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}
+          >
+            <Ionicons name="person-circle-outline" size={52} color="#d1d5db" />
+          </View>
+          <Text className="text-xl font-bold text-neutral-800">Sign In Required</Text>
+          <Text className="text-sm text-neutral-400 text-center mt-2 mb-lg leading-5">
+            Please login to access your profile and bookings
           </Text>
           <TouchableOpacity
-            className="bg-[#7C5FED] px-7 py-3 rounded-lg"
+            className="bg-primary px-xl py-sm rounded-2xl"
             onPress={() => navigation?.navigate('Auth')}
           >
-            <Text className="text-sm font-semibold text-white">
-              Sign In Now
-            </Text>
+            <Text className="text-sm font-bold text-neutral-white">Sign In Now</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
+  // ── Logged in ──────────────────────────────────────────────────────────────
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#156778]">
-      <StatusBar barStyle="light-content" backgroundColor="#156778" />
-      <View className="flex-1 bg-[#f5f5f5]">
-        <ScrollView className="pb-7">
-          {/* Header */}
-          <View className="bg-[#156778] px-4 py-4 flex-row items-center justify-between">
-            <TouchableOpacity className="p-2">
-              <Icon name="chevron-back" size={24} color="#fff" />
-            </TouchableOpacity>
-            <Text className="text-lg font-bold text-white">Your Profile</Text>
-            <View className="w-10" />
-          </View>
+    <SafeAreaView edges={['top']} className="flex-1 bg-primary">
+      <AppHeader
+        title="Your Profile"
+        variant="primary"
+        rightElement={
+          <HeaderIconButton
+            name="settings-outline"
+            onPress={() => Alert.alert('Settings', 'Coming soon!')}
+            color="#fff"
+          />
+        }
+      />
 
-          {/* User Info Card */}
-          <View
-            className="bg-white mx-4 my-4 rounded-xl p-4 flex-row items-center"
-            style={{
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 3,
-              elevation: 3,
-            }}
-          >
-            <Image
-              source={{
-                uri: user?.image || 'https://via.placeholder.com/80?text=User',
-              }}
-              className="w-[60px] h-[60px] rounded-full bg-[#e0e0e0]"
-            />
-            <View className="flex-1 ml-3">
-              <Text className="text-base font-bold text-[#333]">
-                {user?.name || 'User'}
-              </Text>
-              <Text className="text-xs text-[#666] mt-1">
-                {user?.email || 'email@example.com'}
-              </Text>
-              <Text className="text-xs text-[#999] mt-0.5">
-                {user?.phone || '+91 XXXXX XXXXX'}
-              </Text>
+      <ScrollView
+        className="flex-1 bg-neutral-100 rounded-t-3xl"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: 20, paddingBottom: 40 }}
+      >
+        {/* ── User Info Card ── */}
+        <View
+          className="mx-md mb-lg bg-neutral-white rounded-3xl overflow-hidden"
+          style={{ elevation: 4, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}
+        >
+          {/* Primary banner */}
+          <View className="bg-white h-14 w-full" />
+
+          <View className="px-md pb-md" style={{ marginTop: -32 }}>
+            {/* Avatar row */}
+            <View className="flex-row items-end justify-between mb-sm">
+              <Image
+                source={{ uri: user?.image || 'https://i.pravatar.cc/150?img=12' }}
+                className="w-16 h-16 rounded-2xl border-4 border-neutral-white"
+                // TODO: replace with user.image from API
+              />
+              <TouchableOpacity
+                className="flex-row items-center bg-primary-50 border border-primary-200 px-sm py-1.5 rounded-xl mb-1"
+                onPress={() => navigation.navigate('HomeTab', { screen: 'ProfileEditScreen' })}
+              >
+                <Ionicons name="pencil-outline" size={13} color="#f43f5e" />
+                <Text className="text-xs font-semibold text-primary ml-1">Edit Profile</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('HomeTab', { screen: 'ProfileEditScreen' })
-              }
-              className="p-2"
-            >
-              <Icon name="pencil" size={18} color="#156778" />
-            </TouchableOpacity>
-          </View>
 
-          {/* Menu Sections */}
-          {renderMenuSection(null, 'account')}
-          {renderMenuSection('Earn With Us', 'earnwithus')}
-          {renderMenuSection('Rewards', 'rewards')}
-          {renderMenuSection('Other Information', 'other')}
+            {/* Name / email / phone */}
+            <Text className="text-lg font-bold text-neutral-900">
+              {user?.name || 'User'}
+              {/* TODO: user.name from auth slice */}
+            </Text>
+            <Text className="text-xs text-neutral-500 mt-0.5">
+              {user?.email || 'email@example.com'}
+            </Text>
+            <Text className="text-xs text-neutral-400 mt-0.5">
+              {user?.phone || '+91 XXXXX XXXXX'}
+            </Text>
 
-          {/* Logout Button */}
-          <View className="mx-4 my-6">
-            <TouchableOpacity
-              className="flex-row justify-center items-center border-2 border-[#f44336] rounded-[10px] py-3 gap-1.5"
-              onPress={handleLogout}
-            >
-              <Icon name="log-out" size={18} color="#f44336" />
-              <Text className="text-sm font-semibold text-[#f44336]">
-                Logout
-              </Text>
-            </TouchableOpacity>
+            {/* Quick stats strip */}
+            <View className="flex-row mt-md pt-md border-t border-neutral-100">
+              {[
+                { label: 'Bookings',  value: '12',   icon: 'calendar-outline'  },
+                { label: 'Saved',     value: '5',    icon: 'heart-outline'     },
+                { label: 'Wallet',    value: '₹299', icon: 'wallet-outline'    },
+              ].map((stat, i) => (
+                <View key={stat.label} className={`flex-1 items-center ${i !== 2 ? 'border-r border-neutral-100' : ''}`}>
+                  <Ionicons name={stat.icon} size={16} color="#f43f5e" />
+                  <Text className="text-sm font-bold text-neutral-900 mt-1">{stat.value}</Text>
+                  <Text className="text-xs text-neutral-400">{stat.label}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </ScrollView>
-      </View>
+        </View>
+
+        {/* ── Menu Sections ── */}
+        {renderMenuSection('account')}
+        {renderMenuSection('earnwithus')}
+        {renderMenuSection('rewards')}
+        {renderMenuSection('other')}
+
+        {/* ── Logout ── */}
+        <View className="mx-md mt-sm mb-xl">
+          <TouchableOpacity
+            className="flex-row justify-center items-center border-2 border-error rounded-2xl py-sm gap-1.5"
+            onPress={handleLogout}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="log-out-outline" size={18} color="#ef4444" />
+            <Text className="text-sm font-semibold text-error">Logout</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* App version */}
+        <Text className="text-xs text-neutral-300 text-center">Version 1.0.0</Text>
+      </ScrollView>
     </SafeAreaView>
   );
 }

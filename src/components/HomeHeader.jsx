@@ -1,10 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { LocationContext } from '../components/LocationProvider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getAddressFromCoords } from '../utils/geocoding';
@@ -39,7 +34,10 @@ export default function HomeHeader({ user, navigation }) {
           <View className="mr-1.5">
             <Ionicons name="location-sharp" size={14} color="#fff" />
           </View>
-          <Text className="text-white text-xs font-medium flex-1" numberOfLines={1}>
+          <Text
+            className="text-white text-xs font-medium flex-1"
+            numberOfLines={1}
+          >
             {address ||
               `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(
                 4,
@@ -63,13 +61,11 @@ export default function HomeHeader({ user, navigation }) {
   };
 
   return (
-    <View className="bg-[#156778] px-5 pt-2.5 pb-5">
+    <View className="bg-primary px-5 pt-2.5 pb-5">
       {/* Top Row: Greeting + Search */}
       <View className="flex-row justify-between items-start mb-4">
         <View className="flex-1">
-          <Text className="text-white text-2xl font-bold mb-1">
-            Glownify
-          </Text>
+          <Text className="text-white text-2xl font-bold mb-1">Glownify</Text>
           <Text className="text-[#E1F5FA] text-xs opacity-90">
             Find the service you want, and book now!
           </Text>
@@ -79,7 +75,7 @@ export default function HomeHeader({ user, navigation }) {
           onPress={() => navigation.navigate('SearchScreen')}
           className="bg-white p-2.5 rounded-full justify-center items-center"
         >
-          <Ionicons name="search-outline" size={20} color="#156778" />
+          <Ionicons name="search-outline" size={20} color="#f43f5e" />
         </TouchableOpacity>
       </View>
 

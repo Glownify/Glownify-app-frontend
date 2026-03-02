@@ -57,9 +57,7 @@ export default function NearbySection({
           {title}
         </Text>
         <TouchableOpacity onPress={onViewAll}>
-          <Text className="text-sm font-medium  text-secondary-teal">
-            View all
-          </Text>
+          <Text className="text-sm font-medium text-primary">View all</Text>
         </TouchableOpacity>
       </View>
 
