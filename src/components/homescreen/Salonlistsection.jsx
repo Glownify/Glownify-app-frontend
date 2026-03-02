@@ -47,9 +47,7 @@ export default function SalonListSection({
           {selectedCategory === 'unisex' ? 'Unisex' : 'Nearby Salons'}
         </Text>
         <TouchableOpacity onPress={onViewAll}>
-          <Text className="text-sm font-medium text-secondary-teal">
-            View all
-          </Text>
+          <Text className="text-sm font-medium text-primary">View all</Text>
         </TouchableOpacity>
       </View>
 

@@ -66,12 +66,8 @@ export default function ServiceAtHomeSection({
             {displayList.length} professionals nearby
           </Text>
         </View>
-        <TouchableOpacity
-          onPress={onViewAll}
-          className="flex-row items-center gap-1 bg-teal-50 border border-teal-100 rounded-full px-3 py-1"
-        >
-          <Text className="text-xs font-semibold text-teal-600">View all</Text>
-          <Text className="text-teal-500 text-sm">›</Text>
+        <TouchableOpacity onPress={onViewAll}>
+          <Text className="text-sm font-medium text-primary">View all</Text>
         </TouchableOpacity>
       </View>
 
@@ -79,7 +75,12 @@ export default function ServiceAtHomeSection({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingLeft: 16, paddingRight: 8, gap: 10, paddingVertical: 14 }}
+        contentContainerStyle={{
+          paddingLeft: 16,
+          paddingRight: 8,
+          gap: 10,
+          paddingVertical: 14,
+        }}
         decelerationRate="fast"
         snapToInterval={158} // card width (148) + gap (10)
         snapToAlignment="start"

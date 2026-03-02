@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   Image,
   TouchableOpacity,
@@ -10,375 +9,188 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppHeader from '../../../components/common/Header'; // TODO: adjust path
 
-// --- Color Palette ---
-const colors = {
-  primary: '#156778',
-  primaryLight: '#E1F5FA',
-  white: '#FFFFFF',
-  background: '#F8F9FA',
-  text: '#111111',
-  textSecondary: '#6B7075',
-  border: '#E5E7EB',
-  success: '#00A86B',
-  filterActive: '#E1F5FE',
-  filterBorder: '#0288D1',
-};
-
-// Mock data based on your image
-const salonData = [
-  {
-    id: '1',
-    name: 'Ashok Sinha',
-    location: 'Banjara hills, Hyderabad..',
-    categories: 'Hair . Facial',
-    rating: 4.7,
-    reviews: '2.7k',
-    discount: '-58%',
-    distance: '5.1km',
-    image: require('../../../assets/profileImg.jpg'),
-  },
-  {
-    id: '2',
-    name: 'Kumar roy',
-    location: 'Hitech city road, Madhapur,Hyderabad..',
-    categories: 'Hair . Facial',
-    rating: 4.5,
-    reviews: '2.8k',
-    discount: '-58%',
-    distance: '5.1km',
-    image: require('../../../assets/profileImg.jpg'),
-  },
-  {
-    id: '3',
-    name: 'Vinit Singh',
-    location: 'Nexus mall, Hyderabad..',
-    categories: 'Hair . Facial',
-    rating: 4.3,
-    reviews: '1.7k',
-    discount: '-58%',
-    distance: '5.1km',
-    image: require('../../../assets/profileImg.jpg'),
-  },
-  {
-    id: '4',
-    name: 'Dinesh Kapoor',
-    location: 'Kondapur, Hyderabad..',
-    categories: 'Hair . Facial',
-    rating: 4.9,
-    reviews: '3.1k',
-    discount: '-58%',
-    distance: '5.1km',
-    image: require('../../../assets/profileImg.jpg'),
-  },
+// ─── Mock data (replace with API response) ───────────────────────────────────
+const PROFESSIONALS = [
+  { id: '1', name: 'Ashok Sinha',    location: 'Banjara Hills, Hyderabad', categories: 'Hair · Facial', rating: 4.7, reviews: '2.7k', distance: '5.1km', gender: 'female', image: require('../../../assets/profileImg.jpg') },
+  { id: '2', name: 'Kumar Roy',      location: 'Hitech City, Madhapur, Hyderabad', categories: 'Hair · Facial', rating: 4.5, reviews: '2.8k', distance: '3.2km', gender: 'female', image: require('../../../assets/profileImg.jpg') },
+  { id: '3', name: 'Vinit Singh',    location: 'Nexus Mall, Hyderabad', categories: 'Hair · Facial', rating: 4.3, reviews: '1.7k', distance: '6.8km', gender: 'male',   image: require('../../../assets/profileImg.jpg') },
+  { id: '4', name: 'Dinesh Kapoor',  location: 'Kondapur, Hyderabad', categories: 'Hair · Spa',    rating: 4.9, reviews: '3.1k', distance: '2.4km', gender: 'male',   image: require('../../../assets/profileImg.jpg') },
 ];
 
-// --- Salon Card Component (Enhanced) ---
-const SalonCard = ({ item, navigation }) => (
+const FILTERS = ['All', 'Hair', 'Nails', 'Facial', 'Color', 'Makeup'];
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Professional Card ─────────────────────────────────────────────────────────
+const ProfessionalCard = ({ item, onPress }) => (
   <TouchableOpacity
-    style={styles.cardContainer}
-    onPress={() => navigation.navigate('ProfessionalDetailScreen')}
-    activeOpacity={0.7}
+    className="flex-row bg-neutral-white rounded-3xl p-md mb-sm items-center"
+    style={{ elevation: 3, shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}
+    onPress={onPress}
+    activeOpacity={0.82}
   >
-    {/* IMAGE + RATING BADGE */}
-    <View style={styles.leftSection}>
-      <Image source={item.image} style={styles.profileImg} />
-
-      {/* Green Rating Badge */}
-      <View style={styles.ratingBadge}>
-        <Icon name="star" size={12} color={colors.white} />
-        <Text style={styles.ratingBadgeText}>{item.rating}</Text>
-      </View>
-    </View>
-
-    {/* MIDDLE CONTENT */}
-    <View style={styles.middleSection}>
-      <Text style={styles.nameText} numberOfLines={1}>
-        {item.name}
-      </Text>
-
-      <View style={styles.row}>
-        <Icon name="location-outline" size={14} color={colors.textSecondary} />
-        <Text style={styles.detailText} numberOfLines={1}>
-          {item.location}
+    {/* Avatar + rating badge */}
+    <View className="relative mr-md">
+      <Image
+        source={item.image}
+        // TODO: replace with { uri: item.avatarUrl } from API
+        className="w-[72px] h-[72px] rounded-2xl border-2 border-primary-100"
+      />
+      {/* Rating pill */}
+      <View
+        className="absolute -bottom-2 -left-1 flex-row items-center bg-success px-1.5 py-0.5 rounded-full border-2 border-neutral-white"
+        style={{ elevation: 2 }}
+      >
+        <Icon name="star" size={10} color="#fff" />
+        <Text className="text-white text-xs font-bold ml-0.5">
+          {item.rating}
+          {/* TODO: item.rating from API */}
         </Text>
       </View>
+    </View>
 
-      <View style={styles.row}>
-        <Icon name="briefcase-outline" size={14} color={colors.textSecondary} />
-        <Text style={styles.detailText}>{item.categories}</Text>
-      </View>
-
-      <View style={styles.row}>
-        <Icon name="cut-outline" size={14} color={colors.textSecondary} />
-        <Text style={styles.detailText} numberOfLines={1}>
-          Makeup | Wax | Spa
+    {/* Info */}
+    <View className="flex-1">
+      {/* Name + discount */}
+      <View className="flex-row items-center justify-between mb-1">
+        <Text className="text-base font-bold text-primary" numberOfLines={1} style={{ flex: 1 }}>
+          {item.name}
+          {/* TODO: item.name from API */}
         </Text>
-      </View>
-
-      <View style={styles.row}>
-        <View style={styles.genderBadge}>
-          <Icon name="female-outline" size={12} color={colors.primary} />
-          <Text style={styles.genderText}>FEMALE</Text>
-        </View>
-      </View>
-    </View>
-
-    {/* RIGHT ARROW */}
-    <View style={styles.rightSection}>
-      <Icon name="chevron-forward" size={24} color={colors.primary} />
-    </View>
-  </TouchableOpacity>
-);
-
-// --- Filter Categories ---
-const filters = ['All', 'Hair', 'Nails', 'Facial', 'Color', 'Makeup'];
-
-export default function ProfessionalsListScreen({ navigation }) {
-  const [activeFilter, setActiveFilter] = useState('Facial');
-
-  return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
-        {/* --- Header --- */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <Icon name="chevron-back" size={26} color={colors.white} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Nearby Specialists</Text>
-          <View style={styles.headerRight} />
-        </View>
-
-        {/* --- Content Wrapper --- */}
-        <View style={styles.contentWrapper}>
-          {/* --- Filter ScrollView --- */}
-          <View style={styles.filterContainer}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterScrollContent}
-            >
-              {filters.map(filter => (
-                <TouchableOpacity
-                  key={filter}
-                  style={[
-                    styles.filterButton,
-                    activeFilter === filter && styles.filterButtonActive,
-                  ]}
-                  onPress={() => setActiveFilter(filter)}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={[
-                      styles.filterText,
-                      activeFilter === filter && styles.filterTextActive,
-                    ]}
-                  >
-                    {filter}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+        {item.discount && (
+          <View className="bg-primary-50 border border-primary-200 px-1.5 py-0.5 rounded-lg ml-2">
+            <Text className="text-xs font-bold text-primary">{item.discount}</Text>
           </View>
+        )}
+      </View>
 
-          {/* --- Results Count --- */}
-          <View style={styles.resultsContainer}>
-            <Text style={styles.resultsText}>
-              {salonData.length} specialists found
+      {/* Location */}
+      <View className="flex-row items-center mb-1">
+        <Icon name="location-outline" size={12} color="#9ca3af" />
+        <Text className="text-xs text-neutral-400 ml-1 flex-1" numberOfLines={1}>
+          {item.location}
+          {/* TODO: item.location from API */}
+        </Text>
+      </View>
+
+      {/* Categories */}
+      <View className="flex-row items-center mb-1">
+        <Icon name="briefcase-outline" size={12} color="#9ca3af" />
+        <Text className="text-xs text-neutral-500 ml-1">{item.categories}</Text>
+      </View>
+
+      {/* Services */}
+      <View className="flex-row items-center mb-sm">
+        <Icon name="cut-outline" size={12} color="#9ca3af" />
+        <Text className="text-xs text-neutral-500 ml-1">Makeup · Wax · Spa</Text>
+        {/* TODO: item.topServices from API */}
+      </View>
+
+      {/* Footer row — gender badge + distance + chevron */}
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center gap-2">
+          {/* Gender badge */}
+          <View className="flex-row items-center bg-primary-50 px-2 py-0.5 rounded-full">
+            <Icon
+              name={item.gender === 'female' ? 'female-outline' : 'male-outline'}
+              size={11}
+              color="#f43f5e"
+            />
+            <Text className="text-xs font-semibold text-primary ml-0.5 uppercase">
+              {item.gender}
             </Text>
           </View>
 
-          {/* --- Salon List --- */}
-          <FlatList
-            data={salonData}
-            keyExtractor={item => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-            renderItem={({ item }) => (
-              <SalonCard item={item} navigation={navigation} />
-            )}
-          />
+          {/* Distance */}
+          <View className="flex-row items-center bg-neutral-100 px-2 py-0.5 rounded-full">
+            <Icon name="navigate-outline" size={11} color="#6b7280" />
+            <Text className="text-xs font-medium text-neutral-500 ml-0.5">
+              {item.distance}
+              {/* TODO: item.distance from API */}
+            </Text>
+          </View>
         </View>
+
+        {/* Reviews */}
+        <Text className="text-xs text-neutral-400">{item.reviews} reviews</Text>
+      </View>
+    </View>
+
+    {/* Chevron */}
+    <View className="pl-sm">
+      <Icon name="chevron-forward" size={18} color="#d1d5db" />
+    </View>
+  </TouchableOpacity>
+);
+// ─────────────────────────────────────────────────────────────────────────────
+
+export default function ProfessionalsListScreen({ navigation }) {
+  const [activeFilter, setActiveFilter] = useState('All');
+
+  return (
+    <SafeAreaView edges={['top']} className="flex-1 bg-primary">
+      <AppHeader
+        title="Nearby Specialists"
+        onBack={() => navigation.goBack()}
+        variant="primary"
+      />
+
+      {/* ── Content panel ── */}
+      <View className="flex-1 bg-neutral-100 rounded-t-3xl overflow-hidden">
+
+        {/* Filter chips */}
+        <View className="bg-neutral-white border-b border-neutral-100">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}
+          >
+            {FILTERS.map(filter => {
+              const isActive = activeFilter === filter;
+              return (
+                <TouchableOpacity
+                  key={filter}
+                  className={`px-md py-1.5 rounded-full border ${
+                    isActive
+                      ? 'bg-primary border-primary'
+                      : 'bg-neutral-50 border-neutral-200'
+                  }`}
+                  onPress={() => setActiveFilter(filter)}
+                  activeOpacity={0.75}
+                >
+                  <Text className={`text-sm font-semibold ${isActive ? 'text-neutral-white' : 'text-neutral-600'}`}>
+                    {filter}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* Results count */}
+        <View className="px-md py-sm bg-neutral-white border-b border-neutral-100">
+          <Text className="text-xs font-medium text-neutral-400">
+            {PROFESSIONALS.length} specialists found
+            {/* TODO: replace with filteredProfessionals.length from API */}
+          </Text>
+        </View>
+
+        {/* List */}
+        <FlatList
+          data={PROFESSIONALS}
+          // TODO: replace PROFESSIONALS with filtered API data
+          keyExtractor={item => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24 }}
+          renderItem={({ item }) => (
+            <ProfessionalCard
+              item={item}
+              onPress={() => navigation.navigate('ProfessionalDetailScreen', { professionalId: item.id })}
+            />
+          )}
+        />
       </View>
     </SafeAreaView>
   );
 }
-
-// --- Enhanced Styles ---
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.primary, // Primary color for SafeAreaView
-  },
-  container: {
-    flex: 1,
-    backgroundColor: colors.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: colors.primary,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.white,
-    letterSpacing: 0.3,
-  },
-  headerRight: {
-    width: 40, // Spacer for centering title
-  },
-  contentWrapper: {
-    flex: 1,
-    backgroundColor: colors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    overflow: 'hidden',
-  },
-  filterContainer: {
-    paddingVertical: 16,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  filterScrollContent: {
-    paddingHorizontal: 20,
-  },
-  filterButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 24,
-    backgroundColor: '#F3F4F6',
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  filterButtonActive: {
-    backgroundColor: colors.filterActive,
-    borderColor: colors.filterBorder,
-  },
-  filterText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  filterTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  resultsContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: colors.white,
-  },
-  resultsText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  listContent: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-  },
-  cardContainer: {
-    flexDirection: 'row',
-    backgroundColor: colors.white,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  leftSection: {
-    position: 'relative',
-    marginRight: 14,
-  },
-  profileImg: {
-    width: 75,
-    height: 75,
-    borderRadius: 38,
-    borderWidth: 2,
-    borderColor: colors.primaryLight,
-  },
-  ratingBadge: {
-    position: 'absolute',
-    bottom: -4,
-    left: -2,
-    backgroundColor: colors.success,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.white,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  ratingBadgeText: {
-    color: colors.white,
-    fontSize: 11,
-    marginLeft: 3,
-    fontWeight: '700',
-  },
-  middleSection: {
-    flex: 1,
-  },
-  nameText: {
-    fontSize: 17,
-    color: colors.primary,
-    fontWeight: '700',
-    marginBottom: 6,
-    letterSpacing: 0.2,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  detailText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginLeft: 6,
-    flex: 1,
-  },
-  genderBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primaryLight,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  genderText: {
-    fontSize: 11,
-    color: colors.primary,
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  rightSection: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingLeft: 8,
-  },
-});

@@ -1,7 +1,7 @@
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   Image,
   TextInput,
@@ -10,41 +10,120 @@ import {
   Dimensions,
   ScrollView,
 } from 'react-native';
-import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllSalonsByCategory } from '../../redux/slices/userSlice';
-import { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'react-native-linear-gradient';
+import { fetchAllSalonsByCategory } from '../../redux/slices/userSlice';
+import AppHeader, { HeaderIconButton } from '../../components/common/Header'; // TODO: adjust path
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 60) / 2; // 2 cards with proper spacing
+const CARD_WIDTH = (width - 48) / 2; // 2 columns, 16px side padding + 16px gap
 
-// --- Color Palette ---
-const colors = {
-  primary: '#156778',
-  primaryDark: '#0F4E5C',
-  primaryLight: '#E1F5FA',
-  white: '#FFFFFF',
-  background: '#F8F9FA',
-  cardBg: '#FFFFFF',
-  text: '#111111',
-  textSecondary: '#6B7280',
-  border: '#E5E7EB',
-  star: '#FFC107',
-  shadow: '#000000',
-};
+const FILTERS = ['All', 'Hairs', 'Spa', 'Nails', 'Coloring', 'Wax', 'Makeup', 'Facial', 'Manicure'];
 
-// --- Filter Categories ---
-const filters = ['All', 'Hairs','Spa' ,'Nails', 'Coloring', 'Wax', 'Makeup', 'Facial', 'Manicure'];
+// ── Salon Card ───────────────────────────────────────────────────────────────
+const SalonCard = ({ item, onPress }) => (
+  <TouchableOpacity
+    className="bg-neutral-white rounded-2xl overflow-hidden mb-md"
+    style={{
+      width: CARD_WIDTH,
+      elevation: 3,
+      shadowColor: '#000',
+      shadowOpacity: 0.08,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 3 },
+    }}
+    onPress={onPress}
+    activeOpacity={0.85}
+  >
+    {/* Image */}
+    <View className="w-full relative" style={{ height: 130 }}>
+      <Image
+        source={require('../../assets/salonInterior.jpg')}
+        className="w-full h-full"
+        resizeMode="cover"
+        // TODO: replace with item.images?.[0] from API
+      />
+      <LinearGradient
+        colors={['transparent', 'rgba(0,0,0,0.65)']}
+        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 60 }}
+      />
+
+      {/* Rating — top left */}
+      <View className="absolute top-2 left-2 flex-row items-center bg-success px-1.5 py-0.5 rounded-lg">
+        <Icon name="star" size={10} color="#fff" />
+        <Text className="text-white text-xs font-bold ml-0.5">
+          {item.rating ?? '4.8'}
+          {/* TODO: item.rating from API */}
+        </Text>
+      </View>
+
+      {/* Heart — top right */}
+      <TouchableOpacity
+        className="absolute top-2 right-2 w-7 h-7 rounded-full items-center justify-center"
+        style={{ backgroundColor: 'rgba(0,0,0,0.35)' }}
+        onPress={() => { /* TODO: toggle favourite */ }}
+      >
+        <Icon name="heart-outline" size={14} color="#fff" />
+      </TouchableOpacity>
+
+      {/* Distance — bottom left */}
+      <View
+        className="absolute bottom-2 left-2 flex-row items-center px-2 py-0.5 rounded-full"
+        style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      >
+        <Icon name="location" size={10} color="#fff" />
+        <Text className="text-white text-xs font-semibold ml-0.5">
+          {(item.distanceInMeters / 1000).toFixed(1)} km
+          {/* TODO: item.distanceInMeters from API */}
+        </Text>
+      </View>
+    </View>
+
+    {/* Card body */}
+    <View className="p-sm">
+      <Text className="text-sm font-bold text-neutral-900 mb-1" numberOfLines={1}>
+        {item.shopName}
+        {/* TODO: item.shopName from API */}
+      </Text>
+
+      {/* Service snippets */}
+      <View className="mb-sm">
+        {[
+          { label: 'Haircut', price: '299' },
+          { label: 'Wax',     price: '459' },
+          { label: 'Facial',  price: '99'  },
+          // TODO: replace with item.topServices from API
+        ].map(s => (
+          <View key={s.label} className="flex-row items-center mb-0.5">
+            <Icon name="cut-outline" size={10} color="#f43f5e" />
+            <Text className="text-xs text-neutral-500 ml-1">{s.label} · ₹{s.price}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Book button */}
+      <TouchableOpacity
+        className="flex-row items-center justify-center bg-primary py-1.5 rounded-xl"
+        onPress={onPress}
+        activeOpacity={0.85}
+      >
+        <Text className="text-xs font-bold text-neutral-white mr-1">Book</Text>
+        <Icon name="arrow-forward" size={10} color="#fff" />
+      </TouchableOpacity>
+    </View>
+  </TouchableOpacity>
+);
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function AllSalonListScreen({ navigation, route }) {
   const dispatch = useDispatch();
   const { allSalons, loading, error } = useSelector(state => state.user);
   const { category, subCat, lat, lng } = route.params;
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState(subCat);
+
+  const [searchQuery,  setSearchQuery]  = useState('');
+  const [activeFilter, setActiveFilter] = useState(subCat ?? 'All');
 
   useEffect(() => {
     if (category && lat && lng) {
@@ -52,505 +131,147 @@ export default function AllSalonListScreen({ navigation, route }) {
     }
   }, [category, subCat, lat, lng, dispatch]);
 
-  const filteredSalons = allSalons.filter(salon =>
-    salon.shopName.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  // --- Salon Card Component ---
-  const SalonCard = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() =>
-        navigation.navigate('ShopDetailsFull', { salonId: item._id })
-      }
-      activeOpacity={0.7}
-    >
-      {/* Image Container */}
-      <View style={styles.imageContainer}>
-        <Image
-          source={require('../../assets/salonInterior.jpg')}
-          style={styles.image}
-        />
-
-        {/* Gradient Overlay */}
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.7)']}
-          style={styles.imageGradient}
-        />
-
-        {/* Distance Badge */}
-        <View style={styles.distanceBadge}>
-          <Icon name="location" size={10} color={colors.white} />
-          <Text style={styles.distanceText}>
-            {(item.distanceInMeters / 1000).toFixed(1)}km
-          </Text>
-        </View>
-
-        {/* Heart Icon */}
-        <TouchableOpacity style={styles.heartButton}>
-          <Icon name="heart-outline" size={16} color={colors.white} />
-        </TouchableOpacity>
-
-        {/* Rating Badge */}
-        <View style={styles.ratingBadge}>
-          <Icon name="star" size={10} color={colors.white} />
-          <Text style={styles.ratingBadgeText}>4.8</Text>
-        </View>
-      </View>
-
-      {/* Card Content */}
-      <View style={styles.cardContent}>
-        <Text style={styles.salonName} numberOfLines={1}>
-          {item.shopName}
-        </Text>
-
-        <View style={styles.categoryRow}>
-          <View style={{ height: 20, flexDirection: 'row' }}>
-            <Icon
-              name="cut-outline"
-              style={{ marginTop: 2 }}
-              size={11}
-              color={colors.primary}
-            />
-            <Text style={styles.categoryText} numberOfLines={1}>
-              Haircut - 299
-            </Text>
-          </View>
-          <View style={{ height: 20, flexDirection: 'row' }}>
-            <Icon
-              name="cut-outline"
-              style={{ marginTop: 2 }}
-              size={11}
-              color={colors.primary}
-            />
-            <Text style={styles.categoryText} numberOfLines={1}>
-              Wax - 459
-            </Text>
-          </View>
-          <View style={{ height: 20, flexDirection: 'row' }}>
-            <Icon
-              name="cut-outline"
-              style={{ marginTop: 2 }}
-              size={11}
-              color={colors.primary}
-            />
-            <Text style={styles.categoryText} numberOfLines={1}>
-              Facial - 99
-            </Text>
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.bookButton}>
-          <Text style={styles.bookButtonText}>Book</Text>
-          <Icon name="arrow-forward" size={10} color={colors.white} />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+  const filteredSalons = (allSalons ?? []).filter(s =>
+    s.shopName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
-        {/* --- Enhanced Header --- */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <Icon name="chevron-back" size={26} color={colors.white} />
-          </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.headerTitle}>Popular Near Me</Text>
-            {!loading && (
-              <Text style={styles.headerSubtitle}>
-                {filteredSalons.length} salons found
-              </Text>
+    <SafeAreaView edges={['top']} className="flex-1 bg-primary">
+      {/* ── Header ── */}
+      <AppHeader
+        title="Popular Near Me"
+        onBack={() => navigation.goBack()}
+        variant="primary"
+        noBorder={true}
+        rightElement={
+          <HeaderIconButton
+            name="options-outline"
+            onPress={() => { /* TODO: open filter/sort sheet */ }}
+            color="#fff"
+          />
+        }
+      />
+
+      {/* Subtitle — salon count */}
+      {!loading && (
+        <View className="items-center pb-sm" style={{ backgroundColor: 'transparent' }}>
+          <Text className="text-xs font-medium text-neutral-white" style={{ opacity: 0.75 }}>
+            {filteredSalons.length} salons found
+          </Text>
+        </View>
+      )}
+
+      {/* ── Content panel ── */}
+      <View className="flex-1 bg-neutral-100 rounded-t-3xl overflow-hidden">
+
+        {/* Search bar */}
+        <View className="bg-neutral-white px-md pt-md pb-sm border-b border-neutral-100">
+          <View className="flex-row items-center bg-neutral-100 rounded-2xl px-sm h-11">
+            <Icon name="search-outline" size={18} color="#9ca3af" />
+            <TextInput
+              className="flex-1 text-sm text-neutral-800 ml-2"
+              placeholder="Search salons..."
+              placeholderTextColor="#9ca3af"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Icon name="close-circle" size={18} color="#9ca3af" />
+              </TouchableOpacity>
             )}
           </View>
-          <TouchableOpacity style={styles.filterButton}>
-            <Icon name="options-outline" size={24} color={colors.white} />
-          </TouchableOpacity>
         </View>
 
-        {/* --- Content Wrapper --- */}
-        <View style={styles.contentWrapper}>
-          {/* --- Search Bar --- */}
-          <View style={styles.searchContainer}>
-            <View style={styles.searchInputWrapper}>
-              <Icon
-                name="search-outline"
-                size={20}
-                color={colors.textSecondary}
-                style={styles.searchIcon}
-              />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search salons..."
-                placeholderTextColor={colors.textSecondary}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <Icon
-                    name="close-circle"
-                    size={20}
-                    color={colors.textSecondary}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-
-          {/* --- Filter ScrollView --- */}
-          <View style={styles.filterContainer}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterScrollContent}
-            >
-              {filters.map(filter => (
+        {/* Filter chips */}
+        <View className="bg-neutral-white border-b border-neutral-100">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}
+          >
+            {FILTERS.map(filter => {
+              const isActive = activeFilter === filter;
+              return (
                 <TouchableOpacity
                   key={filter}
-                  style={[
-                    styles.filterButton,
-                    activeFilter === filter && styles.filterButtonActive,
-                  ]}
+                  className={`px-md py-1.5 rounded-full border ${
+                    isActive
+                      ? 'bg-primary border-primary'
+                      : 'bg-neutral-50 border-neutral-200'
+                  }`}
                   onPress={() => setActiveFilter(filter)}
-                  activeOpacity={0.7}
+                  activeOpacity={0.75}
                 >
                   <Text
-                    style={[
-                      styles.filterText,
-                      activeFilter === filter && styles.filterTextActive,
-                    ]}
+                    className={`text-sm font-semibold ${
+                      isActive ? 'text-neutral-white' : 'text-neutral-600'
+                    }`}
                   >
                     {filter}
                   </Text>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* ── States: loading / error / empty / grid ── */}
+        {loading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#f43f5e" />
+            <Text className="text-sm text-neutral-400 mt-sm font-medium">Loading salons...</Text>
           </View>
 
-          {/* --- Salon Grid --- */}
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={colors.primary} />
-              <Text style={styles.loadingText}>Loading salons...</Text>
+        ) : error ? (
+          <View className="flex-1 items-center justify-center px-xl">
+            <View
+              className="w-20 h-20 rounded-3xl bg-red-50 items-center justify-center mb-md"
+              style={{ elevation: 2 }}
+            >
+              <Icon name="alert-circle-outline" size={40} color="#ef4444" />
             </View>
-          ) : error ? (
-            <View style={styles.errorContainer}>
-              <Icon name="alert-circle-outline" size={48} color="#EF4444" />
-              <Text style={styles.errorText}>{error}</Text>
-              <TouchableOpacity
-                style={styles.retryButton}
-                onPress={() =>
-                  dispatch(fetchAllSalonsByCategory({ category, lat, lng }))
-                }
-              >
-                <Text style={styles.retryText}>Retry</Text>
-              </TouchableOpacity>
+            <Text className="text-base font-bold text-neutral-800">Something went wrong</Text>
+            <Text className="text-sm text-neutral-400 text-center mt-1 mb-lg">{error}</Text>
+            <TouchableOpacity
+              className="bg-primary px-xl py-sm rounded-2xl"
+              onPress={() => dispatch(fetchAllSalonsByCategory({ category, lat, lng }))}
+            >
+              <Text className="text-sm font-bold text-neutral-white">Retry</Text>
+            </TouchableOpacity>
+          </View>
+
+        ) : filteredSalons.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-xl">
+            <View
+              className="w-20 h-20 rounded-3xl bg-neutral-white items-center justify-center mb-md"
+              style={{ elevation: 2, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}
+            >
+              <Icon name="storefront-outline" size={40} color="#d1d5db" />
             </View>
-          ) : filteredSalons.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Icon
-                name="storefront-outline"
-                size={64}
-                color={colors.textSecondary}
+            <Text className="text-base font-bold text-neutral-700">No salons found</Text>
+            <Text className="text-sm text-neutral-400 text-center mt-1">
+              Try adjusting your search or filters
+            </Text>
+          </View>
+
+        ) : (
+          <FlatList
+            data={filteredSalons}
+            keyExtractor={item => item._id}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24 }}
+            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            renderItem={({ item }) => (
+              <SalonCard
+                item={item}
+                onPress={() => navigation.navigate('ShopDetailsFull', { salonId: item._id })}
               />
-              <Text style={styles.emptyText}>No salons found</Text>
-              <Text style={styles.emptySubtext}>
-                Try adjusting your search or filters
-              </Text>
-            </View>
-          ) : (
-            <FlatList
-              data={filteredSalons}
-              keyExtractor={item => item._id}
-              numColumns={2}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.gridContent}
-              columnWrapperStyle={styles.row}
-              renderItem={({ item }) => <SalonCard item={item} />}
-            />
-          )}
-        </View>
+            )}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.primary,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: colors.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: colors.primary,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitleContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.white,
-    letterSpacing: 0.3,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: colors.primaryLight,
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  filterContainer: {
-    paddingVertical: 16,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  filterScrollContent: {
-    paddingHorizontal: 20,
-  },
-  filterButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 24,
-    backgroundColor: '#F3F4F6',
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  filterButtonActive: {
-    backgroundColor: colors.filterActive,
-    borderColor: colors.filterBorder,
-  },
-  filterText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  filterTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-
-  contentWrapper: {
-    flex: 1,
-    backgroundColor: colors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    overflow: 'hidden',
-  },
-  searchContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  searchInputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 48,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: colors.text,
-  },
-  gridContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
-  row: {
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  card: {
-    width: CARD_WIDTH,
-    backgroundColor: colors.cardBg,
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  imageContainer: {
-    width: '100%',
-    height: 140,
-    position: 'relative',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  imageGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-  },
-  distanceBadge: {
-    position: 'absolute',
-    bottom: 8,
-    left: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  distanceText: {
-    color: colors.white,
-    fontSize: 10,
-    fontWeight: '600',
-    marginLeft: 3,
-  },
-  heartButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  ratingBadge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.success || '#00A86B',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 10,
-  },
-  ratingBadgeText: {
-    color: colors.white,
-    fontSize: 10,
-    fontWeight: '700',
-    marginLeft: 3,
-  },
-  cardContent: {
-    padding: 12,
-  },
-  salonName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 6,
-  },
-  categoryRow: {
-    flexDirection: 'col',
-    alignItems: 'flex-start',
-    marginBottom: 10,
-  },
-  categoryText: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    marginLeft: 4,
-    flex: 1,
-  },
-  bookButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primary,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  bookButtonText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.white,
-    marginRight: 4,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 16,
-    fontWeight: '500',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
-  },
-  errorText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 16,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  retryText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: 20,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-});

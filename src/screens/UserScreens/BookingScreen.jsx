@@ -1,427 +1,373 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Alert,
   StatusBar,
+  TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserBookings } from '../../redux/slices/bookingSlice';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
+import AppHeader from '../../components/common/Header';
+// import { fetchUserBookings } from '../../redux/slices/bookingSlice'; // TODO: uncomment
 
-export default function UserBookingsScreen({ navigation }) {
+// ─── Dummy Data (replace entirely with API response from bookingSlice) ───────
+const DUMMY_BOOKINGS = [
+  {
+    _id: 'bk_001',
+    shopName: 'Priya Sharma',
+    speciality: 'Hair & Skin Expert',
+    serviceItems: [
+      { service: { name: 'Haircut & Styling' } },
+      { service: { name: 'Facial Treatment' } },
+    ],
+    totalAmount: 748,
+    bookingDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    timeSlot: { start: '11:00 AM' },
+    bookingType: 'home',
+    status: 'confirmed',
+  },
+  {
+    _id: 'bk_002',
+    shopName: 'Neha Kapoor',
+    speciality: 'Nail & Spa Specialist',
+    serviceItems: [{ service: { name: 'Manicure & Pedicure' } }],
+    totalAmount: 799,
+    bookingDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    timeSlot: { start: '2:30 PM' },
+    bookingType: 'home',
+    status: 'pending',
+  },
+  {
+    _id: 'bk_003',
+    shopName: 'Riya Mehta',
+    speciality: 'Bridal & Makeup Artist',
+    serviceItems: [
+      { service: { name: 'Bridal Makeup' } },
+      { service: { name: 'Threading' } },
+    ],
+    totalAmount: 2598,
+    bookingDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    timeSlot: { start: '10:00 AM' },
+    bookingType: 'home',
+    status: 'completed',
+  },
+  {
+    _id: 'bk_004',
+    shopName: 'Sunita Rao',
+    speciality: 'Ayurveda & Spa Expert',
+    serviceItems: [{ service: { name: 'Full Body Spa' } }],
+    totalAmount: 149,
+    bookingDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    timeSlot: { start: '4:00 PM' },
+    bookingType: 'home',
+    status: 'cancelled',
+  },
+  {
+    _id: 'bk_005',
+    shopName: 'Anjali Singh',
+    speciality: 'Hair & Color Specialist',
+    serviceItems: [
+      { service: { name: 'Hair Coloring' } },
+      { service: { name: 'Haircut & Styling' } },
+    ],
+    totalAmount: 1299,
+    bookingDate: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    timeSlot: { start: '1:00 PM' },
+    bookingType: 'in_salon',
+    status: 'completed',
+  },
+];
+// ─────────────────────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG = {
+  confirmed: { label: 'Confirmed', bg: 'bg-green-50',  text: 'text-green-600',  bar: '#16a34a', icon: 'checkmark-circle' },
+  pending:   { label: 'Pending',   bg: 'bg-yellow-50', text: 'text-yellow-600', bar: '#ca8a04', icon: 'time' },
+  completed: { label: 'Completed', bg: 'bg-blue-50',   text: 'text-blue-600',   bar: '#2563eb', icon: 'checkmark-done-circle' },
+  cancelled: { label: 'Cancelled', bg: 'bg-red-50',    text: 'text-red-500',    bar: '#ef4444', icon: 'close-circle' },
+};
+
+const TOP_BAR_COLOR = {
+  confirmed: 'bg-success',
+  pending:   'bg-warning',
+  completed: 'bg-info',
+  cancelled: 'bg-error',
+};
+
+const formatDate = iso => {
+  const d = new Date(iso);
+  const today     = new Date();
+  const tomorrow  = new Date(); tomorrow.setDate(today.getDate() + 1);
+  const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString())     return 'Today';
+  if (d.toDateString() === tomorrow.toDateString())  return 'Tomorrow';
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+export default function BookingScreen({ navigation }) {
   const dispatch = useDispatch();
-  const { bookings, loading, error } = useSelector(state => state.booking);
   const [activeTab, setActiveTab] = useState('upcoming');
 
-  useFocusEffect(
-    React.useCallback(() => {
-      dispatch(fetchUserBookings());
-    }, [dispatch]),
+  // TODO: swap these two lines once API slice is wired up
+  // const { bookings, loading } = useSelector(state => state.booking);
+  const bookings = DUMMY_BOOKINGS;
+  const loading  = false;
+
+  // TODO: uncomment to auto-fetch on screen focus
+  // useFocusEffect(
+  //   React.useCallback(() => { dispatch(fetchUserBookings()); }, [dispatch])
+  // );
+
+  const now      = new Date();
+  const filtered = bookings.filter(b =>
+    activeTab === 'upcoming'
+      ? new Date(b.bookingDate) >= now
+      : new Date(b.bookingDate) < now,
   );
 
-  console.log('User Bookings:', bookings);
+  const upcomingCount = bookings.filter(b => new Date(b.bookingDate) >= now).length;
+  const pastCount     = bookings.filter(b => new Date(b.bookingDate) <  now).length;
 
-  // Helper to determine if a booking is "past" or "upcoming" based on date
-  const getFilteredData = () => {
-    if (!bookings || bookings.length === 0) return [];
-
-    const now = new Date();
-    return bookings.filter(item => {
-      const bDate = new Date(item?.bookingDate);
-      const type = bDate >= now ? 'upcoming' : 'past';
-      return type === activeTab;
-    });
-  };
-
-  const handleViewDetails = booking => {
-    // Extract service names for the alert
-    const serviceNames =
-      booking.serviceItems?.map(s => s.service?.name).join(', ') || 'Services';
-
-    Alert.alert(
-      'Booking Details',
-      `ID: ${booking._id}\n` +
-        `Status: ${booking.status.toUpperCase()}\n` +
-        `Services: ${serviceNames}\n` +
-        `Total: ₹${booking.totalAmount}`,
-    );
-  };
-
-  const filteredBookings = getFilteredData();
-
-  const getStatusColor = status => {
-    switch (status?.toLowerCase()) {
-      case 'confirmed':
-        return '#4CAF50';
-      case 'pending':
-        return '#FFC107';
-      case 'completed':
-        return '#2196F3';
-      case 'cancelled':
-        return '#f44336';
-      default:
-        return '#999';
-    }
-  };
-
-  const getStatusBgColor = status => {
-    switch (status?.toLowerCase()) {
-      case 'confirmed':
-        return '#E8F5E9';
-      case 'pending':
-        return '#FFF9C4';
-      case 'completed':
-        return '#E3F2FD';
-      case 'cancelled':
-        return '#FFEBEE';
-      default:
-        return '#f5f5f5';
-    }
-  };
-
-  const renderBookingCard = booking => {
-    // Dynamic Data Extraction with Fallbacks
-    const salonName = booking.shopName || 'Modern Cuts'; // Use provider name if available
-    const services =
-      booking.serviceItems?.map(s => s.service?.name).join(', ') ||
-      'No services listed';
-    const displayPrice = booking.totalAmount || 0;
-    const displayDate = booking.bookingDate
-      ? new Date(booking.bookingDate).toLocaleDateString('en-GB', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })
-      : 'Date TBD';
-    const displayTime = booking.timeSlot?.start || 'TBD';
-    const status = booking.status || 'pending';
+  // ── Booking Card ────────────────────────────────────────────────────────────
+  const renderCard = booking => {
+    const status    = booking.status || 'pending';
+    const cfg       = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending;
+    const barColor  = TOP_BAR_COLOR[status] ?? 'bg-neutral-300';
+    const services  = booking.serviceItems?.map(s => s.service?.name).join(' · ') || '—';
+    const isUpcoming = new Date(booking.bookingDate) >= now;
 
     return (
-      <View key={booking._id} style={styles.card}>
-        <View style={styles.cardHeader}>
-          <View style={styles.salonHeader}>
-            <Text style={styles.salonName}>{salonName}</Text>
-            <Text style={styles.services} numberOfLines={1}>
+      <TouchableOpacity
+        key={booking._id}
+        activeOpacity={0.88}
+        className="bg-neutral-white rounded-2xl mb-sm overflow-hidden"
+        style={{ elevation: 2, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}
+        onPress={() => {
+          // TODO: navigation.navigate('BookingDetail', { bookingId: booking._id })
+        }}
+      >
+        {/* Coloured accent bar at top */}
+        <View className={`h-1 w-full ${barColor}`} />
+
+        <View className="px-md pt-sm pb-md">
+
+          {/* ── Row 1: Name + Status ── */}
+          <View className="flex-row items-start justify-between mb-sm">
+            <View className="flex-1 mr-sm">
+              {/* TODO: replace with booking.professional.name */}
+              <Text className="text-base font-bold text-neutral-900" numberOfLines={1}>
+                {booking.shopName}
+              </Text>
+              {/* TODO: replace with booking.professional.speciality */}
+              <Text className="text-xs text-neutral-400 mt-0.5">{booking.speciality}</Text>
+            </View>
+
+            <View className={`flex-row items-center px-2.5 py-1 rounded-full ${cfg.bg}`}>
+              <Ionicons name={cfg.icon} size={12} color={cfg.bar} />
+              <Text className={`text-xs font-semibold ml-1 ${cfg.text}`}>{cfg.label}</Text>
+            </View>
+          </View>
+
+          {/* ── Row 2: Services pill ── */}
+          <View className="flex-row items-center bg-neutral-50 px-sm py-2 rounded-xl mb-sm">
+            <Ionicons name="cut-outline" size={13} color="#9ca3af" />
+            {/* TODO: replace with API serviceItems */}
+            <Text className="text-xs text-neutral-600 ml-1.5 flex-1 font-medium" numberOfLines={1}>
               {services}
             </Text>
           </View>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getStatusBgColor(status) },
-            ]}
-          >
-            <Text
-              style={[styles.statusText, { color: getStatusColor(status) }]}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </Text>
+
+          {/* ── Row 3: Date / Time / Mode ── */}
+          <View className="flex-row items-center flex-wrap gap-x-3 mb-sm">
+            <View className="flex-row items-center">
+              <Ionicons name="calendar-outline" size={13} color="#6b7280" />
+              <Text className="text-xs text-neutral-600 ml-1 font-medium">
+                {formatDate(booking.bookingDate)}
+                {/* TODO: booking.bookingDate from API */}
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <Ionicons name="time-outline" size={13} color="#6b7280" />
+              <Text className="text-xs text-neutral-600 ml-1 font-medium">
+                {booking.timeSlot?.start || 'TBD'}
+                {/* TODO: booking.timeSlot.start from API */}
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <Ionicons
+                name={booking.bookingType === 'in_salon' ? 'storefront-outline' : 'home-outline'}
+                size={13}
+                color="#6b7280"
+              />
+              <Text className="text-xs text-neutral-600 ml-1 font-medium">
+                {booking.bookingType === 'in_salon' ? 'At Salon' : 'Home Visit'}
+              </Text>
+            </View>
           </View>
+
+          {/* ── Divider ── */}
+          <View className="h-px bg-neutral-100 mb-sm" />
+
+          {/* ── Row 4: Amount + CTAs ── */}
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-xs text-neutral-400">
+                {isUpcoming ? 'Amount Due' : 'Amount Paid'}
+              </Text>
+              {/* TODO: booking.totalAmount from API */}
+              <Text className="text-base font-black text-neutral-900 mt-0.5">₹{booking.totalAmount}</Text>
+            </View>
+
+            <View className="flex-row gap-2">
+              {isUpcoming ? (
+                <>
+                  <TouchableOpacity
+                    className="flex-row items-center px-sm py-1.5 rounded-xl border border-neutral-200"
+                    onPress={() => {
+                      // TODO: dispatch reschedule action / navigate to reschedule screen
+                    }}
+                  >
+                    <Ionicons name="calendar-outline" size={13} color="#6b7280" />
+                    <Text className="text-xs font-semibold text-neutral-600 ml-1">Reschedule</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    className="flex-row items-center px-sm py-1.5 rounded-xl bg-primary"
+                    onPress={() => {
+                      // TODO: open dialer with booking.professional.phone
+                    }}
+                  >
+                    <Ionicons name="call-outline" size={13} color="#fff" />
+                    <Text className="text-xs font-bold text-neutral-white ml-1">Call</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  {status === 'completed' && (
+                    <TouchableOpacity
+                      className="flex-row items-center px-sm py-1.5 rounded-xl border border-neutral-200"
+                      onPress={() => {
+                        // TODO: navigation.navigate('WriteReview', { bookingId: booking._id })
+                      }}
+                    >
+                      <Ionicons name="star-outline" size={13} color="#f59e0b" />
+                      <Text className="text-xs font-semibold text-neutral-600 ml-1">Review</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  <TouchableOpacity
+                    className="flex-row items-center px-sm py-1.5 rounded-xl bg-primary"
+                    onPress={() => {
+                      // TODO: navigation.navigate('ProfessionalDetails', { professionalId: booking.professionalId })
+                    }}
+                  >
+                    <Ionicons name="refresh-outline" size={13} color="#fff" />
+                    <Text className="text-xs font-bold text-neutral-white ml-1">Rebook</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </View>
+
         </View>
-
-        <View style={styles.details}>
-          <View style={styles.detailItem}>
-            <Icon name="calendar" size={16} color="#666" />
-            <Text style={styles.detailText}>{displayDate}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Icon name="time" size={16} color="#666" />
-            <Text style={styles.detailText}>{displayTime}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Icon name="location" size={16} color="#666" />
-            <Text style={styles.detailText}>
-              {booking.bookingType === 'in_salon' ? 'At Salon' : 'Home Service'}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.footer}>
-          <View style={styles.priceContainer}>
-            <Text style={styles.currencySymbol}>₹</Text>
-            <Text style={styles.price}>{displayPrice}</Text>
-          </View>
-
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.callButton}
-              onPress={() => Alert.alert('Call', 'Contacting provider...')}
-            >
-              <Icon name="call" size={16} color="#156778" />
-              <Text style={styles.callButtonText}>Call</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.viewDetailsButton}
-              onPress={() => handleViewDetails(booking)} // <--- Make sure this is here
-            >
-              <Text style={styles.viewDetailsButtonText}>View Details</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
-  return (
-    <SafeAreaView edges={['top']} style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#156778" />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation?.goBack()}
-          >
-            <Icon name="chevron-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>My Bookings</Text>
-          <View style={styles.headerPlaceholder} />
-        </View>
-
-        <View style={styles.tabsContainer}>
-          {['upcoming', 'past'].map(tab => (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.tab, activeTab === tab && styles.activeTab]}
-              onPress={() => setActiveTab(tab)}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === tab && styles.activeTabText,
-                ]}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {loading ? (
-          <ActivityIndicator
-            size="large"
-            color="#156778"
-            style={{ marginTop: 50 }}
-          />
-        ) : (
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            {filteredBookings.length === 0 ? (
-              <View style={styles.emptyContainer}>
-                <Icon name="calendar-outline" size={50} color="#ccc" />
-                <Text style={styles.emptyText}>No {activeTab} bookings</Text>
-              </View>
-            ) : (
-              filteredBookings.map(renderBookingCard)
-            )}
-          </ScrollView>
-        )}
+  // ── Empty State ─────────────────────────────────────────────────────────────
+  const renderEmpty = () => (
+    <View className="items-center justify-center py-24">
+      <View
+        className="w-20 h-20 rounded-3xl bg-neutral-white items-center justify-center mb-md"
+        style={{ elevation: 2, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}
+      >
+        <Ionicons name="calendar-outline" size={36} color="#d1d5db" />
       </View>
+      <Text className="text-base font-bold text-neutral-700">
+        No {activeTab} bookings
+      </Text>
+      <Text className="text-sm text-neutral-400 mt-1 text-center px-xl leading-5">
+        {activeTab === 'upcoming'
+          ? 'Book a professional and your appointments will appear here.'
+          : 'Your completed and cancelled bookings will show up here.'}
+      </Text>
+      {activeTab === 'upcoming' && (
+        <TouchableOpacity
+          className="mt-lg bg-primary px-xl py-sm rounded-2xl"
+          onPress={() => navigation?.navigate('Home')}
+        >
+          <Text className="text-neutral-white font-bold text-sm">Browse Professionals</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+
+  // ── Screen ──────────────────────────────────────────────────────────────────
+  return (
+    <SafeAreaView edges={['top']} className="flex-1 bg-primary">
+      <StatusBar backgroundColor="#f43f5e" barStyle="light-content" />
+
+      <AppHeader title="My Bookings" onBack={() => navigation?.goBack()} noBorder={true} />
+
+      {/* Header */}
+      {/* <View className="flex-row items-center justify-between px-md py-sm bg-primary ">
+        <TouchableOpacity
+          className="w-10 h-10 rounded-full items-center justify-center"
+          style={{ backgroundColor: 'rgba(255,255,255,0.18)' }}
+          onPress={() => navigation?.goBack()}
+        >
+          <Ionicons name="chevron-back" size={22} color="#fff" />
+        </TouchableOpacity>
+        <Text className="text-base font-semibold text-neutral-white">My Bookings</Text>
+        <View className="w-10" />
+      </View> */}
+
+      {/* Tab Switcher */}
+      <View className="flex-row mx-md mt-sm mb-md rounded-full p-1 bg-primary-400">
+        {[
+          { key: 'upcoming', icon: 'calendar-outline', count: upcomingCount },
+          { key: 'past',     icon: 'time-outline',     count: pastCount     },
+        ].map(({ key, icon, count }) => {
+          const isActive = activeTab === key;
+          return (
+            <TouchableOpacity
+              key={key}
+              className={`flex-1 py-2 rounded-full items-center flex-row justify-center ${isActive ? 'bg-neutral-white' : ''}`}
+              style={isActive ? { elevation: 2, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 1 } } : {}}
+              onPress={() => setActiveTab(key)}
+            >
+              <Ionicons name={icon} size={14} color={isActive ? '#f43f5e' : 'rgba(255,255,255,0.65)'} />
+              <Text className={`text-sm font-semibold ml-1.5 ${isActive ? 'text-primary' : 'text-neutral-white'}`}
+                style={!isActive ? { opacity: 0.7 } : {}}
+              >
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+              </Text>
+              <View className={`ml-1.5 w-5 h-5 rounded-full items-center justify-center ${isActive ? 'bg-primary' : ''}`}
+                style={!isActive ? { backgroundColor: 'rgba(255,255,255,0.25)' } : {}}
+              >
+                <Text className="text-white text-xs font-bold">{count}</Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* Content */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#fff" style={{ marginTop: 60 }} />
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1 bg-neutral-100 rounded-t-3xl"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}
+        >
+          {filtered.length === 0 ? renderEmpty() : filtered.map(renderCard)}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#156778',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: '#156778',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#ffffffff',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerPlaceholder: {
-    width: 24,
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#e8e8e8',
-    marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 20,
-    padding: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  activeTab: {
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  tabText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#999',
-  },
-  activeTabText: {
-    color: '#333',
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    paddingBottom: 20,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  salonHeader: {
-    flex: 1,
-  },
-  salonName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  services: {
-    fontSize: 13,
-    color: '#666',
-    marginTop: 2,
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-    marginLeft: 8,
-  },
-  statusText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  details: {
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    paddingVertical: 12,
-    marginVertical: 12,
-  },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 6,
-  },
-  detailText: {
-    fontSize: 13,
-    color: '#555',
-    marginLeft: 10,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  currencySymbol: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#333',
-  },
-  price: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginLeft: 2,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  callButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#156778',
-    borderRadius: 6,
-  },
-  callButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#156778',
-  },
-  cancelButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-  },
-  cancelButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#333',
-  },
-  viewDetailsButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#156778',
-    borderRadius: 6,
-  },
-  viewDetailsButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 80,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#999',
-    marginTop: 10,
-  },
-});

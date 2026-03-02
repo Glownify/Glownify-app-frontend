@@ -124,8 +124,8 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-teal-600" edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor="#156778" />
+    <SafeAreaView className="flex-1 bg-primary" edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor="#f43f5e" />
 
       <View className="flex-1 bg-neutral-white">
         <HomeHeader />
@@ -195,14 +195,14 @@ export default function HomeScreen({ navigation }) {
           )}
 
           {/* 5 — Nearby Offers */}
-          <NearbySection
+          {/* <NearbySection
             title="Nearby Offers"
             data={[]}
             onViewAll={() => navigation.navigate('OffersScreen')}
             onCardPress={() =>
               navigation.navigate('ShopDetailsFull', { salonId: 'sample-id' })
             }
-          />
+          /> */}
 
           {/* 6 — Unisex Salons */}
           <SalonListSection

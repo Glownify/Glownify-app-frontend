@@ -3,7 +3,11 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 
 const CATEGORY_EMOJIS = ['💇', '🧖', '💅', '🎨', '🧴', '💄', '🧖‍♀️', '✨'];
 
-export default function ServiceCategoriesSection({ categories = [], onCategoryPress, onViewAll }) {
+export default function ServiceCategoriesSection({
+  categories = [],
+  onCategoryPress,
+  onViewAll,
+}) {
   const renderCategory = (category, index) => (
     <TouchableOpacity
       key={category.id}
@@ -12,12 +16,15 @@ export default function ServiceCategoriesSection({ categories = [], onCategoryPr
       onPress={() => onCategoryPress(category)}
       activeOpacity={0.75}
     >
-      <View className="w-16 h-16 bg-teal-50 rounded-avatar items-center justify-center mb-1.5">
+      <View className="w-16 h-16 bg-primary-50 rounded-avatar items-center justify-center mb-1.5">
         <Text className="text-3xl">
           {CATEGORY_EMOJIS[index % CATEGORY_EMOJIS.length]}
         </Text>
       </View>
-      <Text className="text-xs font-regular text-neutral-700 text-center" numberOfLines={1}>
+      <Text
+        className="text-xs font-regular text-neutral-700 text-center"
+        numberOfLines={1}
+      >
         {category.name}
       </Text>
     </TouchableOpacity>
@@ -31,7 +38,7 @@ export default function ServiceCategoriesSection({ categories = [], onCategoryPr
           What do you want to get?
         </Text>
         <TouchableOpacity onPress={onViewAll}>
-          <Text className="text-sm font-medium text-secondary-teal">View all</Text>
+          <Text className="text-sm font-medium text-primary">View all</Text>
         </TouchableOpacity>
       </View>
 
