@@ -222,6 +222,31 @@ export default function AppNavigator() {
           }}
         />
 
+        {/* --- Screen 3: Cart (Floating Button) --- */}
+        <Tab.Screen
+          name="CartStack"
+          component={CartStackNavigator}
+          options={{
+            tabBarIcon: ({ focused }) => null,
+            tabBarLabel: () => null,
+            tabBarButton: props => (
+              <View style={styles.fabContainer}>
+                <TouchableOpacity
+                  {...props}
+                  style={styles.fab}
+                  activeOpacity={0.9}
+                >
+                  <Image
+                    source={tabIcons.cart.active}
+                    style={styles.fabIcon}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
+            ),
+          }}
+        />
+
         {/* --- Screen 4: Bookings --- */}
         <Tab.Screen
           name="BookingsTab"

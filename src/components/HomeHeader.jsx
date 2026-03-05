@@ -3,8 +3,10 @@ import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { LocationContext } from '../components/LocationProvider';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getAddressFromCoords } from '../utils/geocoding';
+import { useNavigation } from '@react-navigation/native';
 
-export default function HomeHeader({ user, navigation }) {
+export default function HomeHeader({ user }) {
+  const navigation = useNavigation();
   const { location, loading } = useContext(LocationContext);
   const [address, setAddress] = useState('');
 
