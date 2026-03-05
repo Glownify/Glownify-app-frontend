@@ -169,11 +169,7 @@ export default function HomeScreen({ navigation }) {
               salonList={salonList}
               selectedCategory={selectedCategory}
               onViewAll={() =>
-                navigation.navigate('AllSalonListScreen', {
-                  category: selectedCategory,
-                  lat: location?.latitude,
-                  lng: location?.longitude,
-                })
+navigation.navigate('SearchScreen')
               }
               onSalonPress={salonId =>
                 navigation.navigate('ShopDetailsFull', { salonId: 'sample-id' })

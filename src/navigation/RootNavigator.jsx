@@ -14,7 +14,6 @@ import SalesExecutiveNavigator from './SalesExecutiveNavigator';
 import { useSelector, useDispatch } from 'react-redux';
 import { loadUserFromStorage } from '../redux/slices/authSlice';
 import CartPopup from '../components/CartPopup';
-import { CartStackNavigator } from './AppNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -74,11 +73,7 @@ export default function RootNavigator() {
             component={SalesExecutiveNavigator}
           />
         ) : (
-          <>
-            {/* Covers user + guest + fallback */}
-            <Stack.Screen name="App" component={AppNavigator} />
-            <Stack.Screen name="CartStack" component={CartStackNavigator} />
-          </>
+          <Stack.Screen name="App" component={AppNavigator} />
         )}
       </Stack.Navigator>
 
