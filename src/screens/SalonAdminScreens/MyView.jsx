@@ -1,821 +1,572 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Image,
   TouchableOpacity,
   Dimensions,
   TextInput,
 } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ServiceCard from '../UserScreens/ShopDetails/ServiceCard';
 import SpecialistCard from '../UserScreens/ShopDetails/SpecialistCard';
 import ReviewCard from '../UserScreens/ShopDetails/ReviewCard';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchSalonById } from '../../../src/redux/slices/userSlice';
-const { height, width } = Dimensions.get('window');
+import { useSelector } from 'react-redux';
 
-// Mock Data
-const shopData = {
-  distance: '18 km away available',
-  rating: 4.7,
-  reviews: '12k',
-  views: '12k',
-  images: [
-    require('../../../src/assets/featuredSalon.png'),
-    require('../../../src/assets/featuredSalon.png'),
-    require('../../../src/assets/featuredSalon.png'),
-    require('../../../src/assets/featuredSalon.png'),
-  ],
-  services: [
-    {
-      id: '1',
-      name: 'Women Haircut',
-      price: 55,
-      duration: '1.5 hour',
-      description: 'A clean cut does is a shorter hairstyle Spec 1',
-      discount: '-20%',
-      image: require('../../../src/assets/featuredSalon.png'),
-    },
-    {
-      id: '2',
-      name: 'Bob/ Lob Cut',
-      price: 55,
-      duration: '1.5 hour',
-      description: "The haircut is a women's hairstyle that is cut short...",
-      discount: null,
-      image: require('../../../src/assets/featuredSalon.png'),
-    },
-    {
-      id: '3',
-      name: 'Medium Length Layer Cut',
-      price: 80,
-      duration: '1 hour',
-      description:
-        'A layered hair is a hairstyle that gives the illusion of...',
-      discount: null,
-      image: require('../../../src/assets/featuredSalon.png'),
-    },
-    {
-      id: '4',
-      name: 'V-Shaped Cut',
-      price: 90,
-      duration: '2.5 hour',
-      description: 'There are a lot of variations between which...',
-      discount: '-5%',
-      image: require('../../../src/assets/featuredSalon.png'),
-    },
-  ],
-  reviews: [
-    {
-      id: '1',
-      userName: 'Jennie Whang',
-      userImage: require('../../../src/assets/featuredSalon.png'),
-      rating: 4,
-      date: '2 days ago',
-      comment:
-        'The place was clean, great service, staff are friendly. I will certainly recommend to my friends and visit again! :)',
-    },
-    {
-      id: '2',
-      userName: 'Nathalie',
-      userImage: require('../../../src/assets/featuredSalon.png'),
-      rating: 5,
-      date: '1 weeks ago',
-      comment:
-        'Very nice service from the specialist. I always going here for my treatment.',
-    },
-    {
-      id: '3',
-      userName: 'Julia Martha',
-      userImage: require('../../../src/assets/featuredSalon.png'),
-      rating: 4,
-      date: '2 weeks ago',
-      comment: 'This is my favourite place to treat my hair :)',
-    },
-  ],
+const { width } = Dimensions.get('window');
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const H_PAD = 16;
+const ACCENT = '#f43f5e';
+const NAVY   = '#2d3a5a';
+const BG     = '#fff1f2';
+
+const shadow = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.06,
+  shadowRadius: 10,
+  elevation: 3,
 };
 
-export default function MyView({ navigation, route }) {
-  //   const { salonId } = route.params;
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+const pinkShadow = {
+  shadowColor: '#f43f5e',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.09,
+  shadowRadius: 14,
+  elevation: 4,
+};
+
+// ─── Mock / Fallback Data ─────────────────────────────────────────────────────
+
+const MOCK_IMAGES = [
+  require('../../../src/assets/featuredSalon.png'),
+  require('../../../src/assets/featuredSalon.png'),
+  require('../../../src/assets/featuredSalon.png'),
+  require('../../../src/assets/featuredSalon.png'),
+];
+
+const MOCK_SERVICES = [
+  { id: '1', name: 'Women Haircut',      price: 55,  duration: '1.5 hr',  description: 'A clean precision cut with modern finishing.',    discount: '-20%', image: require('../../../src/assets/featuredSalon.png') },
+  { id: '2', name: 'Bob / Lob Cut',      price: 55,  duration: '1.5 hr',  description: 'Classic bob cut tailored to your face shape.',    discount: null,   image: require('../../../src/assets/featuredSalon.png') },
+  { id: '3', name: 'Medium Layer Cut',   price: 80,  duration: '1 hr',    description: 'Layers that give movement and volume.',           discount: null,   image: require('../../../src/assets/featuredSalon.png') },
+  { id: '4', name: 'V-Shaped Cut',       price: 90,  duration: '2.5 hr',  description: 'Elegant V-shape with seamless blending.',        discount: '-5%',  image: require('../../../src/assets/featuredSalon.png') },
+];
+
+const MOCK_REVIEWS = [
+  { id: '1', userName: 'Jennie Whang', userImage: require('../../../src/assets/featuredSalon.png'), rating: 4, date: '2 days ago',  comment: 'The place was clean, great service, staff are friendly. Will certainly recommend!' },
+  { id: '2', userName: 'Nathalie',     userImage: require('../../../src/assets/featuredSalon.png'), rating: 5, date: '1 week ago',  comment: 'Very nice service from the specialist. I always come here for my treatment.'       },
+  { id: '3', userName: 'Julia Martha', userImage: require('../../../src/assets/featuredSalon.png'), rating: 4, date: '2 weeks ago', comment: 'This is my favourite place to treat my hair :)'                                   },
+];
+
+const DEFAULT_HOURS = [
+  { day: 'Monday',    start: '08:00 AM', end: '09:00 PM' },
+  { day: 'Tuesday',   start: '08:00 AM', end: '09:00 PM' },
+  { day: 'Wednesday', start: '08:00 AM', end: '09:00 PM' },
+  { day: 'Thursday',  start: '08:00 AM', end: '09:00 PM' },
+  { day: 'Friday',    start: '08:00 AM', end: '09:00 PM' },
+  { day: 'Saturday',  start: '09:00 AM', end: '07:00 PM' },
+  { day: 'Sunday',    start: null,       end: null        },
+];
+
+const QUICK_ACTIONS = [
+  { icon: 'add-circle-outline',   label: 'Add Service', color: '#f43f5e', bg: '#fff1f2', nav: 'AddService'  },
+  { icon: 'people-outline',       label: 'Add Staff',   color: '#f97316', bg: '#fff7ed', nav: 'AddStaff'    },
+  { icon: 'gift-outline',         label: 'Promotions',  color: '#8b5cf6', bg: '#f5f3ff', nav: 'Promotions'  },
+  { icon: 'bar-chart-outline',    label: 'Analytics',   color: '#10b981', bg: '#ecfdf5', nav: 'Analytics'   },
+  { icon: 'calendar-outline',     label: 'Schedule',    color: '#3b82f6', bg: '#eff6ff', nav: 'Schedule'    },
+  { icon: 'share-social-outline', label: 'Share',       color: '#ec4899', bg: '#fdf2f8', nav: 'Share'       },
+];
+
+// ─── Shared Sub-components ────────────────────────────────────────────────────
+
+const SectionCard = ({ children, style }) => (
+  <View style={[{ backgroundColor: '#fff', marginHorizontal: H_PAD, marginTop: 12, borderRadius: 22, padding: H_PAD, ...pinkShadow }, style]}>
+    {children}
+  </View>
+);
+
+const SectionHeader = ({ title, subtitle, onEdit, onViewAll }) => (
+  <View style={{ marginBottom: 14 }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Text style={{ fontSize: 17, fontWeight: '800', color: '#1f2937', letterSpacing: -0.3 }}>{title}</Text>
+      {onEdit && (
+        <TouchableOpacity
+          onPress={onEdit} activeOpacity={0.8}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fff1f2', borderRadius: 14, paddingHorizontal: 11, paddingVertical: 6 }}
+        >
+          <Icon name="pencil-outline" size={13} color={ACCENT} />
+          <Text style={{ fontSize: 12, fontWeight: '700', color: ACCENT }}>Edit</Text>
+        </TouchableOpacity>
+      )}
+      {onViewAll && (
+        <TouchableOpacity onPress={onViewAll} style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }} activeOpacity={0.8}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: ACCENT }}>View all</Text>
+          <Icon name="chevron-forward" size={14} color={ACCENT} />
+        </TouchableOpacity>
+      )}
+    </View>
+    {subtitle ? <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: 3 }}>{subtitle}</Text> : null}
+  </View>
+);
+
+const StarRow = ({ rating, size = 13 }) => (
+  <View style={{ flexDirection: 'row', gap: 2 }}>
+    {[1,2,3,4,5].map(i => (
+      <Icon key={i} name={i <= rating ? 'star' : 'star-outline'} size={size} color={i <= rating ? '#f59e0b' : '#d1d5db'} />
+    ))}
+  </View>
+);
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export default function MyView({ navigation }) {
   const insets = useSafeAreaInsets();
-  const [showHours, setShowHours] = useState(false);
-  const [isOpen, setIsOpen] = useState(true);
-  const [isEditingShopName, setIsEditingShopName] = useState(false);
-  const [isEditingAbout, setIsEditingAbout] = useState(false);
-  const [about,setAbout] = useState(userDetails?.roleDetails?.about ||
-                  "The salon will update its details soon! Meanwhile, you're welcome to explore services and enjoy great grooming & beauty care.")
-  const [shopName, setShopName] = useState(
-    userDetails?.roleDetails?.shopName || 'Unknown',
+
+  const userDetails = useSelector(state => state.auth.user);
+  const salonData   = useSelector(state => state.user.salonDetails);
+
+  const specialists       = salonData?.specialistsData    || [];
+  const serviceCategories = salonData?.serviceCategories  || [];
+  const openingHours      = salonData?.openingHours?.length > 0 ? salonData.openingHours : DEFAULT_HOURS;
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showHours,         setShowHours]          = useState(false);
+  const [isOpen,            setIsOpen]             = useState(true);
+  const [activeCategory,    setActiveCategory]     = useState(null);
+  const [isEditingName,     setIsEditingName]      = useState(false);
+  const [isEditingAbout,    setIsEditingAbout]     = useState(false);
+
+  const [shopName, setShopName] = useState(userDetails?.roleDetails?.shopName || 'Glamour Salon');
+  const [about,    setAbout]    = useState(
+    userDetails?.roleDetails?.about ||
+    'We specialize in professional beauty & grooming. Our skilled team ensures you leave looking and feeling your absolute best.'
   );
 
-  const defaultOpeningHours = [
-    { day: 'Monday', start: '08:00am', end: '09:00pm' },
-    { day: 'Tuesday', start: '08:00am', end: '09:00pm' },
-    { day: 'Wednesday', start: '08:00am', end: '09:00pm' },
-    { day: 'Thursday', start: '08:00am', end: '09:00pm' },
-  ];
+  const location = userDetails?.roleDetails?.location || {};
+  const rating   = userDetails?.roleDetails?.rating   || '4.7';
+  const today    = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  const todayHours = openingHours.find(h => h.day === today);
 
-  //   useEffect(() => {
-  //     dispatch(fetchSalonById(salonId));
-  //   }, [dispatch, salonId]);
-
-  const dispatch = useDispatch();
-  const salonData = useSelector(state => state.user.salonDetails);
-  const userDetails = useSelector(state => state.auth.user);
-  console.log(userDetails);
-
-  const specialists = salonData?.specialistsData || [];
-  const serviceCategories = salonData?.serviceCategories || [];
-
-  console.log(serviceCategories);
+  // action button tile width — 3 per row
+  const actionTileW = (width - H_PAD * 2 - H_PAD * 2 - 10 * 2) / 3;
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: 'transparent' }]}
-      edges={[]}
-    >
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top - 25 }]}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.headerButton}
+    <SafeAreaView style={{ flex: 1, backgroundColor: BG }} edges={[]}>
+
+      {/* ── Floating Header ──────────────────────────────────────────────── */}
+      <View
+        style={{
+          position: 'absolute', top: insets.top + 6, left: 0, right: 0,
+          zIndex: 20, flexDirection: 'row', justifyContent: 'space-between',
+          alignItems: 'center', paddingHorizontal: H_PAD,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.95)', alignItems: 'center', justifyContent: 'center', ...shadow }}
+        >
+          <Icon name="chevron-back" size={22} color="#1f2937" />
+        </TouchableOpacity>
+
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[{ icon: 'share-outline', color: NAVY }, { icon: 'heart-outline', color: ACCENT }].map(btn => (
+            <TouchableOpacity
+              key={btn.icon}
+              style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.95)', alignItems: 'center', justifyContent: 'center', ...shadow }}
+            >
+              <Icon name={btn.icon} size={20} color={btn.color} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 50 }}>
+
+        {/* ══ Hero Gallery ════════════════════════════════════════════════════ */}
+        <View style={{ height: 280, position: 'relative', backgroundColor: '#111' }}>
+          <ScrollView
+            horizontal pagingEnabled showsHorizontalScrollIndicator={false}
+            onScroll={e => setCurrentImageIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
+            scrollEventThrottle={16}
           >
-            <Icon name="arrow-back" size={24} color="#156778" />
+            {MOCK_IMAGES.map((img, i) => (
+              <Image key={i} source={img} style={{ width, height: 280 }} resizeMode="cover" />
+            ))}
+          </ScrollView>
+
+          {/* Dark overlay at bottom */}
+          <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, backgroundColor: 'rgba(0,0,0,0.32)' }} pointerEvents="none" />
+
+          {/* Photo count badge */}
+          <View
+            style={{
+              position: 'absolute', top: insets.top + 58, right: H_PAD,
+              backgroundColor: 'rgba(0,0,0,0.52)', borderRadius: 12,
+              paddingHorizontal: 10, paddingVertical: 4,
+              flexDirection: 'row', alignItems: 'center', gap: 4,
+            }}
+          >
+            <Icon name="images-outline" size={12} color="#fff" />
+            <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600' }}>
+              {currentImageIndex + 1} / {MOCK_IMAGES.length}
+            </Text>
+          </View>
+
+          {/* Camera edit button */}
+          <TouchableOpacity
+            style={{
+              position: 'absolute', bottom: 48, right: H_PAD,
+              backgroundColor: 'rgba(0,0,0,0.58)', padding: 9, borderRadius: 20,
+              flexDirection: 'row', alignItems: 'center', gap: 5,
+            }}
+          >
+            <Icon name="camera-outline" size={14} color="#fff" />
+            <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600' }}>Edit Photos</Text>
           </TouchableOpacity>
 
-          <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.headerButton}>
-              <Icon name="heart-outline" size={24} color="#EF4444" />
+          {/* Pill indicators */}
+          <View style={{ position: 'absolute', bottom: 18, alignSelf: 'center', flexDirection: 'row', gap: 6 }}>
+            {MOCK_IMAGES.map((_, i) => (
+              <View
+                key={i}
+                style={{
+                  height: 5, width: i === currentImageIndex ? 22 : 5,
+                  borderRadius: 3,
+                  backgroundColor: i === currentImageIndex ? '#fff' : 'rgba(255,255,255,0.42)',
+                }}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* ══ Shop Identity Card ═══════════════════════════════════════════════ */}
+        <View style={{ backgroundColor: '#fff', marginHorizontal: H_PAD, marginTop: -24, borderRadius: 24, padding: H_PAD, ...pinkShadow }}>
+
+          {/* Name row */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            {isEditingName ? (
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <TextInput
+                  value={shopName} onChangeText={setShopName} autoFocus
+                  style={{ flex: 1, fontSize: 21, fontWeight: '800', color: '#1f2937', borderBottomWidth: 2, borderBottomColor: ACCENT, paddingVertical: 2 }}
+                />
+                <TouchableOpacity onPress={() => setIsEditingName(false)}>
+                  <Icon name="checkmark-circle" size={28} color="#10b981" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <>
+                <Text style={{ flex: 1, fontSize: 21, fontWeight: '800', color: '#1f2937', letterSpacing: -0.4 }}>{shopName}</Text>
+                <TouchableOpacity
+                  onPress={() => setIsEditingName(true)}
+                  style={{ backgroundColor: '#fff1f2', borderRadius: 12, padding: 7, marginLeft: 8 }}
+                >
+                  <Icon name="pencil-outline" size={15} color={ACCENT} />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+
+          {/* Location */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 12 }}>
+            <Icon name="location-outline" size={14} color="#9ca3af" />
+            <Text style={{ fontSize: 13, color: '#6b7280', flex: 1 }} numberOfLines={1}>
+              {location?.address || 'Location not set'}{location?.city ? `, ${location.city}` : ''}
+            </Text>
+          </View>
+
+          {/* Status pills */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+            {/* Rating */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#fff7ed', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 }}>
+              <Icon name="star" size={13} color="#f59e0b" />
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#92400e' }}>{rating}</Text>
+              <Text style={{ fontSize: 12, color: '#d97706' }}>({MOCK_REVIEWS.length} reviews)</Text>
+            </View>
+            {/* Open toggle */}
+            <TouchableOpacity
+              onPress={() => setIsOpen(v => !v)} activeOpacity={0.8}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: isOpen ? '#d1fae5' : '#fee2e2', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 }}
+            >
+              <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: isOpen ? '#10b981' : '#ef4444' }} />
+              <Text style={{ fontSize: 12, fontWeight: '700', color: isOpen ? '#059669' : '#dc2626' }}>
+                {isOpen ? 'Open Now' : 'Closed'}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.headerButton}>
-              <Icon name="map-outline" size={24} color="#156778" />
+            {/* Home service */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#f5f3ff', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 }}>
+              <Icon name="home-outline" size={12} color="#7c3aed" />
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#7c3aed' }}>Home Service</Text>
+            </View>
+          </View>
+
+          {/* Thin divider */}
+          <View style={{ height: 1, backgroundColor: '#f3f4f6', marginBottom: 14 }} />
+
+          {/* 4-stat strip */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
+            {[
+              { icon: 'calendar-outline',  value: '1.2K',  label: 'Bookings',  color: ACCENT    },
+              { icon: 'people-outline',     value: '863',   label: 'Customers', color: '#3b82f6' },
+              { icon: 'navigate-outline',   value: '18 km', label: 'Distance',  color: '#10b981' },
+              { icon: 'star-outline',       value: rating,  label: 'Rating',    color: '#f59e0b' },
+            ].map((s, i, arr) => (
+              <React.Fragment key={s.label}>
+                <View style={{ alignItems: 'center', flex: 1 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: s.color + '18', alignItems: 'center', justifyContent: 'center', marginBottom: 5 }}>
+                    <Icon name={s.icon} size={17} color={s.color} />
+                  </View>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#1f2937' }}>{s.value}</Text>
+                  <Text style={{ fontSize: 10, color: '#9ca3af', fontWeight: '500', marginTop: 1 }}>{s.label}</Text>
+                </View>
+                {i < arr.length - 1 && <View style={{ width: 1, height: 36, backgroundColor: '#f3f4f6', alignSelf: 'center' }} />}
+              </React.Fragment>
+            ))}
+          </View>
+
+          {/* CTA buttons */}
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: BG, borderRadius: 14, paddingVertical: 12 }}
+            >
+              <Icon name="navigate-outline" size={16} color={ACCENT} />
+              <Text style={{ fontSize: 13, fontWeight: '700', color: ACCENT }}>Directions</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: NAVY, borderRadius: 14, paddingVertical: 12 }}
+            >
+              <Icon name="call-outline" size={16} color="#fff" />
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#fff' }}>Call Now</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Image Gallery */}
-          <View style={styles.imageGallery}>
-            <ScrollView
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onScroll={event => {
-                const index = Math.round(
-                  event.nativeEvent.contentOffset.x / width,
-                );
-                setCurrentImageIndex(index);
-              }}
-              scrollEventThrottle={16}
-            >
-              {shopData.images.map((image, index) => (
-                <Image key={index} source={image} style={styles.galleryImage} />
-              ))}
-            </ScrollView>
-
-            {/* Pencil Icon */}
-            <TouchableOpacity style={styles.editIcon}>
-              <Icon name="pencil" size={20} color="#fff" />
-            </TouchableOpacity>
-
-            {/* Image Indicators */}
-            <View style={styles.imageIndicators}>
-              {shopData.images.map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.indicator,
-                    currentImageIndex === index && styles.activeIndicator,
-                  ]}
-                />
-              ))}
-            </View>
-          </View>
-
-          {/* Shop Info */}
-          <View style={styles.infoSection}>
-            <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-            >
-              {isEditingShopName ? (
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}
-                >
-                  <TextInput
-                    value={shopName}
-                    onChangeText={setShopName}
-                    style={styles.shopNameInput}
-                    autoFocus
-                    placeholder="Enter shop name"
-                  />
-
-                  <TouchableOpacity
-                    onPress={() => setIsEditingShopName(false)}
-                    style={{ marginLeft: 8 }}
-                  >
-                    <Icon name="checkmark" size={22} color="#22C55E" />
-                  </TouchableOpacity>
+        {/* ══ Quick Actions ════════════════════════════════════════════════════ */}
+        <SectionCard>
+          <SectionHeader title="Quick Actions" subtitle="Manage your salon from here" />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+            {QUICK_ACTIONS.map(action => (
+              <TouchableOpacity
+                key={action.label}
+                onPress={() => navigation.navigate(action.nav)}
+                activeOpacity={0.75}
+                style={{ width: actionTileW, backgroundColor: action.bg, borderRadius: 16, paddingVertical: 14, alignItems: 'center', gap: 6 }}
+              >
+                <View style={{ width: 38, height: 38, borderRadius: 11, backgroundColor: action.color + '20', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name={action.icon} size={20} color={action.color} />
                 </View>
-              ) : (
-                <>
-                  <Text style={styles.shopName}>
-                    {userDetails?.roleDetails?.shopName}
-                  </Text>
-                  <TouchableOpacity onPress={() => setIsEditingShopName(true)}>
-                    <Icon name="pencil" size={18} color="#6B7280" />
-                  </TouchableOpacity>
-                </>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#374151', textAlign: 'center' }}>{action.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </SectionCard>
+
+        {/* ══ About ════════════════════════════════════════════════════════════ */}
+        <SectionCard>
+          <SectionHeader title="About" onEdit={() => setIsEditingAbout(true)} />
+          {isEditingAbout ? (
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+              <TextInput
+                value={about} onChangeText={setAbout} autoFocus multiline
+                style={{ flex: 1, fontSize: 14, color: '#374151', lineHeight: 22, borderWidth: 1.5, borderColor: '#fecdd3', borderRadius: 12, padding: 12, textAlignVertical: 'top', minHeight: 80 }}
+              />
+              <TouchableOpacity onPress={() => setIsEditingAbout(false)} style={{ marginTop: 2 }}>
+                <Icon name="checkmark-circle" size={28} color="#10b981" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Text style={{ fontSize: 14, color: '#6b7280', lineHeight: 22 }}>{about}</Text>
+          )}
+        </SectionCard>
+
+        {/* ══ Opening Hours ════════════════════════════════════════════════════ */}
+        <SectionCard>
+          <TouchableOpacity
+            onPress={() => setShowHours(v => !v)} activeOpacity={0.8}
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+          >
+            <View>
+              <Text style={{ fontSize: 17, fontWeight: '800', color: '#1f2937', letterSpacing: -0.3 }}>Opening Hours</Text>
+              {todayHours && (
+                <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>
+                  Today: {todayHours.start && todayHours.end ? `${todayHours.start} – ${todayHours.end}` : 'Closed'}
+                </Text>
               )}
             </View>
-
-            <View style={styles.locationRow}>
-              <Icon name="location-outline" size={16} color="#6B7280" />
-              <Text style={styles.locationText}>
-                {userDetails?.roleDetails?.location?.address ||
-                  'Unknown Location'}
-              </Text>
-              <View style={styles.dot} />
-              <Text style={styles.distanceText}>{userDetails?.distance}</Text>
-            </View>
-
-            {/* Home Service & Open Now Row */}
-            <View style={styles.statusRow}>
-              <View style={styles.statusItem1}>
-                <Icon name="home-outline" size={16} color="#ffffffff" />
-                <Text style={styles.statusText}>Home Service Available</Text>
-              </View>
-
-              <TouchableOpacity>
-                <Icon name="pencil" size={16} color="#6B7280" />
-              </TouchableOpacity>
-
-              <View>
-                <TouchableOpacity
-                  style={[
-                    styles.statusItem2,
-                    !isOpen && { backgroundColor: '#6B7280' },
-                  ]}
-                  onPress={() => setIsOpen(!isOpen)}
-                >
-                  <Icon name="time-outline" size={16} color="#fff" />
-                  <Text style={styles.statusText}>
-                    {isOpen ? 'Open Now' : 'Closed Now'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.statsRow}>
-              <View style={styles.statItem}>
-                <Icon name="star" size={16} color="#FACC15" />
-                <Text style={styles.statText}>
-                  {userDetails?.roleDetails?.rating}
-                </Text>
-                <Text style={styles.statSubText}>
-                  ({shopData.reviewCount || shopData.reviews.length})
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={{ backgroundColor: isOpen ? '#d1fae5' : '#fee2e2', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: isOpen ? '#059669' : '#ef4444' }}>
+                  {isOpen ? 'Open' : 'Closed'}
                 </Text>
               </View>
-
-              <View style={styles.statDivider} />
-
-              <Icon name="navigate-outline" size={16} color="#6B7280" />
-              <Text style={styles.statText}>Directions</Text>
+              <Icon name={showHours ? 'chevron-up' : 'chevron-down'} size={18} color="#9ca3af" />
             </View>
-          </View>
+          </TouchableOpacity>
 
-          {/* About */}
-          <View style={styles.section}>
-            <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-            >
-              <Text style={styles.sectionTitle}>About</Text>
-
-              <TouchableOpacity onPress={() => setIsEditingAbout(true)}>
-                <Icon name="pencil" size={18} color="#6B7280" />
-              </TouchableOpacity>
-            </View>
-            {isEditingAbout ? (
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}
-              >
-                <TextInput
-                  value={about}
-                  onChangeText={setAbout}
-                  style={styles.aboutText}
-                  autoFocus
-                  placeholder="Enter shop name"
-                />
-
-                <TouchableOpacity
-                  onPress={() => setIsEditingAbout(false)}
-                  style={{ marginLeft: 8 }}
-                >
-                  <Icon name="checkmark" size={22} color="#22C55E" />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <Text style={styles.aboutText}>
-                {about}
-              </Text>
-            )}
-          </View>
-
-          {/* Opening Hours */}
-          <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.openingHeader}
-              onPress={() => setShowHours(!showHours)}
-            >
-              <Text style={styles.sectionTitle}>Opening Hours</Text>
-
-              <Icon
-                name={showHours ? 'chevron-up-outline' : 'chevron-down-outline'}
-                size={22}
-                color="#111827"
-              />
-            </TouchableOpacity>
-
-            {showHours && (
-              <View>
-                {(salonData?.openingHours && salonData.openingHours.length > 0
-                  ? salonData.openingHours
-                  : defaultOpeningHours
-                ).map(hour => (
-                  <View key={hour.day} style={styles.hourRow}>
-                    <Text style={styles.dayText}>{hour.day}</Text>
-
+          {showHours && (
+            <View style={{ marginTop: 16 }}>
+              {openingHours.map((hour, i, arr) => {
+                const isToday = hour.day === today;
+                return (
+                  <View
+                    key={hour.day}
+                    style={{
+                      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+                      paddingVertical: 11,
+                      paddingHorizontal: isToday ? 10 : 0,
+                      marginHorizontal: isToday ? -2 : 0,
+                      borderRadius: isToday ? 12 : 0,
+                      backgroundColor: isToday ? '#fff1f2' : 'transparent',
+                      borderBottomWidth: !isToday && i < arr.length - 1 ? 1 : 0,
+                      borderBottomColor: '#f3f4f6',
+                      marginBottom: isToday ? 2 : 0,
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      {isToday && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: ACCENT }} />}
+                      <Text style={{ fontSize: 14, fontWeight: isToday ? '700' : '500', color: isToday ? ACCENT : '#374151' }}>
+                        {hour.day}
+                      </Text>
+                    </View>
                     {hour.start && hour.end ? (
-                      <Text style={styles.timeText}>
-                        {hour.start} - {hour.end}
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: isToday ? ACCENT : '#059669' }}>
+                        {hour.start} – {hour.end}
                       </Text>
                     ) : (
-                      <Text style={[styles.timeText, styles.closedText]}>
-                        Closed
-                      </Text>
+                      <View style={{ backgroundColor: '#fee2e2', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#ef4444' }}>Closed</Text>
+                      </View>
                     )}
                   </View>
-                ))}
-              </View>
-            )}
-          </View>
-
-          {/* Our Services */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Our Services</Text>
-              {/* <TouchableOpacity>
-                <Text style={styles.viewAllText}>View all</Text>
-              </TouchableOpacity> */}
-              <TouchableOpacity
-                onPress={() => navigation.navigate('ManageServices')}
-              >
-                <Icon name="pencil" size={18} color="#6B7280" />
-              </TouchableOpacity>
+                );
+              })}
             </View>
+          )}
+        </SectionCard>
 
-            {/* Service Filter Tabs */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.filterTabsContainer}
-            >
-              {serviceCategories.map(category => (
+        {/* ══ Services ═════════════════════════════════════════════════════════ */}
+        <SectionCard>
+          <SectionHeader
+            title="Our Services"
+            subtitle={`${MOCK_SERVICES.length} services available`}
+            onEdit={() => navigation.navigate('ManageServices')}
+          />
+
+          {serviceCategories.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 14 }}>
+              <TouchableOpacity
+                onPress={() => setActiveCategory(null)}
+                style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: !activeCategory ? ACCENT : '#f3f4f6' }}
+              >
+                <Text style={{ fontSize: 12, fontWeight: '700', color: !activeCategory ? '#fff' : '#6b7280' }}>All</Text>
+              </TouchableOpacity>
+              {serviceCategories.map(cat => (
                 <TouchableOpacity
-                  key={category.id}
-                  style={[
-                    styles.filterTab /* Add active style conditionally */,
-                  ]}
-                  onPress={() => console.log(category._id)}
+                  key={cat.id} onPress={() => setActiveCategory(cat.id)} activeOpacity={0.8}
+                  style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: activeCategory === cat.id ? ACCENT : '#fff1f2', borderWidth: 1.5, borderColor: activeCategory === cat.id ? ACCENT : '#fecdd3' }}
                 >
-                  <Text style={styles.filterTabText}>{category.name}</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: activeCategory === cat.id ? '#fff' : ACCENT }}>{cat.name}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
+          )}
 
-            {shopData.services.map(service => (
-              <ServiceCard key={service.id} service={service} />
-            ))}
-            {/* <TouchableOpacity style={styles.viewAllServicesButton}>
-              <Text style={styles.viewAllServicesText}>View All Services</Text>
-            </TouchableOpacity> */}
+          {MOCK_SERVICES.map(service => <ServiceCard key={service.id} service={service} />)}
+        </SectionCard>
+
+        {/* ══ Gallery — masonry grid ══════════════════════════════════════════ */}
+        <SectionCard style={{ paddingHorizontal: 0, overflow: 'hidden' }}>
+          <View style={{ paddingHorizontal: H_PAD }}>
+            <SectionHeader title="Gallery" onViewAll={() => {}} />
           </View>
-
-          {/* Gallery */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Gallery</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAllText}>View all</Text>
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {shopData.images.map((image, index) => (
-                <Image key={index} source={image} style={styles.galleryThumb} />
+          <View style={{ flexDirection: 'row', paddingHorizontal: H_PAD, gap: 8 }}>
+            {/* Left column */}
+            <View style={{ flex: 1, gap: 8 }}>
+              {MOCK_IMAGES.slice(0, 2).map((img, i) => (
+                <Image key={i} source={img} style={{ width: '100%', height: i === 0 ? 140 : 100, borderRadius: 14 }} resizeMode="cover" />
               ))}
-            </ScrollView>
+            </View>
+            {/* Right column */}
+            <View style={{ flex: 1, gap: 8 }}>
+              {MOCK_IMAGES.slice(2, 4).map((img, i) => (
+                <View key={i} style={{ position: 'relative' }}>
+                  <Image source={img} style={{ width: '100%', height: i === 0 ? 100 : 140, borderRadius: 14 }} resizeMode="cover" />
+                  {i === 1 && (
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.46)', borderRadius: 14, alignItems: 'center', justifyContent: 'center' }}>
+                      <Text style={{ color: '#fff', fontSize: 20, fontWeight: '900' }}>+12</Text>
+                      <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 2 }}>More photos</Text>
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
           </View>
+          <View style={{ height: H_PAD }} />
+        </SectionCard>
 
-          {/* Our Specialist */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Our Specialist</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAllText}>View all</Text>
+        {/* ══ Specialists ══════════════════════════════════════════════════════ */}
+        <SectionCard>
+          <SectionHeader title="Our Specialists" subtitle="Meet the team" onViewAll={() => {}} />
+          {specialists.length === 0 ? (
+            <View style={{ alignItems: 'center', paddingVertical: 24, gap: 8 }}>
+              <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#fff1f2', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="people-outline" size={28} color="#fda4af" />
+              </View>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#374151' }}>No specialists yet</Text>
+              <Text style={{ fontSize: 12, color: '#9ca3af' }}>Add your team to attract more customers</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AddStaff')} activeOpacity={0.85}
+                style={{ marginTop: 4, backgroundColor: ACCENT, borderRadius: 20, paddingHorizontal: 20, paddingVertical: 9 }}
+              >
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>+ Add Specialist</Text>
               </TouchableOpacity>
             </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {specialists.length === 0 ? (
-                <Text style={styles.aboutText}>
-                  No specialists available at the moment.
-                </Text>
-              ) : (
-                specialists.map(specialist => (
-                  <SpecialistCard
-                    key={specialist._id}
-                    specialist={specialist}
-                  />
-                ))
-              )}
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+              {specialists.map(s => <SpecialistCard key={s._id} specialist={s} />)}
             </ScrollView>
-          </View>
+          )}
+        </SectionCard>
 
-          {/* Reviews */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Reviews</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAllText}>View all</Text>
-              </TouchableOpacity>
+        {/* ══ Reviews ══════════════════════════════════════════════════════════ */}
+        <SectionCard>
+          <SectionHeader title="Reviews" onViewAll={() => {}} />
+
+          {/* Rating summary */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, backgroundColor: '#fff1f2', borderRadius: 16, padding: 14, marginBottom: 14 }}>
+            <View style={{ alignItems: 'center' }}>
+              <Text style={{ fontSize: 40, fontWeight: '900', color: ACCENT, lineHeight: 44 }}>{rating}</Text>
+              <StarRow rating={Math.round(parseFloat(rating))} size={14} />
+              <Text style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>{MOCK_REVIEWS.length} reviews</Text>
             </View>
-
-            {shopData.reviews.map(review => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </View>
-        </ScrollView>
-
-        {/* Fixed Bottom Bar */}
-        {/* <View style={styles.bottomBar}>
-          <View style={styles.priceContainer}>
-            <Icon name="checkmark-circle" size={24} color="#156778" />
-            <View style={styles.priceInfo}>
-              <Text style={styles.totalLabel}>Total (1 Service)</Text>
-              <Text style={styles.totalPrice}>₹ 2500</Text>
+            <View style={{ flex: 1, gap: 5 }}>
+              {[
+                { star: 5, pct: 70 },
+                { star: 4, pct: 20 },
+                { star: 3, pct: 6  },
+                { star: 2, pct: 3  },
+                { star: 1, pct: 1  },
+              ].map(({ star, pct }) => (
+                <View key={star} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 11, color: '#6b7280', width: 8 }}>{star}</Text>
+                  <View style={{ flex: 1, height: 5, backgroundColor: '#fecdd3', borderRadius: 3, overflow: 'hidden' }}>
+                    <View style={{ height: '100%', width: `${pct}%`, backgroundColor: ACCENT, borderRadius: 3 }} />
+                  </View>
+                </View>
+              ))}
             </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.bookButton}
-            onPress={() => navigation.navigate('Booking')}
-          >
-            <Text style={styles.bookButtonText}>Book Now</Text>
-          </TouchableOpacity>
-        </View> */}
-      </View>
+          {MOCK_REVIEWS.map(review => <ReviewCard key={review.id} review={review} />)}
+        </SectionCard>
+
+      </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  scrollContent: {
-    paddingBottom: 100,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: width,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    zIndex: 10,
-  },
-  headerButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  imageGallery: {
-    height: 200,
-    position: 'relative',
-  },
-  galleryImage: {
-    width: width,
-    height: 200,
-    resizeMode: 'cover',
-  },
-  editIcon: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    padding: 8,
-    borderRadius: 20,
-    zIndex: 10,
-  },
-  shopNameInput: {
-    flex: 1,
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    borderBottomWidth: 1,
-    borderColor: '#D1D5DB',
-    paddingVertical: 2,
-  },
-  imageIndicators: {
-    position: 'absolute',
-    bottom: 16,
-    flexDirection: 'row',
-    alignSelf: 'center',
-  },
-  indicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.5)',
-    marginHorizontal: 4,
-  },
-  activeIndicator: {
-    backgroundColor: '#FFFFFF',
-    width: 24,
-  },
-  infoSection: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    marginBottom: 8,
-  },
-  openingHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 4,
-    marginBottom: 10,
-  },
-  shopName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  locationText: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginLeft: 4,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start', // or space-between if you want them spread
-    alignItems: 'center',
-    marginBottom: 12,
-    gap: 16, // space between items
-  },
-  statusItem1: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#9C6ADE',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 14,
-  },
-  statusItem2: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#47C676',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 14,
-  },
-  statusText: {
-    marginLeft: 4,
-    fontSize: 14,
-    fontWeight: '300',
-    color: '#ffffffff',
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#9CA3AF',
-    marginHorizontal: 8,
-  },
-  distanceText: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
-    marginLeft: 4,
-  },
-  statSubText: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginLeft: 2,
-  },
-  statDivider: {
-    width: 1,
-    height: 16,
-    backgroundColor: '#E5E7EB',
-    marginHorizontal: 12,
-  },
-  section: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    marginBottom: 8,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  viewAllText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#06B6D4',
-  },
-  aboutText: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20,
-  },
-  hourRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
-    borderBottomWidth: 0.8,
-    borderBottomColor: '#E5E7EB',
-  },
-
-  dayText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-  },
-
-  timeText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#16A34A', // Green for open time
-  },
-
-  closedText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#DC2626', // Red for closed
-  },
-  viewAllServicesButton: {
-    borderWidth: 1,
-    borderColor: '#156778',
-    borderRadius: 25,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  viewAllServicesText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#156778',
-  },
-  galleryThumb: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
-    marginRight: 12,
-  },
-  bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  priceInfo: {
-    marginLeft: 8,
-  },
-  totalLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  totalPrice: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  bookButton: {
-    backgroundColor: '#156778',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: 25,
-    justifyContent: 'center',
-  },
-  bookButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-
-  filterTabsContainer: {
-    marginBottom: 16,
-  },
-  filterTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: '#F9FAFB',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginRight: 12,
-  },
-  filterTabActive: {
-    backgroundColor: '#E1F5FA',
-    borderColor: '#156778',
-  },
-  filterIconContainer: {
-    marginRight: 8,
-  },
-  filterTabText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6B7280',
-  },
-  filterTabTextActive: {
-    color: '#156778',
-    fontWeight: '600',
-  },
-});

@@ -1,370 +1,685 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
+  StatusBar,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-// Mock data
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const H_PAD = 16; // single source of truth for horizontal padding
+const SECTION_GAP = 24; // vertical gap between sections
+
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+
 const MOCK_STATS = {
-  totalBookings: 24,
-  pendingBookings: 5,
-  acceptedBookings: 12,
-  completedBookings: 7,
+  todayEarnings: 5700,
+  bookedToday: 23,
+  pendingRequests: 5,
+  totalCustomers: 863,
 };
 
 const MOCK_RECENT_BOOKINGS = [
   {
     id: 1,
-    customer: 'Priya Sharma',
-    service: 'Hair Cut',
-    date: '2025-10-30',
+    customer: 'Amit K.',
+    service: 'Hair Color',
+    duration: '1 hr',
+    amount: 2500,
     status: 'pending',
+    avatar: 'https://i.pravatar.cc/150?u=amit',
   },
   {
     id: 2,
-    customer: 'Amit Patel',
-    service: 'Hair Spa',
-    date: '2025-10-30',
+    customer: 'Mehak S.',
+    service: 'Full Body Massage',
+    duration: '1.5 hr',
+    amount: 2000,
     status: 'pending',
+    avatar: 'https://i.pravatar.cc/150?u=mehak',
   },
   {
     id: 3,
-    customer: 'Anjali Verma',
-    service: 'Coloring',
-    date: '2025-10-29',
-    status: 'accepted',
+    customer: 'Riya',
+    service: 'Bridal Makeup',
+    duration: '2 hr',
+    amount: 5000,
+    status: 'pending',
+    avatar: 'https://i.pravatar.cc/150?u=riya',
   },
 ];
 
-const MOCK_TOP_SPECIALISTS = [
-  { id: 1, name: 'Raj Kumar', bookings: 18 },
-  { id: 2, name: 'Neha Singh', bookings: 12 },
-  { id: 3, name: 'Arjun Reddy', bookings: 10 },
+const MOCK_REVIEWS = [
+  {
+    id: 1,
+    name: 'Neha T.',
+    rating: 5,
+    text: 'The bridal package was amazing! The staff was very professional and the results were exactly what I wanted.',
+    initials: 'NT',
+    avatarColor: '#fda4af',
+  },
 ];
 
-export default function SalonAdminDashboard({navigation}) {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending':
-        return '#FF9800';
-      case 'accepted':
-        return '#4CAF50';
-      case 'completed':
-        return '#2196F3';
-      default:
-        return '#999';
-    }
-  };
+// Row 1 — 4 compact actions
+const QUICK_ACTIONS_ROW1 = [
+  {
+    icon: 'add-outline',
+    label: 'Add Service',
+    iconColor: '#f43f5e',
+    bg: '#fecdd3',
+    navigateTo: 'AddService',
+  },
+  {
+    icon: 'people-outline',
+    label: 'Add Staff',
+    iconColor: '#f97316',
+    bg: '#ffedd5',
+    navigateTo: 'AddStaff',
+  },
+  {
+    icon: 'gift-outline',
+    label: 'Create Offer',
+    iconColor: '#ec4899',
+    bg: '#fbcfe8',  
+    navigateTo: 'CreateOffer',
+  },
+  {
+    icon: 'document-text-outline',
+    label: 'View Reports',
+    iconColor: '#10b981',
+    bg: '#d1fae5',
+    navigateTo: 'ViewReports',
+  },
+];
+
+// Row 2 — 2 wide actions
+const QUICK_ACTIONS_ROW2 = [
+  {
+    icon: 'share-outline',
+    label: 'Share',
+    iconColor: '#f97316',
+    bg: '#ffedd5',
+    navigateTo: 'Share',
+  },
+  {
+    icon: 'school-outline',
+    label: 'Courses',
+    iconColor: '#ec4899',
+    bg: '#fbcfe8',
+    navigateTo: 'Courses',
+  },
+];
+
+// Stats config
+const STATS_CONFIG = [
+  {
+    key: 'bookedToday',
+    label: 'Booked Today',
+    icon: 'calendar-outline',
+    iconColor: '#f43f5e',
+    iconBg: '#fecdd3',
+    trend: '+3',
+    trendUp: true,
+    navigateTo: 'SalonBookings',
+  },
+  {
+    key: 'pendingRequests',
+    label: 'Pending',
+    icon: 'time-outline',
+    iconColor: '#f97316',
+    iconBg: '#ffedd5',
+    trend: '+2',
+    trendUp: true,
+    navigateTo: 'SalonPending',
+  },
+  {
+    key: 'totalCustomers',
+    label: 'Customers',
+    icon: 'people-outline',
+    iconColor: '#10b981',
+    iconBg: '#d1fae5',
+    trend: '+12',
+    trendUp: true,
+    navigateTo: 'SalonCustomers',
+  },
+];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const cardShadow = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.06,
+  shadowRadius: 10,
+  elevation: 2,
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const Avatar = ({ src, initials, color, size = 48 }) => (
+  <View
+    style={{
+      width: size,
+      height: size,
+      borderRadius: size / 2,
+      backgroundColor: color || '#fecdd3',
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    {src ? (
+      <Image
+        source={{ uri: src }}
+        style={{ width: '100%', height: '100%', borderRadius: size / 2 }}
+        resizeMode="cover"
+      />
+    ) : (
+      <Text
+        style={{ fontSize: size * 0.33, color: '#9f1239', fontWeight: '700' }}
+      >
+        {initials}
+      </Text>
+    )}
+  </View>
+);
+
+// ── Stat Card ─────────────────────────────────────────────────────────────────
+
+const StatCard = ({ config, value, onPress }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    activeOpacity={0.8}
+    style={{
+      // width: '23%',
+      flex: 1,
+      gap: 5,
+      alignItems: 'center',
+      backgroundColor: '#fff',
+      borderRadius: 14,
+      paddingVertical: 10,
+      paddingHorizontal: 10,
+      alignItems: 'center',
+      // marginBottom: 12,
+      flexDirection: 'row',
+      ...cardShadow,
+    }}
+  >
+    {/* Icon */}
+    <View
+      style={{
+        width: 32,
+        height: 32,
+        borderRadius: 10,
+        backgroundColor: config.iconBg,
+        alignItems: 'center',
+        justifyContent: 'center',
+        // marginBottom: 6,
+      }}
+    >
+      <Icon name={config.icon} size={16} color={config.iconColor} />
+    </View>
+
+    <View>
+      {/* Value */}
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: '800',
+          color: '#111827',
+        }}
+      >
+        {value}
+      </Text>
+
+      {/* Label */}
+      <Text
+        numberOfLines={1}
+        style={{
+          fontSize: 10,
+          color: '#6b7280',
+          fontWeight: '600',
+          marginTop: 2,
+        }}
+      >
+        {config.label}
+      </Text>
+    </View>
+  </TouchableOpacity>
+);
+
+// ── Quick Action Button ───────────────────────────────────────────────────────
+
+const QuickActionBtn = ({ action, style, onPress }) => (
+  <TouchableOpacity
+    activeOpacity={0.7}
+    style={[
+      {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: action.bg,
+        borderRadius: 14,
+        padding: 12,
+        elevation: 1,
+      },
+      style,
+    ]}
+    onPress={onPress}
+  >
+    <View>
+      <Icon name={action.icon} size={20} color={action.iconColor} />
+    </View>
+    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+      <Text
+        style={{
+          textAlign: 'center',
+          fontSize: 12,
+          fontWeight: '600',
+          color: '#374151',
+        }}
+      >
+        {action.label}
+      </Text>
+    </View>
+  </TouchableOpacity>
+);
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export default function SalonAdminDashboard({ navigation }) {
+  const [bookings, setBookings] = useState(MOCK_RECENT_BOOKINGS);
+
+  const handleAccept = id =>
+    setBookings(prev =>
+      prev.map(b => (b.id === id ? { ...b, status: 'accepted' } : b)),
+    );
+
+  const handleDecline = id =>
+    setBookings(prev =>
+      prev.map(b => (b.id === id ? { ...b, status: 'declined' } : b)),
+    );
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-       {/* Header */}
-<View style={styles.header}>
-  <View style={styles.headerTop}>
-    <Text style={styles.greeting}>Welcome Back!</Text>
-    <TouchableOpacity style={styles.notificationButton} onPress={() => navigation.navigate('SalonNotifications')}>
-      <Icon name="notifications-outline" size={24} color="#fff" />
-      {/* Optional: add badge */}
-      <View style={styles.notificationBadge}>
-        <Text style={styles.badgeText}>3</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff1f2' }} edges={[]}>
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <View
+        style={{
+          paddingHorizontal: H_PAD,
+          paddingTop: 12,
+          paddingBottom: 16,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <View>
+          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#1f2937' }}>
+            Hello, Glamour Salon 👋
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          style={{ position: 'relative' }}
+          onPress={() => navigation?.navigate('SalonNotifications')}
+        >
+          <Avatar src="https://i.pravatar.cc/150?u=salon_admin" size={44} />
+          <View
+            style={{
+              position: 'absolute',
+              top: -2,
+              right: -2,
+              width: 18,
+              height: 18,
+              borderRadius: 9,
+              backgroundColor: '#f43f5e',
+              borderWidth: 2,
+              borderColor: '#fff1f2',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>
+              3
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
-  </View>
-  <Text style={styles.date}>Today's Overview</Text>
-</View>
 
-
-        {/* Quick Stats */}
-        <View style={styles.statsGrid}>
-          <View style={[styles.statCard, styles.statCard1]}>
-            <Icon name="calendar" size={24} color="#fff" />
-            <Text style={styles.statNumber}>{MOCK_STATS.totalBookings}</Text>
-            <Text style={styles.statLabel}>Total Bookings</Text>
-          </View>
-
-          <View style={[styles.statCard, styles.statCard2]}>
-            <Icon name="time" size={24} color="#fff" />
-            <Text style={styles.statNumber}>{MOCK_STATS.pendingBookings}</Text>
-            <Text style={styles.statLabel}>Pending</Text>
-          </View>
-
-          <View style={[styles.statCard, styles.statCard3]}>
-            <Icon name="checkmark-circle" size={24} color="#fff" />
-            <Text style={styles.statNumber}>{MOCK_STATS.acceptedBookings}</Text>
-            <Text style={styles.statLabel}>Accepted</Text>
-          </View>
-
-          <View style={[styles.statCard, styles.statCard4]}>
-            <Icon name="trophy" size={24} color="#fff" />
-            <Text style={styles.statNumber}>{MOCK_STATS.completedBookings}</Text>
-            <Text style={styles.statLabel}>Completed</Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        {/* ── Promotional Banner ──────────────────────────────────────────── */}
+        <View
+          style={{
+            marginHorizontal: H_PAD,
+            marginTop: SECTION_GAP - 8,
+            borderRadius: 20,
+            overflow: 'hidden',
+            backgroundColor: '#111827',
+            paddingHorizontal: 20,
+            paddingVertical: 20,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                color: '#fff',
+                fontWeight: 'bold',
+                fontSize: 18,
+                lineHeight: 24,
+              }}
+            >
+              Create & Share{'\n'}Promotional Posters
+            </Text>
+            <TouchableOpacity
+              style={{
+                marginTop: 12,
+                alignSelf: 'flex-start',
+                borderRadius: 50,
+                backgroundColor: '#f43f5e',
+                paddingHorizontal: 20,
+                paddingVertical: 9,
+              }}
+              activeOpacity={0.85}
+            >
+              <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>
+                Try Now
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Recent Bookings Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Bookings</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All →</Text>
+        {/* ── Stats Cards ─────────────────────────────────────────────────── */}
+        <View
+          style={{
+            marginHorizontal: H_PAD,
+            marginTop: SECTION_GAP,
+            flexDirection: 'row',
+            gap: 10,
+            // flexWrap: 'wrap',
+            justifyContent: 'space-between',
+          }}
+        >
+          {STATS_CONFIG.map(config => (
+            <StatCard
+              key={config.key}
+              config={config}
+              value={MOCK_STATS[config.key]}
+              onPress={() => navigation?.navigate(config.navigateTo)}
+            />
+          ))}
+        </View>
+
+        {/* ── Quick Actions ───────────────────────────────────────────────── */}
+        <View style={{ marginHorizontal: H_PAD, marginTop: SECTION_GAP }}>
+          {/* Row 1 — 4 equal compact buttons */}
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {QUICK_ACTIONS_ROW1.map(action => (
+              <QuickActionBtn
+                key={action.label}
+                action={action}
+                onPress={() => {
+                  console.log(action.navigateTo);
+                  console.log('pressed')
+                  navigation.navigate(action.navigateTo)}}
+                style={{ flex: 1, flexDirection: 'column', gap: 4 }}
+              />
+            ))}
+          </View>
+
+          {/* Row 2 — 2 wide 50/50 buttons */}
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+            {QUICK_ACTIONS_ROW2.map(action => (
+              <QuickActionBtn
+                key={action.label}
+                action={action}
+                style={{ flex: 1, gap: 4 }}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* ── Recent Bookings ─────────────────────────────────────────────── */}
+        <View style={{ marginHorizontal: H_PAD, marginTop: SECTION_GAP }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 14,
+            }}
+          >
+            <Text
+              style={{ fontWeight: 'bold', color: '#1f2937', fontSize: 18 }}
+            >
+              Recent Bookings
+            </Text>
+            <TouchableOpacity
+              onPress={() => navigation?.navigate('SalonBookings')}
+              style={{ flexDirection: 'row', alignItems: 'center' }}
+            >
+              <Text
+                style={{ color: '#f43f5e', fontSize: 14, fontWeight: '600' }}
+              >
+                View All
+              </Text>
+              <Icon name="chevron-forward" size={16} color="#f43f5e" />
             </TouchableOpacity>
           </View>
 
-          {MOCK_RECENT_BOOKINGS.map((booking) => (
-            <View key={booking.id} style={styles.bookingItem}>
-              <View style={styles.bookingInfo}>
-                <Text style={styles.customerName}>{booking.customer}</Text>
-                <Text style={styles.service}>{booking.service}</Text>
-                <Text style={styles.bookingDate}>{booking.date}</Text>
-              </View>
+          {bookings.map(booking => (
+            <View
+              key={booking.id}
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: 14,
+                padding: 14,
+                marginBottom: 12,
+                ...cardShadow,
+              }}
+            >
               <View
-                style={[
-                  styles.statusBadge,
-                  { backgroundColor: getStatusColor(booking.status) },
-                ]}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
               >
-                <Text style={styles.statusText}>
-                  {booking.status.charAt(0).toUpperCase() +
-                    booking.status.slice(1)}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    flex: 1,
+                  }}
+                >
+                  <Avatar src={booking.avatar} size={48} />
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        color: '#1f2937',
+                        fontSize: 15,
+                      }}
+                    >
+                      {booking.customer}
+                    </Text>
+                    <Text
+                      style={{ color: '#9ca3af', fontSize: 13, marginTop: 2 }}
+                    >
+                      {booking.service} • {booking.duration}
+                    </Text>
+                  </View>
+                </View>
+                <Text
+                  style={{ fontWeight: 'bold', color: '#1f2937', fontSize: 15 }}
+                >
+                  ₹ {booking.amount.toLocaleString()}
                 </Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: 14,
+                  paddingTop: 14,
+                  borderTopWidth: 1,
+                  borderTopColor: '#f3f4f6',
+                }}
+              >
+                <Text style={{ color: '#9ca3af', fontSize: 12 }}>
+                  May 12, 11:00 AM
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => handleAccept(booking.id)}
+                    style={{
+                      paddingHorizontal: 16,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: '#059669',
+                    }}
+                  >
+                    <Text
+                      style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}
+                    >
+                      Accept
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleDecline(booking.id)}
+                    style={{
+                      paddingHorizontal: 16,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: '#e11d48',
+                    }}
+                  >
+                    <Text
+                      style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}
+                    >
+                      Decline
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           ))}
         </View>
 
-        {/* Top Specialists Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Top Specialists</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All →</Text>
+        {/* ── Recent Reviews ──────────────────────────────────────────────── */}
+        <View style={{ marginHorizontal: H_PAD, marginTop: SECTION_GAP }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 14,
+            }}
+          >
+            <Text
+              style={{ fontWeight: 'bold', color: '#1f2937', fontSize: 18 }}
+            >
+              Recent Reviews
+            </Text>
+            <TouchableOpacity
+              style={{ flexDirection: 'row', alignItems: 'center' }}
+            >
+              <Text
+                style={{ color: '#f43f5e', fontSize: 14, fontWeight: '600' }}
+              >
+                View All
+              </Text>
+              <Icon name="chevron-forward" size={16} color="#f43f5e" />
             </TouchableOpacity>
           </View>
 
-          {MOCK_TOP_SPECIALISTS.map((specialist, index) => (
-            <View key={specialist.id} style={styles.specialistItem}>
-              <View style={styles.rankBadge}>
-                <Text style={styles.rankNumber}>{index + 1}</Text>
+          {MOCK_REVIEWS.map(review => (
+            <View
+              key={review.id}
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: 14,
+                padding: 14,
+                marginBottom: 12,
+                ...cardShadow,
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                <Avatar
+                  initials={review.initials}
+                  color={review.avatarColor}
+                  size={44}
+                />
+                <View style={{ marginLeft: 12, flex: 1 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <View
+                      style={{ flexDirection: 'row', alignItems: 'center' }}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          color: '#1f2937',
+                          fontSize: 15,
+                        }}
+                      >
+                        {review.name}
+                      </Text>
+                      <View style={{ flexDirection: 'row', marginLeft: 8 }}>
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <Icon
+                            key={i}
+                            name="star"
+                            size={10}
+                            color={i <= review.rating ? '#fbbf24' : '#e5e7eb'}
+                          />
+                        ))}
+                      </View>
+                    </View>
+                    <Text style={{ color: '#9ca3af', fontSize: 12 }}>
+                      May 11
+                    </Text>
+                  </View>
+                  <Text
+                    style={{
+                      color: '#6b7280',
+                      marginTop: 4,
+                      fontSize: 13,
+                      lineHeight: 18,
+                    }}
+                  >
+                    Amazing experience! The staff was very professional and
+                    friendly.
+                  </Text>
+                </View>
+                <Icon
+                  name="chevron-forward"
+                  size={16}
+                  color="#9ca3af"
+                  style={{ marginLeft: 4 }}
+                />
               </View>
-              <View style={styles.specialistInfo}>
-                <Text style={styles.specialistName}>{specialist.name}</Text>
-                <Text style={styles.bookingCount}>
-                  {specialist.bookings} bookings
-                </Text>
-              </View>
-              <Icon name="arrow-forward" size={20} color="#156778" />
             </View>
           ))}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  header: {
-    backgroundColor: '#156778',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-  },
-  headerTop: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-},
-notificationButton: {
-  width: 40,
-  height: 40,
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-notificationBadge: {
-  position: 'absolute',
-  top: 2,
-  right: 2,
-  backgroundColor: '#FF0000',
-  width: 16,
-  height: 16,
-  borderRadius: 8,
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-badgeText: {
-  color: '#fff',
-  fontSize: 10,
-  fontWeight: '700',
-},
-  greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  date: {
-    fontSize: 13,
-    color: '#ddd',
-    marginTop: 4,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 8,
-    paddingVertical: 12,
-  },
-  statCard: {
-    width: '48%',
-    marginHorizontal: '1%',
-    marginVertical: 6,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  statCard1: {
-    backgroundColor: '#156778',
-  },
-  statCard2: {
-    backgroundColor: '#FF9800',
-  },
-  statCard3: {
-    backgroundColor: '#4CAF50',
-  },
-  statCard4: {
-    backgroundColor: '#2196F3',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#fff',
-    marginVertical: 6,
-  },
-  statLabel: {
-    fontSize: 11,
-    color: '#fff',
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  section: {
-    marginHorizontal: 16,
-    marginVertical: 16,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
-  viewAll: {
-    fontSize: 12,
-    color: '#156778',
-    fontWeight: '600',
-  },
-  bookingItem: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    marginBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  bookingInfo: {
-    flex: 1,
-  },
-  customerName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
-  service: {
-    fontSize: 12,
-    color: '#156778',
-    marginTop: 2,
-  },
-  bookingDate: {
-    fontSize: 11,
-    color: '#999',
-    marginTop: 4,
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  statusText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  specialistItem: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    marginBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  rankBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#156778',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  rankNumber: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  specialistInfo: {
-    flex: 1,
-  },
-  specialistName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
-  bookingCount: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 2,
-  },
-});
