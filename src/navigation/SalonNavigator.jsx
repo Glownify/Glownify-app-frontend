@@ -24,6 +24,9 @@ import ComboPackagesScreen from '../screens/SalonAdminScreens/ComboPackagesScree
 // Import Other
 import SubscriptionPlanScreen from '../screens/SubscriptionPlanScreen';
 import { checkSubscription } from '../utils/checkSubscription';
+import BookingDetail from '../screens/SalonAdminScreens/bookings/BookingDetail';
+import BillingDetail from '../screens/SalonAdminScreens/bookings/BillingDetail';
+import AddServiceScreen from '../screens/SalonAdminScreens/serviceScreens/Addservicescreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -180,10 +183,31 @@ export default function SalonStackNavigator({ navigation }) {
           options={{ animationEnabled: false }}
         />
 
+        <Stack.Screen
+          name="BookingDetail"
+          component={BookingDetail}
+          options={{ animationEnabled: false }}
+        />
+
+        <Stack.Screen
+          name="BillingDetail"
+          component={BillingDetail}
+          options={{ animationEnabled: false }}
+        />
+
         {/* Screens not in tabs */}
         <Stack.Screen
           name="SalonNotifications"
           component={SalonNotificationsScreen}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
+
+        <Stack.Screen
+          name="AddService"
+          component={AddServiceScreen}
           options={{
             animationEnabled: true,
             animationTypeForReplace: 'pop',
