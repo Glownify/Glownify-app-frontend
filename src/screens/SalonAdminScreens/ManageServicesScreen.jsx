@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Alert,
@@ -11,795 +10,603 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Icon from "react-native-vector-icons/Ionicons";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  fetchSalonServices,
-  fetchAllCategories,
-  createServiceItem,
-  updateServiceItem,
-  deleteServiceItem,
-} from "../../redux/slices/salonAdminSlice";
-import Loader from "../../components/Loader";
 
-export default function ManageServicesScreen({ navigation }) {
-  const dispatch = useDispatch();
-  const { services = [], loading, error, categories = [] } = useSelector(
-    (state) => state.salonAdmin
-  );
+// ─── DUMMY DATA ───────────────────────────────────────────────────────────────
+// 🔁 Replace with Redux:
+// const { services = [], loading, error, categories = [] } = useSelector(state => state.salonAdmin)
+// useEffect(() => { dispatch(fetchSalonServices()); dispatch(fetchAllCategories()); }, [dispatch])
 
-  const [modalVisible, setModalVisible] = useState(false);
+const DUMMY_CATEGORIES = [
+  { _id: "c1", name: "Hair Care",        gender: "unisex", icon: "cut-outline"            },
+  { _id: "c2", name: "Skin Care",        gender: "women",  icon: "flower-outline"         },
+  { _id: "c3", name: "Beard & Grooming", gender: "men",    icon: "man-outline"            },
+  { _id: "c4", name: "Nail Art",         gender: "women",  icon: "color-palette-outline"  },
+];
+
+const DUMMY_SERVICES = [
+  {
+    _id: "s1", name: "Classic Haircut",
+    category: { _id: "c1", name: "Hair Care", gender: "unisex", icon: "cut-outline" },
+    price: 350, durationMins: 30, discountPercent: 10,
+    description: "A clean, classic haircut styled to your preference.",
+    serviceMode: "salon", status: "active", gender: "unisex",
+    addOns: [
+      { name: "Hair Wash", price: 100, duration: 10, isRecommended: true },
+      { name: "Blow Dry",  price: 150, duration: 15, isRecommended: false },
+    ],
+  },
+  {
+    _id: "s2", name: "Balayage Coloring",
+    category: { _id: "c1", name: "Hair Care", gender: "unisex", icon: "cut-outline" },
+    price: 2500, durationMins: 120, discountPercent: 0,
+    description: "Hand-painted highlights for a natural sun-kissed look.",
+    serviceMode: "salon", status: "active", gender: "women", addOns: [],
+  },
+  {
+    _id: "s3", name: "Beard Shaping",
+    category: { _id: "c3", name: "Beard & Grooming", gender: "men", icon: "man-outline" },
+    price: 200, durationMins: 20, discountPercent: 0,
+    description: "Precision beard trim and shaping with hot towel finish.",
+    serviceMode: "both", status: "inactive", gender: "men",
+    addOns: [{ name: "Hot Towel", price: 50, duration: 5, isRecommended: true }],
+  },
+  {
+    _id: "s4", name: "Deep Facial",
+    category: { _id: "c2", name: "Skin Care", gender: "women", icon: "flower-outline" },
+    price: 1200, durationMins: 60, discountPercent: 15,
+    description: "Deep cleansing facial with exfoliation and moisturizing.",
+    serviceMode: "home", status: "active", gender: "women", addOns: [],
+  },
+];
+
+const LOADING = false; // 🔁 swap with Redux loading state
+const ERROR   = null;  // 🔁 swap with Redux error state
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const genderBadge = (gender) => {
+  switch (gender) {
+    case "men":    return { bg: "bg-blue-500",    text: "text-neutral-white" };
+    case "women":  return { bg: "bg-pink-500",    text: "text-neutral-white" };
+    case "unisex": return { bg: "bg-purple-500",  text: "text-neutral-white" };
+    default:       return { bg: "bg-neutral-400", text: "text-neutral-white" };
+  }
+};
+
+const modeBadge = (mode) => {
+  switch (mode) {
+    case "salon": return { bg: "bg-success", icon: "business-outline" };
+    case "home":  return { bg: "bg-warning", icon: "home-outline"     };
+    default:      return { bg: "bg-info",    icon: "list-outline"     };
+  }
+};
+
+const EMPTY_FORM = {
+  name: "", category: "", price: "", durationMins: "30",
+  discountPercent: "0", description: "", serviceMode: "salon", addOns: [],
+};
+
+// ─── SCREEN ───────────────────────────────────────────────────────────────────
+export default function ManageServicesScreen() {
+  // 🔁 Replace local state below with Redux selectors + dispatch
+  const [services, setServices] = useState(DUMMY_SERVICES);
+  const categories               = DUMMY_CATEGORIES;
+  const loading                  = LOADING;
+  const error                    = ERROR;
+
+  const [modalVisible, setModalVisible]   = useState(false);
   const [editingService, setEditingService] = useState(null);
-
-  // Main service fields
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [durationMins, setDurationMins] = useState("30");
-  const [discountPercent, setDiscountPercent] = useState("0");
-  const [description, setDescription] = useState("");
-  const [serviceMode, setServiceMode] = useState("salon");
-
-  // Add-ons state
-  const [addOns, setAddOns] = useState([]);
+  const [genderFilter, setGenderFilter]   = useState("all");
+  const [form, setForm]                   = useState(EMPTY_FORM);
   const [showAddOnForm, setShowAddOnForm] = useState(false);
 
-  // Gender filter states
-  const [selectedGenderFilter, setSelectedGenderFilter] = useState("all");
-  const [modalGenderFilter, setModalGenderFilter] = useState("all");
+  const setField = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
-  useEffect(() => {
-    dispatch(fetchSalonServices());
-    dispatch(fetchAllCategories());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (editingService) {
-      const catId =
-        typeof editingService.category === "string"
-          ? editingService.category
-          : editingService.category?._id;
-
-      if (catId && !category) {
-        setCategory(catId);
-      }
-
-      const serviceGender = editingService.gender;
-      const catObj = categories.find((c) => c._id === catId);
-      const derivedGender = serviceGender || catObj?.gender || "all";
-
-      if (modalGenderFilter !== derivedGender) {
-        setModalGenderFilter(derivedGender);
-      }
-    }
-  }, [categories, editingService]);
-
-  const getModalFilteredCategories = () => {
-    if (!categories) return [];
-    if (modalGenderFilter === "all") {
-      return categories;
-    }
-    return categories.filter(
-      (cat) => cat.gender === modalGenderFilter || cat.gender === "unisex"
-    );
-  };
-
-  const getGenderBadgeColor = (gender) => {
-    switch (gender) {
-      case "men":
-        return "#2196F3";
-      case "women":
-        return "#E91E63";
-      case "unisex":
-        return "#9C27B0";
-      default:
-        return "#757575";
-    }
-  };
-
-  // Add-on management functions
+  // ── Add-on helpers ──────────────────────────────────────────────────────
   const addNewAddOn = () => {
-    setAddOns([
-      ...addOns,
-      {
-        id: Date.now().toString(), // temporary ID for UI
-        name: "",
-        price: "",
-        duration: "0",
-        isRecommended: false,
-      },
+    setField("addOns", [
+      ...form.addOns,
+      { id: Date.now().toString(), name: "", price: "", duration: "0", isRecommended: false },
     ]);
     setShowAddOnForm(true);
   };
 
-  const updateAddOn = (index, field, value) => {
-    const updated = [...addOns];
-    updated[index] = { ...updated[index], [field]: value };
-    setAddOns(updated);
+  const updateAddOn = (i, field, value) => {
+    const updated = form.addOns.map((a, idx) => idx === i ? { ...a, [field]: value } : a);
+    setField("addOns", updated);
   };
 
-  const removeAddOn = (index) => {
-    Alert.alert("Remove Add-on", "Are you sure you want to remove this add-on?", [
+  const removeAddOn = (i) => {
+    Alert.alert("Remove Add-on", "Are you sure?", [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Remove",
-        style: "destructive",
+        text: "Remove", style: "destructive",
         onPress: () => {
-          const updated = addOns.filter((_, idx) => idx !== index);
-          setAddOns(updated);
-          if (updated.length === 0) {
-            setShowAddOnForm(false);
-          }
+          const updated = form.addOns.filter((_, idx) => idx !== i);
+          setField("addOns", updated);
+          if (updated.length === 0) setShowAddOnForm(false);
         },
       },
     ]);
   };
 
-  const toggleAddOnRecommended = (index) => {
-    const updated = [...addOns];
-    updated[index] = {
-      ...updated[index],
-      isRecommended: !updated[index].isRecommended,
-    };
-    setAddOns(updated);
+  const toggleRecommended = (i) => {
+    const updated = form.addOns.map((a, idx) =>
+      idx === i ? { ...a, isRecommended: !a.isRecommended } : a
+    );
+    setField("addOns", updated);
   };
 
+  // ── Open / close modal ──────────────────────────────────────────────────
   const openModal = (service = null) => {
     if (service) {
+      const catId = typeof service.category === "string"
+        ? service.category : service.category?._id;
       setEditingService(service);
-
-      const catId =
-        typeof service.category === "string"
-          ? service.category
-          : service.category?._id;
-
-      setName(service.name || "");
-      setCategory(catId || "");
-      setPrice(service.price != null ? service.price.toString() : "");
-      setDurationMins(
-        service.durationMins != null ? service.durationMins.toString() : "30"
-      );
-      setDiscountPercent(
-        service.discountPercent != null ? service.discountPercent.toString() : "0"
-      );
-      setDescription(service.description || "");
-      setServiceMode(service.serviceMode || "salon");
-
-      // Load existing add-ons
-      if (service.addOns && service.addOns.length > 0) {
-        setAddOns(
-          service.addOns.map((addon) => ({
-            id: addon._id || Date.now().toString(),
-            name: addon.name || "",
-            price: addon.price != null ? addon.price.toString() : "",
-            duration: addon.duration != null ? addon.duration.toString() : "0",
-            isRecommended: addon.isRecommended || false,
-          }))
-        );
-        setShowAddOnForm(true);
-      } else {
-        setAddOns([]);
-        setShowAddOnForm(false);
-      }
-
-      const serviceGender = service.gender;
-      const catObj = categories.find((c) => c._id === catId);
-      setModalGenderFilter(serviceGender || catObj?.gender || "all");
+      setForm({
+        name:            service.name || "",
+        category:        catId || "",
+        price:           service.price != null ? String(service.price) : "",
+        durationMins:    service.durationMins != null ? String(service.durationMins) : "30",
+        discountPercent: service.discountPercent != null ? String(service.discountPercent) : "0",
+        description:     service.description || "",
+        serviceMode:     service.serviceMode || "salon",
+        addOns: (service.addOns || []).map((a) => ({
+          id:            a._id || Date.now().toString(),
+          name:          a.name || "",
+          price:         a.price != null ? String(a.price) : "",
+          duration:      a.duration != null ? String(a.duration) : "0",
+          isRecommended: a.isRecommended || false,
+        })),
+      });
+      setShowAddOnForm((service.addOns || []).length > 0);
     } else {
-      // Reset for Add
       setEditingService(null);
-      setName("");
-      setCategory("");
-      setPrice("");
-      setDurationMins("30");
-      setDiscountPercent("0");
-      setDescription("");
-      setServiceMode("salon");
-      setAddOns([]);
+      setForm(EMPTY_FORM);
       setShowAddOnForm(false);
-      setModalGenderFilter("all");
     }
     setModalVisible(true);
   };
 
-  const handleSave = async () => {
-    if (!name || !category || !price) {
-      Alert.alert("Error", "Please fill all required fields");
+  const closeModal = () => { setModalVisible(false); setEditingService(null); };
+
+  // ── Save ────────────────────────────────────────────────────────────────
+  const handleSave = () => {
+    if (!form.name || !form.category || !form.price) {
+      Alert.alert("Error", "Please fill all required fields.");
       return;
     }
-
-    // Validate add-ons
-    const validAddOns = addOns.filter((addon) => addon.name && addon.price);
-    const invalidAddOns = addOns.filter((addon) => !addon.name || !addon.price);
-
-    if (invalidAddOns.length > 0) {
-      Alert.alert(
-        "Invalid Add-ons",
-        "Some add-ons have missing name or price. They will be excluded."
-      );
-    }
-
-    // Format add-ons for backend (remove temporary id field)
-    const formattedAddOns = validAddOns.map((addon) => ({
-      ...(addon._id && { _id: addon._id }), // Include _id only if editing existing addon
-      name: addon.name,
-      price: Number(addon.price),
-      duration: Number(addon.duration),
-      isRecommended: addon.isRecommended,
-    }));
-
-    const serviceData = {
-      name,
-      category,
-      price: Number(price),
-      durationMins: Number(durationMins),
-      discountPercent: Number(discountPercent),
-      description,
-      serviceMode,
-      providerType: "Salon",
-      addOns: formattedAddOns,
-    };
-
-    try {
-      if (editingService) {
-        await dispatch(
-          updateServiceItem({
-            serviceId: editingService._id,
-            updateData: serviceData,
-          })
-        ).unwrap();
-      } else {
-        await dispatch(createServiceItem(serviceData)).unwrap();
-      }
-
-      setModalVisible(false);
-      setEditingService(null);
-      dispatch(fetchSalonServices());
-      dispatch(fetchAllCategories());
-    } catch (err) {
-      Alert.alert("Error", (err && err.message) || String(err));
-    }
+    // 🔁 Replace with: dispatch(editingService ? updateServiceItem(...) : createServiceItem(...))
+    Alert.alert("Success", editingService ? "Service updated!" : "Service added!");
+    closeModal();
   };
 
-  const handleDelete = (serviceId) => {
+  // ── Delete ──────────────────────────────────────────────────────────────
+  const handleDelete = (id) => {
     Alert.alert("Delete Service", "Are you sure?", [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await dispatch(deleteServiceItem(serviceId)).unwrap();
-            dispatch(fetchSalonServices());
-          } catch (err) {
-            Alert.alert("Error", (err && err.message) || String(err));
-          }
+        text: "Delete", style: "destructive",
+        onPress: () => {
+          // 🔁 Replace with: dispatch(deleteServiceItem(id))
+          setServices((prev) => prev.filter((s) => s._id !== id));
         },
       },
     ]);
   };
 
-  const toggleStatus = async (service) => {
-    try {
-      await dispatch(
-        updateServiceItem({
-          serviceId: service._id,
-          updateData: {
-            status: service.status === "active" ? "inactive" : "active",
-          },
-        })
-      ).unwrap();
-      dispatch(fetchSalonServices());
-    } catch (err) {
-      Alert.alert("Error", (err && err.message) || String(err));
-    }
+  // ── Toggle status ───────────────────────────────────────────────────────
+  const toggleStatus = (service) => {
+    // 🔁 Replace with: dispatch(updateServiceItem({ serviceId: service._id, updateData: { status: ... } }))
+    setServices((prev) =>
+      prev.map((s) =>
+        s._id === service._id
+          ? { ...s, status: s.status === "active" ? "inactive" : "active" }
+          : s
+      )
+    );
   };
 
- const renderServiceCard = (service, index) => (
-  <View key={service._id || index} style={styles.card}>
-    <View style={styles.cardHeader}>
-      <View style={styles.headerInfo}>
-        <Text style={styles.name}>{service.name}</Text>
-        <View style={styles.categoryRow}>
-          {typeof service.category === "object" && service.category?.icon && (
-            <Icon
-              name={service.category.icon}
-              size={14}
-              color="#156778"
-              style={{ marginRight: 4 }}
-            />
-          )}
-          <Text style={styles.categoryText}>
-            {typeof service.category === "object"
-              ? service.category?.name
-              : categories.find((c) => c._id === service.category)?.name ||
-                ""}
-          </Text>
+  // ── Filter ──────────────────────────────────────────────────────────────
+  const filteredServices = genderFilter === "all" ? services : services.filter((s) => {
+    const g = s.gender
+      || (typeof s.category === "object" && s.category?.gender)
+      || categories.find((c) => c._id === s.category)?.gender;
+    return g === genderFilter || g === "unisex";
+  });
 
-          {/* Gender Badge */}
-          {(service.gender ||
-            (typeof service.category === "object" &&
-              service.category?.gender) ||
-            categories.find((c) => c._id === service.category)?.gender) && (
-            <View
-              style={[
-                styles.genderBadge,
-                {
-                  backgroundColor: getGenderBadgeColor(
-                    service.gender ||
-                      (typeof service.category === "object" &&
-                        service.category?.gender) ||
-                      categories.find((c) => c._id === service.category)
-                        ?.gender
-                  ),
-                  marginLeft: 8,
-                },
-              ]}
-            >
-              <Text style={styles.genderBadgeText}>
-                {(service.gender ||
-                  (typeof service.category === "object" &&
-                    service.category?.gender) ||
-                  categories.find((c) => c._id === service.category)
-                    ?.gender ||
-                  ""
-                ).toString()}
-              </Text>
-            </View>
-          )}
+  // ─── SERVICE CARD ─────────────────────────────────────────────────────────
+  const renderCard = (service) => {
+    const catObj   = typeof service.category === "object"
+      ? service.category
+      : categories.find((c) => c._id === service.category);
+    const gender   = service.gender || catObj?.gender;
+    const gs       = genderBadge(gender);
+    const ms       = modeBadge(service.serviceMode);
 
-          {/* Service Mode Badge */}
-          {service.serviceMode && (
-            <View
-              style={[
-                styles.serviceModeBadge,
-                {
-                  backgroundColor:
-                    service.serviceMode === "salon"
-                      ? "#4CAF50"
-                      : service.serviceMode === "home"
-                      ? "#FF9800"
-                      : "#9C27B0",
-                },
-              ]}
-            >
-              <Icon
-                name={
-                  service.serviceMode === "salon"
-                    ? "business"
-                    : service.serviceMode === "home"
-                    ? "home"
-                    : "list"
-                }
-                size={10}
-                color="#fff"
-              />
-              <Text style={styles.serviceModeBadgeText}>
-                {service.serviceMode.charAt(0).toUpperCase() +
-                  service.serviceMode.slice(1)}
-              </Text>
-            </View>
-          )}
-        </View>
-      </View>
+    return (
+      <View key={service._id} className="bg-neutral-white rounded-card p-md mb-sm shadow-card border border-neutral-100">
 
-      <View style={styles.statusContainer}>
-        <Text
-          style={[
-            styles.statusText,
-            { color: service.status === "active" ? "#4CAF50" : "#f44336" },
-          ]}
-        >
-          {service.status === "active" ? "Active" : "Inactive"}
-        </Text>
-      </View>
-    </View>
+        {/* Top row */}
+        <View className="flex-row justify-between items-start mb-xs">
+          <View className="flex-1 mr-sm">
+            <Text className="text-base font-bold text-neutral-800">{service.name}</Text>
+            <View className="flex-row flex-wrap items-center gap-1.5 mt-1">
+              {catObj?.icon && <Icon name={catObj.icon} size={13} color="#156778" />}
+              <Text className="text-xs font-semibold text-teal-600">{catObj?.name}</Text>
 
-    <View style={styles.section}>
-      <View style={styles.rowBetween}>
-        <Text style={styles.priceText}>₹{service.price}</Text>
-        <Text style={styles.durationText}>⏱ {service.durationMins} mins</Text>
-      </View>
-      {service.discountPercent > 0 && (
-        <Text style={styles.discountText}>
-          💸 {service.discountPercent}% off
-        </Text>
-      )}
-    </View>
+              {gender && (
+                <View className={`${gs.bg} px-2 py-0.5 rounded-button`}>
+                  <Text className={`${gs.text} text-xs font-bold uppercase`}>{gender}</Text>
+                </View>
+              )}
 
-    {/* Display Add-ons */}
-    {service.addOns && service.addOns.length > 0 && (
-      <View style={styles.addOnsPreview}>
-        <View style={styles.addOnsHeader}>
-          <Icon name="add-circle-outline" size={14} color="#156778" />
-          <Text style={styles.addOnsHeaderText}>
-            {service.addOns.length} Add-on{service.addOns.length > 1 ? "s" : ""}
-          </Text>
-        </View>
-        <View style={styles.addOnsList}>
-          {service.addOns.slice(0, 2).map((addon, idx) => (
-            <View key={idx} style={styles.addOnChip}>
-              <Text style={styles.addOnChipText}>
-                {addon.name} (+₹{addon.price})
-              </Text>
-              {addon.isRecommended && (
-                <Icon name="star" size={10} color="#FFD700" />
+              {service.serviceMode && (
+                <View className={`${ms.bg} flex-row items-center gap-x-0.5 px-2 py-0.5 rounded-button`}>
+                  <Icon name={ms.icon} size={10} color="#fff" />
+                  <Text className="text-neutral-white text-xs font-bold capitalize ml-0.5">
+                    {service.serviceMode}
+                  </Text>
+                </View>
               )}
             </View>
-          ))}
-          {service.addOns.length > 2 && (
-            <Text style={styles.moreAddOns}>
-              +{service.addOns.length - 2} more
+          </View>
+
+          <View className={`px-2 py-0.5 rounded-button ${service.status === "active" ? "bg-teal-50" : "bg-neutral-100"}`}>
+            <Text className={`text-xs font-bold ${service.status === "active" ? "text-success" : "text-neutral-400"}`}>
+              {service.status === "active" ? "Active" : "Inactive"}
             </Text>
+          </View>
+        </View>
+
+        {/* Price / duration / discount */}
+        <View className="flex-row justify-between items-center py-xs border-t border-b border-neutral-100 my-xs">
+          <Text className="text-base font-bold text-neutral-900">₹{service.price}</Text>
+          <Text className="text-xs text-neutral-500">⏱ {service.durationMins} mins</Text>
+          {service.discountPercent > 0 && (
+            <View className="bg-teal-50 px-2 py-0.5 rounded-button">
+              <Text className="text-xs font-bold text-success">💸 {service.discountPercent}% off</Text>
+            </View>
           )}
         </View>
-      </View>
-    )}
 
-    {service.description && (
-      <Text style={styles.desc}>{service.description}</Text>
-    )}
-
-    <View style={styles.actions}>
-      <TouchableOpacity
-        style={[styles.actionButton, { backgroundColor: "#156778" }]}
-        onPress={() => openModal(service)}
-      >
-        <Icon name="create-outline" size={16} color="#fff" />
-        <Text style={styles.actionText}>Edit</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.actionButton, { backgroundColor: "#4CAF50" }]}
-        onPress={() => toggleStatus(service)}
-      >
-        <Icon name="swap-horizontal-outline" size={16} color="#fff" />
-        <Text style={styles.actionText}>Toggle</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.actionButton, { backgroundColor: "#f44336" }]}
-        onPress={() => handleDelete(service._id)}
-      >
-        <Icon name="trash-outline" size={16} color="#fff" />
-        <Text style={styles.actionText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
-
-
-  const getFilteredServices = () => {
-    if (selectedGenderFilter === "all") {
-      return services;
-    }
-    return services.filter((service) => {
-      const serviceGender =
-        service.gender ||
-        (typeof service.category === "object" && service.category?.gender) ||
-        categories.find((c) => c._id === service.category)?.gender;
-      return (
-        serviceGender === selectedGenderFilter || serviceGender === "unisex"
-      );
-    });
-  };
-
-  const filteredServices = getFilteredServices();
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Services</Text>
-        <Text style={styles.count}>{services.length} Total</Text>
-      </View>
-
-      {/* Gender Filter */}
-      <View style={styles.filterContainer}>
-        <Text style={styles.filterLabel}>Filter by Gender:</Text>
-        <View style={styles.genderFilterButtons}>
-          {["all", "men", "women", "unisex"].map((gender) => (
-            <TouchableOpacity
-              key={gender}
-              style={[
-                styles.genderFilterButton,
-                selectedGenderFilter === gender &&
-                  styles.genderFilterButtonActive,
-              ]}
-              onPress={() => setSelectedGenderFilter(gender)}
-            >
-              <Text
-                style={[
-                  styles.genderFilterText,
-                  selectedGenderFilter === gender &&
-                    styles.genderFilterTextActive,
-                ]}
-              >
-                {gender.charAt(0).toUpperCase() + gender.slice(1)}
+        {/* Add-ons preview */}
+        {service.addOns?.length > 0 && (
+          <View className="mb-xs">
+            <View className="flex-row items-center gap-x-1 mb-1">
+              <Icon name="add-circle-outline" size={13} color="#156778" />
+              <Text className="text-xs font-bold text-teal-600">
+                {service.addOns.length} Add-on{service.addOns.length > 1 ? "s" : ""}
               </Text>
+            </View>
+            <View className="flex-row flex-wrap gap-1.5">
+              {service.addOns.slice(0, 2).map((a, idx) => (
+                <View key={idx} className="flex-row items-center bg-teal-50 border border-teal-100 px-2 py-0.5 rounded-button gap-x-0.5">
+                  <Text className="text-xs text-teal-600 font-medium">{a.name} (+₹{a.price})</Text>
+                  {a.isRecommended && <Icon name="star" size={10} color="#f59e0b" />}
+                </View>
+              ))}
+              {service.addOns.length > 2 && (
+                <Text className="text-xs text-neutral-400 italic self-center">
+                  +{service.addOns.length - 2} more
+                </Text>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* Description */}
+        {service.description && (
+          <Text className="text-xs text-neutral-500 mb-xs leading-5" numberOfLines={2}>
+            {service.description}
+          </Text>
+        )}
+
+        {/* Actions */}
+        <View className="flex-row gap-x-2 mt-xs">
+          {[
+            { label: "Edit",   icon: "create-outline",         bg: "bg-teal-600",    fn: () => openModal(service)      },
+            { label: "Toggle", icon: "swap-horizontal-outline", bg: "bg-success",    fn: () => toggleStatus(service)   },
+            { label: "Delete", icon: "trash-outline",           bg: "bg-error",      fn: () => handleDelete(service._id) },
+          ].map(({ label, icon, bg, fn }) => (
+            <TouchableOpacity
+              key={label}
+              className={`flex-1 flex-row justify-center items-center gap-x-1 ${bg} py-xs rounded-input`}
+              onPress={fn}
+              activeOpacity={0.8}
+            >
+              <Icon name={icon} size={14} color="#fff" />
+              <Text className="text-neutral-white text-xs font-bold">{label}</Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
+    );
+  };
 
-      {loading && <Loader />}
+  // ─── RENDER ───────────────────────────────────────────────────────────────
+  return (
+    <View className="flex-1 bg-neutral-100">
+
+      {/* Header */}
+      <View className="bg-teal-600 px-md pt-xl pb-lg">
+        <Text className="text-2xl font-bold text-neutral-white">Services</Text>
+        <Text className="text-xs text-teal-100 mt-1">{services.length} Total</Text>
+      </View>
+
+      {/* Gender filter */}
+      <View className="bg-neutral-white px-md py-sm border-b border-neutral-200">
+        <Text className="text-xs font-semibold text-neutral-400 mb-xs">Filter by Gender</Text>
+        <View className="flex-row gap-x-2">
+          {["all", "men", "women", "unisex"].map((g) => {
+            const active = genderFilter === g;
+            return (
+              <TouchableOpacity
+                key={g}
+                className={`flex-1 items-center py-1 rounded-input border ${
+                  active ? "bg-teal-600 border-teal-600" : "bg-neutral-white border-neutral-300"
+                }`}
+                onPress={() => setGenderFilter(g)}
+              >
+                <Text className={`text-xs font-bold capitalize ${active ? "text-neutral-white" : "text-teal-600"}`}>
+                  {g.charAt(0).toUpperCase() + g.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* Error */}
       {error && (
-        <Text style={{ color: "red", textAlign: "center", marginBottom: 20 }}>
-          {error}
-        </Text>
+        <Text className="text-error text-center text-sm px-md py-sm">{error}</Text>
       )}
 
+      {/* List */}
       {!loading && !error && (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }} showsVerticalScrollIndicator={false}>
+
           <TouchableOpacity
-            style={styles.addButton}
+            className="flex-row justify-center items-center gap-x-2 bg-teal-600 rounded-input py-sm mb-sm"
             onPress={() => openModal(null)}
+            activeOpacity={0.85}
           >
             <Icon name="add-circle-outline" size={18} color="#fff" />
-            <Text style={styles.addButtonText}>Add Service</Text>
+            <Text className="text-neutral-white font-bold text-sm">Add Service</Text>
           </TouchableOpacity>
 
           {filteredServices.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Icon name="cut-outline" size={50} color="#ccc" />
-              <Text style={styles.emptyText}>
-                {selectedGenderFilter === "all"
-                  ? "No services yet"
-                  : `No ${selectedGenderFilter} services found`}
+            <View className="flex-1 justify-center items-center py-16">
+              <Icon name="cut-outline" size={52} color="#d1d5db" />
+              <Text className="text-neutral-400 text-base mt-sm text-center">
+                {genderFilter === "all" ? "No services yet" : `No ${genderFilter} services found`}
               </Text>
             </View>
           ) : (
-            filteredServices.map(renderServiceCard)
+            filteredServices.map(renderCard)
           )}
         </ScrollView>
       )}
 
-      {/* Add/Edit Modal */}
+      {/* ─── Add / Edit Modal ──────────────────────────────────────────────── */}
       <Modal visible={modalVisible} animationType="slide" transparent={false}>
-        <View style={styles.modalContainer}>
-          <ScrollView showsVerticalScrollIndicator={true}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
+        <View className="flex-1 bg-neutral-white">
+          <ScrollView showsVerticalScrollIndicator={false}>
+
+            {/* Modal header */}
+            <View className="flex-row justify-between items-center px-md pt-xl pb-sm border-b border-neutral-100">
+              <Text className="text-xl font-bold text-teal-600">
                 {editingService ? "Edit Service" : "Add Service"}
               </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisible(false);
-                  setEditingService(null);
-                }}
-                style={styles.closeButton}
-              >
-                <Icon name="close-circle" size={28} color="#f44336" />
+              <TouchableOpacity onPress={closeModal} className="p-1">
+                <Icon name="close-circle" size={28} color="#ef4444" />
               </TouchableOpacity>
             </View>
 
-            {/* Basic Service Info Section */}
-            <View style={styles.formSection}>
-              <Text style={styles.sectionTitle}>Basic Information</Text>
+            {/* Basic Info */}
+            <View className="px-md py-lg border-b border-neutral-100">
+              <Text className="text-lg font-bold text-neutral-800 mb-sm">Basic Information</Text>
 
               <TextInput
                 placeholder="Service Name *"
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
+                placeholderTextColor="#9ca3af"
+                className="border border-neutral-200 rounded-input px-sm py-xs mb-sm text-sm text-neutral-900"
+                value={form.name}
+                onChangeText={(v) => setField("name", v)}
               />
 
-              <View style={styles.pickerContainer}>
-                <Text style={styles.pickerLabel}>Select Category *</Text>
-                <Picker
-                  selectedValue={category}
-                  onValueChange={(val) => setCategory(val)}
-                  style={styles.picker}
-                >
+              {/* Category picker */}
+              <Text className="text-xs font-semibold text-neutral-500 mb-1">Select Category *</Text>
+              <View className="border border-neutral-200 rounded-input bg-neutral-50 overflow-hidden mb-sm">
+                <Picker selectedValue={form.category} onValueChange={(v) => setField("category", v)}>
                   <Picker.Item label="-- Select Category --" value="" />
-                  {getModalFilteredCategories().map((cat) => (
-                    <Picker.Item
-                      key={cat._id}
-                      label={`${cat.name} (${cat.gender})`}
-                      value={cat._id}
-                    />
+                  {categories.map((cat) => (
+                    <Picker.Item key={cat._id} label={`${cat.name} (${cat.gender})`} value={cat._id} />
                   ))}
                 </Picker>
               </View>
 
-              {category && (
-                <View style={styles.selectedCategoryInfo}>
-                  <Icon name="information-circle" size={16} color="#156778" />
-                  <Text style={styles.infoLabel}>Selected Category:</Text>
-                  <Text style={styles.infoCategoryName}>
-                    {categories.find((c) => c._id === category)?.name || ""}
-                  </Text>
-                  <View
-                    style={[
-                      styles.genderBadge,
-                      {
-                        backgroundColor: getGenderBadgeColor(
-                          categories.find((c) => c._id === category)?.gender ||
-                            "all"
-                        ),
-                        marginLeft: 8,
-                      },
-                    ]}
-                  >
-                    <Text style={styles.genderBadgeText}>
-                      {categories.find((c) => c._id === category)?.gender ||
-                        "all"}
-                    </Text>
+              {/* Selected category pill */}
+              {form.category && (() => {
+                const cat = categories.find((c) => c._id === form.category);
+                const gs  = genderBadge(cat?.gender);
+                return (
+                  <View className="flex-row items-center gap-x-2 bg-teal-50 border border-teal-100 px-sm py-xs rounded-input mb-sm">
+                    <Icon name="information-circle-outline" size={15} color="#156778" />
+                    <Text className="text-xs font-bold text-teal-600">{cat?.name}</Text>
+                    <View className={`${gs.bg} px-2 py-0.5 rounded-button`}>
+                      <Text className={`${gs.text} text-xs font-bold uppercase`}>{cat?.gender}</Text>
+                    </View>
                   </View>
-                </View>
-              )}
+                );
+              })()}
 
-              <View style={styles.rowInputs}>
+              {/* Price + Duration */}
+              <View className="flex-row gap-x-2">
                 <TextInput
                   placeholder="Price (₹) *"
+                  placeholderTextColor="#9ca3af"
                   keyboardType="numeric"
-                  style={[styles.input, styles.halfInput]}
-                  value={price}
-                  onChangeText={setPrice}
+                  className="flex-1 border border-neutral-200 rounded-input px-sm py-xs mb-sm text-sm text-neutral-900"
+                  value={form.price}
+                  onChangeText={(v) => setField("price", v)}
                 />
-
                 <TextInput
-                  placeholder="Duration (mins) *"
+                  placeholder="Duration (mins)"
+                  placeholderTextColor="#9ca3af"
                   keyboardType="numeric"
-                  style={[styles.input, styles.halfInput]}
-                  value={durationMins}
-                  onChangeText={setDurationMins}
+                  className="flex-1 border border-neutral-200 rounded-input px-sm py-xs mb-sm text-sm text-neutral-900"
+                  value={form.durationMins}
+                  onChangeText={(v) => setField("durationMins", v)}
                 />
               </View>
 
               <TextInput
                 placeholder="Discount %"
+                placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
-                style={styles.input}
-                value={discountPercent}
-                onChangeText={setDiscountPercent}
+                className="border border-neutral-200 rounded-input px-sm py-xs mb-sm text-sm text-neutral-900"
+                value={form.discountPercent}
+                onChangeText={(v) => setField("discountPercent", v)}
               />
 
               <TextInput
                 placeholder="Description"
-                style={[styles.input, styles.textArea]}
+                placeholderTextColor="#9ca3af"
                 multiline
                 numberOfLines={3}
-                value={description}
-                onChangeText={setDescription}
+                className="border border-neutral-200 rounded-input px-sm py-xs mb-sm text-sm text-neutral-900"
+                style={{ height: 80, textAlignVertical: "top" }}
+                value={form.description}
+                onChangeText={(v) => setField("description", v)}
               />
 
-              {/* Service Mode Selection */}
-              <View style={styles.pickerContainer}>
-                <Text style={styles.pickerLabel}>Service Mode *</Text>
-                <View style={styles.modeToggleContainer}>
-                  {["salon", "home", "both"].map((mode) => (
+              {/* Service mode */}
+              <Text className="text-xs font-semibold text-neutral-500 mb-xs">Service Mode *</Text>
+              <View className="flex-row gap-x-2">
+                {["salon", "home", "both"].map((mode) => {
+                  const active = form.serviceMode === mode;
+                  return (
                     <TouchableOpacity
                       key={mode}
-                      style={[
-                        styles.modeOption,
-                        serviceMode === mode && styles.modeOptionActive,
-                      ]}
-                      onPress={() => setServiceMode(mode)}
+                      className={`flex-1 items-center py-xs rounded-input border ${
+                        active ? "bg-teal-600 border-teal-600" : "bg-neutral-white border-neutral-300"
+                      }`}
+                      onPress={() => setField("serviceMode", mode)}
                     >
-                      <Text
-                        style={[
-                          styles.modeOptionText,
-                          serviceMode === mode && styles.modeOptionTextActive,
-                        ]}
-                      >
-                        {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                      <Text className={`text-xs font-bold capitalize ${active ? "text-neutral-white" : "text-teal-600"}`}>
+                        {mode}
                       </Text>
                     </TouchableOpacity>
-                  ))}
-                </View>
+                  );
+                })}
               </View>
             </View>
 
-            {/* Add-ons Section */}
-            <View style={styles.formSection}>
-              <View style={styles.sectionHeaderRow}>
-                <View style={styles.sectionTitleRow}>
-                  <Text style={styles.sectionTitle}>Add-ons</Text>
-                  <Text style={styles.sectionSubtitle}>(Optional)</Text>
+            {/* Add-ons */}
+            <View className="px-md py-lg border-b border-neutral-100">
+              <View className="flex-row justify-between items-center mb-sm">
+                <View className="flex-row items-baseline gap-x-2">
+                  <Text className="text-lg font-bold text-neutral-800">Add-ons</Text>
+                  <Text className="text-xs text-neutral-400 italic">(Optional)</Text>
                 </View>
-
                 {!showAddOnForm && (
                   <TouchableOpacity
-                    style={styles.showAddOnButton}
+                    className="flex-row items-center gap-x-1 px-sm py-1 rounded-input border border-teal-600"
                     onPress={() => setShowAddOnForm(true)}
                   >
-                    <Icon name="add-circle" size={20} color="#156778" />
-                    <Text style={styles.showAddOnButtonText}>Add Add-ons</Text>
+                    <Icon name="add-circle" size={17} color="#156778" />
+                    <Text className="text-xs font-bold text-teal-600">Add</Text>
                   </TouchableOpacity>
                 )}
               </View>
 
               {showAddOnForm && (
                 <>
-                  {addOns.map((addon, index) => (
-                    <View key={addon.id || index} style={styles.addOnCard}>
-                      <View style={styles.addOnHeader}>
-                        <Text style={styles.addOnNumber}>Add-on #{index + 1}</Text>
-                        <View style={styles.addOnActions}>
-                          <TouchableOpacity
-                            onPress={() => toggleAddOnRecommended(index)}
-                            style={styles.recommendedButton}
-                          >
+                  {form.addOns.map((addon, i) => (
+                    <View key={addon.id || i} className="bg-neutral-50 border border-neutral-200 rounded-card p-sm mb-sm">
+                      <View className="flex-row justify-between items-center mb-xs">
+                        <Text className="text-sm font-bold text-teal-600">Add-on #{i + 1}</Text>
+                        <View className="flex-row items-center gap-x-sm">
+                          <TouchableOpacity onPress={() => toggleRecommended(i)}>
                             <Icon
                               name={addon.isRecommended ? "star" : "star-outline"}
                               size={20}
-                              color={addon.isRecommended ? "#FFD700" : "#999"}
+                              color={addon.isRecommended ? "#f59e0b" : "#9ca3af"}
                             />
                           </TouchableOpacity>
-                          <TouchableOpacity onPress={() => removeAddOn(index)}>
-                            <Icon name="trash" size={20} color="#f44336" />
+                          <TouchableOpacity onPress={() => removeAddOn(i)}>
+                            <Icon name="trash" size={20} color="#ef4444" />
                           </TouchableOpacity>
                         </View>
                       </View>
 
                       <TextInput
                         placeholder="Add-on Name *"
-                        style={styles.input}
+                        placeholderTextColor="#9ca3af"
+                        className="border border-neutral-200 rounded-input px-sm py-xs mb-xs text-sm text-neutral-900 bg-neutral-white"
                         value={addon.name}
-                        onChangeText={(val) => updateAddOn(index, "name", val)}
+                        onChangeText={(v) => updateAddOn(i, "name", v)}
                       />
 
-                      <View style={styles.rowInputs}>
+                      <View className="flex-row gap-x-2">
                         <TextInput
                           placeholder="Price (₹) *"
+                          placeholderTextColor="#9ca3af"
                           keyboardType="numeric"
-                          style={[styles.input, styles.halfInput]}
+                          className="flex-1 border border-neutral-200 rounded-input px-sm py-xs text-sm text-neutral-900 bg-neutral-white"
                           value={addon.price}
-                          onChangeText={(val) => updateAddOn(index, "price", val)}
+                          onChangeText={(v) => updateAddOn(i, "price", v)}
                         />
-
                         <TextInput
                           placeholder="Duration (mins)"
+                          placeholderTextColor="#9ca3af"
                           keyboardType="numeric"
-                          style={[styles.input, styles.halfInput]}
+                          className="flex-1 border border-neutral-200 rounded-input px-sm py-xs text-sm text-neutral-900 bg-neutral-white"
                           value={addon.duration}
-                          onChangeText={(val) =>
-                            updateAddOn(index, "duration", val)
-                          }
+                          onChangeText={(v) => updateAddOn(i, "duration", v)}
                         />
                       </View>
 
                       {addon.isRecommended && (
-                        <View style={styles.recommendedBadge}>
-                          <Icon name="star" size={12} color="#FFD700" />
-                          <Text style={styles.recommendedText}>
-                            Recommended Add-on
-                          </Text>
+                        <View className="flex-row items-center gap-x-1 bg-yellow-50 border border-yellow-100 px-2 py-0.5 rounded-button self-start mt-xs">
+                          <Icon name="star" size={11} color="#f59e0b" />
+                          <Text className="text-xs font-bold text-warning">Recommended</Text>
                         </View>
                       )}
                     </View>
                   ))}
 
                   <TouchableOpacity
-                    style={styles.addAnotherButton}
+                    className="flex-row justify-center items-center gap-x-2 py-sm rounded-input border border-teal-600 bg-neutral-white"
                     onPress={addNewAddOn}
                   >
                     <Icon name="add" size={18} color="#156778" />
-                    <Text style={styles.addAnotherText}>Add Another Add-on</Text>
+                    <Text className="text-sm font-bold text-teal-600">Add Another Add-on</Text>
                   </TouchableOpacity>
                 </>
               )}
             </View>
 
-            <View style={styles.modalButtons}>
+            {/* Modal actions */}
+            <View className="flex-row gap-x-sm px-md py-lg">
               <TouchableOpacity
-                style={[styles.modalButton, styles.saveButton]}
+                className="flex-1 flex-row justify-center items-center gap-x-2 bg-teal-600 py-sm rounded-input"
                 onPress={handleSave}
+                activeOpacity={0.85}
               >
-                <Icon name="checkmark-circle" size={20} color="#fff" />
-                <Text style={styles.modalButtonText}>
-                  {editingService ? "Update Service" : "Add Service"}
+                <Icon name="checkmark-circle" size={18} color="#fff" />
+                <Text className="text-neutral-white font-bold text-sm">
+                  {editingService ? "Update" : "Add Service"}
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setModalVisible(false);
-                  setEditingService(null);
-                }}
+                className="flex-1 flex-row justify-center items-center gap-x-2 bg-error py-sm rounded-input"
+                onPress={closeModal}
+                activeOpacity={0.85}
               >
-                <Icon name="close-circle" size={20} color="#fff" />
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Icon name="close-circle" size={18} color="#fff" />
+                <Text className="text-neutral-white font-bold text-sm">Cancel</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -808,420 +615,3 @@ export default function ManageServicesScreen({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
-  header: {
-    backgroundColor: "#156778",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  title: { fontSize: 24, fontWeight: "bold", color: "#fff" },
-  count: { fontSize: 12, color: "#ddd", marginTop: 4 },
-  filterContainer: {
-    backgroundColor: "#fff",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  filterLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#666",
-    marginBottom: 8,
-  },
-  genderFilterButtons: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  genderFilterButton: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#156778",
-    backgroundColor: "#fff",
-    alignItems: "center",
-  },
-  genderFilterButtonActive: {
-    backgroundColor: "#156778",
-  },
-  genderFilterText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#156778",
-  },
-  genderFilterTextActive: {
-    color: "#fff",
-  },
-  scrollContent: { padding: 16 },
-  addButton: {
-    flexDirection: "row",
-    backgroundColor: "#156778",
-    borderRadius: 8,
-    paddingVertical: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-    gap: 6,
-  },
-  addButtonText: { color: "#fff", fontWeight: "600", fontSize: 14 },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  headerInfo: { flex: 1 },
-  name: { fontSize: 16, fontWeight: "700", color: "#333" },
-  categoryRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-    gap: 6,
-    flexWrap: "wrap",
-  },
-  categoryText: { fontSize: 13, color: "#156778", fontWeight: "500" },
-  genderBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-  },
-  genderBadgeText: {
-    fontSize: 10,
-    color: "#fff",
-    fontWeight: "600",
-    textTransform: "uppercase",
-  },
-  statusContainer: { alignItems: "flex-end" },
-  statusText: { fontSize: 13, fontWeight: "600" },
-  section: { marginVertical: 8 },
-  rowBetween: { flexDirection: "row", justifyContent: "space-between" },
-  priceText: { fontSize: 15, fontWeight: "700", color: "#333" },
-  durationText: { fontSize: 13, color: "#666" },
-  discountText: { fontSize: 12, color: "#4CAF50", marginTop: 4 },
-  serviceModeBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-    marginLeft: 6,
-    gap: 3,
-  },
-  serviceModeBadgeText: {
-    fontSize: 10,
-    color: "#fff",
-    fontWeight: "600",
-    textTransform: "capitalize",
-  },
-  // Add-ons preview in card
-  addOnsPreview: {
-    marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
-  },
-  addOnsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginBottom: 6,
-  },
-  addOnsHeaderText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#156778",
-  },
-  addOnsList: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    alignItems: "center",
-  },
-  addOnChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#E3F2FD",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  addOnChipText: {
-    fontSize: 11,
-    color: "#156778",
-    fontWeight: "500",
-  },
-  moreAddOns: {
-    fontSize: 11,
-    color: "#999",
-    fontStyle: "italic",
-  },
-  desc: { fontSize: 12, color: "#555", marginVertical: 8, lineHeight: 18 },
-  actions: { flexDirection: "row", justifyContent: "space-between", gap: 8 },
-  actionButton: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-    paddingVertical: 8,
-    gap: 4,
-  },
-  actionText: { color: "#fff", fontWeight: "600", fontSize: 13 },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 60,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: "#999",
-    marginTop: 10,
-    textAlign: "center",
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-    paddingTop: 40,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#156778",
-  },
-  closeButton: {
-    padding: 4,
-  },
-  formSection: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  sectionHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  sectionTitleRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    gap: 6,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
-  },
-  sectionSubtitle: {
-    fontSize: 13,
-    color: "#999",
-    fontStyle: "italic",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-    fontSize: 14,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: "top",
-  },
-  rowInputs: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 0,
-  },
-  halfInput: {
-    flex: 1,
-  },
-  pickerContainer: {
-    marginBottom: 12,
-  },
-  pickerLabel: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 6,
-    fontWeight: "600",
-  },
-  picker: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    backgroundColor: "#f9f9f9",
-  },
-  selectedCategoryInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: "#E3F2FD",
-    borderRadius: 8,
-    gap: 6,
-  },
-  infoLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#666",
-  },
-  infoCategoryName: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#156778",
-  },
-  modeToggleContainer: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  modeOption: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#156778",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  modeOptionActive: {
-    backgroundColor: "#156778",
-  },
-  modeOptionText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#156778",
-  },
-  modeOptionTextActive: {
-    color: "#fff",
-  },
-  // Add-on form styles
-  showAddOnButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#156778",
-    borderStyle: "dashed",
-  },
-  showAddOnButtonText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#156778",
-  },
-  addOnCard: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-  },
-  addOnHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  addOnNumber: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#156778",
-  },
-  addOnActions: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "center",
-  },
-  recommendedButton: {
-    padding: 4,
-  },
-  recommendedBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#FFF9E6",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: "flex-start",
-    marginTop: 4,
-  },
-  recommendedText: {
-    fontSize: 11,
-    color: "#F57C00",
-    fontWeight: "600",
-  },
-  addAnotherButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#156778",
-    borderStyle: "dashed",
-    backgroundColor: "#fff",
-  },
-  addAnotherText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#156778",
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 20,
-    gap: 10,
-    marginBottom: 20,
-  },
-  modalButton: {
-    flex: 1,
-    flexDirection: "row",
-    borderRadius: 8,
-    padding: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-  },
-  saveButton: {
-    backgroundColor: "#156778",
-  },
-  cancelButton: {
-    backgroundColor: "#f44336",
-  },
-  modalButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 15,
-  },
-});
