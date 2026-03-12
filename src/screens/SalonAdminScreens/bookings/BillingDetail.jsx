@@ -147,7 +147,7 @@ export default function BillingDetail({ navigation }) {
   const grandTotal = subtotal + tip - discount;
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={[]}>
+    <SafeAreaView className="flex-1 bg-[#fff1f2]" edges={[]}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       {/* ── Top Nav ────────────────────────────────────────────────────── */}

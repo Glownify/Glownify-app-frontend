@@ -230,10 +230,10 @@ export default function ManageSpecialistScreen() {
 
   // ── Screen ────────────────────────────────────────────────────────────────
   return (
-    <View className="flex-1 bg-neutral-100">
+    <View className="flex-1 bg-[#fff1f2]">
 
       {/* Header */}
-      <View className="bg-teal-600 px-md pt-xl pb-lg flex-row items-start justify-between">
+      <View className="bg-primary-500 px-md pt-xl pb-lg flex-row items-start justify-between">
         <View>
           <Text className="text-2xl font-bold text-neutral-white">
             Specialists
