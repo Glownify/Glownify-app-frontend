@@ -19,7 +19,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const H_PAD = 16;
-const BG = '#f9fafb';
+const BG = '#fff1f2';
 const ACCENT = '#f43f5e';
 const NAVY = '#2d3a5a';
 

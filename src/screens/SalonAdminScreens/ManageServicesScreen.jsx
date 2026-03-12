@@ -325,10 +325,10 @@ export default function ManageServicesScreen() {
 
   // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
-    <View className="flex-1 bg-neutral-100">
+    <View className="flex-1 bg-[#fff1f2]">
 
       {/* Header */}
-      <View className="bg-teal-600 px-md pt-xl pb-lg">
+      <View className="bg-primary-500 px-md pt-xl pb-lg">
         <Text className="text-2xl font-bold text-neutral-white">Services</Text>
         <Text className="text-xs text-teal-100 mt-1">{services.length} Total</Text>
       </View>
@@ -343,7 +343,7 @@ export default function ManageServicesScreen() {
               <TouchableOpacity
                 key={g}
                 className={`flex-1 items-center py-1 rounded-input border ${
-                  active ? "bg-teal-600 border-teal-600" : "bg-neutral-white border-neutral-300"
+                  active ? "bg-primary-500 border-primary-500" : "bg-neutral-white border-neutral-300"
                 }`}
                 onPress={() => setGenderFilter(g)}
               >
@@ -366,7 +366,7 @@ export default function ManageServicesScreen() {
         <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }} showsVerticalScrollIndicator={false}>
 
           <TouchableOpacity
-            className="flex-row justify-center items-center gap-x-2 bg-teal-600 rounded-input py-sm mb-sm"
+            className="flex-row justify-center items-center gap-x-2 bg-primary-500 rounded-input py-sm mb-sm"
             onPress={() => openModal(null)}
             activeOpacity={0.85}
           >

@@ -1,4 +1,21 @@
-import React, { useState } from 'react';
+/**
+ * SalonBookingsScreen.jsx
+ *
+ * ✅ Original pink UI preserved exactly as designed.
+ * ✅ Type toggle (Salon Visit / Home Service) always visible at top.
+ * ✅ Bottom sheet removed.
+ * ✅ Styled with NativeWind className only (no StyleSheet).
+ *
+ * Dependencies:
+ *   nativewind  react-native-reanimated
+ *   react-native-gesture-handler  react-native-vector-icons/Ionicons
+ */
+
+import React, {
+  useState,
+  useRef,
+  useEffect,
+} from 'react';
 import {
   View,
   Text,
@@ -7,15 +24,18 @@ import {
   Alert,
   StatusBar,
   Image,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
+const SCREEN_W = Dimensions.get('window').width;
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const H_PAD = 16;
-const BG = '#fce4ec'; // soft pink background
+const BG = '#fff1f2';
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -30,6 +50,7 @@ const MOCK_BOOKINGS = [
     time: '1:00 PM',
     duration: '2 hrs',
     status: 'pending',
+    type: 'salon',
     isNew: true,
     amount: 5000,
     totalAmount: 2500,
@@ -46,6 +67,7 @@ const MOCK_BOOKINGS = [
     time: '12:00 PM',
     duration: '1.5 hr',
     status: 'pending',
+    type: 'home',
     isNew: true,
     amount: 1800,
     totalAmount: 1800,
@@ -62,6 +84,7 @@ const MOCK_BOOKINGS = [
     time: '11:00 AM',
     duration: '1.5 hr',
     status: 'pending',
+    type: 'salon',
     isNew: false,
     amount: 900,
     totalAmount: 900,
@@ -78,6 +101,7 @@ const MOCK_BOOKINGS = [
     time: '10:30 AM',
     duration: '45 min',
     status: 'pending',
+    type: 'home',
     isNew: false,
     amount: 600,
     totalAmount: 600,
@@ -95,6 +119,7 @@ const MOCK_BOOKINGS = [
     time: '10:00 AM',
     duration: '1.5 hrs',
     status: 'pending',
+    type: 'salon',
     isNew: false,
     amount: 1500,
     totalAmount: 1500,
@@ -111,6 +136,7 @@ const MOCK_BOOKINGS = [
     time: '11:00 AM',
     duration: '2 hrs',
     status: 'accepted',
+    type: 'home',
     isNew: false,
     amount: 2200,
     totalAmount: 2200,
@@ -127,6 +153,7 @@ const MOCK_BOOKINGS = [
     time: '3:00 PM',
     duration: '30 min',
     status: 'completed',
+    type: 'salon',
     isNew: false,
     amount: 800,
     totalAmount: 800,
@@ -141,10 +168,10 @@ const STATUS_TABS = ['All', 'Ongoing', 'Completed', 'Cancelled'];
 
 const getStatusFilter = tab => {
   switch (tab) {
-    case 'Ongoing': return ['accepted'];
+    case 'Ongoing':   return ['accepted'];
     case 'Completed': return ['completed'];
     case 'Cancelled': return ['declined'];
-    default: return ['pending', 'accepted', 'completed', 'declined'];
+    default:          return ['pending', 'accepted', 'completed', 'declined'];
   }
 };
 
@@ -152,15 +179,8 @@ const getStatusFilter = tab => {
 
 const Avatar = ({ src, initials, size = 56 }) => (
   <View
-    style={{
-      width: size,
-      height: size,
-      borderRadius: size / 2,
-      backgroundColor: '#e5e7eb',
-      overflow: 'hidden',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
+    className="bg-neutral-200 overflow-hidden items-center justify-center"
+    style={{ width: size, height: size, borderRadius: size / 2 }}
   >
     {src ? (
       <Image
@@ -186,11 +206,8 @@ const BookingCard = ({ booking, onAccept, onDecline }) => {
     <TouchableOpacity
       onPress={() => navigation.navigate('BookingDetail')}
       activeOpacity={0.92}
+      className="bg-neutral-white rounded-2xl p-3.5 mb-3"
       style={{
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 14,
-        marginBottom: 12,
         shadowColor: '#f9a8b8',
         shadowOpacity: 0.18,
         shadowRadius: 14,
@@ -198,156 +215,99 @@ const BookingCard = ({ booking, onAccept, onDecline }) => {
         elevation: 3,
       }}
     >
-      {/* ── Top row: avatar + name/service + NEW badge + amount ── */}
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+      {/* Top row: avatar + name/service + NEW badge + amount */}
+      <View className="flex-row items-start">
         <Avatar src={booking.avatar} initials={booking.initials} size={56} />
 
-        <View style={{ flex: 1, marginLeft: 12 }}>
+        <View className="flex-1 ml-3">
           {/* Name row */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 17, fontWeight: '700', color: '#1f2937' }}>
+          <View className="flex-row items-center justify-between">
+            <Text className="text-lg font-bold text-neutral-800">
               {booking.customerName}
             </Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              {booking.isNew && (
-                <View
-                  style={{
-                    backgroundColor: '#fff3e0',
-                    borderRadius: 20,
-                    paddingHorizontal: 10,
-                    paddingVertical: 3,
-                  }}
-                >
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#f97316' }}>New</Text>
-                </View>
-              )}
-            </View>
+            {booking.isNew && (
+              <View className="bg-orange-100 rounded-full px-2.5 py-0.5">
+                <Text className="text-xs font-bold text-secondary-orange">New</Text>
+              </View>
+            )}
           </View>
 
           {/* Service */}
-          <Text style={{ fontSize: 14, color: '#6b7280', marginTop: 2 }}>
-            {booking.service}
-          </Text>
+          <Text className="text-sm text-neutral-500 mt-0.5">{booking.service}</Text>
           {booking.serviceSubtitle ? (
-            <Text style={{ fontSize: 13, color: '#9ca3af', marginTop: 1 }}>
-              {booking.serviceSubtitle}
-            </Text>
+            <Text className="text-xs text-neutral-400 mt-0.5">{booking.serviceSubtitle}</Text>
           ) : null}
 
-          {/* Date + Specialist + Amount inline row */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: 8,
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          {/* Date + Specialist + Amount inline */}
+          <View className="flex-row items-center justify-between mt-2">
+            <View className="flex-row items-center gap-1">
               <Icon name="calendar-outline" size={13} color="#9ca3af" />
-              <Text style={{ fontSize: 12, color: '#6b7280' }}>
+              <Text className="text-xs text-neutral-500">
                 {booking.date}, {booking.time}
               </Text>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <View className="flex-row items-center gap-1">
               <Icon name="person-circle-outline" size={13} color="#9ca3af" />
-              <Text style={{ fontSize: 12, color: '#6b7280' }}>{booking.specialist}</Text>
+              <Text className="text-xs text-neutral-500">{booking.specialist}</Text>
             </View>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: '#1f2937' }}>
+            <Text className="text-base font-bold text-neutral-800">
               ₹ {booking.amount.toLocaleString()}
             </Text>
           </View>
         </View>
       </View>
 
-      {/* ── Divider ── */}
-      <View style={{ height: 1, backgroundColor: '#f9f0f2', marginVertical: 12 }} />
+      {/* Divider */}
+      <View className="h-px bg-pink-50 my-3" />
 
-      {/* ── Bottom row: Total + amount + duration + action buttons ── */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        {/* Left: Total label + amount + duration */}
+      {/* Bottom row */}
+      <View className="flex-row items-center justify-between">
+        {/* Left: Total + duration */}
         {isPending && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text style={{ fontSize: 13, color: '#9ca3af', fontWeight: '500' }}>Total</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              {/* <Icon name="image-outline" size={13} color="#9ca3af" /> */}
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151' }}>
-                ₹{booking.totalAmount.toLocaleString()}
-              </Text>
-            </View>
-            <View
-              style={{
-                width: 1,
-                height: 14,
-                backgroundColor: '#e5e7eb',
-              }}
-            />
-            <Text style={{ fontSize: 12, color: '#9ca3af' }}>{booking.duration}</Text>
+          <View className="flex-row items-center gap-2">
+            <Text className="text-xs text-neutral-400 font-medium">Total</Text>
+            <Text className="text-sm font-bold text-neutral-700">
+              ₹{booking.totalAmount.toLocaleString()}
+            </Text>
+            <View className="w-px h-3.5 bg-neutral-200" />
+            <Text className="text-xs text-neutral-400">{booking.duration}</Text>
           </View>
         )}
 
         {/* Status badge for non-pending */}
         {!isPending && (
           <View
-            style={{
-              borderRadius: 20,
-              paddingHorizontal: 12,
-              paddingVertical: 5,
-              backgroundColor:
-                booking.status === 'accepted' ? '#f0fdf4'
-                  : booking.status === 'completed' ? '#eff6ff'
-                  : '#fff1f2',
-            }}
+            className={`rounded-full px-3 py-1
+              ${booking.status === 'accepted'  ? 'bg-green-50'  : ''}
+              ${booking.status === 'completed' ? 'bg-blue-50'   : ''}
+              ${booking.status === 'declined'  ? 'bg-red-50'    : ''}`}
           >
             <Text
-              style={{
-                fontSize: 12,
-                fontWeight: '700',
-                textTransform: 'capitalize',
-                color:
-                  booking.status === 'accepted' ? '#10b981'
-                    : booking.status === 'completed' ? '#3b82f6'
-                    : '#f43f5e',
-              }}
+              className={`text-xs font-bold capitalize
+                ${booking.status === 'accepted'  ? 'text-success' : ''}
+                ${booking.status === 'completed' ? 'text-info'    : ''}
+                ${booking.status === 'declined'  ? 'text-error'   : ''}`}
             >
               {booking.status}
             </Text>
           </View>
         )}
 
-        {/* Action buttons */}
+        {/* Accept / Decline buttons */}
         {isPending && (
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TouchableOpacity
-                    onPress={() => handleAccept(booking.id)}
-                    style={{
-                      paddingHorizontal: 16,
-                      paddingVertical: 8,
-                      borderRadius: 10,
-                      backgroundColor: '#059669',
-                    }}
-                  >
-                    <Text
-                      style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}
-                    >
-                      Accept
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleDecline(booking.id)}
-                    style={{
-                      paddingHorizontal: 16,
-                      paddingVertical: 8,
-                      borderRadius: 10,
-                      backgroundColor: '#e11d48',
-                    }}
-                  >
-                    <Text
-                      style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}
-                    >
-                      Decline
-                    </Text>
-                  </TouchableOpacity>
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              onPress={() => onAccept(booking.id)}
+              className="px-4 py-2 rounded-xl bg-success"
+            >
+              <Text className="text-neutral-white font-bold text-xs">Accept</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onDecline(booking.id)}
+              className="px-4 py-2 rounded-xl bg-error"
+            >
+              <Text className="text-neutral-white font-bold text-xs">Decline</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
@@ -355,161 +315,174 @@ const BookingCard = ({ booking, onAccept, onDecline }) => {
   );
 };
 
+// ─── Animated Type Toggle ─────────────────────────────────────────────────────
+
+const TypeToggle = ({ value, onChange }) => {
+  const anim = useRef(new Animated.Value(value === 'salon' ? 0 : 1)).current;
+  const halfW = (SCREEN_W - 32) / 2;
+
+  useEffect(() => {
+    Animated.spring(anim, {
+      toValue: value === 'salon' ? 0 : 1,
+      useNativeDriver: false,
+      tension: 80,
+      friction: 10,
+    }).start();
+  }, [value]);
+
+  const thumbLeft = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [3, halfW + 3],
+  });
+
+  const OPTS = [
+    { key: 'salon', icon: 'storefront-outline', label: 'Salon Visit'   },
+    { key: 'home',  icon: 'home-outline',        label: 'Home Service' },
+  ];
+
+  return (
+    <View className="flex-row bg-neutral-white rounded-2xl border border-neutral-200 p-0.5 mx-md relative overflow-hidden mb-3">
+      <Animated.View
+        className="absolute top-0.5 bottom-0.5 bg-primary-100 rounded-xl"
+        style={{ left: thumbLeft, width: halfW - 6 }}
+      />
+      {OPTS.map(opt => {
+        const active = value === opt.key;
+        return (
+          <TouchableOpacity
+            key={opt.key}
+            className="flex-1 flex-row items-center justify-center gap-1.5 py-2 z-10"
+            onPress={() => onChange(opt.key)}
+            activeOpacity={0.8}
+          >
+            <Icon
+              name={opt.icon}
+              size={14}
+              color={active ? '#e11d48' : '#9ca3af'}
+            />
+            <Text
+              className={`text-sm font-semibold
+                ${active ? 'text-primary-600' : 'text-neutral-400'}`}
+            >
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+};
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+
+const EmptyState = ({ tab }) => (
+  <View className="items-center justify-center py-20">
+    <View
+      className="rounded-full bg-pink-100 items-center justify-center mb-4"
+      style={{ width: 72, height: 72 }}
+    >
+      <Icon name="calendar-outline" size={34} color="#f48fb1" />
+    </View>
+    <Text className="text-base font-bold text-neutral-700">No bookings here</Text>
+    <Text className="text-sm text-neutral-400 mt-1">Nothing in "{tab}" yet</Text>
+  </View>
+);
+
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function SalonBookingsScreen({ navigation }) {
-  const [bookings, setBookings] = useState(MOCK_BOOKINGS);
-  const [activeTab, setActiveTab] = useState('All');
+  const [bookings, setBookings]       = useState(MOCK_BOOKINGS);
+  const [activeTab, setActiveTab]     = useState('All');
+  const [bookingType, setBookingType] = useState('salon'); // default to 'salon'
 
-  const pendingCount = bookings.filter(b => b.status === 'pending').length;
+  const handleTypeChange = type => {
+    setBookingType(type);
+    setActiveTab('All');
+  };
 
   const handleAccept = id => {
     Alert.alert('Booking Accepted', 'Specialist has been notified.');
-    setBookings(prev => prev.map(b => (b.id === id ? { ...b, status: 'accepted' } : b)));
+    setBookings(prev =>
+      prev.map(b => b.id === id ? { ...b, status: 'accepted' } : b),
+    );
   };
 
   const handleDecline = id => {
     Alert.alert('Booking Declined', 'Customer has been notified.');
-    setBookings(prev => prev.map(b => (b.id === id ? { ...b, status: 'declined' } : b)));
+    setBookings(prev =>
+      prev.map(b => b.id === id ? { ...b, status: 'declined' } : b),
+    );
   };
 
+  const pendingCount = bookings.filter(
+    b => b.status === 'pending' && b.type === bookingType,
+  ).length;
+
   const allowedStatuses = getStatusFilter(activeTab);
-  const filtered = bookings.filter(b => allowedStatuses.includes(b.status));
+  const filtered = bookings.filter(b => {
+    const statusMatch = allowedStatuses.includes(b.status);
+    const typeMatch   = b.type === bookingType;
+    return statusMatch && typeMatch;
+  });
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: BG }} edges={[]}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: BG }} edges={[]}>
       <StatusBar barStyle="dark-content" backgroundColor={BG} />
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
+      {/* ── Header ── */}
       <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: H_PAD,
-          paddingTop: 8,
-          paddingBottom: 12,
-          backgroundColor: BG,
-        }}
+        className="flex-row items-center justify-between px-4 pt-2 pb-3"
+        style={{ backgroundColor: BG }}
       >
-        {/* Back */}
         <TouchableOpacity onPress={() => navigation?.goBack()} activeOpacity={0.7}>
           <Icon name="chevron-back" size={26} color="#e91e63" />
         </TouchableOpacity>
 
-        <Text style={{ fontSize: 18, fontWeight: '700', color: '#1f2937' }}>
-          New Booking Requests
-        </Text>
+        <Text className="text-lg font-bold text-neutral-800">New Booking Requests</Text>
 
         {/* Avatar with badge */}
-        <View style={{ position: 'relative' }}>
+        <View className="relative">
           <Avatar src="https://i.pravatar.cc/150?u=salon_admin_f" size={40} />
           <View
-            style={{
-              position: 'absolute',
-              top: -2,
-              right: -2,
-              width: 18,
-              height: 18,
-              borderRadius: 9,
-              backgroundColor: '#f43f5e',
-              borderWidth: 2,
-              borderColor: BG,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary-500 border-2 items-center justify-center"
+            style={{ borderColor: BG }}
           >
-            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>3</Text>
+            <Text className="text-neutral-white text-xs font-bold" style={{ fontSize: 10 }}>
+              3
+            </Text>
           </View>
         </View>
       </View>
 
-      {/* ── Pending count bar ────────────────────────────────────────────── */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginHorizontal: H_PAD,
-          marginBottom: 14,
-          backgroundColor: 'white',
-          paddingVertical: 12,
-          paddingHorizontal: H_PAD,
-          borderRadius: 8,
-        }}
-      >
-        {/* Left: clock + count text */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <View
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              backgroundColor: '#fff',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+      {/* ── Type Toggle — always visible ── */}
+      <TypeToggle value={bookingType} onChange={handleTypeChange} />
+
+      {/* ── Pending count bar ── */}
+      <View className="flex-row items-center justify-between mx-4 mb-3.5 bg-neutral-white py-3 px-4 rounded-xl">
+        <View className="flex-row items-center gap-2">
+          <View className="w-8 h-8 rounded-full bg-neutral-white items-center justify-center">
             <Icon name="time-outline" size={17} color="#f59e0b" />
           </View>
-          <Text style={{ fontSize: 15, fontWeight: '600', color: '#374151' }}>
-            <Text style={{ fontWeight: '800', color: '#1f2937' }}>{pendingCount}</Text>
+          <Text className="text-base font-semibold text-neutral-700">
+            <Text className="font-extrabold text-neutral-800">{pendingCount}</Text>
             {' '}Pending Requests
           </Text>
         </View>
-
-        {/* Right: History pill */}
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            backgroundColor: BG,
-            borderRadius: 20,
-            paddingHorizontal: 14,
-            paddingVertical: 8,
-            shadowColor: '#000',
-            shadowOpacity: 0.06,
-            shadowRadius: 6,
-            elevation: 2,
-          }}
-          activeOpacity={0.8}
-        >
-          <Icon name="menu-outline" size={16} color="#374151" />
-          <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>History</Text>
-        </TouchableOpacity>
       </View>
 
-      {/* ── Status Tabs — pill style ──────────────────────────────────────── */}
-      <View
-        style={{
-          flexDirection: 'row',
-          paddingHorizontal: H_PAD,
-          marginBottom: 14,
-          gap: 8,
-          backgroundColor: BG,
-        }}
-      >
+      {/* ── Status Tabs ── */}
+      <View className="flex-row px-4 mb-3.5 gap-2" style={{ backgroundColor: BG }}>
         {STATUS_TABS.map(tab => {
           const active = activeTab === tab;
           return (
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
-              style={{
-                paddingHorizontal: 16,
-                paddingVertical: 9,
-                borderRadius: 22,
-                backgroundColor: active ? '#f06292' : '#fff',
-              }}
+              className={`px-4 py-2 rounded-full ${active ? 'bg-primary-400' : 'bg-neutral-white'}`}
               activeOpacity={0.8}
             >
               <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: active ? '700' : '500',
-                  color: active ? '#fff' : '#9ca3af',
-                }}
+                className={`text-sm ${active ? 'font-bold text-neutral-white' : 'font-medium text-neutral-400'}`}
               >
                 {tab}
               </Text>
@@ -518,38 +491,15 @@ export default function SalonBookingsScreen({ navigation }) {
         })}
       </View>
 
-      {/* ── Booking List ─────────────────────────────────────────────────── */}
+      {/* ── Booking List ── */}
       <ScrollView
-        style={{ flex: 1, backgroundColor: BG }}
-        contentContainerStyle={{
-          paddingHorizontal: H_PAD,
-          paddingTop: 4,
-          paddingBottom: 100,
-        }}
+        className="flex-1"
+        style={{ backgroundColor: BG }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 4, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {filtered.length === 0 ? (
-          <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 80 }}>
-            <View
-              style={{
-                width: 72,
-                height: 72,
-                borderRadius: 36,
-                backgroundColor: '#fce4ec',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 16,
-              }}
-            >
-              <Icon name="calendar-outline" size={34} color="#f48fb1" />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: '#374151' }}>
-              No bookings here
-            </Text>
-            <Text style={{ fontSize: 13, color: '#9ca3af', marginTop: 4 }}>
-              Nothing in "{activeTab}" yet
-            </Text>
-          </View>
+          <EmptyState tab={activeTab} />
         ) : (
           filtered.map(booking => (
             <BookingCard

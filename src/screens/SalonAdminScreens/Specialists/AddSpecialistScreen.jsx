@@ -266,7 +266,7 @@ export default function AddSpecialistModal({ visible, onClose }) {
       <View className="flex-1 bg-black/40 justify-center items-center px-md">
 
         {/* Modal Box */}
-        <View className="bg-neutral-white rounded-card p-md w-full max-h-[90%]">
+        <View className="bg-[#fff1f2] rounded-card p-md w-full max-h-[90%]">
 
           {/* Header */}
           <View className="flex-row justify-between items-center mb-sm">
