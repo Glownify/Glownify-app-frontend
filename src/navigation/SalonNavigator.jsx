@@ -7,10 +7,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 // Import Screens - Bottom Tab Screens
 import SalonAdminDashboard from '../screens/SalonAdminScreens/SalonAdminDashboard';
-import MyView from '../screens/SalonAdminScreens/MyView';
 import SalonBookingsScreen from '../screens/SalonAdminScreens/bookings/SalonBookingsScreen';
-import ManageSpecialistScreen from '../screens/SalonAdminScreens/Specialists/ManageSpecialistScreen';
-import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
+import SalonReportScreen from '../screens/SalonAdminScreens/reports/Salonreportscreen';
 import SalonProfileScreen from '../screens/SalonAdminScreens/SaloonProfileScreen';
 
 // Import Screens - Stack Screens (Not in tabs)
@@ -20,6 +18,9 @@ import SalonNotificationsScreen from '../screens/SalonAdminScreens/SalonNotifica
 import ManageCategoriesScreen from '../screens/SalonAdminScreens/ManageCategoriesScreen';
 import ServiceAddOnsScreen from '../screens/SalonAdminScreens/ServiceAddOnsScreen';
 import ComboPackagesScreen from '../screens/SalonAdminScreens/ComboPackagesScreen';
+import MyView from '../screens/SalonAdminScreens/MyView';
+import ManageSpecialistScreen from '../screens/SalonAdminScreens/Specialists/ManageSpecialistScreen';
+import ManageServicesScreen from '../screens/SalonAdminScreens/ManageServicesScreen';
 
 // Import Other
 import SubscriptionPlanScreen from '../screens/SubscriptionPlanScreen';
@@ -78,25 +79,10 @@ function SalonTabs() {
         }}
       />
       <Tab.Screen
-        name="MyView"
-        component={MyView}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={styles.iconContainer}>
-              {focused && <View style={styles.activeBar} />}
-              <Icon
-                name={focused ? 'eye' : 'eye-outline'}
-                size={26}
-                color={focused ? colors.white : colors.inactive}
-              />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
         name="Bookings"
         component={SalonBookingsScreen}
         options={{
+          tabBarLabel: 'Booking',
           tabBarIcon: ({ focused }) => (
             <View style={styles.iconContainer}>
               {focused && <View style={styles.activeBar} />}
@@ -110,30 +96,15 @@ function SalonTabs() {
         }}
       />
       <Tab.Screen
-        name="Specialist"
-        component={ManageSpecialistScreen}
+        name="Reports"
+        component={SalonReportScreen}
         options={{
+          tabBarLabel: 'View Reports',
           tabBarIcon: ({ focused }) => (
             <View style={styles.iconContainer}>
               {focused && <View style={styles.activeBar} />}
               <Icon
-                name={focused ? 'person-add' : 'person-add-outline'}
-                size={26}
-                color={focused ? colors.white : colors.inactive}
-              />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Services"
-        component={ManageServicesScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={styles.iconContainer}>
-              {focused && <View style={styles.activeBar} />}
-              <Icon
-                name={focused ? 'cut' : 'cut-outline'}
+                name={focused ? 'bar-chart' : 'bar-chart-outline'}
                 size={26}
                 color={focused ? colors.white : colors.inactive}
               />
@@ -214,6 +185,33 @@ export default function SalonStackNavigator({ navigation }) {
           }}
         />
 
+        <Stack.Screen
+          name="MyView"
+          component={MyView}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
+
+        <Stack.Screen
+          name="Services"
+          component={ManageServicesScreen}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
+
+        <Stack.Screen
+          name="Specialist"
+          component={ManageSpecialistScreen}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
+
         {/* Task 2 - Service Management Screens */}
         <Stack.Screen
           name="ManageCategories"
@@ -236,6 +234,15 @@ export default function SalonStackNavigator({ navigation }) {
         <Stack.Screen
           name="ComboPackages"
           component={ComboPackagesScreen}
+          options={{
+            animationEnabled: true,
+            animationTypeForReplace: 'pop',
+          }}
+        />
+
+        <Stack.Screen
+          name="SubscriptionPlan"
+          component={SubscriptionPlanScreen}
           options={{
             animationEnabled: true,
             animationTypeForReplace: 'pop',
