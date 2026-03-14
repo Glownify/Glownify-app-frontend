@@ -75,11 +75,11 @@ const QUICK_ACTIONS_ROW1 = [
     navigateTo: 'AddService',
   },
   {
-    icon: 'people-outline',
-    label: 'Add Staff',
-    iconColor: '#f97316',
-    bg: '#ffedd5',
-    navigateTo: 'AddStaff',
+    icon: 'eye-outline',
+    label: 'Salon View',
+    iconColor: '#0ea5e9',
+    bg: '#e0f2fe',
+    navigateTo: 'MyView',
   },
   {
     icon: 'gift-outline',
@@ -93,7 +93,7 @@ const QUICK_ACTIONS_ROW1 = [
     label: 'View Reports',
     iconColor: '#10b981',
     bg: '#d1fae5',
-    navigateTo: 'ViewReports',
+    navigateTo: 'Reports',
   },
 ];
 
@@ -429,9 +429,8 @@ export default function SalonAdminDashboard({ navigation }) {
                 key={action.label}
                 action={action}
                 onPress={() => {
-                  console.log(action.navigateTo);
-                  console.log('pressed')
-                  navigation.navigate(action.navigateTo)}}
+                  navigation?.navigate?.(action.navigateTo);
+                }}
                 style={{ flex: 1, flexDirection: 'column', gap: 4 }}
               />
             ))}

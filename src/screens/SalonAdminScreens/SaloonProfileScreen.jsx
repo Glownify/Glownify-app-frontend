@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 import { logout } from '../../redux/slices/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -100,6 +101,7 @@ const MenuRow = ({ icon, iconBg, iconColor, label, value, onPress, danger }) => 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function SalonProfileScreen() {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
 
@@ -120,8 +122,8 @@ export default function SalonProfileScreen() {
     ]);
   };
 
-  const handleEdit = () => Alert.alert('Edit Profile', 'Edit functionality coming soon!');
-  const handleUpgrade = () => Alert.alert('Upgrade Plan', 'Subscription upgrade coming soon!');
+  const handleEdit = () => navigation.navigate('MyView');
+  const handleUpgrade = () => navigation.navigate('SubscriptionPlan');
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: BG }} edges={[]}>
