@@ -8,20 +8,16 @@ import Icon from 'react-native-vector-icons/Ionicons';
 // ========================
 // IMPORT SCREENS
 // ========================
-import IndependentProDashboard from '../screens/IndependentProScreens/IndependentProDashboard';
+import IndependentProDashboard from '../screens/IndependentProScreens/tabScreens/IndependentProDashboard';
 import IndependentManageServicesScreen from '../screens/IndependentProScreens/IndependentManageServicesScreen';
 import IndependentProProfileScreen from '../screens/IndependentProScreens/IndependentProProfileScreen';
 import IndependentProProfileEditScreen from '../screens/IndependentProScreens/IndependentProProfileEditScreen';
+import IndependentProBooking from '../screens/IndependentProScreens/tabScreens/booking/IndependentProBooking';
 
 // ========================
 //  MOCK SCREENS (TABS)
 // ========================
-const IndependentProBookings = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>Independent Pro Bookings Screen</Text>
-  </View>
-);
-
+// IndependentProBookings is now imported above
 
 // ========================
 // EXTRA SCREENS (NOT IN TABS)
@@ -31,7 +27,6 @@ const CustomerDetailsScreen = () => (
     <Text style={styles.mockText}>Customer Details Screen</Text>
   </View>
 );
-
 
 // ========================
 // NAV SETUP
@@ -54,7 +49,10 @@ function SalesHomeStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Independent" component={IndependentProDashboard} />
-      <Stack.Screen name="IndependentProProfileEdit" component={IndependentProProfileEditScreen} />
+      <Stack.Screen
+        name="IndependentProProfileEdit"
+        component={IndependentProProfileEditScreen}
+      />
 
       {/* Screens not shown in tab bar */}
       <Stack.Screen name="CustomerDetails" component={CustomerDetailsScreen} />
@@ -64,7 +62,10 @@ function SalesHomeStack() {
 
 export default function IndependentNavigator() {
   return (
-    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.primary }}>
+    <SafeAreaView
+      edges={['bottom']}
+      style={{ flex: 1, backgroundColor: colors.primary }}
+    >
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
@@ -97,6 +98,24 @@ export default function IndependentNavigator() {
           }}
         />
 
+        <Tab.Screen
+          name="IndependentProBookings"
+          component={IndependentProBooking}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.iconContainer}>
+                {focused && <View style={styles.activeBar} />}
+                <Icon
+                  name={focused ? 'calendar' : 'calendar-outline'}
+                  size={26}
+                  color={focused ? colors.white : colors.inactive}
+                />
+                {/* Example badge */}
+                <View style={styles.badge} />
+              </View>
+            ),
+          }}
+        />
 
         {/* ORDERS */}
         <Tab.Screen
@@ -137,7 +156,6 @@ export default function IndependentNavigator() {
     </SafeAreaView>
   );
 }
-
 
 // ========================
 // STYLES
