@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch } from 'react-redux';
+import { initializeWorkflowFromBooking } from '../../../redux/slices/independentServiceWorkflowSlice';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -339,8 +341,16 @@ const ServiceRow = ({ service, onPress }) => (
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function IndependentProDashboard({ navigation }) {
+  const dispatch = useDispatch();
   const [bookings, setBookings] = useState(MOCK_UPCOMING_BOOKINGS);
   const [refreshing, setRefreshing] = useState(false);
+
+  const handleLaunchServiceWorkflow = () => {
+    dispatch(initializeWorkflowFromBooking());
+    navigation.getParent()?.navigate('IndependentProBookingsTab', {
+      screen: 'ArriveScreen',
+    });
+  };
 
   // ── API Integration Points ─────────────────────────────────────────────────
   // TODO: Replace with real data fetcher
@@ -442,6 +452,50 @@ export default function IndependentProDashboard({ navigation }) {
               2
             </Text>
           </View>
+        </TouchableOpacity>
+      </View>
+
+      <View
+        style={{
+          marginHorizontal: H_PAD,
+          borderRadius: 20,
+          backgroundColor: '#fff',
+          paddingHorizontal: 18,
+          paddingVertical: 18,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          ...cardShadow,
+        }}
+      >
+        <View style={{ flex: 1, paddingRight: 12 }}>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#4A6CF7', marginBottom: 4 }}>
+            SERVICE WORKFLOW
+          </Text>
+          <Text style={{ fontSize: 18, fontWeight: '800', color: '#1f2937' }}>
+            Start today's at-home appointment
+          </Text>
+          <Text style={{ fontSize: 13, color: '#64748b', marginTop: 6, lineHeight: 18 }}>
+            Launch the new OTP, live timer, and completion flow with mock customer data.
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={handleLaunchServiceWorkflow}
+          activeOpacity={0.85}
+          style={{
+            backgroundColor: '#4A6CF7',
+            borderRadius: 16,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <Icon name="arrow-forward" size={16} color="#fff" />
+          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginLeft: 6 }}>
+            Open Flow
+          </Text>
         </TouchableOpacity>
       </View>
         {/* ── Promotional / Availability Banner ──────────────────────── */}
@@ -820,3 +874,5 @@ export default function IndependentProDashboard({ navigation }) {
     </SafeAreaView>
   );
 }
+
+
