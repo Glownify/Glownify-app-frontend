@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
+import { getIndividualProfessionalContext } from './utils/individualProfessional';
 // 🔁 Uncomment for Redux integration:
 // import { useSelector, useDispatch } from 'react-redux';
 // import {
@@ -135,6 +137,11 @@ export default function IndependentProManageServicesScreen({ navigation }) {
   // 🔁 Replace with Redux:
   // const dispatch = useDispatch();
   // const { services, loading, error, categories } = useSelector(state => state.independentPro);
+  const { user } = useSelector(state => state.auth);
+  const professional = useMemo(
+    () => getIndividualProfessionalContext(user),
+    [user],
+  );
   const [services, setServices]     = useState(DUMMY_SERVICES);
   const categories                   = DUMMY_CATEGORIES;
   const loading                      = false; // 🔁 from Redux
@@ -242,6 +249,7 @@ export default function IndependentProManageServicesScreen({ navigation }) {
       serviceMode:     form.serviceMode,
       addOns:          form.addOns,
       providerType:    'IndependentPro',
+      professionalId:  professional.professionalId,
     };
 
     // 🔁 Replace with Redux dispatch:

@@ -2,7 +2,7 @@
  * IndependentProBookingDetail.jsx
  *
  * ✅ Adapted from BookingDetail for Independent Pro context.
- * ✅ Teal accent (#156778) replaces pink — Pro brand consistent.
+ * ✅ Pink salon-owner-aligned design applied for Individual Pro parity.
  * ✅ Specialist row replaced with "You (Independent Pro)" row.
  * ✅ Inline styles throughout (no NativeWind className for layout).
  *
@@ -26,8 +26,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ACCENT  = '#156778';
-const BG      = '#e8f6f8';
+const ACCENT  = '#f43f5e';
+const BG      = '#fff1f2';
 
 const cardShadow = {
   shadowColor: '#000',
@@ -65,7 +65,7 @@ const MOCK_BOOKING = {
 
 const STATUS_CONFIG = {
   completed: { label: 'COMPLETED', bg: '#f0fdf4', text: '#10b981' },
-  accepted:  { label: 'ACCEPTED',  bg: '#f0fdfa', text: '#156778' },
+  accepted:  { label: 'ACCEPTED',  bg: '#fff1f2', text: '#f43f5e' },
   pending:   { label: 'PENDING',   bg: '#fffbeb', text: '#f59e0b' },
   declined:  { label: 'CANCELLED', bg: '#fff1f2', text: '#f43f5e' },
 };
@@ -78,12 +78,12 @@ const Avatar = ({ initials, color, size = 72 }) => (
       width: size,
       height: size,
       borderRadius: size / 2,
-      backgroundColor: color,
+      backgroundColor: color || '#fecdd3',
       alignItems: 'center',
       justifyContent: 'center',
     }}
   >
-    <Text style={{ fontSize: size * 0.32, color: '#0e7490', fontWeight: '700' }}>
+    <Text style={{ fontSize: size * 0.32, color: '#9f1239', fontWeight: '700' }}>
       {initials}
     </Text>
   </View>
@@ -109,7 +109,7 @@ const SectionLabel = ({ title, action, onAction }) => (
 
 export default function IndependentProBookingDetail({ navigation, route }) {
   const booking = route?.params?.booking ?? MOCK_BOOKING;
-  const [notes, setNotes] = useState(booking.notes);
+  const [notes] = useState(booking.notes);
 
   const statusCfg  = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.pending;
   const grandTotal = booking.services.reduce((sum, s) => sum + s.price, 0);
@@ -118,7 +118,7 @@ export default function IndependentProBookingDetail({ navigation, route }) {
   const handleMessage    = () => Alert.alert('Message', `Opening chat with ${booking.customerName}…`);
   const handleReschedule = () => Alert.alert('Reschedule', 'Open reschedule flow…');
   const handleRebook     = () => Alert.alert('Rebook', 'Rebooking appointment…');
-  const handleCreateBill = () => navigation.navigate('IndependentProBillingDetail', { booking });
+  const handleCreateBill = () => navigation.navigate('IndividualBillingDetail', { booking });
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: BG }} edges={[]}>
@@ -145,7 +145,7 @@ export default function IndependentProBookingDetail({ navigation, route }) {
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 18,
-            backgroundColor: '#e8f6f8',
+            backgroundColor: '#fff1f2',
           }}
         >
           <Icon name="arrow-back" size={20} color={ACCENT} />
@@ -222,7 +222,7 @@ export default function IndependentProBookingDetail({ navigation, route }) {
                 gap: 4,
                 marginTop: 6,
                 alignSelf: 'flex-start',
-                backgroundColor: booking.type === 'home' ? '#fff7ed' : '#f0fdfa',
+                backgroundColor: booking.type === 'home' ? '#fff7ed' : '#fff1f2',
                 borderRadius: 20,
                 paddingHorizontal: 10,
                 paddingVertical: 3,
@@ -281,7 +281,7 @@ export default function IndependentProBookingDetail({ navigation, route }) {
                 width: 44,
                 height: 44,
                 borderRadius: 14,
-                backgroundColor: '#e8f6f8',
+                backgroundColor: '#fff1f2',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
@@ -339,11 +339,11 @@ export default function IndependentProBookingDetail({ navigation, route }) {
               borderRadius: 14,
               paddingHorizontal: 14,
               paddingVertical: 12,
-              backgroundColor: '#f0fdfa',
+              backgroundColor: '#fff1f2',
               gap: 12,
             }}
           >
-            <Avatar initials="YO" color="#cffafe" size={44} />
+            <Avatar initials="YO" color="#fecdd3" size={44} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: '#1f2937' }}>
                 You (Independent Pro)
@@ -424,9 +424,9 @@ export default function IndependentProBookingDetail({ navigation, route }) {
             style={{
               borderRadius: 16,
               padding: 16,
-              backgroundColor: '#f0fdfa',
+              backgroundColor: '#fff1f2',
               borderWidth: 1,
-              borderColor: '#99f6e4',
+              borderColor: '#fecdd3',
             }}
           >
             <Text style={{ color: '#374151', fontSize: 14, lineHeight: 22, fontStyle: 'italic' }}>

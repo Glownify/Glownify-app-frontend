@@ -1,10 +1,3 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import IndividualProfileManagementScreen from './IndividualProfileManagementScreen';
 
-export default function IndependentProProfileEditScreen() {
-  return (
-    <View>
-      <Text>IndependentProProfileEditScreen</Text>
-    </View>
-  )
-}
+export default IndividualProfileManagementScreen;

@@ -2,7 +2,7 @@
  * IndependentProBooking.jsx
  *
  * ✅ Adapted from SalonBookingsScreen for Independent Pro context.
- * ✅ Teal accent (#156778) replaces pink for Pro brand consistency.
+ * ✅ Pink salon-owner-aligned design applied for Individual Pro parity.
  * ✅ Type toggle (At My Location / At Client's Home) always visible at top.
  * ✅ Bottom sheet removed.
  * ✅ Styled with NativeWind className only (no StyleSheet).
@@ -32,7 +32,7 @@ const SCREEN_W = Dimensions.get('window').width;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const BG = '#e8f6f8';
+const BG = '#fff1f2';
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 // 🔁 Replace with: const { bookings, loading } = useSelector(state => state.independentPro)
@@ -190,12 +190,12 @@ const BookingCard = ({ booking, onAccept, onDecline }) => {
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('IndependentProBookingDetail', { booking })}
+      onPress={() => navigation.navigate('IndividualBookingDetail', { booking })}
       activeOpacity={0.92}
       className="bg-neutral-white rounded-2xl p-3.5 mb-3"
       style={{
-        shadowColor: '#156778',
-        shadowOpacity: 0.10,
+        shadowColor: '#f9a8b8',
+        shadowOpacity: 0.16,
         shadowRadius: 14,
         shadowOffset: { width: 0, height: 4 },
         elevation: 3,
@@ -247,7 +247,7 @@ const BookingCard = ({ booking, onAccept, onDecline }) => {
       </View>
 
       {/* Divider */}
-      <View style={{ height: 1, backgroundColor: '#e8f6f8', marginVertical: 12 }} />
+      <View style={{ height: 1, backgroundColor: '#fce7f3', marginVertical: 12 }} />
 
       {/* Bottom row */}
       <View className="flex-row items-center justify-between">
@@ -347,7 +347,7 @@ const TypeToggle = ({ value, onChange }) => {
           bottom: 2,
           left: thumbLeft,
           width: halfW - 6,
-          backgroundColor: '#cffafe',
+          backgroundColor: '#fff1f2',
           borderRadius: 12,
         }}
       />
@@ -360,12 +360,12 @@ const TypeToggle = ({ value, onChange }) => {
             onPress={() => onChange(opt.key)}
             activeOpacity={0.8}
           >
-            <Icon name={opt.icon} size={14} color={active ? '#156778' : '#9ca3af'} />
+            <Icon name={opt.icon} size={14} color={active ? '#e11d48' : '#9ca3af'} />
             <Text
               style={{
                 fontSize: 13,
                 fontWeight: '600',
-                color: active ? '#156778' : '#9ca3af',
+                color: active ? '#e11d48' : '#9ca3af',
               }}
             >
               {opt.label}
@@ -386,13 +386,13 @@ const EmptyState = ({ tab }) => (
         width: 72,
         height: 72,
         borderRadius: 36,
-        backgroundColor: '#cffafe',
+        backgroundColor: '#fff1f2',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 16,
       }}
     >
-      <Icon name="calendar-outline" size={34} color="#156778" />
+      <Icon name="calendar-outline" size={34} color="#f43f5e" />
     </View>
     <Text className="text-base font-bold text-neutral-700">No bookings here</Text>
     <Text className="text-sm text-neutral-400 mt-1">Nothing in "{tab}" yet</Text>
@@ -401,10 +401,17 @@ const EmptyState = ({ tab }) => (
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
-export default function IndependentProBooking({ navigation }) {
+export default function IndependentProBooking({ navigation, route }) {
   const [bookings, setBookings]       = useState(MOCK_BOOKINGS);
   const [activeTab, setActiveTab]     = useState('All');
   const [bookingType, setBookingType] = useState('location');
+
+  useEffect(() => {
+    const requestedTab = route?.params?.initialTab;
+    if (requestedTab && STATUS_TABS.includes(requestedTab)) {
+      setActiveTab(requestedTab);
+    }
+  }, [route?.params?.initialTab]);
 
   const handleTypeChange = type => {
     setBookingType(type);
@@ -433,16 +440,16 @@ export default function IndependentProBooking({ navigation }) {
   );
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
+    <SafeAreaView className="flex-1 py-4" style={{ backgroundColor: BG }} edges={[]}>
       <StatusBar barStyle="dark-content" backgroundColor={BG} />
 
       {/* ── Header ── */}
       <View
-        className="flex-row items-center justify-between px-4 pt-2 pb-3"
+        className="flex-row items-center justify-between px-4 pb-3"
         style={{ backgroundColor: BG }}
       >
         <TouchableOpacity onPress={() => navigation?.goBack()} activeOpacity={0.7}>
-          <Icon name="chevron-back" size={26} color="#156778" />
+          <Icon name="chevron-back" size={26} color="#f43f5e" />
         </TouchableOpacity>
 
         <Text className="text-lg font-bold text-neutral-800">My Bookings</Text>
@@ -472,7 +479,7 @@ export default function IndependentProBooking({ navigation }) {
       </View>
 
       {/* ── Type Toggle ── */}
-      {/* <TypeToggle value={bookingType} onChange={handleTypeChange} /> */}
+      <TypeToggle value={bookingType} onChange={handleTypeChange} />
 
       {/* ── Pending count bar ── */}
       <View
@@ -509,7 +516,7 @@ export default function IndependentProBooking({ navigation }) {
                 paddingHorizontal: 14,
                 paddingVertical: 8,
                 borderRadius: 20,
-                backgroundColor: active ? '#156778' : '#fff',
+                backgroundColor: active ? '#f43f5e' : '#fff',
               }}
               activeOpacity={0.8}
             >

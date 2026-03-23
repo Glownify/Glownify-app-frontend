@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -10,15 +10,20 @@ import { useDispatch } from 'react-redux';
 import IndependentProDashboard from '../screens/IndependentProScreens/tabScreens/IndependentProDashboard';
 import IndependentManageServicesScreen from '../screens/IndependentProScreens/IndependentManageServicesScreen';
 import IndependentProProfileScreen from '../screens/IndependentProScreens/IndependentProProfileScreen';
-import IndependentProProfileEditScreen from '../screens/IndependentProScreens/IndependentProProfileEditScreen';
 import IndependentProBooking from '../screens/IndependentProScreens/tabScreens/booking/IndependentProBooking';
 import IndependentProBookingDetail from '../screens/IndependentProScreens/tabScreens/booking/Independentprobookingdetail';
 import IndependentProBillingDetail from '../screens/IndependentProScreens/tabScreens/booking/Independentprobillingdetail';
+import IndividualReportScreen from '../screens/IndependentProScreens/IndividualReportScreen';
+import IndividualEarningsScreen from '../screens/IndependentProScreens/IndividualEarningsScreen';
+import IndividualNotificationsScreen from '../screens/IndependentProScreens/IndividualNotificationsScreen';
+import IndividualAvailabilityScreen from '../screens/IndependentProScreens/IndividualAvailabilityScreen';
+import IndividualProfileManagementScreen from '../screens/IndependentProScreens/IndividualProfileManagementScreen';
 import ArriveScreen from '../screens/IndependentProScreens/serviceWorkflow/ArriveScreen';
 import OTPVerificationScreen from '../screens/IndependentProScreens/serviceWorkflow/OTPVerificationScreen';
 import ServiceStartedScreen from '../screens/IndependentProScreens/serviceWorkflow/ServiceStartedScreen';
 import CompleteServiceScreen from '../screens/IndependentProScreens/serviceWorkflow/CompleteServiceScreen';
 import ServiceCompletedScreen from '../screens/IndependentProScreens/serviceWorkflow/ServiceCompletedScreen';
+import SubscriptionPlanScreen from '../screens/SubscriptionPlanScreen';
 import { loadIndependentServiceWorkflow } from '../redux/slices/independentServiceWorkflowSlice';
 
 const Tab = createBottomTabNavigator();
@@ -26,16 +31,24 @@ const Stack = createNativeStackNavigator();
 
 const colors = {
   primary: '#156778',
-  primaryLight: '#E1F5FA',
   white: '#FFFFFF',
   inactive: '#E0E0E0',
-  black: '#000000',
-  badge: '#FFA500',
 };
 
+function TabIcon({ focused, activeIcon, inactiveIcon }) {
+  return (
+    <View style={styles.iconContainer}>
+      {focused ? <View style={styles.activeBar} /> : null}
+      <Icon
+        name={focused ? activeIcon : inactiveIcon}
+        size={24}
+        color={focused ? colors.white : colors.inactive}
+      />
+    </View>
+  );
+}
+
 const hiddenBookingRoutes = new Set([
-  'IndependentProBookingDetail',
-  'IndependentProBillingDetail',
   'ArriveScreen',
   'OTPVerificationScreen',
   'ServiceStartedScreen',
@@ -43,54 +56,22 @@ const hiddenBookingRoutes = new Set([
   'ServiceCompletedScreen',
 ]);
 
-const CustomerDetailsScreen = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>Customer Details Screen</Text>
-  </View>
-);
-
-const resolveTabBarStyle = route => {
-  const routeName = getFocusedRouteNameFromRoute(route) ?? 'IndependentProBookingHome';
+function resolveBookingTabStyle(route) {
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'IndividualBookingsHome';
 
   if (hiddenBookingRoutes.has(routeName)) {
     return { display: 'none' };
   }
 
   return styles.tabBar;
-};
-
-function IndependentHomeStack() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="IndependentProDashboardHome"
-        component={IndependentProDashboard}
-      />
-      <Stack.Screen name="CustomerDetails" component={CustomerDetailsScreen} />
-    </Stack.Navigator>
-  );
 }
 
-function IndependentBookingsStack() {
+function IndividualBookingsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-      <Stack.Screen
-        name="IndependentProBookingHome"
-        component={IndependentProBooking}
-      />
-      <Stack.Screen
-        name="IndependentProBookingDetail"
-        component={IndependentProBookingDetail}
-      />
-      <Stack.Screen
-        name="IndependentProBillingDetail"
-        component={IndependentProBillingDetail}
-      />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="IndividualBookingsHome" component={IndependentProBooking} />
       <Stack.Screen name="ArriveScreen" component={ArriveScreen} />
-      <Stack.Screen
-        name="OTPVerificationScreen"
-        component={OTPVerificationScreen}
-      />
+      <Stack.Screen name="OTPVerificationScreen" component={OTPVerificationScreen} />
       <Stack.Screen name="ServiceStartedScreen" component={ServiceStartedScreen} />
       <Stack.Screen
         name="CompleteServiceScreen"
@@ -101,26 +82,104 @@ function IndependentBookingsStack() {
           contentStyle: { backgroundColor: 'transparent' },
         }}
       />
-      <Stack.Screen
-        name="ServiceCompletedScreen"
-        component={ServiceCompletedScreen}
-      />
+      <Stack.Screen name="ServiceCompletedScreen" component={ServiceCompletedScreen} />
     </Stack.Navigator>
   );
 }
 
-function IndependentProfileStack() {
+function IndependentTabs() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="IndependentProProfileHome"
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        lazy: true,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontSize: 10,
+          marginTop: 2,
+          fontWeight: '600',
+        },
+        tabBarActiveTintColor: colors.white,
+        tabBarInactiveTintColor: colors.inactive,
+        tabBarStyle: styles.tabBar,
+      }}
+      >
+        <Tab.Screen
+        name="IndependentProDashboardTab"
+        component={IndependentProDashboard}
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              activeIcon="grid"
+              inactiveIcon="grid-outline"
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="IndividualBookingsTab"
+        component={IndividualBookingsStack}
+        options={({ route }) => ({
+          title: 'Booking',
+          tabBarStyle: resolveBookingTabStyle(route),
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              activeIcon="calendar"
+              inactiveIcon="calendar-outline"
+            />
+          ),
+        })}
+      />
+
+      <Tab.Screen
+        name="ViewReport"
+        component={IndividualReportScreen}
+        options={{
+          title: 'View Report',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              activeIcon="bar-chart"
+              inactiveIcon="bar-chart-outline"
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="IndividualServices"
+        component={IndependentManageServicesScreen}
+        options={{
+          title: 'Services',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              activeIcon="clipboard"
+              inactiveIcon="clipboard-outline"
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="IndividualProfile"
         component={IndependentProProfileScreen}
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              activeIcon="person"
+              inactiveIcon="person-outline"
+            />
+          ),
+        }}
       />
-      <Stack.Screen
-        name="IndependentProProfileEdit"
-        component={IndependentProProfileEditScreen}
-      />
-    </Stack.Navigator>
+    </Tab.Navigator>
   );
 }
 
@@ -132,99 +191,41 @@ export default function IndependentNavigator() {
   }, [dispatch]);
 
   return (
-    <SafeAreaView
-      edges={['bottom']}
-      style={{ flex: 1, backgroundColor: colors.primary }}
-    >
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarStyle: styles.tabBar,
-        }}
-      >
-        <Tab.Screen
-          name="IndependentProDashboardTab"
-          component={IndependentHomeStack}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'home' : 'home-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
-            ),
-          }}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.primary }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+          name="IndependentTabs"
+          component={IndependentTabs}
+          options={{ animation: 'none' }}
         />
-
-        <Tab.Screen
-          name="IndependentProBookingsTab"
-          component={IndependentBookingsStack}
-          options={({ route }) => ({
-            tabBarStyle: resolveTabBarStyle(route),
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'calendar' : 'calendar-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-                <View style={styles.badge} />
-              </View>
-            ),
-          })}
+        <Stack.Screen name="IndividualBookingDetail" component={IndependentProBookingDetail} />
+        <Stack.Screen name="IndividualBillingDetail" component={IndependentProBillingDetail} />
+        <Stack.Screen name="IndividualNotifications" component={IndividualNotificationsScreen} />
+        <Stack.Screen name="IndividualEarnings" component={IndividualEarningsScreen} />
+        <Stack.Screen name="IndividualAvailability" component={IndividualAvailabilityScreen} />
+        <Stack.Screen
+          name="IndividualProfileManagement"
+          component={IndividualProfileManagementScreen}
         />
-
-        <Tab.Screen
-          name="IndependentManageServicesTab"
-          component={IndependentManageServicesScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'clipboard' : 'clipboard-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
-            ),
-          }}
+        <Stack.Screen
+          name="IndependentProProfileEdit"
+          component={IndividualProfileManagementScreen}
         />
-
-        <Tab.Screen
-          name="IndependentProProfileTab"
-          component={IndependentProfileStack}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'person' : 'person-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
-            ),
-          }}
-        />
-      </Tab.Navigator>
+        <Stack.Screen name="IndividualManageServices" component={IndependentManageServicesScreen} />
+        <Stack.Screen name="SubscriptionPlan" component={SubscriptionPlanScreen} />
+      </Stack.Navigator>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 50,
+    height: 64,
     backgroundColor: colors.primary,
     borderTopWidth: 0,
     elevation: 0,
-    paddingBottom: 5,
-    paddingTop: 5,
+    paddingBottom: 6,
+    paddingTop: 6,
   },
   iconContainer: {
     width: 50,
@@ -235,29 +236,9 @@ const styles = StyleSheet.create({
   activeBar: {
     position: 'absolute',
     top: -10,
-    width: 40,
+    width: 36,
     height: 4,
-    borderRadius: 2,
+    borderRadius: 999,
     backgroundColor: colors.white,
-  },
-  badge: {
-    position: 'absolute',
-    top: 2,
-    right: 12,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.badge,
-    borderWidth: 1,
-    borderColor: colors.white,
-  },
-  mockScreen: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mockText: {
-    fontSize: 20,
-    fontWeight: '600',
   },
 });
