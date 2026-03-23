@@ -2,7 +2,7 @@
  * IndependentProBillingDetail.jsx
  *
  * ✅ Adapted from BillingDetail for Independent Pro context.
- * ✅ Teal accent (#156778) replaces pink — Pro brand consistent.
+ * ✅ Pink salon-owner-aligned design applied for Individual Pro parity.
  * ✅ Grand Total shown in teal (vs pink for salon).
  * ✅ Invoice number & date derived from booking when available.
  * ✅ Inline styles throughout (no NativeWind className for layout).
@@ -29,8 +29,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ACCENT  = '#156778';
-const BG      = '#e8f6f8';
+const ACCENT  = '#f43f5e';
+const BG      = '#fff1f2';
 
 const cardShadow = {
   shadowColor: '#000',
@@ -44,7 +44,7 @@ const cardShadow = {
 // 🔁 Replace MOCK_* with data from route.params.booking
 
 const MOCK_SERVICES = [
-  { id: 1, name: 'Keratin Base Treatment', price: 1800, qty: 1, icon: 'cut-outline',   iconColor: ACCENT,    iconBg: '#cffafe' },
+  { id: 1, name: 'Keratin Base Treatment', price: 1800, qty: 1, icon: 'cut-outline',   iconColor: ACCENT,    iconBg: '#fecdd3' },
   { id: 2, name: 'Blow Dry Finish',        price: 400,  qty: 1, icon: 'flash-outline', iconColor: '#f97316', iconBg: '#fff7ed' },
   { id: 3, name: 'Hair Wash',              price: 150,  qty: 1, icon: 'water-outline', iconColor: '#3b82f6', iconBg: '#dbeafe' },
 ];
@@ -59,7 +59,7 @@ const MOCK_CUSTOMER = {
   date:        'Mar 18, 2026',
   time:        '11:00 AM',
   initials:    'PS',
-  avatarColor: '#cffafe',
+  avatarColor: '#fecdd3',
 };
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
@@ -70,7 +70,7 @@ const Avatar = ({ initials, color, size = 56 }) => (
       width: size,
       height: size,
       borderRadius: size / 2,
-      backgroundColor: color,
+      backgroundColor: color || '#fecdd3',
       alignItems: 'center',
       justifyContent: 'center',
     }}
@@ -193,7 +193,7 @@ export default function IndependentProBillingDetail({ navigation, route }) {
         date:        booking.date,
         time:        booking.timeStart || booking.time,
         initials:    booking.initials,
-        avatarColor: booking.avatarColor || '#cffafe',
+        avatarColor: booking.avatarColor || '#fecdd3',
       }
     : MOCK_CUSTOMER;
 
@@ -205,7 +205,7 @@ export default function IndependentProBillingDetail({ navigation, route }) {
         qty:       1,
         icon:      'cut-outline',
         iconColor: ACCENT,
-        iconBg:    '#cffafe',
+        iconBg:    '#fecdd3',
       }))
     : MOCK_SERVICES;
 
@@ -266,7 +266,7 @@ export default function IndependentProBillingDetail({ navigation, route }) {
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 18,
-            backgroundColor: '#e8f6f8',
+            backgroundColor: '#fff1f2',
           }}
         >
           <Icon name="arrow-back" size={20} color={ACCENT} />
@@ -336,7 +336,7 @@ export default function IndependentProBillingDetail({ navigation, route }) {
                 paddingHorizontal: 12,
                 paddingVertical: 4,
                 borderRadius: 20,
-                backgroundColor: '#e8f6f8',
+                backgroundColor: '#fff1f2',
               }}
             >
               <Text style={{ color: ACCENT, fontWeight: '700', fontSize: 12 }}>
@@ -411,7 +411,7 @@ export default function IndependentProBillingDetail({ navigation, route }) {
                     borderRadius: 30,
                     borderWidth: active ? 2 : 1,
                     borderColor: active ? ACCENT : '#e5e7eb',
-                    backgroundColor: active ? '#e8f6f8' : '#fff',
+                    backgroundColor: active ? '#fff1f2' : '#fff',
                   }}
                   activeOpacity={0.8}
                 >
@@ -499,7 +499,7 @@ export default function IndependentProBillingDetail({ navigation, route }) {
                   paddingHorizontal: 8,
                   paddingVertical: 2,
                   borderRadius: 20,
-                  backgroundColor: '#e8f6f8',
+                  backgroundColor: '#fff1f2',
                   borderWidth: 1,
                   borderColor: '#99f6e4',
                 }}
