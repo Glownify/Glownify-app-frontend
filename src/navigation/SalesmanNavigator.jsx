@@ -1,158 +1,126 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-// ========================
-// IMPORT SCREENS
-// ========================
 import SalesPersonDashboard from '../screens/Salesman/Salespersondashboard';
-import SalesPersonProfileScreen from '../screens/Salesman/Salespersonprofilescreen';
+import SalesmanLeadsScreen from '../screens/Salesman/SalesmanLeadsScreen';
 import MySalonsScreen from '../screens/Salesman/MySalonsScreen';
+import SalesPersonProfileScreen from '../screens/Salesman/Salespersonprofilescreen';
+import SalesmanSalonDetailScreen from '../screens/Salesman/SalesmanSalonDetailScreen';
+import SalesmanRegisterSalonScreen from '../screens/Salesman/SalesmanRegisterSalonScreen';
+import {
+  buildSalesmanSummary,
+  salesmanTheme,
+} from '../screens/Salesman/salesmanData';
 
-// ========================
-//  MOCK SCREENS (TABS)
-// ========================
-const SalesManOrders = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>Salesman Orders Screen</Text>
-  </View>
-);
-// ========================
-// EXTRA SCREENS (NOT IN TABS)
-// ========================
-const CustomerDetailsScreen = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>Customer Details Screen</Text>
-  </View>
-);
-
-const AddCustomerScreen = () => (
-  <View style={styles.mockScreen}>
-    <Text style={styles.mockText}>Add Customer Screen</Text>
-  </View>
-);
-
-// ========================
-// NAV SETUP
-// ========================
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const leadsBadgeCount = buildSalesmanSummary().followUpsDue;
 
-// COLORS
-const colors = {
-  primary: '#156778',
-  primaryLight: '#E1F5FA',
-  white: '#FFFFFF',
-  inactive: '#E0E0E0',
-  black: '#000000',
-  badge: '#FFA500',
-};
-
-// MAIN STACK (Dashboard + others)
-function SalesHomeStack() {
+function TabIcon({
+  focused,
+  activeIcon,
+  inactiveIcon,
+  label,
+  badgeCount,
+}) {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="SalesHomeMain" component={SalesPersonDashboard} />
-      <Stack.Screen name="MySalonsScreen" component={MySalonsScreen} />
-
-
-      {/* Screens not shown in tab bar */}
-      <Stack.Screen name="CustomerDetails" component={CustomerDetailsScreen} />
-      <Stack.Screen name="AddCustomer" component={AddCustomerScreen} />
-    </Stack.Navigator>
+    <View style={styles.tabItem}>
+      <View style={[styles.iconShell, focused && styles.iconShellActive]}>
+        <Icon
+          name={focused ? activeIcon : inactiveIcon}
+          size={22}
+          color={focused ? salesmanTheme.brand : '#98A2B3'}
+        />
+        {!focused && badgeCount ? (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{badgeCount}</Text>
+          </View>
+        ) : null}
+      </View>
+      <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>
+        {label}
+      </Text>
+    </View>
   );
 }
 
-export default function SalesmanNavigator() {
+const renderDashboardTabIcon = ({ focused }) => (
+  <TabIcon
+    focused={focused}
+    label="Home"
+    activeIcon="home"
+    inactiveIcon="home-outline"
+  />
+);
+
+const renderLeadsTabIcon = ({ focused }) => (
+  <TabIcon
+    focused={focused}
+    label="Leads"
+    activeIcon="flash"
+    inactiveIcon="flash-outline"
+    badgeCount={leadsBadgeCount}
+  />
+);
+
+const renderSalonsTabIcon = ({ focused }) => (
+  <TabIcon
+    focused={focused}
+    label="Salons"
+    activeIcon="storefront"
+    inactiveIcon="storefront-outline"
+  />
+);
+
+const renderProfileTabIcon = ({ focused }) => (
+  <TabIcon
+    focused={focused}
+    label="Profile"
+    activeIcon="person"
+    inactiveIcon="person-outline"
+  />
+);
+
+function SalesmanTabs() {
   return (
-    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: colors.primary }}>
+    <SafeAreaView edges={['bottom']} style={styles.safeArea}>
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
           tabBarShowLabel: false,
-          tabBarStyle: {
-            height: 50,
-            backgroundColor: colors.primary,
-            borderTopWidth: 0,
-            elevation: 0,
-            paddingBottom: 5,
-            paddingTop: 5,
-          },
+          tabBarStyle: styles.tabBar,
         }}
       >
-        {/* DASHBOARD */}
         <Tab.Screen
-          name="SalesHome"
-          component={SalesHomeStack}
+          name="SalesDashboardTab"
+          component={SalesPersonDashboard}
           options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'home' : 'home-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
-            ),
+            tabBarIcon: renderDashboardTabIcon,
           }}
         />
-
-        {/* MY SALONS */}
         <Tab.Screen
-          name="MySalons"
+          name="SalesLeadsTab"
+          component={SalesmanLeadsScreen}
+          options={{
+            tabBarIcon: renderLeadsTabIcon,
+          }}
+        />
+        <Tab.Screen
+          name="SalesSalonsTab"
           component={MySalonsScreen}
           options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'business' : 'business-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-                {!focused && <View style={styles.badge} />}
-              </View>
-            ),
+            tabBarIcon: renderSalonsTabIcon,
           }}
         />
-
-        {/* ORDERS */}
-        {/* <Tab.Screen
-          name="SalesOrders"
-          component={SalesManOrders}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'clipboard' : 'clipboard-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
-            ),
-          }}
-        /> */}
-
-        {/* PROFILE */}
         <Tab.Screen
-          name="SalesProfile"
+          name="SalesProfileTab"
           component={SalesPersonProfileScreen}
           options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconContainer}>
-                {focused && <View style={styles.activeBar} />}
-                <Icon
-                  name={focused ? 'person' : 'person-outline'}
-                  size={26}
-                  color={focused ? colors.white : colors.inactive}
-                />
-              </View>
-            ),
+            tabBarIcon: renderProfileTabIcon,
           }}
         />
       </Tab.Navigator>
@@ -160,64 +128,84 @@ export default function SalesmanNavigator() {
   );
 }
 
+export default function SalesmanNavigator() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+      }}
+    >
+      <Stack.Screen name="SalesmanTabs" component={SalesmanTabs} />
+      <Stack.Screen
+        name="SalesmanSalonDetail"
+        component={SalesmanSalonDetailScreen}
+      />
+      <Stack.Screen
+        name="SalesmanRegisterSalon"
+        component={SalesmanRegisterSalonScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
 
-// ========================
-// STYLES
-// ========================
 const styles = StyleSheet.create({
-  fabContainer: {
+  safeArea: {
     flex: 1,
+    backgroundColor: salesmanTheme.surface,
+  },
+  tabBar: {
+    height: 72,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#E4E7EC',
+    backgroundColor: salesmanTheme.surface,
+  },
+  tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: 76,
   },
-  fab: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.white,
-    transform: [{ translateY: -25 }],
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 8,
-    justifyContent: 'center',
+  iconShell: {
+    width: 44,
+    height: 44,
+    borderRadius: 16,
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: colors.primary,
-  },
-  iconContainer: {
-    width: 50,
-    height: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
-  activeBar: {
-    position: 'absolute',
-    top: -10,
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.white,
+  iconShellActive: {
+    backgroundColor: salesmanTheme.brandSoft,
+  },
+  tabLabel: {
+    marginTop: 2,
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#98A2B3',
+  },
+  tabLabelActive: {
+    color: salesmanTheme.brand,
   },
   badge: {
     position: 'absolute',
-    top: 2,
-    right: 12,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.badge,
-    borderWidth: 1,
-    borderColor: colors.white,
-  },
-  mockScreen: {
-    flex: 1,
-    justifyContent: 'center',
+    top: 4,
+    right: 2,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 4,
+    borderRadius: 999,
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: salesmanTheme.accent,
   },
-  mockText: {
-    fontSize: 20,
-    fontWeight: '600',
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 });

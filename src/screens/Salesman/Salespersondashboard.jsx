@@ -1,300 +1,894 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Modal,
-  Linking,
-  Alert,
   ActivityIndicator,
+  Alert,
+  Linking,
+  ScrollView,
+  Share,
   StatusBar,
-  Clipboard, // Added for Copy functionality
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardStats } from '../../redux/slices/salesmanSlice';
+import SalesmanSheet from './SalesmanSheet';
+import {
+  buildRecentRegistrations,
+  buildSalesmanSummary,
+  buildSalesmanUser,
+  formatCompactCurrency,
+  formatCurrency,
+  formatShortDate,
+  salesmanGrowth,
+  salesmanTasks,
+  salesmanTheme,
+  mergeDashboardSummary,
+} from './salesmanData';
+
+const MetricCard = ({ label, value, icon, accent, subtitle, onPress }) => (
+  <TouchableOpacity
+    activeOpacity={0.88}
+    disabled={!onPress}
+    onPress={onPress}
+    style={styles.metricCard}
+  >
+    <View style={[styles.metricIcon, { backgroundColor: `${accent}12` }]}>
+      <Icon name={icon} size={18} color={accent} />
+    </View>
+    <Text style={styles.metricLabel}>{label}</Text>
+    <Text style={[styles.metricValue, { color: accent }]}>{value}</Text>
+    {subtitle ? <Text style={styles.metricSubtitle}>{subtitle}</Text> : null}
+  </TouchableOpacity>
+);
+
+const SectionHeader = ({ title, actionLabel, onPress }) => (
+  <View style={styles.sectionHeader}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    {actionLabel ? (
+      <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
+        <Text style={styles.sectionAction}>{actionLabel}</Text>
+      </TouchableOpacity>
+    ) : null}
+  </View>
+);
+
+const GrowthChart = ({ data }) => {
+  const maxValue = Math.max(...data.map(item => item.value), 1);
+
+  return (
+    <View style={styles.chartRow}>
+      {data.map(item => {
+        const barHeight = Math.max((item.value / maxValue) * 112, 10);
+
+        return (
+          <View key={item.month} style={styles.chartColumn}>
+            <Text style={styles.chartValue}>{item.value}</Text>
+            <View style={styles.chartBarTrack}>
+              <View style={[styles.chartBar, { height: barHeight }]} />
+            </View>
+            <Text style={styles.chartLabel}>{item.month}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+};
+
+const TaskCard = ({ item, onPress }) => (
+  <TouchableOpacity
+    activeOpacity={0.9}
+    onPress={onPress}
+    style={styles.taskCard}
+  >
+    <View style={[styles.taskStripe, { backgroundColor: item.color }]} />
+    <View style={styles.taskBody}>
+      <View style={styles.taskTopRow}>
+        <Text style={styles.taskTitle}>{item.title}</Text>
+        <Text style={styles.taskDue}>{item.dueLabel}</Text>
+      </View>
+      <Text style={styles.taskSubtitle}>{item.subtitle}</Text>
+    </View>
+  </TouchableOpacity>
+);
+
+const RegistrationRow = ({ item }) => {
+  const isPaid = String(item.status).toLowerCase() === 'paid';
+
+  return (
+    <View style={styles.registrationRow}>
+      <Text style={styles.registrationSalonCell} numberOfLines={1}>
+        {item.salonName}
+      </Text>
+      <Text style={styles.registrationDate}>{formatShortDate(item.date)}</Text>
+      <View
+        style={[
+          styles.registrationBadge,
+          {
+            backgroundColor: isPaid
+              ? salesmanTheme.successSoft
+              : salesmanTheme.warningSoft,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.registrationBadgeText,
+            { color: isPaid ? salesmanTheme.success : salesmanTheme.warning },
+          ]}
+        >
+          {isPaid ? 'PAID' : 'PENDING'}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const QuickAction = ({ icon, title, subtitle, onPress, accent }) => (
+  <TouchableOpacity
+    activeOpacity={0.88}
+    onPress={onPress}
+    style={styles.quickActionCard}
+  >
+    <View style={[styles.quickActionIcon, { backgroundColor: `${accent}16` }]}>
+      <Icon name={icon} size={18} color={accent} />
+    </View>
+    <View style={styles.quickActionCopy}>
+      <Text style={styles.quickActionTitle}>{title}</Text>
+      <Text style={styles.quickActionSubtitle}>{subtitle}</Text>
+    </View>
+    <Icon name="chevron-forward" size={18} color="#98A2B3" />
+  </TouchableOpacity>
+);
+
+const SheetAction = ({ icon, title, subtitle, color, onPress }) => (
+  <TouchableOpacity activeOpacity={0.88} onPress={onPress} style={styles.sheetAction}>
+    <View style={[styles.sheetActionIcon, { backgroundColor: `${color}16` }]}>
+      <Icon name={icon} size={18} color={color} />
+    </View>
+    <View style={styles.sheetActionCopy}>
+      <Text style={styles.sheetActionTitle}>{title}</Text>
+      <Text style={styles.sheetActionSubtitle}>{subtitle}</Text>
+    </View>
+  </TouchableOpacity>
+);
 
 export default function SalesPersonDashboard({ navigation }) {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const { summary, recentSalons, monthlySalesGrowth, loading } = useSelector((state) => state.salesman);
-  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const authUser = useSelector(state => state.auth.user);
+  const {
+    summary: apiSummary,
+    recentSalons,
+    monthlySalesGrowth,
+    loading,
+  } = useSelector(state => state.salesman);
 
-  // Dynamic Referral Link
-  const referralId = user?.roleDetails?.referralId || 'SP-XXXX';
-  const referralLink = `https://salonstartup.com/ref/${referralId}`;
+  const [shareSheetVisible, setShareSheetVisible] = useState(false);
 
   useEffect(() => {
     dispatch(fetchDashboardStats());
   }, [dispatch]);
 
-  const shareOnWhatsApp = () => {
-    const message = `Hey! Use my referral link to join Salon Startup: ${referralLink}`;
-    const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
-    Linking.openURL(url).catch(() => Alert.alert('Error', 'WhatsApp is not installed'));
+  const user = buildSalesmanUser(authUser);
+  const fallbackSummary = buildSalesmanSummary();
+  const summary = mergeDashboardSummary(apiSummary);
+  const progressRatio =
+    summary.targetTotal > 0 ? summary.targetAchieved / summary.targetTotal : 0;
+  const growthData = monthlySalesGrowth?.length
+    ? monthlySalesGrowth
+    : salesmanGrowth;
+  const recentRegistrations = recentSalons?.length
+    ? recentSalons.slice(0, 4).map(item => ({
+        id: item.id || item._id || item.salonName,
+        salonName: item.salonName || item.name || 'New registration',
+        date: item.date || item.createdAt || new Date().toISOString(),
+        status: item.status || 'pending',
+      }))
+    : buildRecentRegistrations();
+  const referralLink = `https://glownify.app/join/${user.referralId}`;
+  const shareMessage = `Join Glownify with my referral code ${user.referralId}. Start here: ${referralLink}`;
+
+  const metricCards = [
+    {
+      key: 'active',
+      label: 'Active salons',
+      value: String(summary.activeSalons),
+      icon: 'storefront-outline',
+      accent: salesmanTheme.brand,
+      subtitle: `${summary.totalSalons} total partners`,
+      onPress: () => navigation.navigate('SalesSalonsTab'),
+    },
+    {
+      key: 'pipeline',
+      label: 'Pipeline value',
+      value: formatCompactCurrency(summary.pipelineValue),
+      icon: 'stats-chart-outline',
+      accent: salesmanTheme.accent,
+      subtitle: 'Open opportunities',
+      onPress: () => navigation.navigate('SalesLeadsTab'),
+    },
+    {
+      key: 'earnings',
+      label: 'Commission earned',
+      value: formatCompactCurrency(summary.totalEarnings),
+      icon: 'wallet-outline',
+      accent: salesmanTheme.success,
+      subtitle: `${summary.commissionRate}% avg. rate`,
+    },
+    {
+      key: 'followups',
+      label: 'Follow ups due',
+      value: String(summary.followUpsDue),
+      icon: 'notifications-outline',
+      accent: salesmanTheme.info,
+      subtitle: 'Needs attention today',
+      onPress: () => navigation.navigate('SalesLeadsTab', { filter: 'due' }),
+    },
+  ];
+
+  const handleOpenUrl = async (url, fallbackMessage) => {
+    try {
+      await Linking.openURL(url);
+    } catch (error) {
+      Alert.alert('Unable to open', fallbackMessage);
+    }
   };
 
-  const copyToClipboard = () => {
-    Clipboard.setString(referralLink);
-    Alert.alert('Copied', 'Referral link copied to clipboard!');
+  const handleShareSystem = async () => {
+    try {
+      await Share.share({ message: shareMessage });
+    } catch (error) {
+      Alert.alert('Share unavailable', 'Could not open the share menu right now.');
+    }
   };
 
-  const maxValue = monthlySalesGrowth?.length > 0 
-    ? Math.max(...monthlySalesGrowth.map((d) => d.value)) 
-    : 10;
-  const chartHeight = 100;
-
-  if (loading) {
-    return (
-      <View style={[styles.centeredContainer, { backgroundColor: '#156778' }]}>
-        <ActivityIndicator size="large" color="#fff" />
-        <Text style={[styles.loadingText, { color: '#fff' }]}>Fetching Dashboard...</Text>
-      </View>
+  const handleShareWhatsApp = () =>
+    handleOpenUrl(
+      `whatsapp://send?text=${encodeURIComponent(shareMessage)}`,
+      'WhatsApp is not available on this device.',
     );
-  }
+
+  const handleShareEmail = () =>
+    handleOpenUrl(
+      `mailto:?subject=${encodeURIComponent(
+        'Join Glownify',
+      )}&body=${encodeURIComponent(shareMessage)}`,
+      'A mail app is not configured on this device.',
+    );
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
-      <StatusBar backgroundColor="#156778" barStyle="light-content" />
-      
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.profileSection}>
-            <View style={styles.profilePhoto}>
-              <Text style={styles.profilePhotoText}>👨</Text>
-            </View>
-            <View style={styles.profileInfo}>
-              <Text style={styles.profileName} numberOfLines={1}>{user?.name || 'Sales Executive'}</Text>
-              <Text style={styles.referralLabel}>Sales Executive</Text>
-            </View>
-          </View>
-          <View style={styles.referralIdBadge}>
-            <Text style={styles.referralIdText}>{referralId}</Text>
-          </View>
-        </View>
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <StatusBar
+        backgroundColor={salesmanTheme.brandDark}
+        barStyle="light-content"
+      />
 
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Metrics Grid */}
-          <View style={styles.metricsGrid}>
-            <MetricCard 
-              label="Total Salons"
-              value={summary?.totalSalons || 0}
-              icon="storefront"
-              color="#7C5FED"
-              onPress={() => navigation.navigate("MySalonsScreen")}
-            />
-            <MetricCard 
-              label="Total Earnings"
-              value={`₹${summary?.totalEarnings || 0}`}
-              icon="cash"
-              color="#4CAF50"
-            />
-          </View>
-
-          <View style={styles.metricsGrid}>
-            <MetricCard 
-              label="Professionals"
-              value={summary?.totalIndependentProfessionals || 0}
-              icon="person"
-              color="#914CAF"
-            />
-            <MetricCard 
-              label="Comm. Rate"
-              value={`${summary?.commissionRate || 0}%`}
-              icon="trending-up"
-              color="#E91E63"
-            />
-          </View>
-
-          {/* Table Breakdown */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Registrations</Text>
-            <View style={styles.tableContainer}>
-              <View style={styles.tableHeader}>
-                <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Salon Name</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Date</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Status</Text>
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <LinearGradient
+          colors={[salesmanTheme.brandDark, salesmanTheme.brand]}
+          style={styles.heroCard}
+        >
+          <View style={styles.heroTopRow}>
+            <View style={styles.heroIdentity}>
+              <View style={styles.heroAvatar}>
+                <Text style={styles.heroAvatarText}>
+                  {user.name?.charAt(0)?.toUpperCase() || 'S'}
+                </Text>
               </View>
+              <View style={styles.flexOne}>
+                <Text style={styles.heroGreeting}>Good to see you</Text>
+                <Text style={styles.heroName}>{user.name}</Text>
+                <Text style={styles.heroMeta}>Territory: {user.territory}</Text>
+              </View>
+            </View>
 
-              {recentSalons?.length > 0 ? (
-                recentSalons.slice(0, 5).map((salon, index) => (
-                  <View key={index} style={styles.tableRow}>
-                    <Text style={[styles.tableCell, { flex: 1.5 }]} numberOfLines={1}>{salon.salonName}</Text>
-                    <Text style={[styles.tableCell, { flex: 1 }]}>
-                      {new Date(salon.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
-                    </Text>
-                    <View style={[styles.statusBadge, { flex: 1, backgroundColor: salon.status === 'paid' ? '#C8E6C9' : '#FFE0B2' }]}>
-                      <Text style={[styles.statusBadgeText, { color: salon.status === 'paid' ? '#2E7D32' : '#E65100' }]}>
-                        {salon.status.toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
-                ))
+            <View style={styles.heroPill}>
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <View style={{ padding: 20, alignItems: 'center' }}>
-                  <Text style={{ fontSize: 12, color: '#999' }}>No registrations found</Text>
-                </View>
+                <Text style={styles.heroPillText}>{user.referralId}</Text>
               )}
             </View>
           </View>
 
-          {/* Analytics Chart */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Monthly Growth</Text>
-            <View style={styles.chartContainer}>
-              <View style={styles.chartBars}>
-                {monthlySalesGrowth.map((data, index) => {
-                  const barHeight = (data.value / maxValue) * chartHeight;
-                  return (
-                    <View key={index} style={styles.barWrapper}>
-                      <View style={[styles.bar, { height: barHeight || 2, backgroundColor: '#7C5FED' }]} />
-                      <Text style={styles.barLabel}>{data.month}</Text>
-                    </View>
-                  );
-                })}
-              </View>
+          <View style={styles.heroStats}>
+            <View style={styles.heroStatCard}>
+              <Text style={styles.heroStatLabel}>Quarter target</Text>
+              <Text style={styles.heroStatValue}>
+                {summary.targetAchieved}/{summary.targetTotal}
+              </Text>
+            </View>
+            <View style={styles.heroStatCard}>
+              <Text style={styles.heroStatLabel}>Expected pipeline</Text>
+              <Text style={styles.heroStatValue}>
+                {formatCompactCurrency(summary.pipelineValue)}
+              </Text>
             </View>
           </View>
 
-          {/* Quick Actions */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
-            <View style={styles.actionsContainer}>
-              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('RegisterSalon')}>
-                <Icon name="add-circle" size={20} color="#fff" />
-                <Text style={styles.actionButtonText}>Register New Salon</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={[styles.actionButton, styles.actionButtonSecondary]} 
-                onPress={() => setShareModalVisible(true)}
-              >
-                <Icon name="share-social" size={20} color="#7C5FED" />
-                <Text style={[styles.actionButtonText, styles.actionButtonTextSecondary]}>Share Referral Link</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.progressTrack}>
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${Math.min(progressRatio * 100, 100)}%` },
+              ]}
+            />
           </View>
-        </ScrollView>
-      </View>
+          <Text style={styles.progressLabel}>
+            {Math.round(progressRatio * 100)}% of this quarter goal already closed
+          </Text>
+        </LinearGradient>
 
-      {/* Share Modal */}
-      <Modal visible={shareModalVisible} transparent animationType="slide" onRequestClose={() => setShareModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Share Referral Link</Text>
-              <TouchableOpacity onPress={() => setShareModalVisible(false)}>
-                <Icon name="close" size={24} color="#333" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.modalBody}>
-              <Text style={styles.referralLinkLabel}>Your Referral Link</Text>
-              <View style={styles.referralLinkBox}>
-                <Text style={styles.referralLink} numberOfLines={1}>{referralLink}</Text>
-                <TouchableOpacity onPress={copyToClipboard} style={styles.copyButton}>
-                  <Icon name="copy" size={18} color="#7C5FED" />
-                </TouchableOpacity>
-              </View>
-
-              <Text style={[styles.shareMethodsLabel, { marginTop: 20 }]}>Share Via</Text>
-              <View style={styles.shareMethodsGrid}>
-                <ShareIcon name="logo-whatsapp" label="WhatsApp" color="#25D366" onPress={shareOnWhatsApp} />
-                <ShareIcon name="mail" label="Email" color="#EA4335" />
-                <ShareIcon name="share-social" label="More" color="#1F2937" />
-              </View>
-            </View>
-            
-            <TouchableOpacity style={styles.closeButtonAction} onPress={() => setShareModalVisible(false)}>
-              <Text style={styles.closeButtonActionText}>Done</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.metricGrid}>
+          {metricCards.map(item => (
+            <MetricCard
+              key={item.key}
+              label={item.label}
+              value={item.value}
+              icon={item.icon}
+              accent={item.accent}
+              subtitle={item.subtitle}
+              onPress={item.onPress}
+            />
+          ))}
         </View>
-      </Modal>
+
+        <SectionHeader title="Quick Actions" />
+        <View style={styles.quickActionList}>
+          <QuickAction
+            icon="add-circle-outline"
+            title="Register a new salon"
+            subtitle="Start a new onboarding flow from field or referral leads."
+            accent={salesmanTheme.brand}
+            onPress={() => navigation.navigate('SalesmanRegisterSalon')}
+          />
+          <QuickAction
+            icon="flash-outline"
+            title="Review lead pipeline"
+            subtitle={`${fallbackSummary.followUpsDue} opportunities need follow-up soon.`}
+            accent={salesmanTheme.accent}
+            onPress={() => navigation.navigate('SalesLeadsTab', { filter: 'due' })}
+          />
+          <QuickAction
+            icon="share-social-outline"
+            title="Share referral link"
+            subtitle="Send your code to prospects through WhatsApp, email, or share sheet."
+            accent={salesmanTheme.info}
+            onPress={() => setShareSheetVisible(true)}
+          />
+        </View>
+
+        <SectionHeader
+          title="Today's Follow Ups"
+          actionLabel="View leads"
+          onPress={() => navigation.navigate('SalesLeadsTab', { filter: 'due' })}
+        />
+        <View style={styles.taskList}>
+          {salesmanTasks.map(task => (
+            <TaskCard
+              key={task.id}
+              item={task}
+              onPress={() =>
+                navigation.navigate('SalesLeadsTab', {
+                  filter: 'due',
+                  leadId: task.leadId,
+                })
+              }
+            />
+          ))}
+        </View>
+
+        <SectionHeader
+          title="Recent Registrations"
+          actionLabel="Open salons"
+          onPress={() => navigation.navigate('SalesSalonsTab')}
+        />
+        <View style={styles.tableCard}>
+          <View style={styles.tableHeader}>
+            <Text style={styles.tableHeaderSalonText}>Salon</Text>
+            <Text style={styles.tableHeaderText}>Date</Text>
+            <Text style={styles.tableHeaderText}>Payout</Text>
+          </View>
+          {recentRegistrations.map(item => (
+            <RegistrationRow key={item.id} item={item} />
+          ))}
+        </View>
+
+        <SectionHeader title="Sales Momentum" />
+        <View style={styles.growthCard}>
+          <View style={styles.growthCardHeader}>
+            <View>
+              <Text style={styles.growthTitle}>Monthly onboarding trend</Text>
+              <Text style={styles.growthSubtitle}>
+                Healthy growth across live and onboarding-ready salons
+              </Text>
+            </View>
+            <View style={styles.growthHighlight}>
+              <Text style={styles.growthHighlightText}>
+                {formatCurrency(summary.totalEarnings)}
+              </Text>
+              <Text style={styles.growthHighlightLabel}>Total commission</Text>
+            </View>
+          </View>
+          <GrowthChart data={growthData} />
+        </View>
+      </ScrollView>
+
+      <SalesmanSheet
+        visible={shareSheetVisible}
+        onClose={() => setShareSheetVisible(false)}
+        title="Share your referral link"
+        subtitle="Every salon or studio that signs up through your referral keeps your pipeline warm."
+        footer={
+          <TouchableOpacity
+            activeOpacity={0.88}
+            onPress={handleShareSystem}
+            style={styles.sheetPrimaryButton}
+          >
+            <Text style={styles.sheetPrimaryButtonText}>Open Share Menu</Text>
+          </TouchableOpacity>
+        }
+      >
+        <View style={styles.referralCard}>
+          <Text style={styles.referralLabel}>Referral Code</Text>
+          <Text style={styles.referralCode}>{user.referralId}</Text>
+          <Text style={styles.referralLink} numberOfLines={1}>
+            {referralLink}
+          </Text>
+        </View>
+        <SheetAction
+          icon="logo-whatsapp"
+          title="Send on WhatsApp"
+          subtitle="Share the referral link directly with a salon owner."
+          color="#22C55E"
+          onPress={handleShareWhatsApp}
+        />
+        <SheetAction
+          icon="mail-outline"
+          title="Send by email"
+          subtitle="Open the default mail app with a pre-filled invite."
+          color={salesmanTheme.info}
+          onPress={handleShareEmail}
+        />
+      </SalesmanSheet>
     </SafeAreaView>
   );
 }
 
-// --- Helper Sub-Components ---
-const MetricCard = ({ label, value, icon, color, onPress }) => (
-  <TouchableOpacity style={styles.metricCard} onPress={onPress} disabled={!onPress}>
-    <View style={[styles.metricIcon, { backgroundColor: `${color}15` }]}>
-      <Icon name={icon} size={22} color={color} />
-    </View>
-    <Text style={styles.metricLabel}>{label}</Text>
-    <Text style={[styles.metricValue, { color: color }]}>{value}</Text>
-  </TouchableOpacity>
-);
-
-const ShareIcon = ({ name, label, color, onPress }) => (
-  <TouchableOpacity style={styles.shareMethod} onPress={onPress}>
-    <View style={[styles.settingIconCircle, { backgroundColor: `${color}10` }]}>
-      <Icon name={name} size={28} color={color} />
-    </View>
-    <Text style={styles.shareMethodText}>{label}</Text>
-  </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  centeredContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 10, fontSize: 14, fontWeight: '600' },
-  header: {
+  safeArea: {
+    flex: 1,
+    backgroundColor: salesmanTheme.background,
+  },
+  contentContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 36,
+  },
+  heroCard: {
+    borderRadius: 28,
+    padding: 20,
+    marginTop: 12,
+  },
+  heroTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  heroIdentity: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  heroAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+  },
+  heroAvatarText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  flexOne: {
+    flex: 1,
+  },
+  heroGreeting: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.78)',
+  },
+  heroName: {
+    marginTop: 2,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  heroMeta: {
+    marginTop: 3,
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.78)',
+  },
+  heroPill: {
+    minWidth: 88,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.14)',
+  },
+  heroPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  heroStats: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 22,
+  },
+  heroStatCard: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  heroStatLabel: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.78)',
+  },
+  heroStatValue: {
+    marginTop: 6,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  progressTrack: {
+    height: 10,
+    borderRadius: 999,
+    marginTop: 18,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.14)',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 999,
+    backgroundColor: '#FDE68A',
+  },
+  progressLabel: {
+    marginTop: 10,
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.82)',
+  },
+  metricGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 12,
+    marginTop: 16,
+  },
+  metricCard: {
+    width: '48.2%',
+    padding: 16,
+    borderRadius: 22,
+    backgroundColor: salesmanTheme.surface,
+    shadowColor: '#101828',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 3,
+  },
+  metricIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  metricLabel: {
+    marginTop: 14,
+    fontSize: 12,
+    color: salesmanTheme.muted,
+  },
+  metricValue: {
+    marginTop: 6,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  metricSubtitle: {
+    marginTop: 4,
+    fontSize: 11,
+    color: '#98A2B3',
+  },
+  sectionHeader: {
+    marginTop: 24,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: salesmanTheme.ink,
+  },
+  sectionAction: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: salesmanTheme.brand,
+  },
+  quickActionList: {
+    gap: 12,
+  },
+  quickActionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    padding: 16,
+    borderRadius: 22,
+    backgroundColor: salesmanTheme.surface,
+  },
+  quickActionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickActionCopy: {
+    flex: 1,
+  },
+  quickActionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: salesmanTheme.ink,
+  },
+  quickActionSubtitle: {
+    marginTop: 4,
+    fontSize: 12,
+    lineHeight: 18,
+    color: salesmanTheme.muted,
+  },
+  taskList: {
+    gap: 10,
+  },
+  taskCard: {
+    flexDirection: 'row',
+    borderRadius: 22,
+    overflow: 'hidden',
+    backgroundColor: salesmanTheme.surface,
+  },
+  taskStripe: {
+    width: 6,
+  },
+  taskBody: {
+    flex: 1,
+    padding: 15,
+  },
+  taskTopRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  taskTitle: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '700',
+    color: salesmanTheme.ink,
+  },
+  taskDue: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: salesmanTheme.brand,
+  },
+  taskSubtitle: {
+    marginTop: 6,
+    fontSize: 12,
+    lineHeight: 18,
+    color: salesmanTheme.muted,
+  },
+  tableCard: {
+    borderRadius: 22,
+    overflow: 'hidden',
+    backgroundColor: salesmanTheme.surface,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#F8FAFC',
+  },
+  tableHeaderText: {
+    flex: 1,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#98A2B3',
+    textTransform: 'uppercase',
+  },
+  tableHeaderSalonText: {
+    flex: 1.55,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#98A2B3',
+    textTransform: 'uppercase',
+  },
+  registrationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#F2F4F7',
+  },
+  registrationCell: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: salesmanTheme.ink,
+  },
+  registrationSalonCell: {
+    flex: 1.55,
+    fontSize: 13,
+    fontWeight: '600',
+    color: salesmanTheme.ink,
+  },
+  registrationDate: {
+    flex: 1,
+    fontSize: 12,
+    color: salesmanTheme.muted,
+  },
+  registrationBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  registrationBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+  },
+  growthCard: {
+    padding: 18,
+    borderRadius: 26,
+    backgroundColor: salesmanTheme.surface,
+  },
+  growthCardHeader: {
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+  },
+  growthTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: salesmanTheme.ink,
+  },
+  growthSubtitle: {
+    marginTop: 4,
+    maxWidth: 210,
+    fontSize: 12,
+    lineHeight: 18,
+    color: salesmanTheme.muted,
+  },
+  growthHighlight: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 18,
+    backgroundColor: salesmanTheme.brandSoft,
+  },
+  growthHighlightText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: salesmanTheme.brand,
+  },
+  growthHighlightLabel: {
+    marginTop: 2,
+    fontSize: 11,
+    color: salesmanTheme.muted,
+  },
+  chartRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    alignItems: 'flex-end',
   },
-  profileSection: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
-  profilePhoto: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#7C5FED15', justifyContent: 'center', alignItems: 'center' },
-  profilePhotoText: { fontSize: 24 },
-  profileInfo: { flex: 1 },
-  profileName: { fontSize: 15, fontWeight: '700', color: '#333' },
-  referralLabel: { fontSize: 10, color: '#999' },
-  referralIdBadge: { backgroundColor: '#7C5FED', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 6 },
-  referralIdText: { fontSize: 11, fontWeight: '700', color: '#fff' },
-  scrollContent: { padding: 16 },
-  metricsGrid: { flexDirection: 'row', gap: 12, marginBottom: 12 },
-  metricCard: { flex: 1, backgroundColor: '#fff', borderRadius: 12, padding: 12, alignItems: 'center', elevation: 2 },
-  metricIcon: { width: 40, height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  metricLabel: { fontSize: 10, color: '#999', marginBottom: 4 },
-  metricValue: { fontSize: 15, fontWeight: '700' },
-  section: { marginBottom: 20 },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#333', marginBottom: 12 },
-  tableContainer: { backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', elevation: 1 },
-  tableHeader: { flexDirection: 'row', padding: 12, backgroundColor: '#f9f9f9' },
-  tableHeaderCell: { fontSize: 11, fontWeight: '700', color: '#666' },
-  tableRow: { flexDirection: 'row', padding: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0', alignItems: 'center' },
-  tableCell: { fontSize: 12, color: '#333' },
-  statusBadge: { paddingVertical: 3, paddingHorizontal: 8, borderRadius: 4, alignItems: 'center' },
-  statusBadgeText: { fontSize: 10, fontWeight: '700' },
-  chartContainer: { backgroundColor: '#fff', borderRadius: 12, padding: 20, elevation: 1 },
-  chartBars: { height: 120, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' },
-  barWrapper: { alignItems: 'center', width: 30 },
-  bar: { width: 12, borderRadius: 4 },
-  barLabel: { fontSize: 9, color: '#999', marginTop: 8 },
-  actionsContainer: { gap: 10 },
-  actionButton: { flexDirection: 'row', backgroundColor: '#7C5FED', padding: 14, borderRadius: 10, justifyContent: 'center', alignItems: 'center', gap: 8 },
-  actionButtonSecondary: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#7C5FED' },
-  actionButtonText: { fontSize: 14, fontWeight: '600', color: '#fff' },
-  actionButtonTextSecondary: { color: '#7C5FED' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 18, fontWeight: '700' },
-  referralLinkBox: { flexDirection: 'row', backgroundColor: '#f5f5f5', padding: 12, borderRadius: 8, alignItems: 'center' },
-  referralLink: { flex: 1, color: '#7C5FED', fontWeight: '600', fontSize: 13 },
-  shareMethodsGrid: { flexDirection: 'row', justifyContent: 'space-around', marginVertical: 20 },
-  shareMethod: { alignItems: 'center' },
-  settingIconCircle: { width: 55, height: 55, borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  shareMethodText: { fontSize: 12, color: '#666' },
-  closeButtonAction: { backgroundColor: '#7C5FED', padding: 14, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  closeButtonActionText: { color: '#fff', fontWeight: '700' }
+  chartColumn: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  chartValue: {
+    marginBottom: 8,
+    fontSize: 11,
+    color: salesmanTheme.muted,
+  },
+  chartBarTrack: {
+    width: 18,
+    height: 112,
+    justifyContent: 'flex-end',
+    borderRadius: 999,
+    overflow: 'hidden',
+    backgroundColor: '#E4E7EC',
+  },
+  chartBar: {
+    width: '100%',
+    borderRadius: 999,
+    backgroundColor: salesmanTheme.brand,
+  },
+  chartLabel: {
+    marginTop: 10,
+    fontSize: 11,
+    fontWeight: '600',
+    color: salesmanTheme.muted,
+  },
+  referralCard: {
+    padding: 16,
+    borderRadius: 20,
+    backgroundColor: salesmanTheme.brandSoft,
+  },
+  referralLabel: {
+    fontSize: 12,
+    color: salesmanTheme.muted,
+  },
+  referralCode: {
+    marginTop: 6,
+    fontSize: 24,
+    fontWeight: '700',
+    color: salesmanTheme.brand,
+  },
+  referralLink: {
+    marginTop: 8,
+    fontSize: 12,
+    color: salesmanTheme.muted,
+  },
+  sheetAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 6,
+  },
+  sheetActionIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetActionCopy: {
+    flex: 1,
+  },
+  sheetActionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: salesmanTheme.ink,
+  },
+  sheetActionSubtitle: {
+    marginTop: 4,
+    fontSize: 12,
+    lineHeight: 18,
+    color: salesmanTheme.muted,
+  },
+  sheetPrimaryButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 16,
+    backgroundColor: salesmanTheme.brand,
+  },
+  sheetPrimaryButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
 });
