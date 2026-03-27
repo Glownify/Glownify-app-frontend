@@ -498,7 +498,7 @@ export default function IndependentProManageServicesScreen({ navigation }) {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e8f6f8' }} >
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#e8f6f8' }} edges={[]}>
 
       {/* Header */}
       <View style={{ backgroundColor: '#e8f6f8', paddingHorizontal: H_PAD, paddingTop: 12, paddingBottom: 16 }}>
