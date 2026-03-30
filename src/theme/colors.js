@@ -1,32 +1,33 @@
+import {Appearance} from 'react-native';
+import {darkColors, getThemeColors} from './index';
+
+const palette = getThemeColors(Appearance.getColorScheme());
+
 const Colors = {
-  primary: "#5E38A8",
-  primaryLight: "#E1F5FA",
-  secondary: "#C0B3E0",
+  primary: palette.primary[600],
+  primaryLight: palette.primary[50],
+  secondary: palette.primary[200],
 
-  textPrimary: "#1F2937",
-  textSecondary: "#6B7280",
-   textLight: '#FFFFFF',      // Light Text
-  textMuted: '#A0A4A8',      // Muted Text
+  textPrimary: palette.neutral[900],
+  textSecondary: palette.neutral[600],
+  textLight: palette.white,
+  textMuted: palette.neutral[400],
 
-  white: "#FFFFFF",
-  black: "#000000",
+  white: palette.white,
+  black: palette.black,
 
-  cardBackground: "#FAFAFA",
-  border: "#E5E7EB",
+  cardBackground: palette.surface,
+  border: palette.neutral[100],
 
-  success: "#22C55E",
-  danger: "#EF4444",
-  warning: "#FACC15",
+  success: palette.success[500],
+  danger: palette.error[500],
+  warning: palette.warning[500],
+  error: palette.error[500],
 
-  bgLight: "#F9FAFB",
-  bgDark: "#111827",
+  bgLight: palette.base,
+  bgDark: darkColors.base,
 
-   // Accent Colors
-  accent: '#00B4D8',
-  success: '#2ECC71',        // Green - Approved/Success
-  warning: '#F39C12',        // Amber - Pending
-  error: '#E74C3C',          // Red - Rejected/Error
-
+  accent: palette.info[500],
 };
 
 export default Colors;
