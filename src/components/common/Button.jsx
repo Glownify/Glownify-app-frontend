@@ -5,7 +5,42 @@ import {
   ActivityIndicator,
   Image,
   View,
+  useColorScheme,
 } from 'react-native';
+import {S, getThemeColors} from '../../theme';
+
+const VARIANT_STYLES = {
+  primary: {
+    container: 'bg-primary-600 border-primary-600',
+    label: 'text-white',
+  },
+  outline: {
+    container: 'bg-surface border-neutral-200',
+    label: 'text-neutral-700',
+  },
+  ghost: {
+    container: 'bg-transparent border-transparent',
+    label: 'text-primary-600',
+  },
+};
+
+const SIZE_STYLES = {
+  sm: {
+    minHeight: S.space['5xl'],
+    paddingHorizontal: S.space.xl,
+    labelSize: S.fs.sm,
+  },
+  md: {
+    minHeight: S.space['6xl'],
+    paddingHorizontal: S.space.gutter,
+    labelSize: S.fs.md,
+  },
+  lg: {
+    minHeight: S.space['7xl'],
+    paddingHorizontal: S.space['2xl'],
+    labelSize: S.fs.lg,
+  },
+};
 
 /**
  * AppButton - Reusable button component
@@ -15,9 +50,9 @@ import {
  * @param {boolean}  loading        - Show loading spinner instead of label
  * @param {boolean}  disabled       - Disable the button
  * @param {'primary'|'outline'|'ghost'} variant - Visual style variant
- * @param {'sm'|'md'|'lg'}          size    - Button size
- * @param {object}   icon           - Optional: { source: require(...), width: 22, height: 22 } for image icon
- * @param {React.ReactNode} leftIcon  - Optional left icon component (e.g. <Feather name="..." />)
+ * @param {'sm'|'md'|'lg'} size     - Button size
+ * @param {object}   icon           - Optional: { source: require(...), width: 22, height: 22 }
+ * @param {React.ReactNode} leftIcon  - Optional left icon component
  * @param {React.ReactNode} rightIcon - Optional right icon component
  * @param {string}   className      - Additional NativeWind className overrides
  * @param {object}   style          - Additional inline style overrides
@@ -35,85 +70,66 @@ export default function AppButton({
   className = '',
   style,
 }) {
-  // ── Variant styles ──────────────────────────────────────────────
-  const variantContainer = {
-    primary: 'bg-[#156778] border border-transparent',
-    outline: 'bg-white border border-neutral-200',
-    ghost:   'bg-transparent border border-transparent',
-  };
-
-  const variantLabel = {
-    primary: 'text-white',
-    outline: 'text-neutral-700',
-    ghost:   'text-blue-500',
-  };
-
-  const variantSpinner = {
-    primary: '#ffffff',
-    outline: '#156778',
-    ghost:   '#1E90FF',
-  };
-
-  // ── Size styles ─────────────────────────────────────────────────
-  const sizeContainer = {
-    sm: 'py-3 px-5',
-    md: 'py-[18px] px-6',
-    lg: 'py-5 px-8',
-  };
-
-  const sizeLabel = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg',
-  };
-
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+  const variantStyles = VARIANT_STYLES[variant] ?? VARIANT_STYLES.primary;
+  const sizeStyles = SIZE_STYLES[size] ?? SIZE_STYLES.md;
   const isDisabled = disabled || loading;
+
+  const spinnerColor =
+    variant === 'primary'
+      ? colors.white
+      : variant === 'outline'
+      ? colors.neutral[700]
+      : colors.primary[600];
 
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={isDisabled}
       activeOpacity={0.8}
-      style={style}
+      style={[
+        {
+          minHeight: sizeStyles.minHeight,
+          paddingHorizontal: sizeStyles.paddingHorizontal,
+          borderRadius: S.radius.full,
+          gap: S.space.sm,
+        },
+        style,
+      ]}
       className={[
-        'flex-row items-center justify-center rounded-full shadow-sm',
-        variantContainer[variant],
-        sizeContainer[size],
+        'flex-row items-center justify-center border shadow-sm',
+        variantStyles.container,
         isDisabled ? 'opacity-60' : 'opacity-100',
         className,
       ].join(' ')}
     >
       {loading ? (
-        <ActivityIndicator color={variantSpinner[variant]} />
+        <ActivityIndicator color={spinnerColor} />
       ) : (
         <>
-          {/* Left icon component */}
-          {leftIcon && <View className="mr-3">{leftIcon}</View>}
+          {leftIcon ? <View>{leftIcon}</View> : null}
 
-          {/* Image icon (e.g. Google logo) */}
-          {icon && (
+          {icon ? (
             <Image
               source={icon.source}
-              style={{ width: icon.width ?? 22, height: icon.height ?? 22 }}
-              className="mr-3"
+              style={{
+                width: icon.width ?? S.icon.md,
+                height: icon.height ?? S.icon.md,
+              }}
             />
-          )}
+          ) : null}
 
-          {/* Label */}
-          {label && (
+          {label ? (
             <Text
-              className={[
-                'font-bold',
-                variantLabel[variant],
-                sizeLabel[size],
-              ].join(' ')}
+              className={`font-bold ${variantStyles.label}`}
+              style={{fontSize: sizeStyles.labelSize}}
             >
               {label}
             </Text>
-          )}
+          ) : null}
 
-          {/* Right icon component */}
-          {rightIcon && <View className="ml-3">{rightIcon}</View>}
+          {rightIcon ? <View>{rightIcon}</View> : null}
         </>
       )}
     </TouchableOpacity>

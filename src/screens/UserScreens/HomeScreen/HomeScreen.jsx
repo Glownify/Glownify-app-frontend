@@ -14,13 +14,13 @@ import { LocationContext } from '../../../components/LocationProvider';
 import HomeHeader from '../../../components/HomeHeader';
 
 // Home-specific components
-import BookAtHomeBanner from '../../../components/homescreen/Bookathomebanner';
-import GenderToggle from '../../../components/homescreen/Gendertoggle';
-import ServiceCategoriesSection from '../../../components/homescreen/Servicecategoriessection';
-import SalonListSection from '../../../components/homescreen/Salonlistsection';
-import ServiceAtHomeSection from '../../../components/homescreen/Serviceathomesection';
-import NearbySection from '../../../components/homescreen/Nearbysection';
-import GlownifyFooter from '../../../components/homescreen/Glownifyfooter';
+import BookAtHomeBanner from '../../../components/user/homescreen/Bookathomebanner';
+import GenderToggle from '../../../components/user/homescreen/Gendertoggle';
+import ServiceCategoriesSection from '../../../components/user/homescreen/Servicecategoriessection';
+import SalonListSection from '../../../components/user/homescreen/Salonlistsection';
+import ServiceAtHomeSection from '../../../components/user/homescreen/Serviceathomesection';
+import NearbySection from '../../../components/user/homescreen/Nearbysection';
+import GlownifyFooter from '../../../components/user/homescreen/Glownifyfooter';
 
 // Skeletons for individual sections
 import SalonListSkeleton from '../../../components/Salonlistskeleton';
