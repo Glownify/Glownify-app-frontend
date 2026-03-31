@@ -1,94 +1,114 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import {View, Text, useColorScheme} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
+import {moderateScale} from '../../utils/responsive';
 
 /**
- * StepIndicator - Multi-step progress indicator matching the red design
+ * StepIndicator - Multi-step progress indicator
  *
- * @param {Array<{ step: number, title: string }>} steps        - Ordered list of steps
- * @param {number}  currentStep                                  - Currently active step number
- * @param {string}  activeColor    - Active step circle color    (default: '#E91E63')
- * @param {string}  completedColor - Completed step circle color (default: '#E91E63')
- * @param {string}  inactiveColor  - Inactive step circle color  (default: '#E5E7EB')
- * @param {string}  className      - Additional NativeWind className for the wrapper
+ * @param {Array<{ step: number, title: string }>} steps - Ordered list of steps
+ * @param {number} currentStep - Currently active step number
+ * @param {string} activeColor - Active step circle color
+ * @param {string} completedColor - Completed step circle color
+ * @param {string} inactiveColor - Inactive step circle color
+ * @param {string} className - Additional NativeWind className for the wrapper
  */
 export default function StepIndicator({
   steps = [],
   currentStep,
-  activeColor = '#E91E63',
-  completedColor = '#E91E63',
-  inactiveColor = '#E5E7EB',
+  activeColor,
+  completedColor,
+  inactiveColor,
   className = '',
 }) {
-  const getStatus = (step) => {
-    if (step < currentStep) return 'completed';
-    if (step === currentStep) return 'active';
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+  const circleSize = moderateScale(34);
+  const lineThickness = moderateScale(2);
+  const resolvedActiveColor = activeColor ?? colors.primary[600];
+  const resolvedCompletedColor = completedColor ?? colors.primary[600];
+  const resolvedInactiveColor = inactiveColor ?? colors.neutral[200];
+
+  const getStatus = step => {
+    if (step < currentStep) {
+      return 'completed';
+    }
+
+    if (step === currentStep) {
+      return 'active';
+    }
+
     return 'inactive';
   };
 
   return (
     <View
+      className={`flex-row border-b border-neutral-100 bg-surface ${className}`.trim()}
       style={{
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        paddingHorizontal: 16,
-        paddingVertical: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        padding: S.space.marginScreen,
+        gap: S.space.xs,
       }}
-      className={className}
     >
-      {steps.map(({ step, title }, index) => {
+      {steps.map(({step, title}, index) => {
         const status = getStatus(step);
         const isCompleted = status === 'completed';
         const isActive = status === 'active';
-        const isLast = index === steps.length - 1;
-
         const circleColor = isCompleted
-          ? completedColor
+          ? resolvedCompletedColor
           : isActive
-          ? activeColor
-          : inactiveColor;
+          ? resolvedActiveColor
+          : resolvedInactiveColor;
+        const connectorColor =
+          index > 0 && getStatus(steps[index - 1].step) !== 'inactive'
+            ? resolvedCompletedColor
+            : resolvedInactiveColor;
 
         return (
-          <View key={step} style={{ flex: 1, alignItems: 'center', position: 'relative' }}>
-            {/* Connector line (before circle, not on first step) */}
-            {index > 0 && (
+          <View
+            key={step}
+            className="items-center"
+            style={{
+              flex: 1,
+              position: 'relative',
+              gap: S.space.sm,
+            }}
+          >
+            {index > 0 ? (
               <View
                 style={{
                   position: 'absolute',
-                  top: 16,
+                  top: circleSize / 2 - lineThickness / 2,
                   right: '50%',
                   left: '-50%',
-                  height: 2,
-                  backgroundColor: getStatus(steps[index - 1].step) !== 'inactive'
-                    ? completedColor
-                    : inactiveColor,
+                  height: lineThickness,
+                  backgroundColor: connectorColor,
                   zIndex: 0,
                 }}
               />
-            )}
+            ) : null}
 
-            {/* Circle */}
             <View
+              className="items-center justify-center"
               style={{
-                width: 34,
-                height: 34,
-                borderRadius: 17,
+                width: circleSize,
+                height: circleSize,
+                borderRadius: circleSize / 2,
                 backgroundColor: circleColor,
-                alignItems: 'center',
-                justifyContent: 'center',
                 zIndex: 1,
               }}
             >
               {isCompleted ? (
-                <Icon name="checkmark" size={18} color="#fff" />
+                <Icon name="checkmark" size={S.icon.sm} color={colors.white} />
               ) : (
                 <Text
                   style={{
-                    fontSize: 14,
+                    fontSize: S.fs.sm,
                     fontWeight: '700',
-                    color: isActive ? '#fff' : '#9CA3AF',
+                    color:
+                      isActive || isCompleted
+                        ? colors.white
+                        : colors.neutral[400],
                   }}
                 >
                   {step}
@@ -96,13 +116,11 @@ export default function StepIndicator({
               )}
             </View>
 
-            {/* Label */}
             <Text
+              className="text-center"
               style={{
-                fontSize: 11,
-                marginTop: 6,
-                textAlign: 'center',
-                color: isActive ? '#E91E63' : '#9CA3AF',
+                fontSize: S.fs.xxs,
+                color: isActive ? resolvedActiveColor : colors.neutral[400],
                 fontWeight: isActive ? '600' : '400',
               }}
             >

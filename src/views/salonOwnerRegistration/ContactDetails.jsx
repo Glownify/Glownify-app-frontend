@@ -7,6 +7,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import {LabeledInput} from '../../components/common/Labeledinput';
+import {S} from '../../theme';
 
 const ACCENT = '#E91E63';
 
@@ -120,90 +121,94 @@ export default function ContactDetailsStep({
         Owner Details
       </Text>
 
-      <LabeledInput
-        label="Owner Full Name"
-        required
-        placeholder="e.g. John Doe"
-        value={ownerName}
-        onChangeText={setOwnerName}
-        autoCapitalize="words"
-      />
+      <View style={{gap: S.space.lg}}>
+        <LabeledInput
+          label="Owner Full Name"
+          required
+          placeholder="e.g. John Doe"
+          value={ownerName}
+          onChangeText={setOwnerName}
+          autoCapitalize="words"
+        />
 
-      <LabeledInput
-        label="Email Address"
-        required
-        placeholder="e.g. name@salon.com"
-        value={ownerEmail}
-        onChangeText={setOwnerEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+        <LabeledInput
+          label="Email Address"
+          required
+          placeholder="e.g. name@salon.com"
+          value={ownerEmail}
+          onChangeText={setOwnerEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
-      <LabeledInput
-        label="Password"
-        required
-        placeholder="Min. 8 characters"
-        value={ownerPassword}
-        onChangeText={setOwnerPassword}
-        secureTextEntry
-      />
+        <LabeledInput
+          label="Password"
+          required
+          placeholder="Min. 8 characters"
+          value={ownerPassword}
+          onChangeText={setOwnerPassword}
+          secureTextEntry
+        />
 
-      <LabeledInput
-        label="Contact Number"
-        required
-        placeholder="+1 (555) 000-0000"
-        value={contactNumber}
-        onChangeText={setContactNumber}
-        keyboardType="phone-pad"
-      />
+        <LabeledInput
+          label="Contact Number"
+          required
+          placeholder="+1 (555) 000-0000"
+          value={contactNumber}
+          onChangeText={setContactNumber}
+          keyboardType="phone-pad"
+        />
 
-      <LabeledInput
-        label="WhatsApp Number"
-        placeholder="Same as contact number"
-        value={whatsappNumber}
-        onChangeText={setWhatsappNumber}
-        keyboardType="phone-pad"
-        style={{ marginBottom: 28 }}
-      />
+        <LabeledInput
+          label="WhatsApp Number"
+          placeholder="Same as contact number"
+          value={whatsappNumber}
+          onChangeText={setWhatsappNumber}
+          keyboardType="phone-pad"
+          style={{marginBottom: 28}}
+        />
+      </View>
 
       {/* Shop Information */}
       <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 14 }}>
         Shop Information
       </Text>
 
-      <LabeledInput
-        label="Shop/Salon Name"
-        required
-        placeholder="Enter your shop name"
-        value={shopName}
-        onChangeText={setShopName}
-        autoCapitalize="words"
-      />
+      <View style={{gap: S.space.lg}}>
+        <LabeledInput
+          label="Shop/Salon Name"
+          required
+          placeholder="Enter your shop name"
+          value={shopName}
+          onChangeText={setShopName}
+          autoCapitalize="words"
+        />
 
-      {/* Salon Category */}
-      <View style={{ marginBottom: 28 }}>
-        <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
-          Salon Category <Text style={{ color: ACCENT }}>*</Text>
-        </Text>
-        <View
-          style={{
-            backgroundColor: '#FAFAFA',
-            borderWidth: 1,
-            borderColor: '#E5E7EB',
-            borderRadius: 12,
-            overflow: 'hidden',
-          }}
-        >
-          <Picker
-            selectedValue={salonCategory}
-            onValueChange={(value) => setSalonCategory(value)}
-            dropdownIconColor={ACCENT}
-            mode="dropdown"
+        {/* Salon Category */}
+        <View style={{ marginBottom: 28 }}>
+          <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+            Salon Category <Text style={{ color: ACCENT }}>*</Text>
+          </Text>
+          <View
+            style={{
+              backgroundColor: '#FAFAFA',
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              borderRadius: 12,
+              overflow: 'hidden',
+            }}
           >
-            <Picker.Item label="Select Category" value="" color="#C0C0C0" />
-            <Picker.Item label="Men Salon" value="men" />
-            <Picker.Item label="Women Salon" value="women" />
-          </Picker>
+            <Picker
+              selectedValue={salonCategory}
+              onValueChange={(value) => setSalonCategory(value)}
+              dropdownIconColor={ACCENT}
+              mode="dropdown"
+            >
+              <Picker.Item label="Select Category" value="" color="#C0C0C0" />
+              <Picker.Item label="Men Salon" value="men" />
+              <Picker.Item label="Women Salon" value="women" />
+            </Picker>
+          </View>
         </View>
       </View>
 
@@ -230,53 +235,53 @@ export default function ContactDetailsStep({
                 Partner {index + 1}
               </Text>
 
-              <LabeledInput
-                label="Partner Name"
-                required
-                placeholder="Enter partner's full name"
-                value={partner.name}
-                onChangeText={(text) => updatePartner(index, 'name', text)}
-                autoCapitalize="words"
-              />
+              <View style={{gap: S.space.lg}}>
+                <LabeledInput
+                  label="Partner Name"
+                  required
+                  placeholder="Enter partner's full name"
+                  value={partner.name}
+                  onChangeText={(text) => updatePartner(index, 'name', text)}
+                  autoCapitalize="words"
+                />
 
-              <LabeledInput
-                label="Contact Number"
-                required
-                placeholder="+1 (555) 000-0000"
-                value={partner.contact}
-                onChangeText={(text) => updatePartner(index, 'contact', text)}
-                keyboardType="phone-pad"
-              />
+                <LabeledInput
+                  label="Contact Number"
+                  required
+                  placeholder="+1 (555) 000-0000"
+                  value={partner.contact}
+                  onChangeText={(text) => updatePartner(index, 'contact', text)}
+                  keyboardType="phone-pad"
+                />
 
-              <LabeledInput
-                label="WhatsApp Number"
-                placeholder="Same as contact number"
-                value={partner.whatsapp}
-                onChangeText={(text) => updatePartner(index, 'whatsapp', text)}
-                keyboardType="phone-pad"
-                style={{ marginBottom: 0 }}
-              />
+                <LabeledInput
+                  label="WhatsApp Number"
+                  placeholder="Same as contact number"
+                  value={partner.whatsapp}
+                  onChangeText={(text) => updatePartner(index, 'whatsapp', text)}
+                  keyboardType="phone-pad"
+                />
 
-              {partners.length > 1 && (
-                <TouchableOpacity
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                    paddingVertical: 10,
-                    marginTop: 12,
-                    backgroundColor: '#FEF2F2',
-                    borderRadius: 10,
-                  }}
-                  onPress={() => removePartner(index)}
-                >
-                  <Icon name="trash" size={15} color="#ef4444" />
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#ef4444' }}>
-                    Remove
-                  </Text>
-                </TouchableOpacity>
-              )}
+                {partners.length > 1 && (
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      paddingVertical: 10,
+                      backgroundColor: '#FEF2F2',
+                      borderRadius: 10,
+                    }}
+                    onPress={() => removePartner(index)}
+                  >
+                    <Icon name="trash" size={15} color="#ef4444" />
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#ef4444' }}>
+                      Remove
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           ))}
 

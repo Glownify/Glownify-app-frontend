@@ -6,6 +6,7 @@ import { showSnackbar } from '../../redux/slices/snackbarSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppButton from '../../components/common/Button';
 import AppInput from '../../components/common/Input';
+import {S} from '../../theme';
 
 export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -44,21 +45,23 @@ export default function LoginScreen({ navigation }) {
         </View>
 
         {/* Inputs */}
-        <AppInput
-          value={email}
-          onChangeText={setEmail}
-          leftIcon="mail"
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <AppInput
-          value={password}
-          onChangeText={setPassword}
-          leftIcon="lock"
-          placeholder="Password"
-          secureTextEntry
-        />
+        <View style={{gap: S.space.lg}}>
+          <AppInput
+            value={email}
+            onChangeText={setEmail}
+            leftIcon="mail"
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <AppInput
+            value={password}
+            onChangeText={setPassword}
+            leftIcon="lock"
+            placeholder="Password"
+            secureTextEntry
+          />
+        </View>
 
         {/* Forgot Password - pink */}
         <TouchableOpacity

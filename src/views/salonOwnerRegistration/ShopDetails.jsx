@@ -9,6 +9,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import {LabeledInput} from '../../components/common/Labeledinput';
+import {S} from '../../theme';
 
 const ACCENT = '#E91E63'; 
 
@@ -89,101 +90,103 @@ export default function ShopDetailsStep({
         Help customers find you
       </Text>
 
-      <LabeledInput
-        label="Complete Address"
-        required
-        placeholder="House No, Area, Road"
-        value={completeAddress}
-        onChangeText={setCompleteAddress}
-        autoCapitalize="words"
-      />
+      <View style={{gap: S.space.lg}}>
+        <LabeledInput
+          label="Complete Address"
+          required
+          placeholder="House No, Area, Road"
+          value={completeAddress}
+          onChangeText={setCompleteAddress}
+          autoCapitalize="words"
+        />
 
-      {/* State & City row */}
-      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
-            State <Text style={{ color: ACCENT }}>*</Text>
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#FAFAFA',
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 12,
-              overflow: 'hidden',
-            }}
-          >
-            <Picker
-              selectedValue={state}
-              onValueChange={(itemValue) => {
-                setState(itemValue);
-                setCity('');
+        {/* State & City row */}
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+              State <Text style={{ color: ACCENT }}>*</Text>
+            </Text>
+            <View
+              style={{
+                backgroundColor: '#FAFAFA',
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+                borderRadius: 12,
+                overflow: 'hidden',
               }}
-              dropdownIconColor={ACCENT}
-              mode="dropdown"
             >
-              <Picker.Item label="Select State" value="" />
-              {states.map((s) => (
-                <Picker.Item key={s._id} label={s.name} value={s.code || s._id} />
-              ))}
-            </Picker>
-          </View>
-        </View>
-
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
-            City <Text style={{ color: ACCENT }}>*</Text>
-          </Text>
-          <View
-            style={{
-              backgroundColor: '#FAFAFA',
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 12,
-              overflow: 'hidden',
-            }}
-          >
-            {isCitiesLoading ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14 }}>
-                <ActivityIndicator size="small" color={ACCENT} />
-                <Text style={{ fontSize: 12, color: '#9CA3AF' }}>Loading...</Text>
-              </View>
-            ) : (
               <Picker
-                selectedValue={city}
-                onValueChange={setCity}
+                selectedValue={state}
+                onValueChange={(itemValue) => {
+                  setState(itemValue);
+                  setCity('');
+                }}
                 dropdownIconColor={ACCENT}
                 mode="dropdown"
-                enabled={!!state && citiesByState.length > 0}
               >
-                <Picker.Item
-                  label={
-                    !state
-                      ? 'Select State First'
-                      : citiesByState.length === 0
-                      ? 'No Cities Found'
-                      : 'Select City'
-                  }
-                  value=""
-                />
-                {citiesByState.map((c) => (
-                  <Picker.Item key={c._id} label={c.name} value={c._id} />
+                <Picker.Item label="Select State" value="" />
+                {states.map((s) => (
+                  <Picker.Item key={s._id} label={s.name} value={s.code || s._id} />
                 ))}
               </Picker>
-            )}
+            </View>
+          </View>
+
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+              City <Text style={{ color: ACCENT }}>*</Text>
+            </Text>
+            <View
+              style={{
+                backgroundColor: '#FAFAFA',
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+                borderRadius: 12,
+                overflow: 'hidden',
+              }}
+            >
+              {isCitiesLoading ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14 }}>
+                  <ActivityIndicator size="small" color={ACCENT} />
+                  <Text style={{ fontSize: 12, color: '#9CA3AF' }}>Loading...</Text>
+                </View>
+              ) : (
+                <Picker
+                  selectedValue={city}
+                  onValueChange={setCity}
+                  dropdownIconColor={ACCENT}
+                  mode="dropdown"
+                  enabled={!!state && citiesByState.length > 0}
+                >
+                  <Picker.Item
+                    label={
+                      !state
+                        ? 'Select State First'
+                        : citiesByState.length === 0
+                        ? 'No Cities Found'
+                        : 'Select City'
+                    }
+                    value=""
+                  />
+                  {citiesByState.map((c) => (
+                    <Picker.Item key={c._id} label={c.name} value={c._id} />
+                  ))}
+                </Picker>
+              )}
+            </View>
           </View>
         </View>
-      </View>
 
-      <LabeledInput
-        label="Pincode"
-        required
-        placeholder="Enter Pincode (6 digits)"
-        value={pincode}
-        onChangeText={setPincode}
-        keyboardType="numeric"
-        maxLength={6}
-      />
+        <LabeledInput
+          label="Pincode"
+          required
+          placeholder="Enter Pincode (6 digits)"
+          value={pincode}
+          onChangeText={setPincode}
+          keyboardType="numeric"
+          maxLength={6}
+        />
+      </View>
 
       {/* Pin on Map */}
       <View style={{ marginBottom: 28 }}>

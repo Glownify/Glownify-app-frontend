@@ -1,37 +1,44 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  useColorScheme,
+} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import {S, getThemeColors} from '../../theme';
 
 /**
  * AppInput - Reusable input component
  *
- * @param {string}        value            - Controlled input value
- * @param {function}      onChangeText     - Value change handler
- * @param {string}        placeholder      - Placeholder text
- * @param {string}        placeholderTextColor - Placeholder color (default: '#999')
- * @param {string}        leftIcon         - Feather icon name for the left icon (e.g. 'mail', 'lock')
- * @param {number}        iconSize         - Icon size (default: 20)
- * @param {string}        iconColor        - Icon color (default: '#888')
- * @param {boolean}       secureTextEntry  - Hide text (for passwords). Adds eye toggle automatically.
- * @param {string}        keyboardType     - React Native keyboardType prop
- * @param {string}        autoCapitalize   - React Native autoCapitalize prop
- * @param {string}        label            - Optional label rendered above the input
- * @param {string}        error            - Optional error message rendered below the input
- * @param {boolean}       disabled         - Disable the input
- * @param {React.ReactNode} rightElement   - Custom element rendered on the right (overrides eye toggle)
- * @param {string}        className        - Additional NativeWind className for the container
- * @param {object}        inputStyle       - Inline style for the TextInput
- * @param {object}        containerStyle   - Inline style for the outer wrapper View
- * @param {object}        rest             - Any other TextInput props
+ * @param {string}   value              - Controlled input value
+ * @param {function} onChangeText       - Value change handler
+ * @param {string}   placeholder        - Placeholder text
+ * @param {string}   placeholderTextColor - Placeholder color override
+ * @param {string}   leftIcon           - Feather icon name for the left icon
+ * @param {number}   iconSize           - Icon size
+ * @param {string}   iconColor          - Icon color override
+ * @param {boolean}  secureTextEntry    - Hide text and show eye toggle
+ * @param {string}   keyboardType       - React Native keyboardType prop
+ * @param {string}   autoCapitalize     - React Native autoCapitalize prop
+ * @param {string}   label              - Optional label rendered above the input
+ * @param {string}   error              - Optional error message rendered below the input
+ * @param {boolean}  disabled           - Disable the input
+ * @param {React.ReactNode} rightElement - Custom element rendered on the right
+ * @param {string}   className          - Additional NativeWind className for the wrapper
+ * @param {object}   inputStyle         - Inline style for the TextInput
+ * @param {object}   containerStyle     - Inline style for the outer wrapper View
+ * @param {object}   rest               - Any other TextInput props
  */
 export default function AppInput({
   value,
   onChangeText,
   placeholder,
-  placeholderTextColor = '#999',
+  placeholderTextColor,
   leftIcon,
-  iconSize = 20,
-  iconColor = '#888',
+  iconSize = S.icon.md,
+  iconColor,
   secureTextEntry = false,
   keyboardType,
   autoCapitalize = 'none',
@@ -45,42 +52,49 @@ export default function AppInput({
   ...rest
 }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
-  // When secureTextEntry is true, we manage visibility internally
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+  const resolvedPlaceholderTextColor =
+    placeholderTextColor ?? colors.neutral[400];
+  const resolvedIconColor = iconColor ?? colors.neutral[500];
   const isSecure = secureTextEntry && !isPasswordVisible;
 
-  // Determine border color: error = red, normal = #F0F3F6
-  const borderColor = error ? '#EF4444' : '#F0F3F6';
-
   return (
-    <View style={containerStyle} className={`mb-4 ${className}`}>
-      {/* Optional label */}
+    <View
+      className={className}
+      style={[{gap: S.space.sm}, containerStyle]}
+    >
       {label ? (
-        <Text className="text-neutral-700 font-semibold text-sm mb-1.5 ml-1">
+        <Text
+          className="text-neutral-700"
+          style={{fontSize: S.fs.sm, fontWeight: '600'}}
+        >
           {label}
         </Text>
       ) : null}
 
-      {/* Input row */}
       <View
-        style={{ borderColor, backgroundColor: '#F0F3F6' }}
-        className="flex-row items-center border rounded-full px-4"
+        className={[
+          'flex-row items-center border bg-neutral-50',
+          error ? 'border-error-500' : 'border-neutral-200',
+          disabled ? 'opacity-60' : 'opacity-100',
+        ].join(' ')}
+        style={{
+          minHeight: S.space['6xl'],
+          paddingHorizontal: S.space.lg,
+          borderRadius: S.radius.full,
+          gap: S.space.sm,
+        }}
       >
-        {/* Left icon */}
         {leftIcon ? (
-          <Feather
-            name={leftIcon}
-            size={iconSize}
-            color={iconColor}
-            style={{ marginRight: 10 }}
-          />
+          <Feather name={leftIcon} size={iconSize} color={resolvedIconColor} />
         ) : null}
 
-        {/* Text input */}
         <TextInput
-          style={[{ flex: 1, paddingVertical: 16, fontSize: 16, color: '#1a1a1a' }, inputStyle]}
+          className="flex-1 text-neutral-900"
+          style={[{fontSize: S.fs.md, paddingVertical: 0}, inputStyle]}
           placeholder={placeholder}
-          placeholderTextColor={placeholderTextColor}
+          placeholderTextColor={resolvedPlaceholderTextColor}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={isSecure}
@@ -90,26 +104,37 @@ export default function AppInput({
           {...rest}
         />
 
-        {/* Right: custom element OR password eye toggle */}
         {rightElement ? (
           rightElement
         ) : secureTextEntry ? (
           <TouchableOpacity
-            onPress={() => setIsPasswordVisible((prev) => !prev)}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            onPress={() => setIsPasswordVisible(prev => !prev)}
+            activeOpacity={0.8}
+            className="items-center justify-center"
+            style={{width: S.space['5xl'], height: S.space['5xl']}}
+            hitSlop={{
+              top: S.space.sm,
+              bottom: S.space.sm,
+              left: S.space.sm,
+              right: S.space.sm,
+            }}
           >
             <Feather
               name={isPasswordVisible ? 'eye' : 'eye-off'}
               size={iconSize}
-              color={iconColor}
+              color={resolvedIconColor}
             />
           </TouchableOpacity>
         ) : null}
       </View>
 
-      {/* Optional error message */}
       {error ? (
-        <Text className="text-red-500 text-xs mt-1 ml-2">{error}</Text>
+        <Text
+          className="text-error-600"
+          style={{fontSize: S.fs.xs, fontWeight: '500'}}
+        >
+          {error}
+        </Text>
       ) : null}
     </View>
   );

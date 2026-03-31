@@ -1,45 +1,34 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StatusBar,
+  useColorScheme,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
 
-/**
- * AppHeader — Generic header used across all screens.
- *
- * Props:
- * @param {string}        title          — Screen title (center)
- * @param {function}      onBack         — If provided, shows a back chevron on the left
- * @param {ReactNode}     rightElement   — Optional custom element on the right (icon, text, etc.)
- * @param {string}        variant        — 'primary' (default) | 'light'
- *                                          'primary' → rose bg, white text (matches teal/primary screens)
- *                                          'light'   → white bg, dark text
- * @param {boolean}       noBorder       — Suppress bottom border (default false)
- */
-
-const VARIANTS = {
+const getVariantStyles = colors => ({
   primary: {
-    bg:          'bg-primary',
-    statusBar:   'light-content',
-    statusBg:    '#f43f5e',
-    title:       'text-neutral-white',
-    backBg:      'rgba(255,255,255,0.18)',
-    backIcon:    '#ffffff',
-    border:      'border-primary-400',
-    rightBg:     'rgba(255,255,255,0.18)',
-    rightIcon:   '#ffffff',
+    bg: 'bg-primary-600',
+    border: 'border-primary-500',
+    title: 'text-white',
+    statusBar: 'light-content',
+    statusBg: colors.primary[600],
+    buttonBg: 'bg-white/15',
+    buttonIcon: colors.white,
   },
   light: {
-    bg:          'bg-neutral-white',
-    statusBar:   'dark-content',
-    statusBg:    '#ffffff',
-    title:       'text-neutral-800',
-    backBg:      '#f3f4f6',
-    backIcon:    '#1f2937',
-    border:      'border-neutral-200',
-    rightBg:     '#f3f4f6',
-    rightIcon:   '#1f2937',
+    bg: 'bg-surface',
+    border: 'border-neutral-200',
+    title: 'text-neutral-800',
+    statusBar: 'dark-content',
+    statusBg: colors.surface,
+    buttonBg: 'bg-neutral-100',
+    buttonIcon: colors.neutral[800],
   },
-};
+});
 
 export default function AppHeader({
   title,
@@ -48,69 +37,110 @@ export default function AppHeader({
   variant = 'primary',
   noBorder = false,
 }) {
-  const insets = useSafeAreaInsets();
-  const v = VARIANTS[variant] ?? VARIANTS.primary;
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+  const variants = getVariantStyles(colors);
+  const currentVariant = variants[variant] ?? variants.primary;
+  const buttonSize = S.space['5xl'];
+  const iconHitSlop = {
+    top: S.space.sm,
+    bottom: S.space.sm,
+    left: S.space.sm,
+    right: S.space.sm,
+  };
 
   return (
     <>
-      <StatusBar barStyle={v.statusBar} backgroundColor={v.statusBg} />
+      <StatusBar
+        barStyle={currentVariant.statusBar}
+        backgroundColor={currentVariant.statusBg}
+      />
 
       <View
-        className={`${v.bg} ${!noBorder ? `border-b ${v.border}` : ''}`}
-        style={{  }}
+        className={`${currentVariant.bg} ${!noBorder ? `border-b ${currentVariant.border}` : ''}`}
       >
-        <View className="flex-row items-center justify-between px-md py-sm">
-
-          {/* ── Left — Back button or spacer ── */}
+        <View
+          className="flex-row items-center justify-between"
+          style={{
+            minHeight: buttonSize + S.space.sm,
+            padding: S.space.md,
+            paddingHorizontal: S.space.marginScreen,
+            gap: S.space.sm,
+          }}
+        >
           {onBack ? (
             <TouchableOpacity
               onPress={onBack}
-              className="w-10 h-10 rounded-full items-center justify-center"
-              style={{ backgroundColor: v.backBg }}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              activeOpacity={0.8}
+              className={`items-center justify-center ${currentVariant.buttonBg}`}
+              style={{
+                width: buttonSize,
+                height: buttonSize,
+                borderRadius: S.radius.full,
+              }}
+              hitSlop={iconHitSlop}
             >
-              <Ionicons name="chevron-back" size={22} color={v.backIcon} />
+              <Ionicons
+                name="chevron-back"
+                size={S.icon.lg}
+                color={currentVariant.buttonIcon}
+              />
             </TouchableOpacity>
           ) : (
-            <View className="w-10" />
+            <View style={{width: buttonSize, height: buttonSize}} />
           )}
 
-          {/* ── Centre — Title ── */}
           <Text
-            className={`text-base font-semibold ${v.title} flex-1 text-center`}
+            className={`flex-1 text-center font-semibold ${currentVariant.title}`}
             numberOfLines={1}
+            style={{fontSize: S.fs.md}}
           >
             {title}
           </Text>
 
-          {/* ── Right — Custom element or spacer ── */}
           {rightElement ? (
-            <View className="w-10 items-end">{rightElement}</View>
+            <View
+              className="items-end justify-center"
+              style={{width: buttonSize, minHeight: buttonSize}}
+            >
+              {rightElement}
+            </View>
           ) : (
-            <View className="w-10" />
+            <View style={{width: buttonSize, height: buttonSize}} />
           )}
-
         </View>
       </View>
     </>
   );
 }
 
-/**
- * Convenience hook — returns a pre-built icon button for the right slot.
- * Usage:
- *   const heartBtn = useHeaderIconButton('heart-outline', () => toggleFav(), '#f43f5e');
- *   <AppHeader rightElement={heartBtn} ... />
- */
-export function HeaderIconButton({ name, onPress, color = '#ffffff', bgColor }) {
+export function HeaderIconButton({name, onPress, color, bgColor}) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+  const buttonSize = S.space['5xl'];
+  const resolvedColor = color ?? colors.white;
+  const resolvedBgColor = bgColor ?? 'rgba(255, 255, 255, 0.18)';
+  const iconHitSlop = {
+    top: S.space.sm,
+    bottom: S.space.sm,
+    left: S.space.sm,
+    right: S.space.sm,
+  };
+
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="w-10 h-10 rounded-full items-center justify-center"
-      style={{ backgroundColor: bgColor ?? 'rgba(255,255,255,0.18)' }}
-      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      activeOpacity={0.8}
+      className="items-center justify-center bg-white/15"
+      style={{
+        width: buttonSize,
+        height: buttonSize,
+        borderRadius: S.radius.full,
+        ...(bgColor ? {backgroundColor: resolvedBgColor} : null),
+      }}
+      hitSlop={iconHitSlop}
     >
-      <Ionicons name={name} size={20} color={color} />
+      <Ionicons name={name} size={S.icon.md} color={resolvedColor} />
     </TouchableOpacity>
   );
 }

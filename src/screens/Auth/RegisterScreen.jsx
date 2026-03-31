@@ -100,7 +100,7 @@ export default function RegisterScreen({ navigation }) {
                   onChangeText={setMobileNumber}
                   placeholder="Mobile number"
                   keyboardType="phone-pad"
-                  className="mb-0"
+                  containerStyle={{marginBottom: 0}}
                 />
               </View>
             </View>

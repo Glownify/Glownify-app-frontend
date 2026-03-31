@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useColorScheme,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
 
-/**
- * FieldLabel - Label with optional red asterisk for required fields
- */
-export function FieldLabel({ label, required }) {
+export function FieldLabel({label, required}) {
   return (
     <Text
-      style={{
-        fontSize: 13,
-        fontWeight: '500',
-        color: '#374151',
-        marginBottom: 6,
-      }}
+      className="text-neutral-700"
+      style={{fontSize: S.fs.labelMd, fontWeight: '500'}}
     >
       {label}
-      {required && (
-        <Text style={{ color: '#E91E63' }}> *</Text>
-      )}
+      {required ? <Text className="text-primary-600"> *</Text> : null}
     </Text>
   );
 }
@@ -27,7 +25,7 @@ export function FieldLabel({ label, required }) {
  * LabeledInput - Text input with label above, white card style with border
  *
  * @param {string}   label            - Label text
- * @param {boolean}  required         - Show red asterisk
+ * @param {boolean}  required         - Show required asterisk
  * @param {string}   placeholder      - Placeholder text
  * @param {string}   value            - Controlled value
  * @param {function} onChangeText     - Change handler
@@ -52,31 +50,28 @@ export function LabeledInput({
   ...rest
 }) {
   const [visible, setVisible] = useState(false);
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const isSecure = secureTextEntry && !visible;
 
   return (
-    <View style={[{ marginBottom: 16 }, style]}>
+    <View style={[{gap: S.space.sm}, style]}>
       {label ? <FieldLabel label={label} required={required} /> : null}
+
       <View
+        className="flex-row items-center border border-neutral-200 bg-neutral-50"
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#FAFAFA',
-          borderWidth: 1,
-          borderColor: '#E5E7EB',
-          borderRadius: 12,
-          paddingHorizontal: 14,
+          minHeight: S.space['6xl'],
+          paddingHorizontal: S.space.md,
+          borderRadius: S.radius.lg,
+          gap: S.space.sm,
         }}
       >
         <TextInput
-          style={{
-            flex: 1,
-            paddingVertical: 14,
-            fontSize: 15,
-            color: '#1F2937',
-          }}
+          className="flex-1 text-neutral-800"
+          style={{fontSize: S.fs.sm, paddingVertical: 0}}
           placeholder={placeholder}
-          placeholderTextColor="#C0C0C0"
+          placeholderTextColor={colors.neutral[400]}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={isSecure}
@@ -84,20 +79,28 @@ export function LabeledInput({
           autoCapitalize={autoCapitalize}
           {...rest}
         />
-        {/* Password eye toggle */}
+
         {secureTextEntry && !rightElement ? (
           <TouchableOpacity
-            onPress={() => setVisible((v) => !v)}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            onPress={() => setVisible(v => !v)}
+            activeOpacity={0.8}
+            className="items-center justify-center"
+            style={{width: S.space['5xl'], height: S.space['5xl']}}
+            hitSlop={{
+              top: S.space.sm,
+              bottom: S.space.sm,
+              left: S.space.sm,
+              right: S.space.sm,
+            }}
           >
             <Icon
               name={visible ? 'eye-outline' : 'eye-off-outline'}
-              size={20}
-              color="#C0C0C0"
+              size={S.icon.md}
+              color={colors.neutral[400]}
             />
           </TouchableOpacity>
         ) : null}
-        {/* Custom right element */}
+
         {rightElement ?? null}
       </View>
     </View>
