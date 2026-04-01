@@ -1,313 +1,231 @@
-// components/shopfulldetail/Salongallery.jsx
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Dimensions,
-  FlatList,
   Image,
   Modal,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
+import {moderateScale} from '../../utils/responsive';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
+const HERO_GAP = S.space.sm;
+const CARD_PADDING = S.space.lg;
+const HERO_IMG_WIDTH =
+  (SCREEN_WIDTH - S.space.lg * 2 - CARD_PADDING * 2 - HERO_GAP) / 2;
+const HERO_IMG_HEIGHT = HERO_IMG_WIDTH * 1.08;
+const THUMB_SIZE = moderateScale(88);
+const MAX_THUMBS = 6;
 
-// Two prominent images side-by-side, then horizontal scroll of the rest
-export default function SalonGallery({ images = [] }) {
+export default function SalonGallery({images = []}) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
-  if (!images || images.length === 0) return null;
+  if (!images || images.length === 0) {
+    return null;
+  }
 
   const heroImages = images.slice(0, 2);
   const remainingImages = images.slice(2);
+  const visibleThumbs = remainingImages.slice(0, MAX_THUMBS);
+  const hiddenCount = remainingImages.length - visibleThumbs.length;
 
-  const openLightbox = idx => setLightboxIndex(idx);
+  const openLightbox = index => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
 
   return (
-    <View>
-      {/* Section header */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Gallery</Text>
-        <Text style={styles.sectionCount}>{images.length} photos</Text>
+    <View style={{gap: S.space.md}}>
+      <View className="flex-row items-center justify-between">
+        <Text
+          className="text-neutral-900"
+          style={{fontSize: S.fs.md, fontWeight: '700'}}>
+          Gallery
+        </Text>
+        <Text
+          className="text-neutral-400"
+          style={{fontSize: S.fs.xs, fontWeight: '500'}}>
+          {images.length} photos
+        </Text>
       </View>
-      <View className='rounded-2xl border-t-2 border-t-pink-500 border border-slate-100 shadow-sm elevation-3' style={styles.container}>
-        {/* Hero row: 2 prominent images */}
-        <View style={styles.heroRow}>
-          {heroImages.map((uri, idx) => (
+
+      <View
+        className="border border-t-2 border-neutral-100 border-t-primary-600 bg-surface shadow-sm"
+        style={{
+          borderRadius: S.radius.xl,
+          padding: CARD_PADDING,
+          gap: S.space.md,
+          elevation: 2,
+        }}>
+        <View className="flex-row" style={{gap: HERO_GAP}}>
+          {heroImages.map((uri, index) => (
             <TouchableOpacity
-              key={idx}
-              style={styles.heroItem}
-              onPress={() => openLightbox(idx)}
-              activeOpacity={0.88}
-            >
-              <Image source={{ uri }} style={styles.heroImage} />
-              <View style={styles.heroOverlay} />
-              {idx === 0 && (
-                <View style={styles.heroBadge}>
-                  <Text style={styles.heroBadgeText}>Featured</Text>
+              key={`${uri}-${index}`}
+              style={{
+                flex: 1,
+                height: HERO_IMG_HEIGHT,
+                borderRadius: S.radius.xl,
+                overflow: 'hidden',
+              }}
+              onPress={() => openLightbox(index)}
+              activeOpacity={0.88}>
+              <Image source={{uri}} style={{width: '100%', height: '100%'}} />
+              <View className="absolute inset-0 bg-black/10" />
+              {index === 0 ? (
+                <View
+                  className="absolute rounded-xl bg-primary-600"
+                  style={{
+                    top: S.space.sm,
+                    left: S.space.sm,
+                    paddingHorizontal: S.space.sm,
+                    paddingVertical: S.space.xs,
+                  }}>
+                  <Text
+                    className="text-white"
+                    style={{fontSize: S.fs.tiny, fontWeight: '700'}}>
+                    Featured
+                  </Text>
                 </View>
-              )}
+              ) : null}
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Remaining images: horizontal scroll */}
-        {remainingImages.length > 0 && (
+        {visibleThumbs.length > 0 ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.scrollRow}
-            style={styles.scrollContainer}
-          >
-            {remainingImages.map((uri, idx) => (
-              <TouchableOpacity
-                key={idx + 2}
-                style={styles.thumbItem}
-                onPress={() => openLightbox(idx + 2)}
-                activeOpacity={0.85}
-              >
-                <Image source={{ uri }} style={styles.thumbImage} />
-                {/* If last item and there are "more" images hidden, show overlay */}
-                {idx === remainingImages.length - 1 && images.length > 8 && (
-                  <View style={styles.moreOverlay}>
-                    <Text style={styles.moreText}>+{images.length - 8}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
+            contentContainerStyle={{gap: S.space.sm}}>
+            {visibleThumbs.map((uri, index) => {
+              const isLastVisible = index === visibleThumbs.length - 1;
+              return (
+                <TouchableOpacity
+                  key={`${uri}-${index + 2}`}
+                  style={{
+                    width: THUMB_SIZE,
+                    height: THUMB_SIZE,
+                    borderRadius: S.radius.lg,
+                    overflow: 'hidden',
+                  }}
+                  onPress={() => openLightbox(index + 2)}
+                  activeOpacity={0.85}>
+                  <Image
+                    source={{uri}}
+                    style={{width: '100%', height: '100%'}}
+                    resizeMode="cover"
+                  />
+                  {hiddenCount > 0 && isLastVisible ? (
+                    <View className="absolute inset-0 items-center justify-center bg-black/55">
+                      <Text
+                        className="text-white"
+                        style={{fontSize: S.fs.md, fontWeight: '700'}}>
+                        +{hiddenCount}
+                      </Text>
+                    </View>
+                  ) : null}
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
-        )}
-
-        {/* Lightbox modal */}
-        <Modal
-          visible={lightboxIndex !== null}
-          transparent
-          animationType="fade"
-          onRequestClose={closeLightbox}
-          statusBarTranslucent
-        >
-          <View style={styles.lightbox}>
-            <Pressable
-              style={styles.lightboxBackdrop}
-              onPress={closeLightbox}
-            />
-
-            {/* Image */}
-            {lightboxIndex !== null && (
-              <View style={styles.lightboxContent}>
-                <Image
-                  source={{ uri: images[lightboxIndex] }}
-                  style={styles.lightboxImage}
-                  resizeMode="contain"
-                />
-                {/* Counter */}
-                <View style={styles.lightboxCounter}>
-                  <Text style={styles.lightboxCounterText}>
-                    {lightboxIndex + 1} / {images.length}
-                  </Text>
-                </View>
-                {/* Nav arrows */}
-                {lightboxIndex > 0 && (
-                  <TouchableOpacity
-                    style={[styles.navBtn, styles.navBtnLeft]}
-                    onPress={() => setLightboxIndex(i => i - 1)}
-                  >
-                    <Text style={styles.navBtnText}>‹</Text>
-                  </TouchableOpacity>
-                )}
-                {lightboxIndex < images.length - 1 && (
-                  <TouchableOpacity
-                    style={[styles.navBtn, styles.navBtnRight]}
-                    onPress={() => setLightboxIndex(i => i + 1)}
-                  >
-                    <Text style={styles.navBtnText}>›</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-
-            {/* Close button */}
-            <TouchableOpacity
-              style={styles.lightboxClose}
-              onPress={closeLightbox}
-            >
-              <Text style={styles.lightboxCloseText}>✕</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
+        ) : null}
       </View>
+
+      <Modal
+        visible={lightboxIndex !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={closeLightbox}
+        statusBarTranslucent>
+        <View
+          className="flex-1 items-center justify-center"
+          style={{backgroundColor: 'rgba(0,0,0,0.92)'}}>
+          <Pressable className="absolute inset-0" onPress={closeLightbox} />
+
+          {lightboxIndex !== null ? (
+            <View
+              className="items-center justify-center"
+              style={{
+                width: SCREEN_WIDTH,
+                height: SCREEN_HEIGHT * 0.78,
+              }}>
+              <Image
+                source={{uri: images[lightboxIndex]}}
+                style={{
+                  width: SCREEN_WIDTH - S.space.lg * 2,
+                  height: '100%',
+                  borderRadius: S.radius.xl,
+                }}
+                resizeMode="contain"
+              />
+
+              <View
+                className="absolute self-center rounded-full bg-white/15"
+                style={{
+                  bottom: -S.space.lg,
+                  paddingHorizontal: S.space.md,
+                  paddingVertical: S.space.xs,
+                }}>
+                <Text
+                  className="text-white"
+                  style={{fontSize: S.fs.xs, fontWeight: '600'}}>
+                  {lightboxIndex + 1} / {images.length}
+                </Text>
+              </View>
+
+              {lightboxIndex > 0 ? (
+                <TouchableOpacity
+                  className="absolute items-center justify-center rounded-full bg-white/15"
+                  style={{
+                    left: S.space.sm,
+                    width: moderateScale(44),
+                    height: moderateScale(44),
+                  }}
+                  onPress={() => setLightboxIndex(index => index - 1)}
+                  activeOpacity={0.8}>
+                  <Icon name="chevron-back" size={S.icon.md} color={colors.white} />
+                </TouchableOpacity>
+              ) : null}
+
+              {lightboxIndex < images.length - 1 ? (
+                <TouchableOpacity
+                  className="absolute items-center justify-center rounded-full bg-white/15"
+                  style={{
+                    right: S.space.sm,
+                    width: moderateScale(44),
+                    height: moderateScale(44),
+                  }}
+                  onPress={() => setLightboxIndex(index => index + 1)}
+                  activeOpacity={0.8}>
+                  <Icon
+                    name="chevron-forward"
+                    size={S.icon.md}
+                    color={colors.white}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          ) : null}
+
+          <TouchableOpacity
+            className="absolute items-center justify-center rounded-full bg-white/15"
+            style={{
+              top: moderateScale(52),
+              right: S.space.lg,
+              width: moderateScale(40),
+              height: moderateScale(40),
+            }}
+            onPress={closeLightbox}
+            activeOpacity={0.8}>
+            <Icon name="close" size={S.icon.sm} color={colors.white} />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }
-
-const HERO_IMG_WIDTH = (SCREEN_WIDTH - 32 - 8) / 2; // 16px padding each side + 8px gap
-const HERO_IMG_HEIGHT = HERO_IMG_WIDTH * 1.1;
-const THUMB_SIZE = 88;
-
-const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: 14,
-    // marginBottom: 8,
-    backgroundColor: '#FFF',
-    paddingVertical: 12,
-    // borderRadius: 16,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2D1B1A',
-    letterSpacing: -0.2,
-  },
-  sectionCount: {
-    fontSize: 13,
-    color: '#9B6E6A',
-    fontWeight: '500',
-  },
-  heroRow: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 16,
-    marginBottom: 10,
-  },
-  heroItem: {
-    flex: 1,
-    borderRadius: 16,
-    overflow: 'hidden',
-    height: HERO_IMG_HEIGHT,
-  },
-  heroImage: {
-    width: '100%',
-    height: '100%',
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(45,27,26,0.08)',
-  },
-  heroBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'rgba(196,96,90,0.9)',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  heroBadgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.4,
-  },
-  scrollContainer: {
-    paddingLeft: 16,
-  },
-  scrollRow: {
-    paddingRight: 16,
-    gap: 8,
-    alignItems: 'center',
-  },
-  thumbItem: {
-    width: THUMB_SIZE,
-    height: THUMB_SIZE,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  thumbImage: {
-    width: '100%',
-    height: '100%',
-  },
-  moreOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(45,27,26,0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-  },
-  moreText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  // Lightbox
-  lightbox: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.92)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  lightboxBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  lightboxContent: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.75,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  lightboxImage: {
-    width: SCREEN_WIDTH - 32,
-    height: '100%',
-    borderRadius: 16,
-  },
-  lightboxCounter: {
-    position: 'absolute',
-    bottom: -28,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 4,
-  },
-  lightboxCounterText: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  navBtn: {
-    position: 'absolute',
-    top: '50%',
-    marginTop: -24,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navBtnLeft: { left: 8 },
-  navBtnRight: { right: 8 },
-  navBtnText: {
-    color: '#fff',
-    fontSize: 32,
-    lineHeight: 36,
-    fontWeight: '300',
-  },
-  lightboxClose: {
-    position: 'absolute',
-    top: 52,
-    right: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  lightboxCloseText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

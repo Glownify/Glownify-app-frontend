@@ -1,4 +1,7 @@
-import type { ActiveService, WorkflowBookingSource } from './types';
+import type {
+  ActiveService,
+  WorkflowBookingSource,
+} from '../types/independentServiceWorkflow';
 
 export const MOCK_SERVICE_OTP = '2486';
 
@@ -23,10 +26,12 @@ export const normalizeBookingToService = (
   booking?: WorkflowBookingSource,
 ): ActiveService => {
   if (!booking) {
-    return { ...mockActiveService };
+    return {...mockActiveService};
   }
 
-  const resolvedId = String(booking.serviceId ?? booking.id ?? mockActiveService.id);
+  const resolvedId = String(
+    booking.serviceId ?? booking.id ?? mockActiveService.id,
+  );
   const resolvedType = booking.type ?? 'home';
   const fallbackAddress =
     resolvedType === 'home'

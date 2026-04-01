@@ -1,31 +1,23 @@
-// components/SalonImageCarousel.jsx
-import React, { useState, useRef } from 'react';
+import React, {useRef, useState} from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TouchableOpacity,
   Dimensions,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
+import {moderateScale} from '../../utils/responsive';
 
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - 32;
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
+const CARD_WIDTH = SCREEN_WIDTH - S.space.lg * 2;
+const CARD_HEIGHT = moderateScale(280);
+const TOP_CONTROL_SIZE = S.icon.lg + S.space.sm;
 
-/**
- * SalonImageCarousel
- * Props:
- *   title       string
- *   images      string[]
- *   rating      number
- *   reviewCount number
- *   distance    string
- *   isFavourite boolean
- *   onBack      () => void
- *   onFavourite () => void
- *   onViewMap   () => void
- */
 export default function SalonImageCarousel({
   title = '',
   images = [],
@@ -37,84 +29,88 @@ export default function SalonImageCarousel({
   onFavourite,
   onViewMap,
 }) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef(null);
 
-  const goToIndex = (i) => {
-    scrollRef.current?.scrollTo({ x: i * CARD_WIDTH, animated: true });
-    setCurrentIndex(i);
+  const goToIndex = index => {
+    scrollRef.current?.scrollTo({x: index * CARD_WIDTH, animated: true});
+    setCurrentIndex(index);
   };
 
   return (
-    <View className="mx-4 mt-4 rounded-3xl overflow-hidden" style={{ height: 280 }}>
-
-      {/* ── Images ── */}
+    <View
+      className="overflow-hidden rounded-3xl border border-neutral-100 bg-neutral-100"
+      style={{height: CARD_HEIGHT, borderRadius: S.radius.xl}}>
       <ScrollView
         ref={scrollRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onScroll={e =>
-          setCurrentIndex(Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH))
+        onScroll={event =>
+          setCurrentIndex(
+            Math.round(event.nativeEvent.contentOffset.x / CARD_WIDTH),
+          )
         }
-        scrollEventThrottle={16}
-      >
+        scrollEventThrottle={16}>
         {images.map((uri, index) => (
           <Image
-            key={index}
-            source={{ uri }}
-            style={{ width: CARD_WIDTH, height: 280 }}
+            key={`${uri}-${index}`}
+            source={{uri}}
+            style={{width: CARD_WIDTH, height: CARD_HEIGHT}}
             resizeMode="cover"
           />
         ))}
       </ScrollView>
 
-      {/* ── Gradient overlays ── */}
-      {/* Top fade */}
-      <View
+      <LinearGradient
+        colors={['rgba(0,0,0,0.62)', 'rgba(0,0,0,0.08)', 'rgba(0,0,0,0)']}
         pointerEvents="none"
-        className="absolute top-0 left-0 right-0"
         style={{
-          height: 90,
-          background: 'transparent',
-          backgroundImage:
-            'linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)',
-          // RN fallback — use a solid semi-transparent for top
-          backgroundColor: undefined,
-        }}
-      />
-      {/* Bottom fade */}
-      <View
-        pointerEvents="none"
-        className="absolute bottom-0 left-0 right-0"
-        style={{
-          height: 100,
-          backgroundColor: 'rgba(0,0,0,0)',
-          // layered with the bottom info bar background
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: moderateScale(108),
         }}
       />
 
-      {/* ── Top bar: back + title + favourite ── */}
-      <View className="absolute top-3 left-3 right-3 flex-row justify-between items-center">
+      <LinearGradient
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)']}
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: moderateScale(132),
+        }}
+      />
 
-        {/* Back button */}
+      <View
+        className="absolute flex-row items-center justify-between"
+        style={{top: S.space.lg, left: S.space.lg, right: S.space.lg}}>
         <TouchableOpacity
-          className="w-9 h-9 rounded-full bg-black/40 items-center justify-center"
+          className="items-center justify-center rounded-full bg-black/40"
+          style={{width: TOP_CONTROL_SIZE, height: TOP_CONTROL_SIZE}}
           onPress={onBack}
-          activeOpacity={0.8}
-        >
-          <Icon name="chevron-back" size={20} color="#fff" />
+          activeOpacity={0.8}>
+          <Icon name="chevron-back" size={S.icon.md} color={colors.white} />
         </TouchableOpacity>
 
-        {/* Title pill — centered */}
         {title ? (
           <View
-            className="flex-1 mx-3 bg-black/35 rounded-full px-4 py-1.5 items-center"
-          >
+            className="flex-1 items-center rounded-full bg-black/35"
+            style={{
+              marginHorizontal: S.space.md,
+              paddingHorizontal: S.space.lg,
+              paddingVertical: S.space.sm,
+            }}>
             <Text
-              className="text-white text-[14px] font-semibold"
-              numberOfLines={1}
-            >
+              className="text-white"
+              style={{fontSize: S.fs.sm, fontWeight: '600'}}
+              numberOfLines={1}>
               {title}
             </Text>
           </View>
@@ -122,77 +118,102 @@ export default function SalonImageCarousel({
           <View className="flex-1" />
         )}
 
-        {/* Favourite */}
         <TouchableOpacity
-          className={`w-9 h-9 rounded-full items-center justify-center ${
-            isFavourite ? 'bg-[#EA8491]' : 'bg-black/40'
+          className={`items-center justify-center rounded-full ${
+            isFavourite ? 'bg-primary-600' : 'bg-black/40'
           }`}
+          style={{width: TOP_CONTROL_SIZE, height: TOP_CONTROL_SIZE}}
           onPress={onFavourite}
-          activeOpacity={0.8}
-        >
+          activeOpacity={0.8}>
           <Icon
             name={isFavourite ? 'heart' : 'heart-outline'}
-            size={18}
-            color="#fff"
+            size={S.icon.sm}
+            color={colors.white}
           />
         </TouchableOpacity>
       </View>
 
-      {/* ── Image counter badge (top-right corner below fav) ── */}
-      {/* {images.length > 1 && (
-        <View className="absolute top-14 right-3 bg-black/40 rounded-lg px-2 py-0.5">
-          <Text className="text-white text-[11px] font-semibold">
-            {currentIndex + 1} / {images.length}
+      {images.length > 1 ? (
+        <View
+          className="absolute left-0 right-0 flex-row justify-center"
+          style={{bottom: moderateScale(54), gap: S.space.xs}}>
+          {images.map((_, index) => {
+            const isActive = currentIndex === index;
+            return (
+              <TouchableOpacity
+                key={index}
+                onPress={() => goToIndex(index)}
+                activeOpacity={0.75}>
+                <View
+                  style={{
+                    width: isActive ? S.space.xl : S.space.xs + 2,
+                    height: S.space.xs,
+                    borderRadius: S.radius.full,
+                    backgroundColor: isActive
+                      ? colors.white
+                      : 'rgba(255,255,255,0.45)',
+                  }}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      ) : null}
+
+      <View
+        className="absolute flex-row items-center justify-between"
+        style={{left: S.space.lg, right: S.space.lg, bottom: S.space.lg}}>
+        <View
+          className="flex-row items-center rounded-xl bg-black/40"
+          style={{
+            paddingHorizontal: S.space.md,
+            paddingVertical: S.space.sm,
+            gap: S.space.xs,
+          }}>
+          <Icon name="star" size={S.icon.xs + 2} color={colors.warning[500]} />
+          <Text
+            className="text-white"
+            style={{fontSize: S.fs.xs, fontWeight: '700'}}>
+            {rating}
+          </Text>
+          <Text className="text-white/70" style={{fontSize: S.fs.xs}}>
+            ({reviewCount})
           </Text>
         </View>
-      )} */}
 
-      {/* ── Dot indicators (tappable) ── */}
-      {images.length > 1 && (
-        <View className="absolute bottom-[52px] left-0 right-0 flex-row justify-center gap-1.5">
-          {images.map((_, i) => (
-            <TouchableOpacity
-              key={i}
-              onPress={() => goToIndex(i)}
-              activeOpacity={0.7}
-            >
-              <View
-                style={{
-                  height: 4,
-                  borderRadius: 2,
-                  width: currentIndex === i ? 20 : 6,
-                  backgroundColor:
-                    currentIndex === i ? '#fff' : 'rgba(255,255,255,0.45)',
-                }}
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-
-      {/* Bottom info row */}
-      <View className="absolute bottom-3 left-3 right-3 flex-row items-center justify-between">
-        {/* Rating pill */}
-        <View className="flex-row items-center bg-black/40 rounded-xl px-3 py-1.5 gap-1">
-          <Icon name="star" size={13} color="#FBBF24" />
-          <Text className="text-white text-xs font-bold">{rating}</Text>
-          <Text className="text-white/70 text-xs">({reviewCount})</Text>
-        </View>
-
-        {/* Distance + Map */}
-        <View className="flex-row gap-2">
-          <View className="flex-row items-center bg-black/40 rounded-xl px-3 py-1.5 gap-1">
-            <Icon name="navigate-outline" size={12} color="#fff" />
-            <Text className="text-white text-xs">{distance}</Text>
+        <View className="flex-row" style={{gap: S.space.sm}}>
+          <View
+            className="flex-row items-center rounded-xl bg-black/40"
+            style={{
+              paddingHorizontal: S.space.md,
+              paddingVertical: S.space.sm,
+              gap: S.space.xs,
+            }}>
+            <Icon
+              name="navigate-outline"
+              size={S.icon.xs + 2}
+              color={colors.white}
+            />
+            <Text className="text-white" style={{fontSize: S.fs.xs}}>
+              {distance}
+            </Text>
           </View>
 
           <TouchableOpacity
-            className="flex-row items-center bg-[#EA8491] rounded-xl px-3 py-1.5 gap-1"
+            className="flex-row items-center rounded-xl bg-primary-600"
+            style={{
+              paddingHorizontal: S.space.md,
+              paddingVertical: S.space.sm,
+              gap: S.space.xs,
+            }}
             onPress={onViewMap}
-            activeOpacity={0.85}
-          >
-            <Icon name="map-outline" size={12} color="#fff" />
-            <Text className="text-white text-xs font-semibold">Map</Text>
+            activeOpacity={0.85}>
+            <Icon name="map-outline" size={S.icon.xs + 2} color={colors.white} />
+            <Text
+              className="text-white"
+              style={{fontSize: S.fs.xs, fontWeight: '600'}}>
+              Map
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

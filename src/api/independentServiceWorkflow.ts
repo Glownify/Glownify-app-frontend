@@ -1,4 +1,4 @@
-import { MOCK_SERVICE_OTP } from '../components/independent-pro/serviceWorkflow/utils';
+import { MOCK_SERVICE_OTP } from '../utils/independentServiceWorkflow';
 
 const delay = async (duration = 800) =>
   new Promise(resolve => {

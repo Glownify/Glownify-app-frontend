@@ -6,6 +6,7 @@ import ServicesList from '../../../components/shopfulldetail/Serviceslist';
 import CartBar from '../../../components/shopfulldetail/Cartbar';
 import SubServiceBottomSheet from '../../../components/shopfulldetail/Subservicebottomsheet';
 import AppHeader, { HeaderIconButton } from '../../../components/common/Header'; // TODO: adjust path
+import {S} from '../../../theme';
 
 // ─── Dummy / static data (replace with API response) ────────────────────────
 const PROFESSIONAL = {
@@ -98,11 +99,15 @@ const ProfessionalDetailsScreen = ({ navigation }) => {
       <ScrollView
         className="flex-1 bg-neutral-100 rounded-t-3xl"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 110, paddingTop: 20 }}
+        contentContainerStyle={{
+          padding: S.space.lg,
+          paddingBottom: S.space['8xl'] + S.space['4xl'],
+          gap: S.space.lg,
+        }}
       >
         {/* ── Floating Profile Card ── */}
         <View
-          className="mx-md mb-lg bg-neutral-white rounded-3xl overflow-hidden"
+          className="bg-neutral-white rounded-3xl overflow-hidden"
           style={{ elevation: 4, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}
         >
           {/* Primary colour banner strip at top of card */}
@@ -191,7 +196,7 @@ const ProfessionalDetailsScreen = ({ navigation }) => {
         </View>
 
         {/* Services heading */}
-        <View className="px-md mb-sm">
+        <View style={{gap: S.space.xs / 2}}>
           <Text className="text-base font-bold text-neutral-900">Services Offered</Text>
           <Text className="text-xs text-neutral-400 mt-0.5">Select services to add to your booking</Text>
         </View>

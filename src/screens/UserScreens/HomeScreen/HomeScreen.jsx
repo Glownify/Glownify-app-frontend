@@ -21,6 +21,7 @@ import SalonListSection from '../../../components/user/homescreen/Salonlistsecti
 import ServiceAtHomeSection from '../../../components/user/homescreen/Serviceathomesection';
 import NearbySection from '../../../components/user/homescreen/Nearbysection';
 import GlownifyFooter from '../../../components/user/homescreen/Glownifyfooter';
+import {S} from '../../../theme';
 
 // Skeletons for individual sections
 import SalonListSkeleton from '../../../components/Salonlistskeleton';
@@ -136,7 +137,11 @@ export default function HomeScreen({ navigation }) {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          contentContainerStyle={{ paddingVertical: 10 }}
+          contentContainerStyle={{
+            paddingTop: S.space.sm,
+            paddingBottom: S.space['2xl'],
+            gap: S.space.lg,
+          }}
         >
           {/* 0 — Book at Home Banner */}
           <BookAtHomeBanner

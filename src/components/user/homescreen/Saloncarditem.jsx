@@ -1,24 +1,33 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  useColorScheme,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../../theme';
+import {moderateScale, wp} from '../../../utils/responsive';
 
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.44;
+const CARD_WIDTH = wp(44);
+const THUMB_HEIGHT = CARD_WIDTH * 0.85;
 
 const DUMMY_IMAGES = [
-  'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80', // pink salon
-  'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400&q=80', // barber shop
-  'https://images.unsplash.com/photo-1470259078422-826894b933aa?w=400&q=80', // beauty salon
+  'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80',
+  'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400&q=80',
+  'https://images.unsplash.com/photo-1470259078422-826894b933aa?w=400&q=80',
 ];
 
 export default function SalonCardItem({
   salon,
-  selectedCategory,
   onPress,
   onFavorite,
   imageIndex = 0,
 }) {
   const [isFavorited, setIsFavorited] = useState(false);
-
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const imageUri =
     salon.image || DUMMY_IMAGES[imageIndex % DUMMY_IMAGES.length];
 
@@ -29,133 +38,118 @@ export default function SalonCardItem({
 
   return (
     <TouchableOpacity
+      className="overflow-hidden bg-surface shadow-sm"
       style={{
         width: CARD_WIDTH,
-        marginRight: 12,
-        backgroundColor: '#ffffff',
-        borderRadius: 16,
-        overflow: 'hidden',
-        shadowColor: '#000',
+        borderRadius: S.radius.xl,
+        shadowColor: colors.black,
         shadowOpacity: 0.08,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: moderateScale(8),
+        shadowOffset: {width: 0, height: 2},
         elevation: 3,
       }}
       onPress={onPress}
       activeOpacity={0.9}
     >
-      {/* Image Area */}
-      <View style={{ height: CARD_WIDTH * 0.85, position: 'relative' }}>
+      <View className="relative" style={{height: THUMB_HEIGHT}}>
         <Image
-          source={{ uri: imageUri }}
-          style={{ width: '100%', height: '100%' }}
+          source={{uri: imageUri}}
+          style={{width: '100%', height: '100%'}}
           resizeMode="cover"
         />
 
-        {/* Heart — top right */}
         <TouchableOpacity
+          className="absolute items-center justify-center bg-surface shadow-sm"
           style={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            width: 32,
-            height: 32,
-            backgroundColor: '#ffffff',
-            borderRadius: 16,
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: '#000',
-            shadowOpacity: 0.12,
-            shadowRadius: 4,
-            elevation: 2,
+            top: S.space.sm,
+            right: S.space.sm,
+            width: moderateScale(32),
+            height: moderateScale(32),
+            borderRadius: S.radius.full,
           }}
           onPress={handleFavorite}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text style={{ fontSize: 15 }}>{isFavorited ? '❤️' : '🤍'}</Text>
-        </TouchableOpacity>
-
-        {/* Rating and Location — bottom left/right */}
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 8,
-            left: 8,
-            right: 8,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
+          hitSlop={{
+            top: S.space.sm,
+            bottom: S.space.sm,
+            left: S.space.sm,
+            right: S.space.sm,
           }}
         >
+          <Ionicons
+            name={isFavorited ? 'heart' : 'heart-outline'}
+            size={S.icon.sm}
+            color={isFavorited ? colors.primary[600] : colors.neutral[500]}
+          />
+        </TouchableOpacity>
+
+        <View
+          className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between"
+          style={{padding: S.space.sm, gap: S.space.sm}}
+        >
           <View
+            className="flex-row items-center bg-black/60"
             style={{
-              backgroundColor: 'rgba(0,0,0,0.6)',
-              paddingHorizontal: 6,
-              paddingVertical: 4,
-              borderRadius: 6,
-              flexDirection: 'row',
-              alignItems: 'center',
+              paddingHorizontal: S.space.xs + 2,
+              paddingVertical: S.space.xs / 2 + 1,
+              borderRadius: S.radius.sm,
+              gap: S.space.xs / 2,
             }}
           >
-            <Text style={{ fontSize: 10, color: '#ffffff' }}>
-              📍 {salon.distance ? `${salon.distance} km` : '321.7 km'}
+            <Ionicons name="location" size={S.icon.xs} color={colors.white} />
+            <Text className="text-white" style={{fontSize: S.fs.tiny}}>
+              {salon.distance ? `${salon.distance} km` : '321.7 km'}
             </Text>
           </View>
           <View
+            className="flex-row items-center bg-black/60"
             style={{
-              backgroundColor: 'rgba(0,0,0,0.6)',
-              paddingHorizontal: 6,
-              paddingVertical: 4,
-              borderRadius: 6,
-              flexDirection: 'row',
-              alignItems: 'center',
+              paddingHorizontal: S.space.xs + 2,
+              paddingVertical: S.space.xs / 2 + 1,
+              borderRadius: S.radius.sm,
+              gap: S.space.xs / 2,
             }}
           >
-            <Text style={{ fontSize: 10, color: '#ffffff' }}>
-              ⭐ {salon.rating || '4.8'} ({salon.reviews || '200'})
+            <Ionicons name="star" size={S.icon.xs} color={colors.white} />
+            <Text className="text-white" style={{fontSize: S.fs.tiny}}>
+              {salon.rating || '4.8'} ({salon.reviews || '200'})
             </Text>
           </View>
         </View>
       </View>
 
-      {/* Info */}
-      <View style={{ padding: 10 }}>
+      <View style={{padding: S.space.sm, gap: S.space.xs}}>
         <Text
-          style={{
-            fontSize: 14,
-            fontWeight: '700',
-            color: '#1a1a1a',
-            marginBottom: 2,
-          }}
+          className="text-neutral-900"
           numberOfLines={1}
+          style={{fontSize: S.fs.sm, fontWeight: '700'}}
         >
           {salon.name || 'Evita Beauty Parlour'}
         </Text>
         <Text
-          style={{
-            fontSize: 11,
-            color: '#9ca3af',
-            marginBottom: 8,
-          }}
+          className="text-neutral-400"
           numberOfLines={1}
+          style={{fontSize: S.fs.xs}}
         >
           {salon.category || 'No categories available'}
         </Text>
 
-        {/* Popular Services */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 }}>
-          {['Haircut', 'Massage', 'Facial'].map((service, idx) => (
+        <View className="flex-row flex-wrap" style={{gap: S.space.xs}}>
+          {['Haircut', 'Massage', 'Facial'].map(service => (
             <View
-              key={idx}
+              key={service}
+              className="bg-neutral-100"
               style={{
-                backgroundColor: '#f3f4f6',
-                paddingHorizontal: 6,
-                paddingVertical: 2,
-                borderRadius: 4,
-                marginRight: 4,
-                marginBottom: 4,
+                paddingHorizontal: S.space.xs + 2,
+                paddingVertical: S.space.xs / 2,
+                borderRadius: S.radius.sm,
               }}
             >
-              <Text style={{ fontSize: 10, color: '#4b5563' }}>{service}</Text>
+              <Text
+                className="text-neutral-600"
+                style={{fontSize: S.fs.tiny}}
+              >
+                {service}
+              </Text>
             </View>
           ))}
         </View>

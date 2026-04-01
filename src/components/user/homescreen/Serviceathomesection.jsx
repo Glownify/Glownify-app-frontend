@@ -1,7 +1,8 @@
-// components/Serviceathomsection.jsx
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import {View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import IndependentProCard from './Independentprocard';
+import {S} from '../../../theme';
+import {wp} from '../../../utils/responsive';
 
 const DUMMY_PROS = [
   {
@@ -46,6 +47,9 @@ const DUMMY_PROS = [
   },
 ];
 
+const CARD_WIDTH = wp(39);
+const CARD_GAP = S.space.md;
+
 export default function ServiceAtHomeSection({
   independentProsList,
   onViewAll,
@@ -55,34 +59,42 @@ export default function ServiceAtHomeSection({
     independentProsList?.length > 0 ? independentProsList : DUMMY_PROS;
 
   return (
-    <View className="mb-4">
-      {/* Header */}
-      <View className="px-4 flex-row items-center justify-between mb-3">
-        <View>
-          <Text className="text-base font-bold text-gray-900 uppercase">
+    <View style={{gap: S.space.md}}>
+      <View
+        className="flex-row items-center justify-between"
+        style={{paddingHorizontal: S.space.marginScreen}}
+      >
+        <View style={{gap: S.space.xs}}>
+          <Text
+            className="text-neutral-900"
+            style={{fontSize: S.fs.md, fontWeight: '700'}}
+          >
             Home Service
           </Text>
-          <Text className="text-xs text-gray-400 mt-0.5">
+          <Text className="text-neutral-400" style={{fontSize: S.fs.xs}}>
             {displayList.length} professionals nearby
           </Text>
         </View>
-        <TouchableOpacity onPress={onViewAll}>
-          <Text className="text-sm font-medium text-primary">View all</Text>
+        <TouchableOpacity onPress={onViewAll} activeOpacity={0.8}>
+          <Text
+            className="text-primary-600"
+            style={{fontSize: S.fs.sm, fontWeight: '500'}}
+          >
+            View all
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Horizontal scroll — shows 2–2.5 cards */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingLeft: 16,
-          paddingRight: 8,
-          gap: 10,
-          paddingVertical: 14,
+          paddingHorizontal: S.space.marginScreen,
+          gap: CARD_GAP,
+          paddingVertical: S.space.sm,
         }}
         decelerationRate="fast"
-        snapToInterval={158} // card width (148) + gap (10)
+        snapToInterval={CARD_WIDTH + CARD_GAP}
         snapToAlignment="start"
       >
         {displayList.map((pro, index) => (

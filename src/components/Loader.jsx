@@ -1,17 +1,16 @@
-import React from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import React from 'react';
+import {ActivityIndicator, View, useColorScheme} from 'react-native';
+import {S, getThemeColors} from '../theme';
 
 export default function Loader() {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+
   return (
-    <View style={styles.container}>
-      <ActivityIndicator size="large" color="#156778" />
+    <View
+      className="items-center justify-center"
+      style={{padding: S.space.lg}}>
+      <ActivityIndicator size="large" color={colors.primary[600]} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-});

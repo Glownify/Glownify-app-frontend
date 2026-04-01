@@ -1,56 +1,42 @@
-// components/BookingModeToggle.jsx
-import React, { useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import React from 'react';
+import {Text, TouchableOpacity, View} from 'react-native';
+import {S} from '../../theme';
 
-const ACTIVE_COLOR = '#EA8491';
+const MODES = [
+  {key: 'home', label: 'Salon at Home'},
+  {key: 'salon', label: 'Visit Salon'},
+];
 
-/**
- * BookingModeToggle
- * Props:
- *   mode      'home' | 'salon'
- *   onChange  (mode: 'home' | 'salon') => void
- */
-export default function BookingModeToggle({ mode, onChange }) {
-  const translateX = useRef(new Animated.Value(mode === 'home' ? 0 : 1)).current;
-
-  const handlePress = next => {
-    Animated.spring(translateX, {
-      toValue: next === 'home' ? 0 : 1,
-      useNativeDriver: false,
-    }).start();
-    onChange(next);
-  };
-
+export default function BookingModeToggle({mode, onChange}) {
   return (
-    <View className="mx-md mt-md">
-      <View className="flex-row bg-neutral-white rounded-card p-2">
-        <TouchableOpacity
-          className="flex-1 py-2 items-center rounded-full"
-          style={mode === 'home' ? { backgroundColor: ACTIVE_COLOR } : {}}
-          onPress={() => handlePress('home')}
-        >
-          <Text
-            className={`text-sm font-semibold ${
-              mode === 'home' ? 'text-neutral-white' : 'text-neutral-500'
-            }`}
-          >
-            Salon at Home
-          </Text>
-        </TouchableOpacity>
+    <View
+      className="bg-surface border border-neutral-100 shadow-sm"
+      style={{borderRadius: S.radius.xl, padding: S.space.xs, elevation: 2}}>
+      <View className="flex-row" style={{gap: S.space.xs}}>
+        {MODES.map(option => {
+          const isActive = mode === option.key;
 
-        <TouchableOpacity
-          className="flex-1 py-2 items-center rounded-full"
-          style={mode === 'salon' ? { backgroundColor: ACTIVE_COLOR } : {}}
-          onPress={() => handlePress('salon')}
-        >
-          <Text
-            className={`text-sm font-semibold ${
-              mode === 'salon' ? 'text-neutral-white' : 'text-neutral-500'
-            }`}
-          >
-            Visit Salon
-          </Text>
-        </TouchableOpacity>
+          return (
+            <TouchableOpacity
+              key={option.key}
+              className={`flex-1 items-center justify-center ${
+                isActive ? 'bg-primary-600' : 'bg-base'
+              }`}
+              style={{
+                borderRadius: S.radius.full,
+                paddingHorizontal: S.space.md,
+                paddingVertical: S.space.sm,
+              }}
+              activeOpacity={0.85}
+              onPress={() => onChange(option.key)}>
+              <Text
+                className={isActive ? 'text-white' : 'text-neutral-500'}
+                style={{fontSize: S.fs.sm, fontWeight: '600'}}>
+                {option.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );

@@ -1,24 +1,27 @@
-// components/AboutUsCard.jsx
-import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {
+  Animated,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
 
-/**
- * AboutUsCard
- * Props:
- *   aboutText   string    — body text
- *   badges      string[]  — highlight badges e.g. ["100% Hygienic", "Est. 2015"]
- *   expanded    boolean   — controlled open/close
- *   onToggle    () => void
- */
+const HEADER_ICON_SIZE = S.icon.lg + S.space.md;
+const CHEVRON_WRAPPER_SIZE = S.icon.sm + S.space.md;
+
 export default function AboutUsCard({
   aboutText,
   badges = [],
   expanded,
   onToggle,
 }) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(-8)).current;
+  const slideAnim = useRef(new Animated.Value(-S.space.xs)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function AboutUsCard({
 
     if (expanded) {
       fadeAnim.setValue(0);
-      slideAnim.setValue(-8);
+      slideAnim.setValue(-S.space.xs);
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -45,7 +48,7 @@ export default function AboutUsCard({
         }),
       ]).start();
     }
-  }, [expanded]);
+  }, [expanded, fadeAnim, rotateAnim, slideAnim]);
 
   const chevronRotate = rotateAnim.interpolate({
     inputRange: [0, 1],
@@ -53,67 +56,97 @@ export default function AboutUsCard({
   });
 
   return (
-    <View className="mx-4 mt-3 bg-white rounded-2xl border-t-2 border-t-pink-500 overflow-hidden border border-slate-100 shadow-sm elevation-3">
-
-      {/* Header */}
+    <View
+      className="bg-surface border border-t-2 border-neutral-100 border-t-primary-600 overflow-hidden shadow-sm"
+      style={{borderRadius: S.radius.xl, elevation: 2}}>
       <TouchableOpacity
-        className="flex-row items-center px-4 py-3.5 gap-2.5"
+        className="flex-row items-center"
+        style={{padding: S.space.lg, gap: S.space.sm}}
         onPress={onToggle}
-        activeOpacity={0.75}
-      >
-        {/* Icon pill */}
-        <View className="w-8 h-8 rounded-lg bg-pink-50 items-center justify-center">
-          <Icon name="storefront-outline" size={16} color="#ec4899" />
+        activeOpacity={0.75}>
+        <View
+          className="items-center justify-center bg-primary-50"
+          style={{
+            width: HEADER_ICON_SIZE,
+            height: HEADER_ICON_SIZE,
+            borderRadius: S.radius.md,
+          }}>
+          <Icon
+            name="storefront-outline"
+            size={S.icon.sm}
+            color={colors.primary[600]}
+          />
         </View>
 
-        <Text className="flex-1 text-sm font-bold text-gray-900 tracking-tight">
+        <Text
+          className="flex-1 text-neutral-900"
+          style={{fontSize: S.fs.sm, fontWeight: '700'}}>
           About Us
         </Text>
 
-        {/* Animated chevron — transform must stay inline */}
-        <Animated.View style={{ transform: [{ rotate: chevronRotate }] }}>
+        <Animated.View style={{transform: [{rotate: chevronRotate}]}}>
           <View
-            className={`w-[26px] h-[26px] rounded-full items-center justify-center ${
-              expanded ? 'bg-pink-50' : 'bg-gray-100'
-            }`}
-          >
+            className={expanded ? 'bg-primary-50' : 'bg-neutral-100'}
+            style={{
+              width: CHEVRON_WRAPPER_SIZE,
+              height: CHEVRON_WRAPPER_SIZE,
+              borderRadius: S.radius.full,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
             <Icon
               name="chevron-down"
-              size={14}
-              color={expanded ? '#ec4899' : '#9CA3AF'}
+              size={S.icon.sm}
+              color={expanded ? colors.primary[600] : colors.neutral[400]}
             />
           </View>
         </Animated.View>
       </TouchableOpacity>
 
-      {/* Divider */}
-      {expanded && <View className="h-px bg-gray-50 mx-4" />}
+      {expanded ? (
+        <>
+          <View className="bg-neutral-100" style={{height: 1}} />
+          <Animated.View
+            style={{
+              padding: S.space.lg,
+              gap: S.space.md,
+              opacity: fadeAnim,
+              transform: [{translateY: slideAnim}],
+            }}>
+            <Text
+              className="text-neutral-500"
+              style={{fontSize: S.fs.xs, lineHeight: S.fs.md + S.space.xs}}>
+              {aboutText}
+            </Text>
 
-      {/* Collapsible body — opacity/translateY must stay inline */}
-      {expanded && (
-        <Animated.View
-          className="px-4 pt-3 pb-4"
-          style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
-        >
-          <Text className="text-[13px] text-gray-500 leading-5">{aboutText}</Text>
-
-          {badges.length > 0 && (
-            <View className="flex-row flex-wrap mt-3 gap-2">
-              {badges.map((badge, i) => (
-                <View
-                  key={i}
-                  className="flex-row items-center gap-1 bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1"
-                >
-                  <Icon name="checkmark-circle" size={13} color="#10b981" />
-                  <Text className="text-[11px] font-semibold text-emerald-900 tracking-wide">
-                    {badge}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </Animated.View>
-      )}
+            {badges.length > 0 ? (
+              <View className="flex-row flex-wrap" style={{gap: S.space.sm}}>
+                {badges.map((badge, index) => (
+                  <View
+                    key={`${badge}-${index}`}
+                    className="flex-row items-center rounded-full border border-success-100 bg-success-50"
+                    style={{
+                      paddingHorizontal: S.space.sm + S.space.xs,
+                      paddingVertical: S.space.xs,
+                      gap: S.space.xs,
+                    }}>
+                    <Icon
+                      name="checkmark-circle"
+                      size={S.icon.xs}
+                      color={colors.success[600]}
+                    />
+                    <Text
+                      className="text-success-700"
+                      style={{fontSize: S.fs.xxs, fontWeight: '600'}}>
+                      {badge}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+          </Animated.View>
+        </>
+      ) : null}
     </View>
   );
 }

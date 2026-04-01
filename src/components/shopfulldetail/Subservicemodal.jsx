@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  View,
-  Text,
   Modal,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
-  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
+
+const formatCurrency = value => `Rs. ${Number(value || 0).toLocaleString('en-IN')}`;
 
 export default function SubServiceModal({
   visible,
@@ -15,9 +19,10 @@ export default function SubServiceModal({
   onDismiss,
   onConfirm,
 }) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const [selectedSubServices, setSelectedSubServices] = useState([]);
 
-  // Dummy sub-services. Ideally, this comes from service.subServices
   const subServices = service
     ? [
         {
@@ -44,82 +49,120 @@ export default function SubServiceModal({
     }
   }, [visible]);
 
-  const toggleSelection = sub => {
-    setSelectedSubServices(prev => {
-      if (prev.find(s => s._id === sub._id)) {
-        return prev.filter(s => s._id !== sub._id);
-      } else {
-        return [...prev, sub];
-      }
-    });
+  const toggleSelection = subService => {
+    setSelectedSubServices(previous =>
+      previous.find(item => item._id === subService._id)
+        ? previous.filter(item => item._id !== subService._id)
+        : [...previous, subService],
+    );
   };
 
-  const handleConfirm = () => {
-    onConfirm(selectedSubServices);
-  };
-
-  if (!service) return null;
+  if (!service) {
+    return null;
+  }
 
   return (
     <Modal
       visible={visible}
       transparent
       animationType="slide"
-      onRequestClose={onDismiss}
-    >
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Select Options</Text>
-            <TouchableOpacity onPress={onDismiss} style={styles.closeBtn}>
-              <Icon name="close" size={24} color="#1F2937" />
+      onRequestClose={onDismiss}>
+      <View className="flex-1 justify-end bg-overlay">
+        <Pressable className="flex-1" onPress={onDismiss} />
+
+        <View
+          className="rounded-t-3xl border-t border-neutral-100 bg-surface"
+          style={{padding: S.space.lg, gap: S.space.lg}}>
+          <View className="items-center">
+            <View
+              className="rounded-full bg-neutral-200"
+              style={{width: S.space['2xl'], height: 4}}
+            />
+          </View>
+
+          <View className="flex-row items-center justify-between">
+            <View style={{gap: S.space.xs / 2}}>
+              <Text
+                className="text-neutral-900"
+                style={{fontSize: S.fs.lg, fontWeight: '700'}}>
+                Select Options
+              </Text>
+              <Text className="text-neutral-400" style={{fontSize: S.fs.xs}}>
+                Choose sub-services for {service.name}
+              </Text>
+            </View>
+
+            <TouchableOpacity onPress={onDismiss} activeOpacity={0.75}>
+              <Icon name="close" size={S.icon.md} color={colors.neutral[700]} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.subtitle}>
-            Choose sub-services for {service.name}
-          </Text>
-
-          <ScrollView style={styles.list}>
-            {subServices.map(sub => {
-              const isSelected = selectedSubServices.find(
-                s => s._id === sub._id,
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{gap: S.space.sm}}>
+            {subServices.map(subService => {
+              const isSelected = selectedSubServices.some(
+                item => item._id === subService._id,
               );
+
               return (
                 <TouchableOpacity
-                  key={sub._id}
-                  style={[styles.item, isSelected && styles.itemSelected]}
-                  onPress={() => toggleSelection(sub)}
-                >
-                  <View style={styles.itemInfo}>
-                    <Text style={styles.itemName}>{sub.name}</Text>
-                    <Text style={styles.itemPrice}>₹{sub.price}</Text>
+                  key={subService._id}
+                  className={`flex-row items-center rounded-2xl border ${
+                    isSelected
+                      ? 'border-primary-600 bg-primary-50'
+                      : 'border-neutral-200 bg-base'
+                  }`}
+                  style={{padding: S.space.md, gap: S.space.md}}
+                  onPress={() => toggleSelection(subService)}
+                  activeOpacity={0.8}>
+                  <View className="flex-1" style={{gap: S.space.xs / 2}}>
+                    <Text
+                      className="text-neutral-800"
+                      style={{fontSize: S.fs.sm, fontWeight: '600'}}>
+                      {subService.name}
+                    </Text>
+                    <Text
+                      className="text-primary-600"
+                      style={{fontSize: S.fs.xs, fontWeight: '700'}}>
+                      {formatCurrency(subService.price)}
+                    </Text>
                   </View>
+
                   <View
-                    style={[
-                      styles.checkbox,
-                      isSelected && styles.checkboxSelected,
-                    ]}
-                  >
-                    {isSelected && (
-                      <Icon name="checkmark" size={16} color="#fff" />
-                    )}
+                    className={`items-center justify-center rounded-full border-2 ${
+                      isSelected
+                        ? 'border-primary-600 bg-primary-600'
+                        : 'border-neutral-300 bg-base'
+                    }`}
+                    style={{width: S.icon.md + 4, height: S.icon.md + 4}}>
+                    {isSelected ? (
+                      <Icon
+                        name="checkmark"
+                        size={S.icon.xs + 2}
+                        color={colors.white}
+                      />
+                    ) : null}
                   </View>
                 </TouchableOpacity>
               );
             })}
           </ScrollView>
 
-          <View style={styles.footer}>
+          <View className="border-t border-neutral-100" style={{paddingTop: S.space.lg}}>
             <TouchableOpacity
-              style={[
-                styles.confirmBtn,
-                selectedSubServices.length === 0 && styles.disabledBtn,
-              ]}
+              className={selectedSubServices.length === 0 ? 'bg-neutral-200' : 'bg-primary-600'}
+              style={{
+                borderRadius: S.radius.xl,
+                paddingVertical: S.space.lg,
+                alignItems: 'center',
+              }}
               disabled={selectedSubServices.length === 0}
-              onPress={handleConfirm}
-            >
-              <Text style={styles.confirmText}>
+              onPress={() => onConfirm(selectedSubServices)}
+              activeOpacity={0.85}>
+              <Text
+                className={selectedSubServices.length === 0 ? 'text-neutral-400' : 'text-white'}
+                style={{fontSize: S.fs.md, fontWeight: '700'}}>
                 Add {selectedSubServices.length}{' '}
                 {selectedSubServices.length === 1 ? 'item' : 'items'}
               </Text>
@@ -130,100 +173,3 @@ export default function SubServiceModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    maxHeight: '70%',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  closeBtn: {
-    padding: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 16,
-  },
-  list: {
-    marginBottom: 16,
-  },
-  item: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginBottom: 12,
-  },
-  itemSelected: {
-    borderColor: '#EA8491',
-    backgroundColor: '#FFF1F2',
-  },
-  itemInfo: {
-    flex: 1,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  itemPrice: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#EA8491',
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxSelected: {
-    backgroundColor: '#EA8491',
-    borderColor: '#EA8491',
-  },
-  footer: {
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-  confirmBtn: {
-    backgroundColor: '#EA8491',
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  disabledBtn: {
-    backgroundColor: '#F3F4F6',
-  },
-  confirmText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});

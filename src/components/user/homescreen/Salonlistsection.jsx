@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
 import SalonCardItem from './Saloncarditem';
+import {S} from '../../../theme';
 
 const DUMMY_SALONS = [
   {
@@ -41,26 +42,40 @@ export default function SalonListSection({
   const displayList = salonList?.length > 0 ? salonList : DUMMY_SALONS;
 
   return (
-    <View className="mb-lg">
-      <View className="px-md flex-row items-center justify-between mb-3">
-        <Text className="text-base font-bold text-neutral-800 uppercase">
+    <View style={{gap: S.space.md}}>
+      <View
+        className="flex-row items-center justify-between"
+        style={{paddingHorizontal: S.space.marginScreen}}
+      >
+        <Text
+          className="text-neutral-800"
+          style={{fontSize: S.fs.md, fontWeight: '700'}}
+        >
           {selectedCategory === 'unisex' ? 'Unisex' : 'Nearby Salons'}
         </Text>
-        <TouchableOpacity onPress={onViewAll}>
-          <Text className="text-sm font-medium text-primary">View all</Text>
+        <TouchableOpacity onPress={onViewAll} activeOpacity={0.8}>
+          <Text
+            className="text-primary-600"
+            style={{fontSize: S.fs.sm, fontWeight: '500'}}
+          >
+            View all
+          </Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
+        contentContainerStyle={{
+          paddingHorizontal: S.space.marginScreen,
+          gap: S.space.md,
+          paddingVertical: S.space.xs,
+        }}
       >
         {displayList.map((salon, index) => (
           <SalonCardItem
             key={salon._id}
             salon={salon}
-            selectedCategory={selectedCategory}
             imageIndex={index}
             onPress={() => onSalonPress(salon._id)}
           />

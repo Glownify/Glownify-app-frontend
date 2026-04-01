@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  useColorScheme,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../../theme';
+import {moderateScale, wp} from '../../../utils/responsive';
 
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.44;
+const CARD_WIDTH = wp(44);
+const THUMB_HEIGHT = CARD_WIDTH * 0.85;
 
 const DUMMY_IMAGES = [
-  'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400&q=80', // barber/salon
-  'https://images.unsplash.com/photo-1560066984-138daaa0c5d4?w=400&q=80', // salon interior
-  'https://images.unsplash.com/photo-1633681122994-35f9e9b06f86?w=400&q=80', // luxury salon
-  'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80', // pink salon
+  'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400&q=80',
+  'https://images.unsplash.com/photo-1560066984-138daaa0c5d4?w=400&q=80',
+  'https://images.unsplash.com/photo-1633681122994-35f9e9b06f86?w=400&q=80',
+  'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80',
 ];
 
 export default function NearbySalonCard({
@@ -24,176 +33,161 @@ export default function NearbySalonCard({
   index = 0,
 }) {
   const [favorited, setFavorited] = useState(false);
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const imageUri = image || DUMMY_IMAGES[index % DUMMY_IMAGES.length];
 
   return (
     <TouchableOpacity
+      className="overflow-hidden border border-neutral-100 bg-surface"
       style={{
         width: CARD_WIDTH,
-        marginRight: 12,
-        backgroundColor: '#ffffff',
-        borderRadius: 16,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: '#f0f0f0',
-        shadowColor: '#000',
+        borderRadius: S.radius.xl,
+        shadowColor: colors.black,
         shadowOpacity: 0.07,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: moderateScale(8),
+        shadowOffset: {width: 0, height: 2},
         elevation: 2,
       }}
       onPress={onPress}
       activeOpacity={0.85}
     >
-      {/* Top — Square Thumbnail */}
-      <View style={{ height: CARD_WIDTH * 0.85, position: 'relative' }}>
+      <View className="relative" style={{height: THUMB_HEIGHT}}>
         <Image
-          source={{ uri: imageUri }}
-          style={{ width: '100%', height: '100%' }}
+          source={{uri: imageUri}}
+          style={{width: '100%', height: '100%'}}
           resizeMode="cover"
         />
 
-        {/* Heart — top right of image */}
         <TouchableOpacity
+          className="absolute items-center justify-center bg-surface shadow-sm"
           style={{
-            position: 'absolute',
-            top: 7,
-            right: 7,
-            width: 26,
-            height: 26,
-            backgroundColor: '#ffffff',
-            borderRadius: 13,
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: '#000',
-            shadowOpacity: 0.12,
-            shadowRadius: 3,
-            elevation: 2,
+            top: S.space.xs + 3,
+            right: S.space.xs + 3,
+            width: moderateScale(32),
+            height: moderateScale(32),
+            borderRadius: S.radius.full,
           }}
           onPress={() => {
-            setFavorited(p => !p);
+            setFavorited(prev => !prev);
             onFavorite?.();
           }}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          hitSlop={{
+            top: S.space.sm,
+            bottom: S.space.sm,
+            left: S.space.sm,
+            right: S.space.sm,
+          }}
         >
-          <Text style={{ fontSize: 12 }}>{favorited ? '❤️' : '🤍'}</Text>
+          <Ionicons
+            name={favorited ? 'heart' : 'heart-outline'}
+            size={S.icon.sm}
+            color={favorited ? colors.primary[600] : colors.neutral[500]}
+          />
         </TouchableOpacity>
 
-        {/* Discount badge — top left */}
-        {discount && (
+        {discount ? (
           <View
+            className="absolute bg-error-500"
             style={{
-              position: 'absolute',
-              top: 8,
-              left: 8,
-              backgroundColor: '#ef4444',
-              borderRadius: 8,
-              paddingHorizontal: 7,
-              paddingVertical: 3,
+              top: S.space.sm,
+              left: S.space.sm,
+              paddingHorizontal: S.space.xs + 3,
+              paddingVertical: S.space.xs / 2,
+              borderRadius: S.radius.sm,
             }}
           >
-            <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '700' }}>
+            <Text
+              className="text-white"
+              style={{fontSize: S.fs.tiny, fontWeight: '700'}}
+            >
               {discount} Off
             </Text>
           </View>
-        )}
+        ) : null}
 
-        {/* Rating and Location — bottom left/right */}
         <View
-          style={{
-            position: 'absolute',
-            bottom: 8,
-            left: 8,
-            right: 8,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
+          className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between"
+          style={{padding: S.space.sm, gap: S.space.sm}}
         >
           <View
+            className="flex-row items-center bg-black/60"
             style={{
-              backgroundColor: 'rgba(0,0,0,0.6)',
-              paddingHorizontal: 6,
-              paddingVertical: 4,
-              borderRadius: 6,
-              flexDirection: 'row',
-              alignItems: 'center',
+              paddingHorizontal: S.space.xs + 2,
+              paddingVertical: S.space.xs / 2 + 1,
+              borderRadius: S.radius.sm,
+              gap: S.space.xs / 2,
             }}
           >
-            <Text style={{ fontSize: 10, color: '#ffffff' }}>📍 2.5 km</Text>
+            <Ionicons name="location" size={S.icon.xs} color={colors.white} />
+            <Text className="text-white" style={{fontSize: S.fs.tiny}}>
+              2.5 km
+            </Text>
           </View>
+
           <View
+            className="flex-row items-center bg-black/60"
             style={{
-              backgroundColor: 'rgba(0,0,0,0.6)',
-              paddingHorizontal: 6,
-              paddingVertical: 4,
-              borderRadius: 6,
-              flexDirection: 'row',
-              alignItems: 'center',
+              paddingHorizontal: S.space.xs + 2,
+              paddingVertical: S.space.xs / 2 + 1,
+              borderRadius: S.radius.sm,
+              gap: S.space.xs / 2,
             }}
           >
-            <Text style={{ fontSize: 10, color: '#ffffff' }}>
-              ⭐ {rating} ({reviews})
+            <Ionicons name="star" size={S.icon.xs} color={colors.white} />
+            <Text className="text-white" style={{fontSize: S.fs.tiny}}>
+              {rating} ({reviews})
             </Text>
           </View>
         </View>
       </View>
 
-      {/* Bottom — Info */}
-      <View style={{ padding: 10 }}>
-        {/* Tags */}
+      <View style={{padding: S.space.sm, gap: S.space.xs}}>
         <Text
-          style={{
-            fontSize: 10,
-            fontWeight: '700',
-            color: '#0d9488',
-            letterSpacing: 0.5,
-            marginBottom: 4,
-          }}
+          className="text-primary-600"
           numberOfLines={1}
+          style={{
+            fontSize: S.fs.tiny,
+            fontWeight: '700',
+            letterSpacing: 0.5,
+          }}
         >
           {tags}
         </Text>
 
-        {/* Name */}
         <Text
-          style={{
-            fontSize: 14,
-            fontWeight: '700',
-            color: '#1a1a1a',
-            marginBottom: 2,
-          }}
+          className="text-neutral-900"
           numberOfLines={1}
+          style={{fontSize: S.fs.sm, fontWeight: '700'}}
         >
           {name}
         </Text>
 
-        {/* Address */}
         <Text
-          style={{
-            fontSize: 11,
-            color: '#9ca3af',
-            marginBottom: 8,
-          }}
+          className="text-neutral-400"
           numberOfLines={1}
+          style={{fontSize: S.fs.xs}}
         >
           {address}
         </Text>
 
-        {/* Popular Services */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 }}>
-          {['Hair Trim', 'Shave', 'Facial'].map((service, idx) => (
+        <View className="flex-row flex-wrap" style={{gap: S.space.xs}}>
+          {['Hair Trim', 'Shave', 'Facial'].map(service => (
             <View
-              key={idx}
+              key={service}
+              className="bg-neutral-100"
               style={{
-                backgroundColor: '#f3f4f6',
-                paddingHorizontal: 6,
-                paddingVertical: 2,
-                borderRadius: 4,
-                marginRight: 4,
-                marginBottom: 4,
+                paddingHorizontal: S.space.xs + 2,
+                paddingVertical: S.space.xs / 2,
+                borderRadius: S.radius.sm,
               }}
             >
-              <Text style={{ fontSize: 10, color: '#4b5563' }}>{service}</Text>
+              <Text
+                className="text-neutral-600"
+                style={{fontSize: S.fs.tiny}}
+              >
+                {service}
+              </Text>
             </View>
           ))}
         </View>

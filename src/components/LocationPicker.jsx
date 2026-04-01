@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import React, {useState} from 'react';
+import {Alert, Text, TouchableOpacity, View, useColorScheme} from 'react-native';
+import MapView, {Marker, PROVIDER_DEFAULT} from 'react-native-maps';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../theme';
+import {moderateScale} from '../utils/responsive';
 
-export default function LocationPicker({ navigation, route }) {
+export default function LocationPicker({navigation, route}) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const [marker, setMarker] = useState(null);
 
   const handleConfirm = () => {
@@ -11,57 +15,51 @@ export default function LocationPicker({ navigation, route }) {
       Alert.alert('Pick Location', 'Please tap on the map to set location.');
       return;
     }
-    route.params.onLocationSelect(marker); // Return selected location
+
+    route.params.onLocationSelect(marker);
     navigation.goBack();
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View className="flex-1 bg-base">
       <MapView
-        style={{ flex: 1 }}
-        provider={PROVIDER_DEFAULT} // Use default (OpenStreetMap)
+        style={{flex: 1}}
+        provider={PROVIDER_DEFAULT}
         initialRegion={{
           latitude: 20.5937,
           longitude: 78.9629,
           latitudeDelta: 10,
           longitudeDelta: 10,
         }}
-        onPress={(e) => setMarker(e.nativeEvent.coordinate)}
-        mapType="standard" // standard map tiles
-      >
-        {marker && <Marker coordinate={marker} />}
+        onPress={event => setMarker(event.nativeEvent.coordinate)}
+        mapType="standard">
+        {marker ? <Marker coordinate={marker} /> : null}
       </MapView>
 
-      <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-        <Text style={styles.confirmButtonText}>Confirm Location</Text>
-        <Icon name="checkmark-circle" size={20} color="#fff" />
+      <TouchableOpacity
+        className="absolute flex-row items-center justify-center rounded-2xl bg-primary-600"
+        style={{
+          left: S.space.lg,
+          right: S.space.lg,
+          bottom: S.space.lg,
+          padding: S.space.lg,
+          gap: S.space.xs,
+          borderRadius: S.radius.lg,
+          shadowColor: colors.black,
+          shadowOffset: {width: 0, height: 4},
+          shadowOpacity: 0.22,
+          shadowRadius: moderateScale(8),
+          elevation: 8,
+        }}
+        onPress={handleConfirm}
+        activeOpacity={0.88}>
+        <Text
+          className="text-white"
+          style={{fontSize: S.fs.sm, fontWeight: '700'}}>
+          Confirm Location
+        </Text>
+        <Icon name="checkmark-circle" size={S.icon.md} color={colors.white} />
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  confirmButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: '#7C5FED',
-    paddingVertical: 12,
-    borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-  },
-  confirmButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 14,
-  },
-});
-
-
-// send mock cordinates
-// coordinates: [28.6139, 77.2090], // TEMP FIXED TO DELHI
-

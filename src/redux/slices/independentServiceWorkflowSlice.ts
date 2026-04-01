@@ -15,12 +15,12 @@ import {
   getElapsedSeconds,
   mockActiveService,
   normalizeBookingToService,
-} from '../../components/independent-pro/serviceWorkflow/utils';
+} from '../../utils/independentServiceWorkflow';
 import type {
   ActiveService,
   IndependentServiceWorkflowState,
   WorkflowBookingSource,
-} from '../../components/independent-pro/serviceWorkflow/types';
+} from '../../types/independentServiceWorkflow';
 import { showSnackbar } from './snackbarSlice';
 
 const STORAGE_KEY = '@independent_service_workflow';

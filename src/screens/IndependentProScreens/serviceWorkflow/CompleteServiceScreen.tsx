@@ -12,13 +12,13 @@ import {
   formatDurationLabel,
   getElapsedSeconds,
   mockActiveService,
-} from '../../../components/independent-pro/serviceWorkflow/utils';
+} from '../../../utils/independentServiceWorkflow';
 import {
   workflowColors,
   workflowRadius,
   workflowShadow,
   workflowSpacing,
-} from '../../../components/independent-pro/serviceWorkflow/theme';
+} from '../../../theme/independentServiceWorkflow';
 import {
   completeCurrentService,
   ensureWorkflowSeeded,

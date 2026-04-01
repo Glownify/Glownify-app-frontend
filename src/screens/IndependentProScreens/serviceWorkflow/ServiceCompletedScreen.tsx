@@ -14,13 +14,13 @@ import {
   formatDateTimeStamp,
   formatDurationLabel,
   mockActiveService,
-} from '../../../components/independent-pro/serviceWorkflow/utils';
+} from '../../../utils/independentServiceWorkflow';
 import {
   workflowColors,
   workflowRadius,
   workflowSpacing,
   workflowTypography,
-} from '../../../components/independent-pro/serviceWorkflow/theme';
+} from '../../../theme/independentServiceWorkflow';
 import {
   ensureWorkflowSeeded,
   resetIndependentServiceWorkflow,
