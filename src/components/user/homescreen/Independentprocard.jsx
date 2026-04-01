@@ -1,6 +1,17 @@
-// components/Independentprocard.jsx
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  useColorScheme,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../../theme';
+import {moderateScale, wp} from '../../../utils/responsive';
+
+const CARD_WIDTH = wp(39);
+const IMAGE_HEIGHT = moderateScale(120);
 
 const DUMMY_AVATARS = [
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
@@ -9,104 +20,164 @@ const DUMMY_AVATARS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80',
 ];
 
-const AvailabilityDot = ({ available }) => (
-  <View
-    className={`w-2 h-2 rounded-full mr-1.5 ${
-      available ? 'bg-green-400' : 'bg-gray-300'
-    }`}
-  />
-);
+function AvailabilityDot({available}) {
+  return (
+    <View
+      className={available ? 'bg-white' : 'bg-neutral-200'}
+      style={{
+        width: S.space.xs + S.space.xs,
+        height: S.space.xs + S.space.xs,
+        borderRadius: S.radius.full,
+      }}
+    />
+  );
+}
 
-export default function IndependentProCard({ pro, onPress, index = 0 }) {
+export default function IndependentProCard({pro, onPress, index = 0}) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const imageUri = pro.image || DUMMY_AVATARS[index % DUMMY_AVATARS.length];
   const isAvailable =
     pro.availability?.toLowerCase().includes('available now') ?? false;
 
   return (
     <TouchableOpacity
-      className="bg-white rounded-2xl overflow-hidden border border-gray-100"
+      className="overflow-hidden border border-neutral-100 bg-surface"
       style={{
-        width: 148,
-        shadowColor: '#000',
+        width: CARD_WIDTH,
+        borderRadius: S.radius.xl,
+        shadowColor: colors.black,
         shadowOpacity: 0.07,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: moderateScale(8),
+        shadowOffset: {width: 0, height: 2},
         elevation: 3,
       }}
       onPress={onPress}
       activeOpacity={0.85}
     >
-      {/* Top image section */}
       <View className="relative">
         <Image
-          source={{ uri: imageUri }}
-          className="w-full"
-          style={{ height: 120 }}
+          source={{uri: imageUri}}
+          style={{width: '100%', height: IMAGE_HEIGHT}}
           resizeMode="cover"
         />
 
-        {/* Availability pill — top right */}
         <View
-          className={`absolute top-2 right-2 flex-row items-center rounded-full px-2 py-0.5 ${
-            isAvailable ? 'bg-green-500/90' : 'bg-black/40'
+          className={`absolute right-0 top-0 flex-row items-center rounded-full ${
+            isAvailable ? 'bg-success-600/90' : 'bg-black/40'
           }`}
+          style={{
+            margin: S.space.sm,
+            paddingHorizontal: S.space.sm,
+            paddingVertical: S.space.xs / 2,
+            gap: S.space.xs,
+          }}
         >
-          <View className="w-1.5 h-1.5 rounded-full bg-white mr-1" />
-          <Text className="text-white text-[10px] font-semibold">
+          <AvailabilityDot available={isAvailable} />
+          <Text
+            className="text-white"
+            style={{fontSize: S.fs.tiny, fontWeight: '600'}}
+          >
             {isAvailable ? 'Available' : 'Busy'}
           </Text>
         </View>
 
-        {/* Rating badge — bottom left */}
-        <View className="absolute bottom-0 left-0 right-0 px-2 pb-2 flex-row justify-between items-end">
-          <View className="bg-green-600 rounded-lg px-1.5 py-0.5 flex-row items-center gap-0.5">
-            <Text className="text-white text-[11px] font-bold">
+        <View
+          className="absolute bottom-0 left-0 right-0 flex-row items-end justify-between"
+          style={{padding: S.space.sm, gap: S.space.sm}}
+        >
+          <View
+            className="flex-row items-center bg-success-700"
+            style={{
+              paddingHorizontal: S.space.xs,
+              paddingVertical: S.space.xs / 2,
+              borderRadius: S.radius.md,
+              gap: S.space.xs / 2,
+            }}
+          >
+            <Text
+              className="text-white"
+              style={{fontSize: S.fs.xs, fontWeight: '700'}}
+            >
               {pro.rating || '4.5'}
             </Text>
-            <Text className="text-[9px]">⭐</Text>
+            <Ionicons name="star" size={S.icon.xs} color={colors.white} />
           </View>
-          {/* Gender chip */}
-          <View className="bg-black/30 rounded-lg px-1.5 py-0.5">
-            <Text className="text-white text-[10px] font-semibold">
-              {pro.gender || 'MALE'}
+
+          <View
+            className="bg-black/30"
+            style={{
+              paddingHorizontal: S.space.xs,
+              paddingVertical: S.space.xs / 2,
+              borderRadius: S.radius.md,
+            }}
+          >
+            <Text
+              className="text-white"
+              style={{fontSize: S.fs.tiny, fontWeight: '600'}}
+            >
+              {(pro.gender || 'Male').toUpperCase()}
             </Text>
           </View>
         </View>
       </View>
 
-      {/* Body */}
-      <View className="px-3 pt-2.5 pb-3 gap-1.5">
-        {/* Name */}
-        <Text className="text-sm font-bold text-primary-700" numberOfLines={1}>
+      <View
+        className="bg-surface"
+        style={{padding: S.space.md, gap: S.space.sm}}
+      >
+        <Text
+          className="text-primary-700"
+          numberOfLines={1}
+          style={{fontSize: S.fs.sm, fontWeight: '700'}}
+        >
           {pro.name || 'Professional'}
         </Text>
 
-        {/* Experience */}
-        <View className="flex-row items-center">
-          <Text className="text-[11px] mr-1">🧳</Text>
-          <Text className="text-[11px] text-gray-400 font-medium">
+        <View className="flex-row items-center" style={{gap: S.space.xs}}>
+          <Ionicons
+            name="briefcase-outline"
+            size={S.icon.xs}
+            color={colors.neutral[400]}
+          />
+          <Text
+            className="text-neutral-400"
+            style={{fontSize: S.fs.tiny, fontWeight: '500'}}
+          >
             {pro.experience || '4 yrs Exp'}
           </Text>
         </View>
 
-        {/* Services */}
-        <View className="flex-row items-center">
-          <Text className="text-[11px] mr-1">✂️</Text>
+        <View className="flex-row items-center" style={{gap: S.space.xs}}>
+          <Ionicons
+            name="cut-outline"
+            size={S.icon.xs}
+            color={colors.neutral[400]}
+          />
           <Text
-            className="text-[11px] text-gray-400 font-medium"
+            className="text-neutral-400"
             numberOfLines={1}
+            style={{fontSize: S.fs.tiny, fontWeight: '500'}}
           >
             {pro.services || 'Hair'}
           </Text>
         </View>
 
-        {/* Book button */}
         <TouchableOpacity
-          className="mt-1 bg-primary-50 border border-primary-200 rounded-xl py-1.5 items-center"
+          className="items-center justify-center border border-primary-200 bg-primary-50"
+          style={{
+            minHeight: S.space['5xl'],
+            borderRadius: S.radius.lg,
+          }}
           onPress={onPress}
           activeOpacity={0.8}
         >
-          <Text className="text-primary-700 text-xs font-bold">Book Now</Text>
+          <Text
+            className="text-primary-700"
+            style={{fontSize: S.fs.xs, fontWeight: '700'}}
+          >
+            Book Now
+          </Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>

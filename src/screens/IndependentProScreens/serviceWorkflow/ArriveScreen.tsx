@@ -9,13 +9,13 @@ import { PrimaryButton } from '../../../components/independent-pro/serviceWorkfl
 import {
   formatCurrency,
   mockActiveService,
-} from '../../../components/independent-pro/serviceWorkflow/utils';
+} from '../../../utils/independentServiceWorkflow';
 import {
   workflowColors,
   workflowRadius,
   workflowSpacing,
   workflowTypography,
-} from '../../../components/independent-pro/serviceWorkflow/theme';
+} from '../../../theme/independentServiceWorkflow';
 import {
   clearWorkflowError,
   ensureWorkflowSeeded,

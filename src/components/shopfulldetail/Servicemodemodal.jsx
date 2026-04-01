@@ -1,17 +1,72 @@
-// components/ServiceModeModal.jsx
 import React from 'react';
-import { View, Text, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import {
+  Modal,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  useColorScheme,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
 
-/**
- * ServiceModeModal
- * Props:
- *   visible        boolean
- *   selectedMode   'home' | 'salon' | null
- *   onSelectMode   (mode: 'home' | 'salon') => void
- *   onConfirm      () => void
- *   onDismiss      () => void
- */
+function Option({
+  mode,
+  icon,
+  label,
+  description,
+  selectedMode,
+  onSelectMode,
+  colors,
+}) {
+  const isSelected = selectedMode === mode;
+  const iconWrapperSize = S.icon.lg + S.space.md;
+  const checkSize = S.icon.sm + S.space.xs;
+
+  return (
+    <TouchableOpacity
+      className={`flex-row items-center rounded-2xl border-2 ${
+        isSelected
+          ? 'border-primary-600 bg-primary-50'
+          : 'border-neutral-100 bg-base'
+      }`}
+      style={{padding: S.space.lg, gap: S.space.md}}
+      onPress={() => onSelectMode(mode)}
+      activeOpacity={0.8}>
+      <View
+        className={`items-center justify-center rounded-2xl ${
+          isSelected ? 'bg-primary-600' : 'bg-neutral-100'
+        }`}
+        style={{width: iconWrapperSize, height: iconWrapperSize}}>
+        <Icon
+          name={icon}
+          size={S.icon.sm}
+          color={isSelected ? colors.white : colors.neutral[400]}
+        />
+      </View>
+
+      <View className="flex-1" style={{gap: S.space.xs / 2}}>
+        <Text
+          className={isSelected ? 'text-primary-600' : 'text-neutral-700'}
+          style={{fontSize: S.fs.sm, fontWeight: '700'}}>
+          {label}
+        </Text>
+        <Text className="text-neutral-400" style={{fontSize: S.fs.xs}}>
+          {description}
+        </Text>
+      </View>
+
+      {isSelected ? (
+        <View
+          className="items-center justify-center rounded-full bg-primary-600"
+          style={{width: checkSize, height: checkSize}}>
+          <Icon name="checkmark" size={S.icon.xs} color={colors.white} />
+        </View>
+      ) : null}
+    </TouchableOpacity>
+  );
+}
+
 export default function ServiceModeModal({
   visible,
   selectedMode,
@@ -19,105 +74,88 @@ export default function ServiceModeModal({
   onConfirm,
   onDismiss,
 }) {
-  if (!visible) return null;
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
 
-  const Option = ({ mode, icon, label, description }) => {
-    const isSelected = selectedMode === mode;
-    return (
-      <TouchableOpacity
-        className={`flex-row items-center p-4 rounded-2xl border-2 mb-3 gap-3 ${
-          isSelected ? 'bg-pink-50 border-[#EA8491]' : 'border-gray-100 bg-gray-50'
-        }`}
-        onPress={() => onSelectMode(mode)}
-        activeOpacity={0.75}
-      >
-        {/* Icon circle */}
-        <View
-          className={`w-10 h-10 rounded-xl items-center justify-center ${
-            isSelected ? 'bg-[#EA8491]' : 'bg-gray-200'
-          }`}
-        >
-          <Icon name={icon} size={18} color={isSelected ? '#fff' : '#9CA3AF'} />
-        </View>
-
-        {/* Text */}
-        <View className="flex-1">
-          <Text
-            className={`text-sm font-bold ${
-              isSelected ? 'text-[#EA8491]' : 'text-gray-700'
-            }`}
-          >
-            {label}
-          </Text>
-          <Text className="text-xs text-gray-400 mt-0.5">{description}</Text>
-        </View>
-
-        {/* Check */}
-        {isSelected && (
-          <View className="w-5 h-5 rounded-full bg-[#EA8491] items-center justify-center">
-            <Icon name="checkmark" size={12} color="#fff" />
-          </View>
-        )}
-      </TouchableOpacity>
-    );
-  };
+  if (!visible) {
+    return null;
+  }
 
   return (
-    <TouchableWithoutFeedback onPress={onDismiss}>
-      <View className="absolute inset-0 bg-black/50 justify-end">
-        <TouchableWithoutFeedback>
-          <View className="bg-white rounded-t-3xl px-5 pt-5 pb-8">
+    <Modal
+      transparent
+      visible={visible}
+      animationType="fade"
+      onRequestClose={onDismiss}>
+      <TouchableWithoutFeedback onPress={onDismiss}>
+        <View className="flex-1 justify-end bg-overlay">
+          <TouchableWithoutFeedback>
+            <View
+              className="rounded-t-3xl border-t border-neutral-100 bg-surface shadow-lg"
+              style={{padding: S.space.lg, gap: S.space.lg}}>
+              <View className="items-center">
+                <View
+                  className="rounded-full bg-neutral-200"
+                  style={{width: S.space['2xl'], height: 4}}
+                />
+              </View>
 
-            {/* Handle bar */}
-            <View className="w-10 h-1 rounded-full bg-gray-200 self-center mb-5" />
+              <View className="flex-row items-center justify-between">
+                <Text
+                  className="text-neutral-900"
+                  style={{fontSize: S.fs.lg, fontWeight: '700'}}>
+                  Choose Service Mode
+                </Text>
+                <TouchableOpacity
+                  className="items-center justify-center rounded-full bg-neutral-100"
+                  style={{width: S.icon.lg + S.space.sm, height: S.icon.lg + S.space.sm}}
+                  onPress={onDismiss}
+                  activeOpacity={0.75}>
+                  <Icon name="close" size={S.icon.sm} color={colors.neutral[600]} />
+                </TouchableOpacity>
+              </View>
 
-            {/* Header */}
-            <View className="flex-row items-center justify-between mb-5">
-              <Text className="text-lg font-bold text-gray-900">
-                Choose Service Mode
-              </Text>
+              <View style={{gap: S.space.md}}>
+                <Option
+                  mode="salon"
+                  icon="storefront-outline"
+                  label="At Salon"
+                  description="Visit the salon for your service"
+                  selectedMode={selectedMode}
+                  onSelectMode={onSelectMode}
+                  colors={colors}
+                />
+                <Option
+                  mode="home"
+                  icon="home-outline"
+                  label="At Home"
+                  description="Professional comes to your doorstep"
+                  selectedMode={selectedMode}
+                  onSelectMode={onSelectMode}
+                  colors={colors}
+                />
+              </View>
+
               <TouchableOpacity
-                className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center"
-                onPress={onDismiss}
-              >
-                <Icon name="close" size={16} color="#6B7280" />
+                className={selectedMode ? 'bg-primary-600' : 'bg-neutral-200'}
+                style={{
+                  borderRadius: S.radius.xl,
+                  paddingVertical: S.space.lg,
+                  alignItems: 'center',
+                }}
+                disabled={!selectedMode}
+                onPress={onConfirm}
+                activeOpacity={0.85}>
+                <Text
+                  className={selectedMode ? 'text-white' : 'text-neutral-400'}
+                  style={{fontSize: S.fs.md, fontWeight: '700'}}>
+                  {selectedMode ? 'Confirm Selection' : 'Select a Mode'}
+                </Text>
               </TouchableOpacity>
             </View>
-
-            {/* Options */}
-            <Option
-              mode="salon"
-              icon="storefront-outline"
-              label="At Salon"
-              description="Visit the salon for your service"
-            />
-            <Option
-              mode="home"
-              icon="home-outline"
-              label="At Home"
-              description="Professional comes to your doorstep"
-            />
-
-            {/* Confirm */}
-            <TouchableOpacity
-              className={`mt-2 rounded-2xl py-4 items-center ${
-                selectedMode ? 'bg-[#EA8491]' : 'bg-gray-200'
-              }`}
-              disabled={!selectedMode}
-              onPress={onConfirm}
-              activeOpacity={0.85}
-            >
-              <Text
-                className={`font-bold text-base ${
-                  selectedMode ? 'text-white' : 'text-gray-400'
-                }`}
-              >
-                {selectedMode ? 'Confirm Selection' : 'Select a Mode'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
-    </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
   );
 }

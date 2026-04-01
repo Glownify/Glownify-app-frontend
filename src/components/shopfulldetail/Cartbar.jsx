@@ -1,36 +1,29 @@
-// components/shopfulldetail/Cartbar.jsx
-import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {Animated, Text, TouchableOpacity, View, useColorScheme} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
 
-/**
- * CartBar — fixed bottom bar
- * Props:
- *   cartItems    Array<{ _id, salonPrice?, homePrice?, price?, chosenMode? }>
- *   bookingMode  'home' | 'salon'
- *   onContinue   () => void
- *
- * Price resolution order per item:
- *   1. item.price          — flat price set by sub-service sheet
- *   2. mode-aware price    — homePrice / salonPrice from service card
- *   3. fallback 0          — prevents NaN
- */
 function resolveItemPrice(item, bookingMode) {
-  // Sub-services added via bottom sheet carry a flat `price` field
-  if (item.price != null && !isNaN(item.price)) return item.price;
+  if (item.price != null && !Number.isNaN(item.price)) {
+    return item.price;
+  }
 
-  // Main services carry salonPrice / homePrice
   const mode = item.chosenMode ?? bookingMode;
-  if (mode === 'home' && item.homePrice != null && !isNaN(item.homePrice)) {
+  if (mode === 'home' && item.homePrice != null && !Number.isNaN(item.homePrice)) {
     return item.homePrice;
   }
-  if (item.salonPrice != null && !isNaN(item.salonPrice)) {
+  if (item.salonPrice != null && !Number.isNaN(item.salonPrice)) {
     return item.salonPrice;
   }
+
   return 0;
 }
 
-export default function CartBar({ cartItems = [], bookingMode, onContinue }) {
+const formatCurrency = value => `Rs. ${value.toLocaleString('en-IN')}`;
+
+export default function CartBar({cartItems = [], bookingMode, onContinue}) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const slideAnim = useRef(new Animated.Value(80)).current;
   const hasItems = cartItems.length > 0;
 
@@ -38,8 +31,6 @@ export default function CartBar({ cartItems = [], bookingMode, onContinue }) {
     (sum, item) => sum + resolveItemPrice(item, bookingMode),
     0,
   );
-
-  // Count only "top-level" services (not sub-items) for the badge
   const serviceCount = cartItems.filter(item => !item.parentId).length;
 
   useEffect(() => {
@@ -49,44 +40,62 @@ export default function CartBar({ cartItems = [], bookingMode, onContinue }) {
       friction: 10,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [slideAnim]);
 
   return (
     <Animated.View
       className="absolute bottom-0 left-0 right-0"
-      style={{ transform: [{ translateY: slideAnim }] }}
-    >
-      <View className="h-6 bg-transparent" pointerEvents="none" />
+      style={{transform: [{translateY: slideAnim}]}}>
+      <View pointerEvents="none" style={{height: S.space.lg}} />
 
-      <View className="bg-white px-4 pt-3 pb-5 border-t border-gray-100 shadow-lg">
+      <View
+        className="bg-surface border-t border-neutral-100"
+        style={{padding: S.space.lg, paddingBottom: S.space['2xl']}}>
         {hasItems ? (
           <TouchableOpacity
-            className="bg-[#EA8491] rounded-2xl flex-row items-center justify-between px-5 py-4"
+            className="flex-row items-center justify-between bg-primary-600"
+            style={{borderRadius: S.radius.xl, padding: S.space.lg}}
             onPress={onContinue}
-            activeOpacity={0.85}
-          >
-            {/* Left: count badge + total */}
-            <View className="flex-row items-center gap-2">
-              <View className="bg-white/20 rounded-lg px-2 py-0.5">
-                <Text className="text-white text-xs font-bold">
+            activeOpacity={0.88}>
+            <View className="flex-row items-center" style={{gap: S.space.sm}}>
+              <View
+                className="bg-white/20"
+                style={{
+                  borderRadius: S.radius.md,
+                  paddingHorizontal: S.space.sm,
+                  paddingVertical: S.space.xs,
+                }}>
+                <Text
+                  className="text-white"
+                  style={{fontSize: S.fs.xs, fontWeight: '700'}}>
                   {serviceCount} {serviceCount === 1 ? 'service' : 'services'}
                 </Text>
               </View>
-              <Text className="text-white text-base font-semibold">
-                ₹{cartTotal.toLocaleString('en-IN')}
+
+              <Text
+                className="text-white"
+                style={{fontSize: S.fs.md, fontWeight: '600'}}>
+                {formatCurrency(cartTotal)}
               </Text>
             </View>
 
-            {/* Right: CTA */}
-            <View className="flex-row items-center gap-1.5">
-              <Text className="text-white font-bold text-base">Continue</Text>
-              <Icon name="arrow-forward" size={16} color="white" />
+            <View className="flex-row items-center" style={{gap: S.space.xs}}>
+              <Text
+                className="text-white"
+                style={{fontSize: S.fs.md, fontWeight: '700'}}>
+                Continue
+              </Text>
+              <Icon name="arrow-forward" size={S.icon.sm} color={colors.white} />
             </View>
           </TouchableOpacity>
         ) : (
-          <View className="rounded-2xl border-2 border-dashed border-gray-200 py-4 items-center flex-row justify-center gap-2">
-            <Icon name="bag-outline" size={18} color="#D1D5DB" />
-            <Text className="text-gray-400 font-semibold text-sm">
+          <View
+            className="flex-row items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 bg-base"
+            style={{padding: S.space.lg, gap: S.space.sm}}>
+            <Icon name="bag-outline" size={S.icon.sm} color={colors.neutral[300]} />
+            <Text
+              className="text-neutral-400"
+              style={{fontSize: S.fs.sm, fontWeight: '600'}}>
               Select a service to continue
             </Text>
           </View>

@@ -1,32 +1,33 @@
-import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { hideCartPopup } from '../redux/slices/cartSlice';
-import { useNavigation } from '@react-navigation/native';
+import React, {useEffect, useRef} from 'react';
+import {Animated, Text, TouchableOpacity, View, useColorScheme} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {hideCartPopup} from '../redux/slices/cartSlice';
+import {S, getThemeColors} from '../theme';
+import {moderateScale, wp} from '../utils/responsive';
+
+const BADGE_SIZE = moderateScale(28);
+const ICON_WRAPPER_SIZE = moderateScale(40);
 
 export default function CartPopup() {
-  const { items, visible, isCartScreenFocused } = useSelector(state => state.cart);
+  const {items, visible, isCartScreenFocused} = useSelector(state => state.cart);
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
 
   const slideAnim = useRef(new Animated.Value(100)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const badgeScale = useRef(new Animated.Value(0)).current;
 
   const totalServices = items.reduce(
-    (sum, p) => sum + p.services.length, 0
+    (sum, item) => sum + (item.services?.length ?? 0),
+    0,
   );
 
-  // Show cart permanently when items exist
   const shouldShow = totalServices > 0 && !isCartScreenFocused;
 
-  // Slide in/out animation
   useEffect(() => {
     Animated.spring(slideAnim, {
       toValue: shouldShow ? 0 : 100,
@@ -34,26 +35,23 @@ export default function CartPopup() {
       friction: 7,
       useNativeDriver: true,
     }).start();
-  }, [shouldShow]);
+  }, [shouldShow, slideAnim]);
 
-  // Pulse animation when new item added (triggered by visible state)
   useEffect(() => {
     if (visible && totalServices > 0) {
-      // Pulse effect
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.15,
-          duration: 200,
+          toValue: 1.12,
+          duration: 180,
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 200,
+          duration: 180,
           useNativeDriver: true,
         }),
       ]).start();
 
-      // Badge pop animation
       badgeScale.setValue(0);
       Animated.spring(badgeScale, {
         toValue: 1,
@@ -62,145 +60,98 @@ export default function CartPopup() {
         useNativeDriver: true,
       }).start();
 
-      // Auto-hide the "new item" indicator after 3 seconds
       const timer = setTimeout(() => {
         dispatch(hideCartPopup());
       }, 3000);
+
       return () => clearTimeout(timer);
     }
-  }, [visible, totalServices]);
+  }, [badgeScale, dispatch, pulseAnim, totalServices, visible]);
 
-  if (totalServices === 0 || isCartScreenFocused) return null;
+  if (totalServices === 0 || isCartScreenFocused) {
+    return null;
+  }
 
   return (
     <Animated.View
-      key={totalServices}
-      style={[
-        styles.container,
-        { transform: [{ translateY: slideAnim }] }
-      ]}
-    >
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: moderateScale(96),
+        zIndex: 1000,
+        alignItems: 'center',
+        transform: [{translateY: slideAnim}],
+      }}>
       <TouchableOpacity
-        style={styles.cartButton}
+        className="bg-info-700"
+        style={{
+          width: wp(52),
+          minWidth: moderateScale(210),
+          maxWidth: moderateScale(260),
+          borderRadius: S.radius.xl,
+          shadowColor: colors.black,
+          shadowOffset: {width: 0, height: 6},
+          shadowOpacity: 0.28,
+          shadowRadius: moderateScale(10),
+          elevation: 10,
+        }}
         onPress={() => {
           dispatch(hideCartPopup());
           navigation.navigate('CartStack');
         }}
-        activeOpacity={0.85}
-      >
-        {/* Badge with count */}
-        <Animated.View 
-          style={[
-            styles.badge,
-            { 
-              transform: [
-                { scale: visible ? badgeScale : 1 }
-              ] 
-            }
-          ]}
-        >
-          <Text style={styles.badgeText}>{totalServices}</Text>
+        activeOpacity={0.88}>
+        <Animated.View
+          className="absolute items-center justify-center rounded-full border-2 border-white bg-error-500"
+          style={{
+            top: -S.space.sm,
+            right: -S.space.sm,
+            minWidth: BADGE_SIZE,
+            height: BADGE_SIZE,
+            paddingHorizontal: S.space.sm,
+            zIndex: 1,
+            transform: [{scale: visible ? badgeScale : 1}],
+          }}>
+          <Text
+            className="text-white"
+            style={{fontSize: S.fs.sm, fontWeight: '700'}}>
+            {totalServices}
+          </Text>
         </Animated.View>
 
-        {/* Cart content */}
-        <Animated.View 
-          style={[
-            styles.content,
-            { transform: [{ scale: pulseAnim }] }
-          ]}
-        >
-          <View style={styles.iconContainer}>
-            <Text style={styles.icon}>🛒</Text>
+        <Animated.View
+          className="flex-row items-center"
+          style={{
+            padding: S.space.md,
+            gap: S.space.md,
+            transform: [{scale: pulseAnim}],
+          }}>
+          <View
+            className="items-center justify-center rounded-full bg-white/15"
+            style={{width: ICON_WRAPPER_SIZE, height: ICON_WRAPPER_SIZE}}>
+            <Ionicons name="bag-handle-outline" size={S.icon.md} color={colors.white} />
           </View>
-          
-          <View style={styles.textContainer}>
-            <Text style={styles.title}>
-              {visible ? '✓ Added to Cart' : 'View Cart'}
+
+          <View className="flex-1" style={{gap: S.space.xs / 2}}>
+            <Text
+              className="text-white"
+              style={{fontSize: S.fs.md, fontWeight: '700'}}>
+              {visible ? 'Added to Cart' : 'View Cart'}
             </Text>
-            <Text style={styles.subtitle}>
+            <Text
+              className="text-white/75"
+              style={{fontSize: S.fs.xs, fontWeight: '500'}}>
               {totalServices} {totalServices === 1 ? 'service' : 'services'}
             </Text>
           </View>
 
-          <Text style={styles.arrow}>→</Text>
+          <Ionicons
+            name="arrow-forward"
+            size={S.icon.md}
+            color={colors.warning[400]}
+          />
         </Animated.View>
       </TouchableOpacity>
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 100,
-    left: 90,
-    right: 90,
-    zIndex: 1000,
-  },
-  cartButton: {
-    backgroundColor: '#156778',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  badge: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    backgroundColor: '#FF4757',
-    minWidth: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    borderWidth: 3,
-    borderColor: '#fff',
-    zIndex: 1,
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  icon: {
-    fontSize: 24,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 2,
-  },
-  subtitle: {
-    color: 'rgba(255, 255, 255, 0.75)',
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  arrow: {
-    color: '#FFD700',
-    fontSize: 20,
-    fontWeight: '700',
-    marginLeft: 8,
-  },
-});

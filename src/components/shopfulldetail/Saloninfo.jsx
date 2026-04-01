@@ -1,43 +1,54 @@
-// components/SalonInfo.jsx
 import React from 'react';
-import { View, Text } from 'react-native';
+import {Text, View, useColorScheme} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
 
-/**
- * SalonInfo
- * Props:
- *   name      string  — salon name
- *   tagline   string  — short subtitle
- *   openHours string  — e.g. "10:00 AM – 8:00 PM"
- */
-export default function SalonInfo({ name, tagline, openHours }) {
+const STATUS_DOT_SIZE = Math.max(6, Math.round(S.icon.xs / 1.5));
+
+export default function SalonInfo({name, tagline, openHours}) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+
   return (
-    <View className="mx-4 mt-4">
-
-      {/* Name + open badge */}
-      <View className="flex-row items-start justify-between gap-2">
-        <Text className="flex-1 text-2xl font-bold text-gray-900 leading-tight">
+    <View style={{gap: S.space.sm}}>
+      <View className="flex-row items-start justify-between" style={{gap: S.space.sm}}>
+        <Text
+          className="flex-1 text-neutral-900"
+          style={{fontSize: S.fs.xl, fontWeight: '700', lineHeight: S.fs.xxl}}>
           {name}
         </Text>
 
-        {/* Open badge */}
-        <View className="flex-row items-center bg-emerald-50 border border-emerald-100 rounded-lg px-2.5 py-1 gap-1 mt-1">
-          <View className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          <Text className="text-[11px] font-bold text-emerald-700">Open</Text>
+        <View
+          className="flex-row items-center rounded-xl border border-success-100 bg-success-50"
+          style={{
+            paddingHorizontal: S.space.sm + S.space.xs,
+            paddingVertical: S.space.xs,
+            gap: S.space.xs,
+          }}>
+          <View
+            className="rounded-full bg-success-500"
+            style={{width: STATUS_DOT_SIZE, height: STATUS_DOT_SIZE}}
+          />
+          <Text
+            className="text-success-700"
+            style={{fontSize: S.fs.xxs, fontWeight: '700'}}>
+            Open
+          </Text>
         </View>
       </View>
 
-      {/* Tagline */}
       {tagline ? (
-        <Text className="text-gray-400 text-sm mt-1">{tagline}</Text>
+        <Text className="text-neutral-500" style={{fontSize: S.fs.sm}}>
+          {tagline}
+        </Text>
       ) : null}
 
-      {/* Hours row */}
-      <View className="flex-row items-center mt-2 gap-1.5">
-        <Icon name="time-outline" size={13} color="#9CA3AF" />
-        <Text className="text-gray-400 text-xs">{openHours}</Text>
+      <View className="flex-row items-center" style={{gap: S.space.xs}}>
+        <Icon name="time-outline" size={S.icon.xs + 2} color={colors.neutral[400]} />
+        <Text className="text-neutral-400" style={{fontSize: S.fs.xs}}>
+          {openHours}
+        </Text>
       </View>
-
     </View>
   );
 }

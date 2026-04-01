@@ -1,36 +1,31 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {Text, TouchableOpacity, View} from 'react-native';
+import {S} from '../theme';
 
-export default function SectionHeader({ title, showViewAll = true, onPress }) {
+export default function SectionHeader({title, showViewAll = true, onPress}) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      {showViewAll && (
-        <TouchableOpacity onPress={onPress}>
-          <Text style={styles.viewAll}>View all</Text>
+    <View
+      className="flex-row items-center justify-between"
+      style={{
+        paddingHorizontal: S.space.lg,
+        paddingVertical: S.space.sm,
+        gap: S.space.md,
+      }}>
+      <Text
+        className="flex-1 text-neutral-900"
+        style={{fontSize: S.fs.lg, fontWeight: '700'}}>
+        {title}
+      </Text>
+
+      {showViewAll ? (
+        <TouchableOpacity onPress={onPress} activeOpacity={0.75}>
+          <Text
+            className="text-primary-600"
+            style={{fontSize: S.fs.sm, fontWeight: '600'}}>
+            View all
+          </Text>
         </TouchableOpacity>
-      )}
+      ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 10,
-    paddingHorizontal: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-  },
-  viewAll: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#06B6D4',
-  },
-});
-

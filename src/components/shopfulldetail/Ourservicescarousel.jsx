@@ -1,25 +1,27 @@
-// components/OurServicesCarousel.jsx
 import React from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {Image, ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import {S} from '../../theme';
 
-/**
- * OurServicesCarousel
- * Props:
- *   services        Array<{ id, name, image: string|null }>
- *   activeCategory  string | null   — currently selected category id
- *   onSelect        (id: string) => void
- */
+const ITEM_SIZE = S.size.avatarLg + S.space.xs;
+const ITEM_WIDTH = ITEM_SIZE + S.space.md;
+const ACTIVE_DOT_SIZE = Math.max(4, Math.round(S.icon.xs / 2));
+
 export default function OurServicesCarousel({
   services = [],
   activeCategory,
   onSelect,
 }) {
   return (
-    <View className="mt-5">
-      <View className="flex-row items-center justify-between mx-4 mb-3">
-        <Text className="text-base font-bold text-gray-900">Our Services</Text>
-        <Text className="text-xs text-gray-400 font-medium">
+    <View style={{gap: S.space.md}}>
+      <View className="flex-row items-center justify-between">
+        <Text
+          className="text-neutral-900"
+          style={{fontSize: S.fs.md, fontWeight: '700'}}>
+          Our Services
+        </Text>
+        <Text
+          className="text-neutral-400"
+          style={{fontSize: S.fs.xs, fontWeight: '500'}}>
           {services.length} categories
         </Text>
       </View>
@@ -28,11 +30,9 @@ export default function OurServicesCarousel({
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingRight: 24,
-          gap: 14,
-        }}
-      >
+          paddingRight: S.space.sm,
+          gap: S.space.md,
+        }}>
         {services.map(service => {
           const isActive = activeCategory === service.id;
           const initials = service.name.slice(0, 2).toUpperCase();
@@ -41,57 +41,61 @@ export default function OurServicesCarousel({
             <TouchableOpacity
               key={service.id}
               className="items-center"
-              style={{ width: 68 }}
-              activeOpacity={0.75}
-              onPress={() => onSelect(service.id)}
-            >
-              {/* Ring + image */}
+              style={{width: ITEM_WIDTH, gap: S.space.xs}}
+              activeOpacity={0.78}
+              onPress={() => onSelect(service.id)}>
               <View
-                className={`w-[68px] h-[68px] rounded-full p-[2px] ${
-                  isActive
-                    ? 'border-2 border-[#EA8491]'
-                    : 'border-2 border-transparent'
-                }`}
-              >
-                <View className="flex-1 rounded-full overflow-hidden bg-gray-100 items-center justify-center">
+                className={isActive ? 'border-primary-600' : 'border-neutral-100'}
+                style={{
+                  width: ITEM_SIZE,
+                  height: ITEM_SIZE,
+                  borderRadius: ITEM_SIZE / 2,
+                  borderWidth: 2,
+                  padding: 2,
+                }}>
+                <View
+                  className={`flex-1 items-center justify-center overflow-hidden rounded-full ${
+                    service.image
+                      ? 'bg-neutral-100'
+                      : isActive
+                      ? 'bg-primary-50'
+                      : 'bg-neutral-100'
+                  }`}>
                   {service.image ? (
                     <Image
-                      source={{ uri: service.image }}
-                      className="w-full h-full"
+                      source={{uri: service.image}}
+                      className="h-full w-full"
                       resizeMode="cover"
                     />
                   ) : (
-                    <View
-                      className={`flex-1 w-full items-center justify-center ${
-                        isActive ? 'bg-pink-50' : 'bg-gray-100'
-                      }`}
-                    >
-                      <Text
-                        className={`text-sm font-bold ${
-                          isActive ? 'text-[#EA8491]' : 'text-gray-400'
-                        }`}
-                      >
-                        {initials}
-                      </Text>
-                    </View>
+                    <Text
+                      className={isActive ? 'text-primary-600' : 'text-neutral-400'}
+                      style={{fontSize: S.fs.sm, fontWeight: '700'}}>
+                      {initials}
+                    </Text>
                   )}
                 </View>
               </View>
 
-              {/* Label */}
               <Text
-                className={`text-[11px] font-semibold mt-1.5 text-center ${
-                  isActive ? 'text-[#EA8491]' : 'text-gray-500'
+                className={`text-center ${
+                  isActive ? 'text-primary-600' : 'text-neutral-500'
                 }`}
-                numberOfLines={2}
-              >
+                style={{fontSize: S.fs.xxs, fontWeight: '600'}}
+                numberOfLines={2}>
                 {service.name}
               </Text>
 
-              {/* Active dot */}
-              {isActive && (
-                <View className="w-1 h-1 rounded-full bg-[#EA8491] mt-1" />
-              )}
+              {isActive ? (
+                <View
+                  className="bg-primary-600"
+                  style={{
+                    width: ACTIVE_DOT_SIZE,
+                    height: ACTIVE_DOT_SIZE,
+                    borderRadius: ACTIVE_DOT_SIZE / 2,
+                  }}
+                />
+              ) : null}
             </TouchableOpacity>
           );
         })}

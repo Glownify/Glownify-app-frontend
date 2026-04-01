@@ -1,286 +1,337 @@
-// components/ServiceItem.jsx
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
-  View,
-  Text,
   Image,
-  TouchableOpacity,
   Modal,
   Pressable,
   ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, getThemeColors} from '../../theme';
+import {moderateScale} from '../../utils/responsive';
 
-/**
- * ServiceItem
- * Props:
- *   service      { _id, name, duration, salonPrice, homePrice, serviceMode, image, badge }
- *   selectedMode 'home' | 'salon'
- *   cartItems    Array<{ _id }>
- *   onAdd        (service) => void
- */
+const THUMB_SIZE = S.size.avatarMd + S.space.md;
+const INFO_BUTTON_SIZE = S.icon.sm + S.space.md;
+
+const formatCurrency = value => `Rs. ${Number(value || 0).toLocaleString('en-IN')}`;
+
 export default function ServiceItem({
   service,
   selectedMode,
   cartItems,
   onAdd,
 }) {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
   const [modalVisible, setModalVisible] = useState(false);
 
   const price =
     selectedMode === 'home' && service.homePrice != null
       ? service.homePrice
-      : service.salonPrice;
+      : service.salonPrice ?? service.homePrice ?? 0;
 
-  const isInCart = cartItems.some(c => c._id === service._id);
+  const isInCart = cartItems.some(item => item._id === service._id);
   const isUnavailable =
     selectedMode === 'home' && service.serviceMode === 'salon';
 
   return (
     <>
-      {/* ── Service Row ── */}
       <View
-        className={`flex-row items-center py-4 border-b border-gray-50 ${
-          isUnavailable ? 'opacity-40' : ''
+        className={`flex-row items-center border-b border-neutral-100 ${
+          isUnavailable ? 'opacity-45' : ''
         }`}
-      >
-        {/* Thumbnail */}
-        <View className="w-[60px] h-[60px] rounded-2xl overflow-hidden bg-gray-100 mr-3 flex-shrink-0 relative">
+        style={{paddingVertical: S.space.lg, gap: S.space.md}}>
+        <View
+          className="relative overflow-hidden rounded-2xl bg-neutral-100"
+          style={{width: THUMB_SIZE, height: THUMB_SIZE}}>
           {service.image ? (
             <Image
-              source={{ uri: service.image }}
-              className="w-full h-full"
+              source={{uri: service.image}}
+              className="h-full w-full"
               resizeMode="cover"
             />
           ) : (
-            <View className="flex-1 items-center justify-center bg-pink-50">
-              <Icon name="cut-outline" size={22} color="#EA8491" />
+            <View className="flex-1 items-center justify-center bg-primary-50">
+              <Icon name="cut-outline" size={S.icon.md} color={colors.primary[600]} />
             </View>
           )}
 
-          {/* Info Icon over image */}
           <Pressable
-            className="absolute bottom-1 right-1 w-6 h-6 bg-black/60 rounded-full items-center justify-center"
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.6 : 1,
-              zIndex: 10,
-              elevation: 5,
+            className="absolute items-center justify-center rounded-full bg-black/60"
+            style={({pressed}) => ({
+              right: S.space.xs,
+              bottom: S.space.xs,
+              width: INFO_BUTTON_SIZE,
+              height: INFO_BUTTON_SIZE,
+              opacity: pressed ? 0.7 : 1,
             })}
             onPress={() => setModalVisible(true)}
-            hitSlop={10}
-          >
-            <Icon name="information" size={14} color="#fff" />
+            hitSlop={S.space.sm}>
+            <Icon name="information" size={S.icon.xs + 2} color={colors.white} />
           </Pressable>
         </View>
 
-        {/* Details */}
-        <View className="flex-1 gap-0.5">
-          {/* Name + badge */}
-          <View className="flex-row items-center flex-wrap gap-1.5">
-            <Text className="text-gray-900 font-semibold text-sm flex-shrink">
+        <View className="flex-1" style={{gap: S.space.xs}}>
+          <View className="flex-row flex-wrap items-center" style={{gap: S.space.xs}}>
+            <Text
+              className="flex-shrink text-neutral-900"
+              style={{fontSize: S.fs.sm, fontWeight: '600'}}>
               {service.name}
             </Text>
-            {service.badge && (
-              <View className="bg-amber-50 border border-amber-100 rounded-md px-1.5 py-0.5">
-                <Text className="text-amber-600 text-[10px] font-bold tracking-wide">
+
+            {service.badge ? (
+              <View
+                className="rounded-lg border border-warning-100 bg-warning-50"
+                style={{
+                  paddingHorizontal: S.space.xs + 2,
+                  paddingVertical: S.space.xs / 1.5,
+                }}>
+                <Text
+                  className="text-warning-700"
+                  style={{fontSize: S.fs.tiny, fontWeight: '700'}}>
                   {service.badge}
                 </Text>
               </View>
-            )}
+            ) : null}
           </View>
 
-          {/* Duration */}
-          <View className="flex-row items-center gap-1">
-            <Icon name="time-outline" size={11} color="#9CA3AF" />
-            <Text className="text-gray-400 text-xs">{service.duration}</Text>
+          <View className="flex-row items-center" style={{gap: S.space.xs}}>
+            <Icon name="time-outline" size={S.icon.xs + 1} color={colors.neutral[400]} />
+            <Text className="text-neutral-400" style={{fontSize: S.fs.xs}}>
+              {service.duration}
+            </Text>
           </View>
 
-          {/* Price */}
-          <Text className="text-gray-900 font-bold text-sm">
-            ₹{price.toLocaleString()}
+          <Text
+            className="text-neutral-900"
+            style={{fontSize: S.fs.sm, fontWeight: '700'}}>
+            {formatCurrency(price)}
           </Text>
         </View>
 
-        {/* CTA */}
         {!isUnavailable ? (
           <Pressable
-            className={`ml-2 px-5 py-2.5 rounded-xl border ${
+            className={`items-center justify-center rounded-xl border ${
               isInCart
-                ? 'bg-[#EA8491] border-[#EA8491]'
-                : 'bg-white border-[#EA8491]'
+                ? 'border-primary-600 bg-primary-600'
+                : 'border-primary-200 bg-base'
             }`}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.7 : 1,
-              zIndex: 10,
-              elevation: 2,
+            style={({pressed}) => ({
+              minWidth: moderateScale(82),
+              paddingHorizontal: S.space.md,
+              paddingVertical: S.space.sm,
+              opacity: pressed ? 0.75 : 1,
             })}
             onPress={() => onAdd(service)}
-            hitSlop={8}
-          >
+            hitSlop={S.space.sm}>
             <Text
-              className={`text-xs font-bold ${
-                isInCart ? 'text-white' : 'text-[#EA8491]'
-              }`}
-            >
-              {isInCart ? '✓ Added' : '+ Add'}
+              className={isInCart ? 'text-white' : 'text-primary-600'}
+              style={{fontSize: S.fs.xs, fontWeight: '700'}}>
+              {isInCart ? 'Added' : '+ Add'}
             </Text>
           </Pressable>
         ) : (
-          <View className="ml-2 bg-gray-100 rounded-lg px-2.5 py-1.5">
-            <Text className="text-gray-400 text-[10px] font-semibold">
+          <View
+            className="rounded-xl bg-neutral-100"
+            style={{
+              paddingHorizontal: S.space.sm + S.space.xs,
+              paddingVertical: S.space.sm,
+            }}>
+            <Text
+              className="text-neutral-400"
+              style={{fontSize: S.fs.tiny, fontWeight: '600'}}>
               Salon only
             </Text>
           </View>
         )}
       </View>
 
-      {/* ── Service Info Modal ── */}
       <Modal
         visible={modalVisible}
         transparent
         animationType="slide"
         statusBarTranslucent
-        onRequestClose={() => setModalVisible(false)}
-      >
-        {/* Backdrop */}
+        onRequestClose={() => setModalVisible(false)}>
         <Pressable
-          className="flex-1 bg-black/40 justify-end"
-          onPress={() => setModalVisible(false)}
-        >
-          {/* Sheet — stop propagation so tapping inside doesn't close */}
-          <Pressable onPress={e => e.stopPropagation()}>
-            <View className="bg-white rounded-t-3xl overflow-hidden">
-              {/* Drag handle */}
-              <View className="items-center pt-3 pb-1">
-                <View className="w-10 h-1 rounded-full bg-gray-200" />
+          className="flex-1 justify-end bg-black/40"
+          onPress={() => setModalVisible(false)}>
+          <Pressable onPress={event => event.stopPropagation()}>
+            <View className="rounded-t-3xl bg-surface">
+              <View className="items-center" style={{padding: S.space.md}}>
+                <View
+                  className="rounded-full bg-neutral-200"
+                  style={{width: S.space['2xl'], height: 4}}
+                />
               </View>
 
               <ScrollView
-                className="px-5 pt-3 pb-8"
                 showsVerticalScrollIndicator={false}
                 bounces={false}
-              >
-                {/* Hero image */}
-                {service.image && (
-                  <View className="w-full h-44 rounded-2xl overflow-hidden mb-4 bg-gray-100">
+                contentContainerStyle={{
+                  padding: S.space.lg,
+                  paddingTop: 0,
+                  gap: S.space.lg,
+                }}>
+                {service.image ? (
+                  <View
+                    className="overflow-hidden rounded-2xl bg-neutral-100"
+                    style={{height: moderateScale(176)}}>
                     <Image
-                      source={{ uri: service.image }}
-                      className="w-full h-full"
+                      source={{uri: service.image}}
+                      className="h-full w-full"
                       resizeMode="cover"
                     />
                   </View>
-                )}
+                ) : null}
 
-                {/* Name + badge */}
-                <View className="flex-row items-center flex-wrap gap-2 mb-1">
-                  <Text className="text-gray-900 font-bold text-lg flex-shrink">
-                    {service.name}
-                  </Text>
-                  {service.badge && (
-                    <View className="bg-amber-50 border border-amber-100 rounded-md px-2 py-0.5">
-                      <Text className="text-amber-600 text-xs font-bold tracking-wide">
-                        {service.badge}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-
-                {/* Meta row */}
-                <View className="flex-row items-center gap-4 mb-4">
-                  <View className="flex-row items-center gap-1">
-                    <Icon name="time-outline" size={13} color="#9CA3AF" />
-                    <Text className="text-gray-400 text-xs">
-                      {service.duration}
+                <View style={{gap: S.space.sm}}>
+                  <View
+                    className="flex-row flex-wrap items-center"
+                    style={{gap: S.space.sm}}>
+                    <Text
+                      className="flex-shrink text-neutral-900"
+                      style={{fontSize: S.fs.lg, fontWeight: '700'}}>
+                      {service.name}
                     </Text>
+
+                    {service.badge ? (
+                      <View
+                        className="rounded-lg border border-warning-100 bg-warning-50"
+                        style={{
+                          paddingHorizontal: S.space.sm,
+                          paddingVertical: S.space.xs / 1.5,
+                        }}>
+                        <Text
+                          className="text-warning-700"
+                          style={{fontSize: S.fs.xs, fontWeight: '700'}}>
+                          {service.badge}
+                        </Text>
+                      </View>
+                    ) : null}
                   </View>
 
-                  {service.serviceMode === 'both' ? (
-                    <View className="flex-row items-center gap-1">
-                      <Icon name="location-outline" size={13} color="#9CA3AF" />
-                      <Text className="text-gray-400 text-xs">
-                        Home &amp; Salon
+                  <View className="flex-row flex-wrap items-center" style={{gap: S.space.md}}>
+                    <View className="flex-row items-center" style={{gap: S.space.xs}}>
+                      <Icon
+                        name="time-outline"
+                        size={S.icon.xs + 2}
+                        color={colors.neutral[400]}
+                      />
+                      <Text className="text-neutral-400" style={{fontSize: S.fs.xs}}>
+                        {service.duration}
                       </Text>
                     </View>
-                  ) : (
-                    <View className="flex-row items-center gap-1">
-                      <Icon name="location-outline" size={13} color="#9CA3AF" />
-                      <Text className="text-gray-400 text-xs capitalize">
-                        {service.serviceMode} only
+
+                    <View className="flex-row items-center" style={{gap: S.space.xs}}>
+                      <Icon
+                        name="location-outline"
+                        size={S.icon.xs + 2}
+                        color={colors.neutral[400]}
+                      />
+                      <Text className="text-neutral-400" style={{fontSize: S.fs.xs}}>
+                        {service.serviceMode === 'both'
+                          ? 'Home and Salon'
+                          : `${service.serviceMode} only`}
                       </Text>
                     </View>
-                  )}
+                  </View>
                 </View>
 
-                {/* Description */}
-                <Text className="text-gray-500 text-sm leading-relaxed mb-5">
-                  A premium service tailored for you. Our skilled professionals
-                  ensure the highest quality experience, using top-of-the-line
-                  products suited to your needs.
+                <Text
+                  className="text-neutral-500"
+                  style={{fontSize: S.fs.sm, lineHeight: S.fs.lg + 4}}>
+                  A premium service tailored for you. Our professionals focus on
+                  comfort, hygiene, and high-quality products suited to your
+                  needs.
                 </Text>
 
-                {/* Pricing card */}
-                <View className="bg-pink-50 rounded-2xl p-4 mb-6 gap-2">
-                  <Text className="text-gray-700 font-semibold text-xs uppercase tracking-widest mb-1">
+                <View
+                  className="rounded-2xl bg-primary-50"
+                  style={{padding: S.space.lg, gap: S.space.md}}>
+                  <Text
+                    className="text-neutral-700"
+                    style={{
+                      fontSize: S.fs.xs,
+                      fontWeight: '600',
+                      letterSpacing: 1,
+                      textTransform: 'uppercase',
+                    }}>
                     Pricing
                   </Text>
 
-                  {service.salonPrice != null && (
-                    <View className="flex-row justify-between items-center">
-                      <View className="flex-row items-center gap-1.5">
+                  {service.salonPrice != null ? (
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-row items-center" style={{gap: S.space.xs}}>
                         <Icon
                           name="storefront-outline"
-                          size={14}
-                          color="#EA8491"
+                          size={S.icon.xs + 2}
+                          color={colors.primary[600]}
                         />
-                        <Text className="text-gray-600 text-sm">At Salon</Text>
+                        <Text className="text-neutral-600" style={{fontSize: S.fs.sm}}>
+                          At Salon
+                        </Text>
                       </View>
-                      <Text className="text-gray-900 font-bold text-sm">
-                        ₹{service.salonPrice.toLocaleString()}
+                      <Text
+                        className="text-neutral-900"
+                        style={{fontSize: S.fs.sm, fontWeight: '700'}}>
+                        {formatCurrency(service.salonPrice)}
                       </Text>
                     </View>
-                  )}
+                  ) : null}
 
-                  {service.homePrice != null && (
-                    <View className="flex-row justify-between items-center">
-                      <View className="flex-row items-center gap-1.5">
-                        <Icon name="home-outline" size={14} color="#EA8491" />
-                        <Text className="text-gray-600 text-sm">At Home</Text>
+                  {service.homePrice != null ? (
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-row items-center" style={{gap: S.space.xs}}>
+                        <Icon
+                          name="home-outline"
+                          size={S.icon.xs + 2}
+                          color={colors.primary[600]}
+                        />
+                        <Text className="text-neutral-600" style={{fontSize: S.fs.sm}}>
+                          At Home
+                        </Text>
                       </View>
-                      <Text className="text-gray-900 font-bold text-sm">
-                        ₹{service.homePrice.toLocaleString()}
+                      <Text
+                        className="text-neutral-900"
+                        style={{fontSize: S.fs.sm, fontWeight: '700'}}>
+                        {formatCurrency(service.homePrice)}
                       </Text>
                     </View>
-                  )}
+                  ) : null}
                 </View>
 
-                {/* Action buttons */}
-                <View className="flex-row gap-3">
+                <View className="flex-row" style={{gap: S.space.md}}>
                   <TouchableOpacity
-                    className="flex-1 py-3 rounded-xl border border-gray-200 items-center"
-                    activeOpacity={0.7}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text className="text-gray-500 font-semibold text-sm">
+                    className="flex-1 items-center rounded-xl border border-neutral-200 bg-base"
+                    style={{paddingVertical: S.space.lg}}
+                    activeOpacity={0.75}
+                    onPress={() => setModalVisible(false)}>
+                    <Text
+                      className="text-neutral-500"
+                      style={{fontSize: S.fs.sm, fontWeight: '600'}}>
                       Close
                     </Text>
                   </TouchableOpacity>
 
-                  {!isUnavailable && (
+                  {!isUnavailable ? (
                     <TouchableOpacity
-                      className={`flex-1 py-3 rounded-xl items-center ${
-                        isInCart ? 'bg-[#EA8491]' : 'bg-[#EA8491]'
-                      }`}
-                      activeOpacity={0.8}
+                      className="flex-1 items-center rounded-xl bg-primary-600"
+                      style={{paddingVertical: S.space.lg}}
+                      activeOpacity={0.82}
                       onPress={() => {
                         onAdd(service);
                         setModalVisible(false);
-                      }}
-                    >
-                      <Text className="text-white font-bold text-sm">
-                        {isInCart ? '✓ Added' : '+ Add to Cart'}
+                      }}>
+                      <Text
+                        className="text-white"
+                        style={{fontSize: S.fs.sm, fontWeight: '700'}}>
+                        {isInCart ? 'Added' : 'Add to Cart'}
                       </Text>
                     </TouchableOpacity>
-                  )}
+                  ) : null}
                 </View>
               </ScrollView>
             </View>

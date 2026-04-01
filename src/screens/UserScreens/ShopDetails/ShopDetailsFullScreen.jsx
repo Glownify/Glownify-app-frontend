@@ -17,6 +17,7 @@ import ServicesList from '../../../components/shopfulldetail/Serviceslist';
 import CustomerReviews from '../../../components/shopfulldetail/Customerreviews';
 import CartBar from '../../../components/shopfulldetail/Cartbar';
 import ServiceModeModal from '../../../components/shopfulldetail/Servicemodemodal';
+import {S} from '../../../theme';
 import SubServiceBottomSheet from '../../../components/shopfulldetail/Subservicebottomsheet'; // ← NEW
 import SalonGallery from '../../../components/shopfulldetail/Salongallery'; // ← NEW
 
@@ -301,11 +302,15 @@ export default function ShopDetailsScreen({ navigation, route }) {
   if (!salonData && loading) return <ShopDetailsSkeleton />;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F9EFEE]" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-base" edges={['top']}>
       <ScrollView
-        className="flex-1"
+        className="flex-1 bg-base"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{
+          padding: S.space.lg,
+          paddingBottom: S.space['8xl'] + S.space['4xl'],
+          gap: S.space.lg,
+        }}
       >
         {/* 1. Image carousel */}
         <SalonImageCarousel

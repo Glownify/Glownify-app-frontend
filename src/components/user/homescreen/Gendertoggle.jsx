@@ -1,43 +1,66 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
+import {S} from '../../../theme';
 
-export default function GenderToggle({ selectedCategory, onSelect }) {
+export default function GenderToggle({selectedCategory, onSelect}) {
   return (
-    <View className="bg-neutral-white py-3 px-md">
-      <View className="flex-row bg-primary-50 rounded-button p-2">
+    <View
+      className="bg-surface"
+      style={{paddingHorizontal: S.space.marginScreen}}
+    >
+      <View
+        className="flex-row bg-primary-50"
+        style={{
+          padding: S.space.xs,
+          borderRadius: S.radius.full,
+          gap: S.space.xs,
+        }}
+      >
         <TouchableOpacity
-          className={`flex-1 flex-row items-center justify-center py-3 px-md rounded-button ${
-            selectedCategory === 'women' ? 'bg-primary' : ''
+          className={`flex-1 flex-row items-center justify-center ${
+            selectedCategory === 'women' ? 'bg-primary-600' : 'bg-transparent'
           }`}
+          style={{
+            minHeight: S.space['6xl'],
+            paddingHorizontal: S.space.md,
+            borderRadius: S.radius.full,
+            gap: S.space.sm,
+          }}
           onPress={() => onSelect('women')}
           activeOpacity={0.8}
         >
-          <Text className="text-base mr-2">👩</Text>
+          <Text style={{fontSize: S.fs.md}}>{'\u{1F469}'}</Text>
           <Text
-            className={`text-base font-semibold ${
+            className={
               selectedCategory === 'women'
-                ? 'text-neutral-white'
+                ? 'text-white'
                 : 'text-neutral-600'
-            }`}
+            }
+            style={{fontSize: S.fs.md, fontWeight: '600'}}
           >
             Women
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          className={`flex-1 flex-row items-center justify-center py-3 px-md rounded-button ${
-            selectedCategory === 'men' ? 'bg-primary' : ''
+          className={`flex-1 flex-row items-center justify-center ${
+            selectedCategory === 'men' ? 'bg-primary-600' : 'bg-transparent'
           }`}
+          style={{
+            minHeight: S.space['6xl'],
+            paddingHorizontal: S.space.md,
+            borderRadius: S.radius.full,
+            gap: S.space.sm,
+          }}
           onPress={() => onSelect('men')}
           activeOpacity={0.8}
         >
-          <Text className="text-base mr-2">👨</Text>
+          <Text style={{fontSize: S.fs.md}}>{'\u{1F468}'}</Text>
           <Text
-            className={`text-base font-semibold ${
-              selectedCategory === 'men'
-                ? 'text-neutral-white'
-                : 'text-neutral-600'
-            }`}
+            className={
+              selectedCategory === 'men' ? 'text-white' : 'text-neutral-600'
+            }
+            style={{fontSize: S.fs.md, fontWeight: '600'}}
           >
             Men
           </Text>

@@ -14,14 +14,14 @@ import { PrimaryButton } from '../../../components/independent-pro/serviceWorkfl
 import {
   MOCK_SERVICE_OTP,
   mockActiveService,
-} from '../../../components/independent-pro/serviceWorkflow/utils';
+} from '../../../utils/independentServiceWorkflow';
 import {
   workflowColors,
   workflowRadius,
   workflowShadow,
   workflowSpacing,
   workflowTypography,
-} from '../../../components/independent-pro/serviceWorkflow/theme';
+} from '../../../theme/independentServiceWorkflow';
 import {
   clearWorkflowError,
   ensureWorkflowSeeded,

@@ -1,41 +1,43 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, Dimensions } from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {Animated, View, useColorScheme} from 'react-native';
+import {getThemeColors} from '../theme';
 
-const { width } = Dimensions.get('window');
-
-export const Skeleton = ({ style }) => {
-  const translateX = useRef(new Animated.Value(-width)).current;
+export const Skeleton = ({style}) => {
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+  const translateX = useRef(new Animated.Value(-200)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.timing(translateX, {
-        toValue: width,
+        toValue: 200,
         duration: 1200,
         useNativeDriver: true,
-      })
-    ).start();
-  }, []);
+      }),
+    );
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [translateX]);
 
   return (
-    <View style={[styles.container, style]}>
+    <View
+      className="overflow-hidden"
+      style={[{backgroundColor: colors.neutral[100]}, style]}>
       <Animated.View
-        style={[
-          styles.shimmer,
-          { transform: [{ translateX }] },
-        ]}
+        style={{
+          width: '40%',
+          height: '100%',
+          backgroundColor:
+            colorScheme === 'dark'
+              ? 'rgba(255,255,255,0.08)'
+              : 'rgba(255,255,255,0.4)',
+          transform: [{translateX}],
+        }}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#E5E7EB',
-    overflow: 'hidden',
-  },
-  shimmer: {
-    width: '40%',
-    height: '100%',
-    backgroundColor: 'rgba(255,255,255,0.35)',
-  },
-});

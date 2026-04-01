@@ -1,49 +1,62 @@
-// components/GlobalSnackbar.js
-import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { hideSnackbar } from '../redux/slices/snackbarSlice';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Animated, Text, TouchableOpacity, View, useColorScheme} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Colors from '../theme/colors';
+import {hideSnackbar} from '../redux/slices/snackbarSlice';
+import {S, getThemeColors} from '../theme';
+import {moderateScale} from '../utils/responsive';
 
-const { width } = Dimensions.get('window');
+const TYPE_CONFIG = {
+  success: {containerClass: 'bg-success-600', icon: 'check-circle'},
+  error: {containerClass: 'bg-error-600', icon: 'error'},
+  warning: {containerClass: 'bg-warning-600', icon: 'warning'},
+  info: {containerClass: 'bg-info-600', icon: 'info'},
+};
 
 const GlobalSnackbar = () => {
   const dispatch = useDispatch();
-  const { open, message, type, duration } = useSelector(state => state.snackbar);
-  console.log('Snackbar state:', { open, message, type, duration });
-  
-  const translateY = useRef(new Animated.Value(100)).current;
+  const {open, message, type, duration} = useSelector(state => state.snackbar);
+  const colorScheme = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+  const translateY = useRef(new Animated.Value(120)).current;
   const timeoutRef = useRef(null);
+  const [isRendered, setIsRendered] = useState(open);
+
+  const hideWithAnimation = useCallback(
+    (shouldDispatch = true) => {
+      Animated.timing(translateY, {
+        toValue: 120,
+        duration: 260,
+        useNativeDriver: true,
+      }).start(() => {
+        setIsRendered(false);
+        if (shouldDispatch) {
+          dispatch(hideSnackbar());
+        }
+      });
+    },
+    [dispatch, translateY],
+  );
 
   useEffect(() => {
-    if (open) {
-      // Clear any existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-      // Slide in
+    if (open) {
+      setIsRendered(true);
       Animated.spring(translateY, {
         toValue: 0,
         useNativeDriver: true,
-        tension: 50,
+        tension: 48,
         friction: 8,
       }).start();
 
-      // Auto hide after duration
       timeoutRef.current = setTimeout(() => {
-        handleHide();
+        hideWithAnimation(true);
       }, duration);
-    } else {
-      handleHide();
+    } else if (isRendered) {
+      hideWithAnimation(false);
     }
 
     return () => {
@@ -51,103 +64,52 @@ const GlobalSnackbar = () => {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [open, duration]);
+  }, [duration, hideWithAnimation, isRendered, open, translateY]);
 
-  const handleHide = () => {
-    Animated.timing(translateY, {
-      toValue: 100,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      dispatch(hideSnackbar());
-    });
-  };
-
-  const getConfig = () => {
-    const configs = {
-      success: {
-        bg: Colors.success,
-        icon: 'check-circle',
-      },
-      error: {
-        bg: Colors.error,
-        icon: 'error',
-      },
-      warning: {
-        bg: Colors.warning,
-        icon: 'warning',
-      },
-      info: {
-        bg: Colors.accent,
-        icon: 'info',
-      },
-    };
-    return configs[type] || configs.success;
-  };
-
-  const config = getConfig();
-
-  if (!open && translateY._value === 100) {
+  if (!isRendered) {
     return null;
   }
 
+  const config = TYPE_CONFIG[type] || TYPE_CONFIG.success;
+
   return (
     <Animated.View
-      style={[
-        styles.container,
-        {
-          backgroundColor: config.bg,
-          transform: [{ translateY }],
-        },
-      ]}
-    >
-      <View style={styles.content}>
-        <MaterialIcons name={config.icon} size={24} color={Colors.textLight} />
-        <Text style={styles.message} numberOfLines={2}>
+      className={`absolute left-0 right-0 ${config.containerClass}`}
+      style={{
+        left: S.space.lg,
+        right: S.space.lg,
+        bottom: S.space.lg,
+        borderRadius: S.radius.lg,
+        shadowColor: colors.black,
+        shadowOffset: {width: 0, height: 4},
+        shadowOpacity: 0.28,
+        shadowRadius: moderateScale(8),
+        elevation: 8,
+        zIndex: 9999,
+        transform: [{translateY}],
+      }}>
+      <View
+        className="flex-row items-center"
+        style={{padding: S.space.lg, gap: S.space.md}}>
+        <MaterialIcons name={config.icon} size={S.icon.lg} color={colors.white} />
+
+        <Text
+          className="flex-1 text-white"
+          style={{
+            fontSize: S.fs.sm,
+            fontWeight: '600',
+            lineHeight: S.fs.md + S.space.xs,
+          }}
+          numberOfLines={2}>
           {message}
         </Text>
-        <TouchableOpacity
-          onPress={handleHide}
-          style={styles.closeButton}
-          activeOpacity={0.7}
-        >
-          <MaterialIcons name="close" size={20} color={Colors.textLight} />
+
+        <TouchableOpacity onPress={() => hideWithAnimation(true)} activeOpacity={0.75}>
+          <MaterialIcons name="close" size={S.icon.md} color={colors.white} />
         </TouchableOpacity>
       </View>
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 20,
-    left: 16,
-    right: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    zIndex: 9999,
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    gap: 12,
-  },
-  message: {
-    flex: 1,
-    fontSize: 15,
-    color: Colors.textLight,
-    fontWeight: '600',
-    lineHeight: 20,
-  },
-  closeButton: {
-    padding: 4,
-  },
-});
 
 export default GlobalSnackbar;
