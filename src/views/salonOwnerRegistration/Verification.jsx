@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {LabeledInput} from '../../components/common/Labeledinput';
-import {S} from '../../theme';
+import {S, theme} from '../../theme';
 
-const ACCENT = '#E91E63';
+const ACCENT = theme.colors.primary[600];
 
 const ID_TYPES = [
   'Aadhaar Card',
@@ -34,28 +34,28 @@ export default function VerificationStep({
   showSpinner,
 }) {
   return (
-    <View>
-      <Text
-        style={{
-          fontSize: 26,
-          fontWeight: '800',
-          color: '#1F2937',
-          marginBottom: 4,
-        }}
-      >
-        Verification Documents
-      </Text>
-      <Text style={{fontSize: 14, color: '#9CA3AF', marginBottom: 24}}>
-        Upload your ID proof for verification
-      </Text>
+    <View style={{gap: S.space.lg}}>
+      <View style={{gap: S.space.xs}}>
+        <Text
+          style={{
+            fontSize: 26,
+            fontWeight: '800',
+            color: '#1F2937',
+          }}
+        >
+          Verification Documents
+        </Text>
+        <Text style={{fontSize: 14, color: '#9CA3AF'}}>
+          Upload your ID proof for verification
+        </Text>
+      </View>
 
-      <View style={{marginBottom: 16}}>
+      <View style={{gap: S.space.xs}}>
         <Text
           style={{
             fontSize: 13,
             fontWeight: '500',
             color: '#374151',
-            marginBottom: 6,
           }}
         >
           ID Proof Type <Text style={{color: ACCENT}}>*</Text>
@@ -95,7 +95,7 @@ export default function VerificationStep({
         </TouchableOpacity>
       </View>
 
-      <View style={{gap: S.space.lg}}>
+      <View style={{gap: S.space.md}}>
         <LabeledInput
           label="ID Number"
           required
@@ -105,13 +105,12 @@ export default function VerificationStep({
           autoCapitalize="characters"
         />
 
-        <View style={{marginBottom: 28}}>
+        <View style={{gap: S.space.xs}}>
           <Text
             style={{
               fontSize: 13,
               fontWeight: '500',
               color: '#374151',
-              marginBottom: 6,
             }}
           >
             Upload ID Proof <Text style={{color: ACCENT}}>*</Text>

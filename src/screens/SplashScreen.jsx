@@ -1,15 +1,15 @@
-// src/screens/SplashScreen.js
-import React, { useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  Image, 
-  StyleSheet, 
+import React, {useEffect, useRef} from 'react';
+import {
+  View,
+  Text,
+  Image,
   Animated,
-  Dimensions 
+  Dimensions,
 } from 'react-native';
+import {wp} from '../utils/responsive';
+import {S} from '../theme';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default function SplashScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -44,107 +44,50 @@ export default function SplashScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* Animated Logo */}
+    <View
+      className="flex-1 items-center justify-center bg-primary-700"
+      style={{gap: S.space.xl}}>
       <Animated.View
-        style={[
-          styles.logoContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
-          },
-        ]}
-      >
+        style={{
+          opacity: fadeAnim,
+          transform: [{scale: scaleAnim}],
+          width: width * 0.5,
+          height: width * 0.5,
+        }}>
         <Image
           source={require('../assets/GlownifyLogoPng.png')}
-          style={styles.logo}
+          style={{width: '100%', height: '100%'}}
           resizeMode="contain"
         />
       </Animated.View>
 
-      {/* Animated Title */}
-      <Animated.Text 
-        style={[
-          styles.title,
-          { opacity: textFadeAnim }
-        ]}
-      >
-        Glownify ldshngjdsmngkjds,mn,m
-      </Animated.Text>
+      <Animated.View style={{opacity: textFadeAnim, alignItems: 'center', gap: S.space.sm}}>
+        <Text
+          className="text-white font-bold"
+          style={{fontSize: S.fs.xxl, letterSpacing: 1}}>
+          Glownify
+        </Text>
+        <Text className="text-white font-medium" style={{fontSize: S.fs.md}}>
+          Your Style, Our Passion
+        </Text>
+      </Animated.View>
 
-      {/* Animated Subtitle */}
-      <Animated.Text 
-        style={[
-          styles.subtitle,
-          { opacity: textFadeAnim }
-        ]}
-      >
-        Your Style, Our Passion
-      </Animated.Text>
-
-      {/* Loading Indicator */}
-      <Animated.View style={[styles.loaderContainer, { opacity: textFadeAnim }]}>
-        <View style={styles.loader}>
-          <View style={styles.loaderDot} />
-          <View style={[styles.loaderDot, styles.loaderDot2]} />
-          <View style={[styles.loaderDot, styles.loaderDot3]} />
+      <Animated.View style={{opacity: textFadeAnim}}>
+        <View className="flex-row items-center" style={{gap: S.space.sm}}>
+          <View
+            className="rounded-full bg-warning-500"
+            style={{width: wp(2.5), height: wp(2.5)}}
+          />
+          <View
+            className="rounded-full bg-warning-500"
+            style={{width: wp(2.5), height: wp(2.5), opacity: 0.6}}
+          />
+          <View
+            className="rounded-full bg-warning-500"
+            style={{width: wp(2.5), height: wp(2.5), opacity: 0.3}}
+          />
         </View>
       </Animated.View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#156778',
-  },
-  logoContainer: {
-    width: width * 0.5,
-    height: width * 0.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  logo: {
-    width: '100%',
-    height: '100%',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
-    letterSpacing: 1,
-     zIndex: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 40,
-    fontWeight: '500',
-     zIndex: 10,
-  },
-  loaderContainer: {
-    marginTop: 20,
-  },
-  loader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  loaderDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#FFD700',
-    marginHorizontal: 5,
-  },
-  loaderDot2: {
-    opacity: 0.6,
-  },
-  loaderDot3: {
-    opacity: 0.3,
-  },
-});

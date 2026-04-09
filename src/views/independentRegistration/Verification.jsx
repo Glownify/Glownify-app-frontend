@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, theme} from '../../theme';
 
 const ID_TYPES = ['Aadhar', 'PAN', 'Driving License', 'Passport'];
 
@@ -23,18 +24,20 @@ export default function IndependentVerificationStep({
   isSubmitting,
 }) {
   return (
-    <View>
-      <Text className="text-2xl font-bold text-neutral-700">
-        Verification Documents
-      </Text>
-      <Text className="text-sm text-neutral-400 mt-1">
-        Upload ID proof for verification
-      </Text>
+    <View style={{gap: S.space.lg}}>
+      <View style={{gap: S.space.xs}}>
+        <Text className="text-2xl font-bold text-neutral-700">
+          Verification Documents
+        </Text>
+        <Text className="text-sm text-neutral-400">
+          Upload ID proof for verification
+        </Text>
+      </View>
 
-      <View className="gap-md mt-lg">
+      <View style={{gap: S.space.md}}>
         {/* ID Proof Type */}
-        <View>
-          <Text className="text-sm font-semibold text-neutral-700 mb-xs">
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-sm font-semibold text-neutral-700">
             ID Proof Type *
           </Text>
           <TouchableOpacity
@@ -67,13 +70,13 @@ export default function IndependentVerificationStep({
             >
               {idType || 'Select ID proof type'}
             </Text>
-            <Icon name="chevron-down" size={18} color="#999" />
+            <Icon name="chevron-down" size={18} color={theme.colors.neutral[400]} />
           </TouchableOpacity>
         </View>
 
         {/* ID Number */}
-        <View>
-          <Text className="text-sm font-semibold text-neutral-700 mb-xs">
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-sm font-semibold text-neutral-700">
             ID Number *
           </Text>
           <TextInput
@@ -86,19 +89,19 @@ export default function IndependentVerificationStep({
         </View>
 
         {/* Upload ID Proof */}
-        <View>
-          <Text className="text-sm font-semibold text-neutral-700 mb-xs">
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-sm font-semibold text-neutral-700">
             Upload ID Proof *
           </Text>
           <TouchableOpacity
             className={`border-2 border-dashed rounded-input py-xl items-center justify-center gap-xs ${
               idProof
-                ? 'bg-[#FCE4EC] border-[#E91E63]'
+                ? 'bg-primary-100 border-primary-600'
                 : 'bg-neutral-50 border-neutral-300'
             }`}
             onPress={handleUploadIDProof}
           >
-            <Icon name="cloud-upload" size={40} color="#E91E63" />
+            <Icon name="cloud-upload" size={40} color={theme.colors.primary[600]} />
             {idProof ? (
               <>
                 <Text className="text-sm font-semibold text-success">
@@ -123,17 +126,17 @@ export default function IndependentVerificationStep({
       </View>
 
       {/* Navigation Buttons */}
-      <View className="flex-row gap-sm mt-xl">
+      <View className="flex-row gap-sm">
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-xs border border-[#E91E63] py-md rounded-input"
+          className="flex-1 flex-row items-center justify-center gap-xs border border-primary-600 py-md rounded-input"
           onPress={handleBack}
           disabled={isSubmitting}
         >
-          <Icon name="chevron-back" size={18} color="#E91E63" />
-          <Text className="text-base font-bold text-[#E91E63]">Back</Text>
+          <Icon name="chevron-back" size={18} color={theme.colors.primary[600]} />
+          <Text className="text-base font-bold text-primary-600">Back</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-xs bg-[#E91E63] py-md rounded-input"
+          className="flex-1 flex-row items-center justify-center gap-xs bg-primary-600 py-md rounded-input"
           onPress={handleSubmit}
           disabled={isSubmitting}
         >

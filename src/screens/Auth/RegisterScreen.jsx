@@ -6,6 +6,7 @@ import { signupUser } from '../../redux/slices/authSlice';
 import Dropdown from '../../components/common/Dropdown';
 import AppButton from '../../components/common/Button';
 import AppInput from '../../components/common/Input';
+import {S} from '../../theme';
 
 const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const regexPhoneNo = /^[6-9]\d{9}$/;
@@ -48,25 +49,30 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-base">
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
+        contentContainerStyle={{flexGrow: 1, paddingVertical: S.space.xl}}
       >
-        <View className="flex-1 px-6 justify-center gap-2xl mt-6">
+        <View
+          className="flex-1 justify-center"
+          style={{
+            paddingHorizontal: S.space.xl,
+            gap: S.space['2xl'],
+          }}>
           {/* ── Header ───────────────────────────────────────────────── */}
-          <View className="gap-2">
-            <Text className="text-3xl font-bold text-[#1a1a2e]">
+          <View style={{gap: S.space.sm}}>
+            <Text className="font-bold text-neutral-900" style={{fontSize: S.fs.xl}}>
               Create an account
             </Text>
-            <Text className="text-base text-gray-500">
+            <Text className="text-neutral-500" style={{fontSize: S.fs.md}}>
               Please type full information below and we can create your account
               for Salone.
             </Text>
           </View>
 
           {/* ── Input Fields ─────────────────────────────────────────── */}
-          <View className="gap-3">
+          <View style={{gap: S.space.md}}>
             <AppInput
               value={name}
               onChangeText={setName}
@@ -85,8 +91,8 @@ export default function RegisterScreen({ navigation }) {
             />
 
             {/* Mobile + Country Code */}
-            <View className="flex-row gap-2">
-              <View className="w-32">
+            <View className="flex-row" style={{gap: S.space.sm}}>
+              <View style={{width: S.size.docPreview * 0.65}}>
                 <Dropdown
                   options={countryCodes}
                   value={selectedCountryCode}
@@ -100,7 +106,6 @@ export default function RegisterScreen({ navigation }) {
                   onChangeText={setMobileNumber}
                   placeholder="Mobile number"
                   keyboardType="phone-pad"
-                  containerStyle={{marginBottom: 0}}
                 />
               </View>
             </View>
@@ -115,34 +120,38 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           {/* ── Terms ────────────────────────────────────────────────── */}
-          <Text className="text-sm text-center text-neutral-400">
+          <Text className="text-center text-neutral-400" style={{fontSize: S.fs.xs}}>
             By signing up you agree to our{' '}
-            <Text className="text-[#E91E63] font-semibold" onPress={() => {}}>
+            <Text className="text-primary-600 font-semibold" onPress={() => {}}>
               Terms of use
             </Text>
             <Text className="text-neutral-400"> and </Text>
-            <Text className="text-[#E91E63] font-semibold" onPress={() => {}}>
+            <Text className="text-primary-600 font-semibold" onPress={() => {}}>
               privacy notice
             </Text>
           </Text>
 
           {/* ── Actions ──────────────────────────────────────────────── */}
-          <View className="gap-4">
+          <View style={{gap: S.space.lg}}>
             <AppButton
               label="Join Now"
               onPress={handleRegister}
               loading={signUpLoading}
-              style={{ backgroundColor: '#E91E63' }}
+              className="bg-primary-600"
             />
 
             {error && (
-              <Text className="text-sm text-center text-error">{error}</Text>
+              <Text className="text-center text-error-500" style={{fontSize: S.fs.xs}}>
+                {error}
+              </Text>
             )}
 
             {/* Divider with lines + uppercase OR */}
             <View className="flex-row items-center">
               <View className="flex-1 h-px bg-neutral-200" />
-              <Text className="text-neutral-400 mx-3 text-xs font-semibold tracking-widest">
+              <Text
+                className="text-neutral-400 font-semibold tracking-widest"
+                style={{fontSize: S.fs.xs, paddingHorizontal: S.space.sm}}>
                 OR
               </Text>
               <View className="flex-1 h-px bg-neutral-200" />
@@ -157,11 +166,11 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           {/* ── Sign In ──────────────────────────────────────────────── */}
-          <Text className="text-center text-sm text-neutral-500">
+          <Text className="text-center text-neutral-500" style={{fontSize: S.fs.xs}}>
             Already have an account?{' '}
             <Text
               onPress={() => navigation.navigate('Login')}
-              className="font-bold text-[#E91E63]"
+              className="font-bold text-primary-600"
             >
               Sign In
             </Text>
@@ -169,13 +178,14 @@ export default function RegisterScreen({ navigation }) {
 
           {/* ── Service Provider ─────────────────────────────────────── */}
           <TouchableOpacity
-            className="items-center py-5 bg-[#FFF0F3] rounded-2xl"
+            className="items-center bg-primary-50 rounded-2xl"
+            style={{padding: S.space.xl, gap: S.space.xs}}
             onPress={() => navigation.navigate('RoleSelection')}
           >
-            <Text className="text-sm text-neutral-700 font-medium mb-1">
+            <Text className="text-neutral-700 font-medium" style={{fontSize: S.fs.xs}}>
               Are you a Service Provider?
             </Text>
-            <Text className="text-base font-bold text-[#E91E63]">
+            <Text className="font-bold text-primary-600" style={{fontSize: S.fs.md}}>
               Register as Partner →
             </Text>
           </TouchableOpacity>

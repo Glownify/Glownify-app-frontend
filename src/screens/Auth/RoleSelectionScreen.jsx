@@ -2,9 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Header from '../../components/common/Header';
-import RoleCard from '../../components/RoleSelection/RoleCard';
 import FeatureItem from '../../components/RoleSelection/FeatureItem';
+import {S, theme} from '../../theme';
 
 const ROLES = [
   {
@@ -13,8 +12,8 @@ const ROLES = [
     description:
       'Register your salon and manage bookings, staff, and services efficiently.',
     iconName: 'storefront',
-    iconColor: '#2EC4B6',
-    iconBg: '#E0F5F3',
+    iconColor: '#14b8a6',
+    iconBgClassName: 'bg-secondary-teal/15',
     navigateTo: 'SalonOwnerRegistration',
   },
   {
@@ -23,8 +22,8 @@ const ROLES = [
     description:
       'Freelance beautician/barber. Work independently and manage your schedule.',
     iconName: 'person',
-    iconColor: '#E91E63',
-    iconBg: '#FCE4EC',
+    iconColor: theme.colors.primary[600],
+    iconBgClassName: 'bg-primary-100',
     navigateTo: 'IndependentRegistration',
   },
 ];
@@ -47,57 +46,67 @@ const FEATURES = [
 
 export default function RoleSelectionScreen({ navigation }) {
   return (
-    <SafeAreaView className="flex-1 bg-[#EEF3F3]">
+    <SafeAreaView className="flex-1 bg-neutral-50">
       {/* ── Header ───────────────────────────────────────────────── */}
-      <View className="flex-row items-center px-4 py-4">
+      <View
+        className="flex-row items-center"
+        style={{paddingHorizontal: S.space.lg, paddingVertical: S.space.lg}}>
         <TouchableOpacity
           onPress={() => navigation?.goBack()}
           className="w-10 h-10 rounded-full bg-white items-center justify-center shadow-sm"
         >
           <Icon name="chevron-back" size={20} color="#333" />
         </TouchableOpacity>
-        <Text className="flex-1 text-center text-base font-bold text-neutral-800 mr-10">
+        <Text
+          className="flex-1 text-center font-bold text-neutral-800"
+          style={{fontSize: S.fs.md, marginRight: S.size.avatarSm}}>
           Register As
         </Text>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 32, flexGrow: 1 }}
+        contentContainerStyle={{
+          paddingVertical: S.space['2xl'],
+          flexGrow: 1,
+          gap: S.space.xl,
+        }}
       >
         {/* ── Title ────────────────────────────────────────────────── */}
-        <View className="px-5 mt-2 mb-6">
-          <Text className="text-[32px] font-bold text-[#1a1a2e] leading-tight">
+        <View style={{paddingHorizontal: S.space.xl, gap: S.space.sm}}>
+          <Text
+            className="font-bold text-neutral-900 leading-tight"
+            style={{fontSize: S.fs.xxl}}>
             Choose Your Role
           </Text>
-          <Text className="text-base text-gray-500 mt-2">
+          <Text className="text-neutral-500" style={{fontSize: S.fs.md}}>
             Select how you'd like to join our platform to get started.
           </Text>
         </View>
 
         {/* ── Role Cards ───────────────────────────────────────────── */}
-        <View className="px-4 gap-4 mb-6">
+        <View style={{paddingHorizontal: S.space.lg, gap: S.space.lg}}>
           {ROLES.map(role => (
             <TouchableOpacity
               key={role.key}
               onPress={() => navigation?.navigate(role.navigateTo)}
               activeOpacity={0.85}
-              className="bg-white rounded-2xl p-5 flex-row items-center gap-4 shadow-sm"
+              className="bg-surface rounded-2xl flex-row items-center shadow-sm"
+              style={{padding: S.space.xl, gap: S.space.lg}}
             >
               {/* Icon circle */}
               <View
-                style={{ backgroundColor: role.iconBg }}
-                className="w-16 h-16 rounded-full items-center justify-center"
+                className={`w-16 h-16 rounded-full items-center justify-center ${role.iconBgClassName}`}
               >
                 <Icon name={role.iconName} size={28} color={role.iconColor} />
               </View>
 
               {/* Text */}
-              <View className="flex-1">
-                <Text className="text-base font-bold text-[#1a1a2e] mb-1">
+              <View className="flex-1" style={{gap: S.space.xs}}>
+                <Text className="font-bold text-neutral-900" style={{fontSize: S.fs.md}}>
                   {role.title}
                 </Text>
-                <Text className="text-sm text-gray-500 leading-5">
+                <Text className="text-neutral-500 leading-5" style={{fontSize: S.fs.xs}}>
                   {role.description}
                 </Text>
               </View>
@@ -109,8 +118,10 @@ export default function RoleSelectionScreen({ navigation }) {
         </View>
 
         {/* ── Why Register ─────────────────────────────────────────── */}
-        <View className="mx-4 bg-white rounded-2xl p-5 mb-8">
-          <Text className="text-lg font-bold text-[#1a1a2e] mb-4">
+        <View
+          className="bg-surface rounded-2xl"
+          style={{marginHorizontal: S.space.lg, padding: S.space.xl, gap: S.space.lg}}>
+          <Text className="font-bold text-neutral-900" style={{fontSize: S.fs.md_h}}>
             Why Register With Us?
           </Text>
           {FEATURES.map(feature => (
@@ -119,18 +130,18 @@ export default function RoleSelectionScreen({ navigation }) {
               title={feature.title}
               description={feature.description}
               iconName="checkmark-circle"
-              iconColor="#4CAF50"
+              iconColor={theme.colors.success[500]}
               iconSize={22}
             />
           ))}
         </View>
 
         {/* ── Sign In ──────────────────────────────────────────────── */}
-        <Text className="text-center text-sm text-gray-400">
+        <Text className="text-center text-neutral-400" style={{fontSize: S.fs.xs}}>
           Already registered?{' '}
           <Text
             onPress={() => navigation?.navigate('Login')}
-            className="text-[#E91E63] font-bold"
+            className="text-primary-600 font-bold"
           >
             Sign In
           </Text>

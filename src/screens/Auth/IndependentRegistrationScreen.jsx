@@ -14,6 +14,7 @@ import StepIndicator from '../../components/common/StepIndicator';
 import PersonalInfoStep from '../../views/independentRegistration/PersonalInfo';
 import AvailabilityStep from '../../views/independentRegistration/Availability';
 import IndependentVerificationStep from '../../views/independentRegistration/Verification';
+import {S, theme} from '../../theme';
 
 const STEPS = { PERSONAL: 1, AVAILABILITY: 2, VERIFICATION: 3 };
 
@@ -212,25 +213,25 @@ export default function IndependentRegistrationScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50">
+    <SafeAreaView className="flex-1 bg-base">
 
       {/* Header */}
       <RegistrationHeader
         title="Earn with Us"
         subtitle="(Independent Beautician / Barber Registration)"
         onBack={handleBack}
-        bgColor="#E91E63"
+        bgColor={theme.colors.primary[600]}
       />
 
       {/* Step Indicator */}
       <StepIndicator
         steps={STEP_CONFIG}
         currentStep={currentStep}
-        activeColor="#E91E63"
+        activeColor={theme.colors.primary[600]}
       />
 
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={{padding: S.space.lg, paddingVertical: S.space['2xl']}}
         showsVerticalScrollIndicator={false}
       >
         {currentStep === STEPS.PERSONAL && (

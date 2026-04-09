@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector, useDispatch } from 'react-redux';
+import {S, theme} from '../../theme';
 
 // Redux Actions
 import { fetchCities } from '../../redux/slices/stateCitySlice';
@@ -119,9 +120,9 @@ export default function SalesTeamManagement() {
 
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
-      <StatusBar backgroundColor="#156778" barStyle="light-content" />
-      <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.colors.primary[700] }}>
+      <StatusBar backgroundColor={theme.colors.primary[700]} barStyle="light-content" />
+      <View style={{ flex: 1, backgroundColor: theme.colors.neutral[50] }}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Sales Team Management</Text>
         </View>
@@ -266,23 +267,23 @@ export default function SalesTeamManagement() {
 
 const styles = StyleSheet.create({
   // ... (keeping your original styles with minor fixes)
-  header: { padding: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
+  header: { padding: S.space.lg, backgroundColor: theme.colors.surface, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.neutral[800] },
   tabsContainer: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   tab: { flex: 1, paddingVertical: 12, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
   activeTab: { borderBottomColor: '#7C5FED' },
   tabText: { fontSize: 12, fontWeight: '600', color: '#999' },
   activeTabText: { color: '#7C5FED' },
-  scrollContent: { padding: 16 },
+  scrollContent: { padding: S.space.lg },
   tabContent: { gap: 16 },
-  addButton: { flexDirection: 'row', backgroundColor: '#7C5FED', padding: 12, borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 8 },
+  addButton: { flexDirection: 'row', backgroundColor: theme.colors.primary[600], padding: 12, borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 8 },
   addButtonText: { color: '#fff', fontWeight: '600' },
   tableHeader: { flexDirection: 'row', padding: 12, backgroundColor: '#f0f0f0', borderRadius: 8 },
   tableHeaderText: { fontSize: 11, fontWeight: '700', color: '#666' },
-  tableRow: { flexDirection: 'row', padding: 12, backgroundColor: '#fff', borderRadius: 8, marginBottom: 8, alignItems: 'center' },
+  tableRow: { flexDirection: 'row', padding: 12, backgroundColor: theme.colors.surface, borderRadius: 8, marginBottom: 8, alignItems: 'center' },
   tableCell: { fontSize: 12, color: '#333' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 16, maxHeight: '85%' },
+  modalContent: { backgroundColor: theme.colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingTop: 16, maxHeight: '85%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   modalTitle: { fontSize: 16, fontWeight: '700' },
   modalForm: { padding: 16 },
@@ -291,7 +292,7 @@ const styles = StyleSheet.create({
   selectorRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   modalFooter: { flexDirection: 'row', gap: 10, padding: 16, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
   cancelButton: { flex: 1, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#DDD', alignItems: 'center' },
-  submitButton: { flex: 1, backgroundColor: '#7C5FED', padding: 12, borderRadius: 8, alignItems: 'center' },
+  submitButton: { flex: 1, backgroundColor: theme.colors.primary[600], padding: 12, borderRadius: 8, alignItems: 'center' },
   submitButtonText: { color: '#fff', fontWeight: '600' },
   cityOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   cityName: { fontSize: 16, color: '#333' },

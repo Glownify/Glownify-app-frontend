@@ -15,15 +15,15 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
-  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { subscribePlan, fetchSubscriptionPlans } from '../redux/slices/subscriptionSlice';
+import {S, theme} from '../theme';
 
 // ─── Background colour — mirrors SalonBookingsScreen ─────────────────────────
-const BG = '#fff1f2';
+const BG = theme.colors.primary[50];
 
 // ─── Dummy Plans ──────────────────────────────────────────────────────────────
 // Replace / merge with `subscriptionPlans` from Redux once the API responds.
@@ -93,9 +93,10 @@ const PlanCard = ({ item, isSelected, onPress }) => {
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.88}
-      className={`bg-white rounded-2xl p-4 mb-4 border-2
+      className={`bg-surface rounded-2xl border-2
         ${isSelected ? 'border-rose-400' : 'border-transparent'}`}
       style={{
+        padding: S.space.lg,
         shadowColor: isSelected ? '#f9a8b8' : '#00000015',
         shadowOpacity: isSelected ? 0.35 : 0.1,
         shadowRadius: isSelected ? 16 : 8,
@@ -104,7 +105,7 @@ const PlanCard = ({ item, isSelected, onPress }) => {
       }}
     >
       {/* ── Top: name + badge + selected tick ── */}
-      <View className="flex-row items-center justify-between mb-1">
+      <View className="flex-row items-center justify-between">
         <Text className="text-lg font-bold text-neutral-800">{item.name}</Text>
 
         <View className="flex-row items-center gap-2">
@@ -115,14 +116,14 @@ const PlanCard = ({ item, isSelected, onPress }) => {
           )}
           {isSelected && (
             <View className="w-5 h-5 rounded-full bg-rose-500 items-center justify-center">
-              <Icon name="checkmark" size={12} color="#fff" />
+              <Icon name="checkmark" size={12} color={theme.colors.white} />
             </View>
           )}
         </View>
       </View>
 
       {/* ── Price row ── */}
-      <View className="flex-row items-baseline gap-1 mb-3">
+      <View className="flex-row items-baseline gap-1">
         <Text className="text-3xl font-extrabold text-rose-500">
           ₹{item.price.toLocaleString()}
         </Text>
@@ -132,14 +133,16 @@ const PlanCard = ({ item, isSelected, onPress }) => {
       </View>
 
       {/* ── Divider ── */}
-      <View className="h-px bg-pink-50 mb-3" />
+      <View className="h-px bg-primary-100" />
 
       {/* ── Features ── */}
-      <Text className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-2">
+      <Text
+        className="text-xs font-semibold text-neutral-400 uppercase tracking-widest"
+      >
         What's included
       </Text>
       {item.features.map((feature, idx) => (
-        <View key={idx} className="flex-row items-center gap-2 mb-1.5">
+        <View key={idx} className="flex-row items-center gap-2">
           <View className="w-4 h-4 rounded-full bg-green-50 items-center justify-center">
             <Icon name="checkmark" size={10} color="#16a34a" />
           </View>
@@ -189,10 +192,11 @@ export default function SubscriptionPlanScreen({ closeModal, navigation }) {
 
           {/* ── Header ── */}
           <View
-            className="flex-row items-center justify-between px-4 pt-2 pb-3 bg-white border-b border-pink-100"
+            className="flex-row items-center justify-between bg-surface border-b border-primary-100"
+            style={{paddingHorizontal: S.space.lg, paddingVertical: S.space.sm}}
           >
             <TouchableOpacity onPress={handleClose} activeOpacity={0.7}>
-              <Icon name="close" size={24} color="#e11d48" />
+              <Icon name="close" size={24} color={theme.colors.primary[600]} />
             </TouchableOpacity>
             <Text className="text-lg font-bold text-neutral-800">Choose Your Plan</Text>
             <View style={{ width: 24 }} />
@@ -201,7 +205,7 @@ export default function SubscriptionPlanScreen({ closeModal, navigation }) {
           {/* ── Body ── */}
           {loading ? (
             <View className="flex-1 items-center justify-center gap-3">
-              <ActivityIndicator size="large" color="#e11d48" />
+              <ActivityIndicator size="large" color={theme.colors.primary[600]} />
               <Text className="text-sm text-neutral-400 font-medium">Loading plans...</Text>
             </View>
           ) : (
@@ -216,20 +220,20 @@ export default function SubscriptionPlanScreen({ closeModal, navigation }) {
                 />
               )}
               contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingTop: 16,
-                paddingBottom: 120,
+                paddingHorizontal: S.space.lg,
+                paddingVertical: S.space.lg,
               }}
+              ItemSeparatorComponent={() => <View style={{height: S.space.lg}} />}
               ListHeaderComponent={() => (
-                <View className="items-center mb-5">
+                <View className="items-center" style={{gap: S.space.sm}}>
                   {/* Icon pill */}
-                  <View className="w-14 h-14 rounded-full bg-rose-100 items-center justify-center mb-3">
-                    <Icon name="sparkles-outline" size={28} color="#e11d48" />
+                  <View className="w-14 h-14 rounded-full bg-primary-100 items-center justify-center">
+                    <Icon name="sparkles-outline" size={28} color={theme.colors.primary[600]} />
                   </View>
                   <Text className="text-base font-semibold text-neutral-700">
                     Pick a plan that fits your salon
                   </Text>
-                  <Text className="text-xs text-neutral-400 mt-0.5">
+                  <Text className="text-xs text-neutral-400">
                     Cancel or change anytime
                   </Text>
                 </View>
@@ -240,16 +244,17 @@ export default function SubscriptionPlanScreen({ closeModal, navigation }) {
 
           {/* ── Sticky Footer ── */}
           <View
-            className="absolute bottom-0 left-0 right-0 bg-white border-t border-pink-100 px-4 pt-3 pb-6"
-            style={{ elevation: 12 }}
+            className="absolute bottom-0 left-0 right-0 bg-surface border-t border-primary-100"
+            style={{paddingHorizontal: S.space.lg, paddingVertical: S.space.lg}}
           >
+            <View style={{gap: S.space.md}}>
             {/* Selected plan summary */}
             {selectedPlan && (
-              <View className="flex-row items-center justify-between mb-3 bg-pink-50 rounded-xl px-4 py-2.5">
+              <View className="flex-row items-center justify-between bg-primary-50 rounded-xl px-4 py-2.5">
                 <Text className="text-sm font-semibold text-neutral-700">
                   {selectedPlan.name}
                 </Text>
-                <Text className="text-sm font-extrabold text-rose-500">
+                <Text className="text-sm font-extrabold text-primary-600">
                   ₹{selectedPlan.price.toLocaleString()}
                   <Text className="font-normal text-neutral-400">
                     {' '}{getDurationText(selectedPlan.durationInDays)}
@@ -263,7 +268,8 @@ export default function SubscriptionPlanScreen({ closeModal, navigation }) {
               disabled={!selectedPlanId}
               activeOpacity={0.85}
               className={`rounded-xl py-3.5 items-center justify-center
-                ${selectedPlanId ? 'bg-rose-500' : 'bg-neutral-200'}`}
+                ${selectedPlanId ? 'bg-primary-600' : 'bg-neutral-200'}`}
+            style={{ elevation: 12 }}
             >
               <Text
                 className={`text-base font-bold
@@ -272,6 +278,8 @@ export default function SubscriptionPlanScreen({ closeModal, navigation }) {
                 {selectedPlanId ? 'Continue with ' + selectedPlan?.name : 'Select a Plan'}
               </Text>
             </TouchableOpacity>
+            <View style={{height: S.space['5xl']}} />
+            </View>
           </View>
 
         </SafeAreaView>

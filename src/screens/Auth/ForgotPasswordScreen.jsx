@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
-import { 
-  View, Text, StyleSheet, TextInput, TouchableOpacity, 
-  StatusBar, KeyboardAvoidingView, Platform, ActivityIndicator 
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useDispatch, useSelector } from 'react-redux';
 import { forgotPassword, clearAuthState } from '../../redux/slices/authSlice';
+import {S} from '../../theme';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const dispatch = useDispatch();
   const [email, setEmail] = useState('');
 
   // Get loading and error from redux
-  const { loading, error, forgotPasswordMessage } = useSelector(state => state.auth);
+  const {loading, error} = useSelector(state => state.auth);
 
   const handleForgotPassword = async () => {
     try {
@@ -29,74 +36,73 @@ export default function ForgotPasswordScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-base">
       <StatusBar barStyle="dark-content" />
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
       >
-        <View style={styles.content}>
-          <Text style={styles.title}>Forgot password,</Text>
-          <Text style={styles.subtitle}>
-            Please type your email below and we will give you an OTP code
-          </Text>
+        <View
+          className="flex-1 justify-center"
+          style={{paddingHorizontal: S.space.xl, gap: S.space['2xl']}}>
+          <View style={{gap: S.space.sm}}>
+            <Text
+              className="text-neutral-900 font-bold"
+              style={{fontSize: S.fs.xxl}}>
+              Forgot password,
+            </Text>
+            <Text className="text-neutral-500" style={{fontSize: S.fs.md}}>
+              Please type your email below and we will give you an OTP code
+            </Text>
+          </View>
 
-          <View style={styles.inputContainer}>
-            <MaterialCommunityIcons name="email-outline" size={22} color="#8e8e8e" style={styles.icon} />
-            <TextInput
-              style={styles.input}
+          <View style={{gap: S.space.md}}>
+            <View
+              className="flex-row items-center rounded-full bg-neutral-50"
+              style={{paddingHorizontal: S.space.lg, height: S.size.avatarLg}}>
+              <MaterialCommunityIcons
+                name="email-outline"
+                size={S.icon.md}
+                color="#8e8e8e"
+              />
+              <TextInput
+              className="flex-1 text-neutral-900"
+              style={{fontSize: S.fs.md, marginLeft: S.space.sm}}
               placeholder="Email address"
               placeholderTextColor="#8e8e8e"
               keyboardType="email-address"
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
-            />
-          </View>
+              />
+            </View>
 
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={handleForgotPassword} 
-            disabled={loading}
-          >
+            <TouchableOpacity
+              className="items-center rounded-full bg-primary-600"
+              style={{padding: S.space.lg}}
+              onPress={handleForgotPassword}
+              disabled={loading}>
             {loading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text style={styles.buttonText}>Send Code</Text>
+              <Text
+                className="font-bold text-white"
+                style={{fontSize: S.fs.md_h}}>
+                Send Code
+              </Text>
             )}
-          </TouchableOpacity>
+            </TouchableOpacity>
 
-          {error && <Text style={styles.errorText}>{error}</Text>}
+            {error && (
+              <Text
+                className="text-error-500 text-center"
+                style={{fontSize: S.fs.sm}}>
+                {error}
+              </Text>
+            )}
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  keyboardAvoidingContainer: { flex: 1 },
-  content: { flex: 1, paddingHorizontal: 25, paddingTop: 60 },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#212121', marginBottom: 10 },
-  subtitle: { fontSize: 16, color: '#616161', marginBottom: 40 },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F6F7F8',
-    borderRadius: 50,
-    marginBottom: 15,
-    paddingHorizontal: 20,
-    height: 55,
-  },
-  icon: { marginRight: 10 },
-  input: { flex: 1, fontSize: 16, color: '#212121' },
-  button: {
-    backgroundColor: '#156778',
-    paddingVertical: 18,
-    borderRadius: 50,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  errorText: { color: 'red', marginTop: 15, textAlign: 'center' },
-});

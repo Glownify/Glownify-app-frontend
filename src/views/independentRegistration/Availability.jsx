@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {S, theme} from '../../theme';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -20,42 +21,44 @@ export default function AvailabilityStep({
   handleNext,
 }) {
   return (
-    <View>
-      <Text className="text-2xl font-bold text-neutral-700">
-        Available Days *
-      </Text>
-      <Text className="text-sm text-neutral-400 mt-1">
-        Select the days you're available for bookings
-      </Text>
+    <View style={{gap: S.space.lg}}>
+      <View style={{gap: S.space.xs}}>
+        <Text className="text-2xl font-bold text-neutral-700">
+          Available Days *
+        </Text>
+        <Text className="text-sm text-neutral-400">
+          Select the days you're available for bookings
+        </Text>
+      </View>
 
       {/* Select All / Weekdays Buttons */}
-      <View className="flex-row gap-sm mt-lg">
+      <View className="flex-row gap-sm">
         <TouchableOpacity
-          className="flex-1 border border-[#E91E63] py-sm rounded-input"
+          className="flex-1 border border-primary-600 py-sm rounded-input"
           onPress={selectAllDays}
         >
-          <Text className="text-sm font-semibold text-[#E91E63] text-center">
+          <Text className="text-sm font-semibold text-primary-600 text-center">
             Select All Days
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className="flex-1 border border-[#E91E63] py-sm rounded-input"
+          className="flex-1 border border-primary-600 py-sm rounded-input"
           onPress={weekdaysOnly}
         >
-          <Text className="text-sm font-semibold text-[#E91E63] text-center">
+          <Text className="text-sm font-semibold text-primary-600 text-center">
             Weekdays Only
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Day Toggles */}
-      <View className="flex-row flex-wrap gap-sm mt-sm">
+      <View className="flex-row flex-wrap gap-sm">
         {DAYS.map((day) => (
           <TouchableOpacity
             key={day}
             className={`flex-1 min-w-[60px] py-sm rounded-input border ${
               selectedDays.includes(day)
-                ? 'bg-[#E91E63] border-[#E91E63]'
+                ? 'bg-primary-600 border-primary-600'
                 : 'bg-neutral-white border-neutral-200'
             }`}
             onPress={() => toggleDay(day)}
@@ -74,8 +77,8 @@ export default function AvailabilityStep({
       </View>
 
       {/* Days Selected Info */}
-      <View className="flex-row items-center gap-sm bg-[#FCE4EC] p-md rounded-input mt-sm">
-        <Icon name="calendar" size={24} color="#E91E63" />
+      <View className="flex-row items-center gap-sm bg-primary-100 p-md rounded-input">
+        <Icon name="calendar" size={24} color={theme.colors.primary[600]} />
         <View className="flex-1">
           <Text className="text-sm font-semibold text-neutral-700">
             {selectedDays.length} days selected
@@ -89,33 +92,35 @@ export default function AvailabilityStep({
       </View>
 
       {/* Available Time Slots */}
-      <Text className="text-2xl font-bold text-neutral-700 mt-lg">
-        Available Time Slots *
-      </Text>
-      <Text className="text-sm text-neutral-400 mt-1">
-        Choose your working hours - tap slots to toggle
-      </Text>
+      <View style={{gap: S.space.xs}}>
+        <Text className="text-2xl font-bold text-neutral-700">
+          Available Time Slots *
+        </Text>
+        <Text className="text-sm text-neutral-400">
+          Choose your working hours - tap slots to toggle
+        </Text>
+      </View>
 
       <TouchableOpacity
-        className="border border-[#E91E63] py-sm rounded-input mt-sm"
+        className="border border-primary-600 py-sm rounded-input"
         onPress={() =>
           setTimeSlotsState(
             timeSlotsState.map((slot) => ({ ...slot, selected: true }))
           )
         }
       >
-        <Text className="text-sm font-semibold text-[#E91E63] text-center">
+        <Text className="text-sm font-semibold text-primary-600 text-center">
           Select All Slots
         </Text>
       </TouchableOpacity>
 
-      <View className="gap-sm mt-sm">
+      <View className="gap-sm">
         {timeSlotsState.map((slot) => (
           <TouchableOpacity
             key={slot.id}
             className={`py-md px-md rounded-input border ${
               slot.selected
-                ? 'bg-[#E91E63] border-[#E91E63]'
+                ? 'bg-primary-600 border-primary-600'
                 : 'bg-neutral-white border-neutral-200'
             }`}
             onPress={() => toggleTimeSlot(slot.id)}
@@ -132,16 +137,16 @@ export default function AvailabilityStep({
       </View>
 
       {/* Navigation Buttons */}
-      <View className="flex-row gap-sm mt-xl">
+      <View className="flex-row gap-sm">
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-xs border border-[#E91E63] py-md rounded-input"
+          className="flex-1 flex-row items-center justify-center gap-xs border border-primary-600 py-md rounded-input"
           onPress={handleBack}
         >
-          <Icon name="chevron-back" size={18} color="#E91E63" />
-          <Text className="text-base font-bold text-[#E91E63]">Back</Text>
+          <Icon name="chevron-back" size={18} color={theme.colors.primary[600]} />
+          <Text className="text-base font-bold text-primary-600">Back</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-xs bg-[#E91E63] py-md rounded-input"
+          className="flex-1 flex-row items-center justify-center gap-xs bg-primary-600 py-md rounded-input"
           onPress={handleNext}
         >
           <Text className="text-base font-bold text-neutral-white">Next</Text>

@@ -9,9 +9,9 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import {LabeledInput} from '../../components/common/Labeledinput';
-import {S} from '../../theme';
+import {S, theme} from '../../theme';
 
-const ACCENT = '#E91E63'; 
+const ACCENT = theme.colors.primary[600]; 
 
 export default function ShopDetailsStep({
   galleryImages,
@@ -34,23 +34,25 @@ export default function ShopDetailsStep({
   handleNext,
 }) {
   return (
-    <View>
-      <Text style={{ fontSize: 26, fontWeight: '800', color: '#1F2937', marginBottom: 4 }}>
-        Shop Details
-      </Text>
-      <Text style={{ fontSize: 14, color: '#9CA3AF', marginBottom: 24 }}>
-        Showcase your salon to customers
-      </Text>
+    <View style={{gap: S.space.lg}}>
+      <View style={{gap: S.space.xs}}>
+        <Text style={{ fontSize: 26, fontWeight: '800', color: '#1F2937' }}>
+          Shop Details
+        </Text>
+        <Text style={{ fontSize: 14, color: '#9CA3AF' }}>
+          Showcase your salon to customers
+        </Text>
+      </View>
 
       {/* Shop Images */}
-      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 4 }}>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937' }}>
         Shop Images <Text style={{ color: ACCENT }}>*</Text>
       </Text>
-      <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 12 }}>
+      <Text style={{ fontSize: 13, color: '#6B7280' }}>
         Upload 1–4 high-quality images of your salon
       </Text>
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 28 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         {galleryImages.map((image, index) => (
           <TouchableOpacity
             key={index}
@@ -83,10 +85,10 @@ export default function ShopDetailsStep({
       </View>
 
       {/* Shop Location */}
-      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 4 }}>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937' }}>
         Shop Location <Text style={{ color: ACCENT }}>*</Text>
       </Text>
-      <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 14 }}>
+      <Text style={{ fontSize: 13, color: '#6B7280' }}>
         Help customers find you
       </Text>
 
@@ -103,7 +105,7 @@ export default function ShopDetailsStep({
         {/* State & City row */}
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+            <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151' }}>
               State <Text style={{ color: ACCENT }}>*</Text>
             </Text>
             <View
@@ -133,7 +135,7 @@ export default function ShopDetailsStep({
           </View>
 
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+            <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151' }}>
               City <Text style={{ color: ACCENT }}>*</Text>
             </Text>
             <View
@@ -189,8 +191,8 @@ export default function ShopDetailsStep({
       </View>
 
       {/* Pin on Map */}
-      <View style={{ marginBottom: 28 }}>
-        <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 8 }}>
+      <View style={{gap: S.space.sm}}>
+        <Text style={{ fontSize: 13, color: '#6B7280' }}>
           Pin Exact Location on Map (using current coordinates)
         </Text>
         <TouchableOpacity
