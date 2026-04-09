@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
+import {S, theme} from '../../theme';
 
 export default function PersonalInfoStep({
   profilePhoto,
@@ -30,16 +31,18 @@ export default function PersonalInfoStep({
   handleNext,
 }) {
   return (
-    <View>
-      <Text className="text-2xl font-bold text-neutral-700">
-        Personal Information
-      </Text>
-      <Text className="text-sm text-neutral-400 mt-1">
-        Tell us about yourself
-      </Text>
+    <View style={{gap: S.space.lg}}>
+      <View style={{gap: S.space.xs}}>
+        <Text className="font-bold text-neutral-700" style={{fontSize: S.fs.xl}}>
+          Personal Information
+        </Text>
+        <Text className="text-neutral-400" style={{fontSize: S.fs.xs}}>
+          Tell us about yourself
+        </Text>
+      </View>
 
       {/* Profile Photo */}
-      <View className="items-center mt-lg">
+      <View className="items-center" style={{gap: S.space.xs}}>
         <View className="relative">
           {profilePhoto ? (
             <Image
@@ -47,28 +50,29 @@ export default function PersonalInfoStep({
               className="w-24 h-24 rounded-full"
             />
           ) : (
-            <View className="w-24 h-24 rounded-full bg-[#FCE4EC] items-center justify-center">
-              <Icon name="person" size={40} color="#E91E63" />
+            <View className="w-24 h-24 rounded-full bg-primary-100 items-center justify-center">
+              <Icon name="person" size={40} color={theme.colors.primary[600]} />
             </View>
           )}
           <TouchableOpacity
-            className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#E91E63] items-center justify-center"
+            className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary-600 items-center justify-center"
             onPress={handleUploadPhoto}
           >
             <Icon name="camera" size={16} color="#fff" />
           </TouchableOpacity>
         </View>
-        <Text className="text-sm text-neutral-600 mt-xs">
+        <Text className="text-neutral-600" style={{fontSize: S.fs.xs}}>
           Upload your profile photo *
         </Text>
       </View>
 
       {/* Form Fields */}
-      <View className="gap-md mt-lg">
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Full Name *</Text>
+      <View style={{gap: S.space.md}}>
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-neutral-600" style={{fontSize: S.fs.xs}}>Full Name *</Text>
           <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
+            className="bg-neutral-white border border-neutral-200 rounded-input px-md text-neutral-700"
+            style={{paddingVertical: S.space.sm}}
             placeholder="Enter your full name"
             value={fullName}
             onChangeText={setFullName}
@@ -76,10 +80,11 @@ export default function PersonalInfoStep({
           />
         </View>
 
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Email Address *</Text>
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-neutral-600" style={{fontSize: S.fs.xs}}>Email Address *</Text>
           <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
+            className="bg-neutral-white border border-neutral-200 rounded-input px-md text-neutral-700"
+            style={{paddingVertical: S.space.sm}}
             placeholder="Enter your email address"
             value={email}
             onChangeText={setEmail}
@@ -89,10 +94,11 @@ export default function PersonalInfoStep({
           />
         </View>
 
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Password *</Text>
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-neutral-600" style={{fontSize: S.fs.xs}}>Password *</Text>
           <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
+            className="bg-neutral-white border border-neutral-200 rounded-input px-md text-neutral-700"
+            style={{paddingVertical: S.space.sm}}
             placeholder="Enter your password"
             value={password}
             onChangeText={setPassword}
@@ -102,22 +108,22 @@ export default function PersonalInfoStep({
         </View>
 
         {/* Gender */}
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Gender *</Text>
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-neutral-600" style={{fontSize: S.fs.xs}}>Gender *</Text>
           <View className="flex-row gap-sm">
             {['Male', 'Female', 'Other'].map((option) => (
               <TouchableOpacity
                 key={option}
                 className={`flex-1 py-sm px-md rounded-input border ${
                   gender === option
-                    ? 'bg-[#FCE4EC] border-[#E91E63]'
+                    ? 'bg-primary-100 border-primary-600'
                     : 'bg-neutral-white border-neutral-200'
                 }`}
                 onPress={() => setGender(option)}
               >
                 <Text
                   className={`text-sm font-semibold text-center ${
-                    gender === option ? 'text-[#E91E63]' : 'text-neutral-400'
+                    gender === option ? 'text-primary-600' : 'text-neutral-400'
                   }`}
                 >
                   {option}
@@ -127,10 +133,11 @@ export default function PersonalInfoStep({
           </View>
         </View>
 
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">Contact Number *</Text>
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-neutral-600" style={{fontSize: S.fs.xs}}>Contact Number *</Text>
           <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
+            className="bg-neutral-white border border-neutral-200 rounded-input px-md text-neutral-700"
+            style={{paddingVertical: S.space.sm}}
             placeholder="Enter WhatsApp number"
             value={contact}
             onChangeText={setContact}
@@ -139,12 +146,13 @@ export default function PersonalInfoStep({
           />
         </View>
 
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">
+        <View style={{gap: S.space.xs}}>
+          <Text className="text-neutral-600" style={{fontSize: S.fs.xs}}>
             Professional Experience *
           </Text>
           <TextInput
-            className="bg-neutral-white border border-neutral-200 rounded-input px-md py-sm text-neutral-700"
+            className="bg-neutral-white border border-neutral-200 rounded-input px-md text-neutral-700"
+            style={{paddingVertical: S.space.sm}}
             placeholder="E.g., 5 years"
             value={experience}
             onChangeText={setExperience}
@@ -153,8 +161,8 @@ export default function PersonalInfoStep({
         </View>
 
         {/* Specialization */}
-        <View>
-          <Text className="text-sm text-neutral-600 mb-xs">
+        <View style={{gap: S.space.sm}}>
+          <Text className="text-neutral-600" style={{fontSize: S.fs.xs}}>
             Specialization Category *
           </Text>
           <View className="bg-neutral-white border border-neutral-200 rounded-input overflow-hidden">
@@ -174,12 +182,12 @@ export default function PersonalInfoStep({
           </View>
 
           {/* Selected Categories Display */}
-          <View className="mt-sm">
-            <Text className="text-sm font-semibold text-neutral-700 mb-xs">
+          <View style={{gap: S.space.xs}}>
+            <Text className="font-semibold text-neutral-700" style={{fontSize: S.fs.xs}}>
               Selected Categories:
             </Text>
             {selectedSpecializations.length === 0 ? (
-              <Text className="text-xs text-neutral-400">
+              <Text className="text-neutral-400" style={{fontSize: S.fs.xxs}}>
                 No categories selected
               </Text>
             ) : (
@@ -200,7 +208,7 @@ export default function PersonalInfoStep({
 
       {/* Next Button */}
       <TouchableOpacity
-        className="flex-row items-center justify-center gap-xs bg-[#E91E63] py-md rounded-input mt-xl"
+        className="flex-row items-center justify-center gap-xs bg-primary-600 py-md rounded-input"
         onPress={handleNext}
       >
         <Text className="text-base font-bold text-neutral-white">Next</Text>

@@ -15,6 +15,7 @@ import StepIndicator from '../../components/common/StepIndicator';
 import ContactDetailsStep from '../../views/salonOwnerRegistration/ContactDetails';
 import ShopDetailsStep from '../../views/salonOwnerRegistration/ShopDetails';
 import VerificationStep from '../../views/salonOwnerRegistration/Verification';
+import {S} from '../../theme';
 
 const STEPS = { CONTACT: 1, SHOP: 2, VERIFICATION: 3 };
 
@@ -250,7 +251,7 @@ export default function SalonOwnerRegistration({ navigation }) {
   const isButtonDisabled = signUpLoading || isSubmitting;
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50">
+    <SafeAreaView className="flex-1 bg-base">
 
       {/* Header */}
       <RegistrationHeader onBack={handleBack} />
@@ -259,7 +260,7 @@ export default function SalonOwnerRegistration({ navigation }) {
       <StepIndicator steps={STEP_CONFIG} currentStep={currentStep} />
 
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={{padding: S.space.lg, paddingVertical: S.space['2xl']}}
         showsVerticalScrollIndicator={false}
       >
         {currentStep === STEPS.CONTACT && (

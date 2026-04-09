@@ -1,17 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   StatusBar,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import { verifyOTP, forgotPassword } from '../../redux/slices/authSlice';
+import {S} from '../../theme';
 
 const OTP_LENGTH = 4;
 
@@ -29,7 +29,7 @@ export default function EmailVerificationScreen({ navigation, route }) {
     return () => clearInterval(interval);
   }, []);
 
-  const handleOtpChange = (text) => {
+  const handleOtpChange = text => {
     const numericText = text.replace(/[^0-9]/g, '');
     if (numericText.length <= OTP_LENGTH) setOtp(numericText);
   };
@@ -54,24 +54,40 @@ export default function EmailVerificationScreen({ navigation, route }) {
     `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-base">
       <StatusBar barStyle="dark-content" />
       <KeyboardAvoidingView
-        behavior="height"
-        style={styles.keyboardAvoidingContainer}
-      >
-        <View style={styles.content}>
-          <Text style={styles.title}>Email verification,</Text>
-          <Text style={styles.subtitle}>
-            Please type OTP code that we sent to your email
-          </Text>
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1">
+        <View
+          className="flex-1 justify-center"
+          style={{paddingHorizontal: S.space.xl, gap: S.space['2xl']}}>
+          <View style={{gap: S.space.sm}}>
+            <Text
+              className="text-neutral-900 font-bold"
+              style={{fontSize: S.fs.xxl}}>
+              Email verification,
+            </Text>
+            <Text className="text-neutral-500" style={{fontSize: S.fs.md}}>
+              Please type OTP code that we sent to your email
+            </Text>
+          </View>
 
           {/* OTP Boxes */}
-          <View style={styles.otpContainer}>
+          <View style={{gap: S.space.lg}}>
+            <View
+              className="flex-row"
+              style={{justifyContent: 'space-between', width: '100%'}}>
             {Array.from({ length: OTP_LENGTH }).map((_, i) => (
               <TouchableOpacity
                 key={i}
-                style={[styles.otpBox, i === otp.length && styles.focusedOtpBox]}
+                className="items-center justify-center rounded-xl bg-neutral-50"
+                style={{
+                  width: S.size.avatarLg + S.space.sm,
+                  height: S.size.avatarLg + S.space.sm,
+                  borderWidth: i === otp.length ? 2 : 1,
+                  borderColor: i === otp.length ? '#7c3aed' : '#e0e0e0',
+                }}
                 activeOpacity={0.8}
                 onPress={() => {
                   // Android fix: blur then focus to reopen keyboard
@@ -81,15 +97,19 @@ export default function EmailVerificationScreen({ navigation, route }) {
                   }, 50);
                 }}
               >
-                <Text style={styles.otpText}>{otp[i] || ''}</Text>
+                <Text
+                  className="text-neutral-900 font-semibold"
+                  style={{fontSize: S.fs.xl}}>
+                  {otp[i] || ''}
+                </Text>
               </TouchableOpacity>
             ))}
-          </View>
+            </View>
 
           {/* Hidden Input for Android */}
           <TextInput
             ref={inputRef}
-            style={styles.hiddenInput}
+            style={{width: 1, height: 1, opacity: 1, position: 'absolute'}}
             keyboardType="number-pad"
             value={otp}
             onChangeText={handleOtpChange}
@@ -99,34 +119,31 @@ export default function EmailVerificationScreen({ navigation, route }) {
 
           {/* Resend */}
           <TouchableOpacity onPress={handleResend} disabled={timer > 0}>
-            <Text style={[styles.resendText, timer > 0 && styles.disabledResend]}>
+            <Text
+              className="font-semibold"
+              style={{
+                color: timer > 0 ? '#a1a1aa' : '#7c3aed',
+                fontSize: S.fs.sm,
+                textAlign: 'center',
+              }}>
               Resend in {formatTime(timer)}
             </Text>
           </TouchableOpacity>
 
           {/* Verify Button */}
-          <TouchableOpacity style={styles.button} onPress={handleVerify}>
-            <Text style={styles.buttonText}>Verify Email</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              className="items-center rounded-full bg-primary-600"
+              style={{padding: S.space.lg}}
+              onPress={handleVerify}>
+              <Text
+                className="text-white font-bold"
+                style={{fontSize: S.fs.md_h}}>
+                Verify Email
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  keyboardAvoidingContainer: { flex: 1 },
-  content: { flex: 1, paddingHorizontal: 25, paddingTop: 60, alignItems: 'center' },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#212121', marginBottom: 10, alignSelf: 'flex-start' },
-  subtitle: { fontSize: 16, color: '#616161', marginBottom: 40, alignSelf: 'flex-start' },
-  otpContainer: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 20 },
-  otpBox: { width: 70, height: 70, borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 15, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F6F7F8' },
-  focusedOtpBox: { borderColor: '#156778', borderWidth: 2 },
-  otpText: { fontSize: 28, fontWeight: '600', color: '#212121' },
-  hiddenInput: { width: 1, height: 1, opacity: 1, position: 'absolute', left: 0, top: 0 }, // Android-friendly
-  resendText: { color: '#156778', fontSize: 15, fontWeight: '600', marginBottom: 40 },
-  disabledResend: { color: '#9e9e9e' },
-  button: { backgroundColor: '#156778', paddingVertical: 18, borderRadius: 50, alignItems: 'center', width: '100%' },
-  buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-});

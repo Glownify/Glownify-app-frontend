@@ -30,16 +30,20 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 bg-white px-6 justify-center">
+    <SafeAreaView className="flex-1 bg-base">
+      <View
+        className="flex-1 justify-center"
+        style={{paddingHorizontal: S.space.xl, gap: S.space.xl}}>
 
         {/* Header - "back," in pink */}
-        <View className="mb-10">
-          <Text className="text-4xl font-bold text-neutral-900">
+        <View style={{gap: S.space.sm}}>
+          <Text
+            className="font-bold text-neutral-900"
+            style={{fontSize: S.fs.xxl}}>
             Welcome{' '}
-            <Text className="text-[#E91E63]">back,</Text>
+            <Text className="text-primary-600">back,</Text>
           </Text>
-          <Text className="text-neutral-500 text-base mt-2">
+          <Text className="text-neutral-500" style={{fontSize: S.fs.md}}>
             Glad to meet you again! Please login to use the app.
           </Text>
         </View>
@@ -66,9 +70,8 @@ export default function LoginScreen({ navigation }) {
         {/* Forgot Password - pink */}
         <TouchableOpacity
           onPress={() => navigation.navigate('ForgotPassword')}
-          className="self-end mb-6"
-        >
-          <Text className="text-[#E91E63] font-semibold">
+          className="self-end">
+          <Text className="text-primary-600 font-semibold">
             Forgot password?
           </Text>
         </TouchableOpacity>
@@ -78,14 +81,17 @@ export default function LoginScreen({ navigation }) {
           label="Sign In"
           onPress={handleLogin}
           loading={loading}
-          className="mb-6"
-          style={{ backgroundColor: '#E91E63' }}
+          className="bg-primary-600"
         />
 
         {/* Divider with lines */}
-        <View className="flex-row items-center mb-6">
+        <View className="flex-row items-center">
           <View className="flex-1 h-px bg-neutral-200" />
-          <Text className="text-neutral-400 mx-3">or</Text>
+          <Text
+            className="text-neutral-400"
+            style={{paddingHorizontal: S.space.sm}}>
+            or
+          </Text>
           <View className="flex-1 h-px bg-neutral-200" />
         </View>
 
@@ -95,15 +101,13 @@ export default function LoginScreen({ navigation }) {
           variant="outline"
           icon={{ source: require('../../assets/google-logo.png') }}
           onPress={() => {}}
-          className="mb-8"
         />
 
         {/* Register - "Join Now" in dark bold */}
         <TouchableOpacity
           onPress={() => navigation.navigate('Register')}
-          className="mb-4"
-        >
-          <Text className="text-center text-neutral-500 text-[15px]">
+          className="items-center">
+          <Text className="text-center text-neutral-500" style={{fontSize: S.fs.sm}}>
             Don't have an account?{' '}
             <Text className="text-neutral-900 font-bold">Join Now</Text>
           </Text>
@@ -112,9 +116,11 @@ export default function LoginScreen({ navigation }) {
         {/* Skip - pink text */}
         <TouchableOpacity
           onPress={() => dispatch(skipLogin())}
-          className="items-center py-2"
-        >
-          <Text className="text-[#E91E63] text-[15px]">Skip for now</Text>
+          className="items-center"
+          style={{padding: S.space.xs}}>
+          <Text className="text-primary-600" style={{fontSize: S.fs.sm}}>
+            Skip for now
+          </Text>
         </TouchableOpacity>
 
       </View>

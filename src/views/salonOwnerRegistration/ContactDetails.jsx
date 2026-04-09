@@ -7,9 +7,9 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker';
 import {LabeledInput} from '../../components/common/Labeledinput';
-import {S} from '../../theme';
+import {S, theme} from '../../theme';
 
-const ACCENT = '#E91E63';
+const ACCENT = theme.colors.primary[600];
 
 export default function ContactDetailsStep({
   ownershipType,
@@ -35,20 +35,22 @@ export default function ContactDetailsStep({
   handleNext,
 }) {
   return (
-    <View>
+    <View style={{gap: S.space.lg}}>
       {/* Title */}
-      <Text style={{ fontSize: 26, fontWeight: '800', color: '#1F2937', marginBottom: 4 }}>
-        Contact Details
-      </Text>
-      <Text style={{ fontSize: 14, color: '#9CA3AF', marginBottom: 24 }}>
-        Tell us about your business ownership
-      </Text>
+      <View style={{gap: S.space.xs}}>
+        <Text style={{ fontSize: 26, fontWeight: '800', color: '#1F2937' }}>
+          Contact Details
+        </Text>
+        <Text style={{ fontSize: 14, color: '#9CA3AF' }}>
+          Tell us about your business ownership
+        </Text>
+      </View>
 
       {/* Shop Ownership Type */}
-      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 12 }}>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937' }}>
         Shop Ownership Type
       </Text>
-      <View style={{ flexDirection: 'row', gap: 12, marginBottom: 28 }}>
+      <View style={{ flexDirection: 'row', gap: 12 }}>
         {/* Personal */}
         <TouchableOpacity
           style={{
@@ -61,7 +63,7 @@ export default function ContactDetailsStep({
             borderRadius: 12,
             borderWidth: 1.5,
             borderColor: ownershipType === 'personal' ? ACCENT : '#E5E7EB',
-            backgroundColor: ownershipType === 'personal' ? '#FFF0F5' : '#fff',
+            backgroundColor: ownershipType === 'personal' ? theme.colors.primary[100] : '#fff',
           }}
           onPress={() => setOwnershipType('personal')}
           activeOpacity={0.8}
@@ -94,7 +96,7 @@ export default function ContactDetailsStep({
             borderRadius: 12,
             borderWidth: 1.5,
             borderColor: ownershipType === 'partnership' ? ACCENT : '#E5E7EB',
-            backgroundColor: ownershipType === 'partnership' ? '#FFF0F5' : '#fff',
+            backgroundColor: ownershipType === 'partnership' ? theme.colors.primary[100] : '#fff',
           }}
           onPress={() => setOwnershipType('partnership')}
           activeOpacity={0.8}
@@ -117,7 +119,7 @@ export default function ContactDetailsStep({
       </View>
 
       {/* Owner Details */}
-      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 14 }}>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937' }}>
         Owner Details
       </Text>
 
@@ -165,12 +167,11 @@ export default function ContactDetailsStep({
           value={whatsappNumber}
           onChangeText={setWhatsappNumber}
           keyboardType="phone-pad"
-          style={{marginBottom: 28}}
         />
       </View>
 
       {/* Shop Information */}
-      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 14 }}>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937' }}>
         Shop Information
       </Text>
 
@@ -185,8 +186,8 @@ export default function ContactDetailsStep({
         />
 
         {/* Salon Category */}
-        <View style={{ marginBottom: 28 }}>
-          <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 6 }}>
+        <View style={{gap: S.space.xs}}>
+          <Text style={{ fontSize: 13, fontWeight: '500', color: '#374151' }}>
             Salon Category <Text style={{ color: ACCENT }}>*</Text>
           </Text>
           <View
@@ -214,8 +215,8 @@ export default function ContactDetailsStep({
 
       {/* Partners Details (if Partnership) */}
       {ownershipType === 'partnership' && (
-        <View style={{ marginBottom: 28 }}>
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937', marginBottom: 14 }}>
+        <View style={{gap: S.space.md}}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#1F2937' }}>
             Partners Details
           </Text>
 
@@ -228,10 +229,9 @@ export default function ContactDetailsStep({
                 borderColor: '#E5E7EB',
                 borderRadius: 14,
                 padding: 16,
-                marginBottom: 12,
               }}
             >
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#1F2937', marginBottom: 12 }}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#1F2937' }}>
                 Partner {index + 1}
               </Text>
 
@@ -296,7 +296,7 @@ export default function ContactDetailsStep({
                 borderWidth: 1.5,
                 borderColor: ACCENT,
                 borderRadius: 12,
-                backgroundColor: '#FFF0F5',
+                backgroundColor: theme.colors.primary[100],
               }}
               onPress={addPartner}
             >
@@ -319,8 +319,6 @@ export default function ContactDetailsStep({
           backgroundColor: ACCENT,
           paddingVertical: 18,
           borderRadius: 14,
-          marginTop: 8,
-          marginBottom: 8,
           shadowColor: ACCENT,
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.3,

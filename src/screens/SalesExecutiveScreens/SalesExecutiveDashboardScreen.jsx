@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Modal,
   StatusBar,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useSelector, useDispatch} from 'react-redux';
 import { fetchDashboardStats } from '../../redux/slices/salesExecutive';
+import {S, theme} from '../../theme';
 const SALES_PERSON = {
   id: 'SP-2025-001',
   name: 'Rajesh Kumar',
@@ -113,36 +112,55 @@ export default function SalesExecutiveDashboardScreen() {
   }, [dispatch]);
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
-      <StatusBar backgroundColor="#156778" barStyle="light-content" />
+    <SafeAreaView edges={['top']} className="flex-1 bg-primary-700">
+      <StatusBar backgroundColor={theme.colors.primary[700]} barStyle="light-content" />
       
-      <View style={styles.container}>
+      <View className="flex-1 bg-neutral-50">
         {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.profileSection}>
-            <View style={styles.profilePhoto}>
-              <Text style={styles.profilePhotoText}>{user.profilePhoto}</Text>
+        <View
+          className="flex-row items-center justify-between bg-surface border-b border-neutral-100"
+          style={{padding: S.space.lg}}>
+          <View className="flex-row items-center" style={{gap: S.space.md}}>
+            <View
+              className="items-center justify-center rounded-full bg-primary-100"
+              style={{width: 45, height: 45}}>
+              <Text style={{fontSize: S.fs.xl}}>{user?.profilePhoto || '👨'}</Text>
             </View>
-            <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{user.name}</Text>
-              <Text style={styles.referralLabel}>Sales Executive</Text>
+            <View style={{gap: S.space.xs}}>
+              <Text className="font-bold text-neutral-900" style={{fontSize: S.fs.md}}>
+                {user?.name || 'Sales Executive'}
+              </Text>
+              <Text className="text-neutral-500" style={{fontSize: S.fs.xxs}}>Sales Executive</Text>
             </View>
           </View>
-          <View style={styles.referralIdBadge}>
-            <Text style={styles.referralIdText}>{user?.roleDetails?.referralId}</Text>
+          <View className="bg-primary-600 rounded-md" style={{paddingHorizontal: S.space.md, paddingVertical: S.space.xs}}>
+            <Text className="text-white font-bold" style={{fontSize: S.fs.xxs}}>
+              {user?.roleDetails?.referralId || 'SP-XXXX'}
+            </Text>
           </View>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={{padding: S.space.lg, gap: S.space.xl}}
+          showsVerticalScrollIndicator={false}>
           {/* Metrics Overview */}
-          <View style={styles.metricsGrid}>
+          <View className="flex-row" style={{gap: S.space.sm}}>
             {METRICS.map((metric) => (
-              <View key={metric.id} style={styles.metricCard}>
-                <View style={[styles.metricIcon, { backgroundColor: `${metric.color}20` }]}>
+              <View
+                key={metric.id}
+                className="flex-1 bg-surface rounded-lg items-center"
+                style={{padding: S.space.sm}}>
+                <View
+                  className="items-center justify-center rounded-lg"
+                  style={{width: 36, height: 36, backgroundColor: `${metric.color}20`}}>
                   <Icon name={metric.icon} size={20} color={metric.color} />
                 </View>
-                <Text style={styles.metricLabel}>{metric.label}</Text>
-                <Text style={[styles.metricValue, { color: metric.color }]}>
+                <Text
+                  className="text-neutral-500 text-center"
+                  style={{fontSize: S.fs.tiny, marginTop: S.space.xs}}>
+                  {metric.label}
+                </Text>
+                <Text className="font-bold" style={{fontSize: S.fs.sm, color: metric.color}}>
                   {metric.value}
                 </Text>
               </View>
@@ -150,25 +168,26 @@ export default function SalesExecutiveDashboardScreen() {
           </View>
 
           {/* Detailed Breakdown Table */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Registration Breakdown</Text>
-            <View style={styles.tableContainer}>
-              <View style={styles.tableHeader}>
-                <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Salesman</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1 }]}>ReferralID</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Comm.</Text>
-                <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Status</Text>
+          <View style={{gap: S.space.md}}>
+            <Text className="font-bold text-neutral-900" style={{fontSize: S.fs.sm}}>Registration Breakdown</Text>
+            <View className="bg-surface rounded-lg overflow-hidden">
+              <View className="flex-row bg-neutral-50" style={{padding: S.space.sm}}>
+                <Text className="font-bold text-neutral-500" style={{fontSize: S.fs.tiny, flex: 1.5}}>Salesman</Text>
+                <Text className="font-bold text-neutral-500" style={{fontSize: S.fs.tiny, flex: 1}}>ReferralID</Text>
+                <Text className="font-bold text-neutral-500" style={{fontSize: S.fs.tiny, flex: 1}}>Comm.</Text>
+                <Text className="font-bold text-neutral-500" style={{fontSize: S.fs.tiny, flex: 1}}>Status</Text>
               </View>
 
              {salesman?.length > 0 ? (
   salesman.map((item) => (
-    <View style={styles.tableRow}>
-  <Text style={[styles.tableCell, { flex: 1.5 }]} numberOfLines={1}>
+    <View key={item._id || item.referralId} className="flex-row items-center border-t border-neutral-100" style={{padding: S.space.sm}}>
+  <Text className="text-neutral-800" style={{fontSize: S.fs.xxs, flex: 1.5}} numberOfLines={1}>
     {item.name}
   </Text>
 
   <Text
-    style={[styles.tableCell, { flex: 1 }]}
+    className="text-neutral-800"
+    style={{fontSize: S.fs.xxs, flex: 1}}
     numberOfLines={1}
     ellipsizeMode="middle"
   >
@@ -176,32 +195,26 @@ export default function SalesExecutiveDashboardScreen() {
   </Text>
 
   <Text
-    style={[
-      styles.tableCell,
-      {
-        width: 70,
-        textAlign: 'center',
-        fontWeight: '700',
-        color: '#4CAF50',
-      },
-    ]}
+    className="font-bold text-success-600 text-center"
+    style={{width: 70, fontSize: S.fs.xxs}}
   >
     {item.commissionRate}%
   </Text>
 
   <View
     style={[
-      styles.statusBadge,
       {
         flex: 1,
-        backgroundColor:
-          item.status === 'active' ? '#C8E6C9' : '#FFE0B2',
+        backgroundColor: item.status === 'active' ? '#C8E6C9' : '#FFE0B2',
+        paddingVertical: 4,
+        borderRadius: 4,
+        alignItems: 'center',
       },
     ]}
   >
     <Text
       style={[
-        styles.statusBadgeText,
+        {fontSize: S.fs.tiny, fontWeight: '700'},
         {
           color:
             item.status === 'active' ? '#2E7D32' : '#E65100',
@@ -215,7 +228,7 @@ export default function SalesExecutiveDashboardScreen() {
   ))
 ) : (
   <View style={{ padding: 20, alignItems: 'center' }}>
-    <Text style={{ fontSize: 12, color: '#999' }}>
+    <Text className="text-neutral-400" style={{ fontSize: 12 }}>
       No salesmen found
     </Text>
   </View>
@@ -225,21 +238,21 @@ export default function SalesExecutiveDashboardScreen() {
           </View>
 
           {/* Monthly Growth Chart */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Monthly Performance</Text>
-            <View style={styles.chartContainer}>
-              <View style={styles.chartYAxis}>
+          <View style={{gap: S.space.md}}>
+            <Text className="font-bold text-neutral-900" style={{fontSize: S.fs.sm}}>Monthly Performance</Text>
+            <View className="flex-row bg-surface rounded-lg" style={{padding: S.space.lg, height: 160}}>
+              <View style={{justifyContent: 'space-between', marginRight: S.space.sm}}>
                 {[5, 4, 3, 2, 1, 0].map(v => (
-                  <Text key={v} style={styles.chartLabel}>{v}</Text>
+                  <Text key={v} className="text-neutral-400" style={{fontSize: S.fs.tiny, width: 15, textAlign: 'right'}}>{v}</Text>
                 ))}
               </View>
-              <View style={styles.chartBars}>
+              <View className="flex-1 flex-row items-end justify-around">
                 {MONTHLY_SALES.map((data, index) => {
                   const barHeight = (data.value / maxValue) * chartHeight;
                   return (
-                    <View key={index} style={styles.barWrapper}>
-                      <View style={[styles.bar, { height: barHeight, backgroundColor: '#7C5FED' }]} />
-                      <Text style={styles.barLabel}>{data.month}</Text>
+                    <View key={index} className="items-center" style={{width: 30, gap: S.space.xs}}>
+                      <View style={{height: barHeight, width: 15, borderRadius: 4, backgroundColor: theme.colors.primary[600]}} />
+                      <Text className="text-neutral-400" style={{fontSize: S.fs.tiny}}>{data.month}</Text>
                     </View>
                   );
                 })}
@@ -263,20 +276,23 @@ export default function SalesExecutiveDashboardScreen() {
           </View> */}
 
           {/* Quick Actions */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
-            <View style={styles.actionsContainer}>
-              <TouchableOpacity style={styles.actionButton}>
+          <View style={{gap: S.space.md}}>
+            <Text className="font-bold text-neutral-900" style={{fontSize: S.fs.sm}}>Quick Actions</Text>
+            <View style={{gap: S.space.sm}}>
+              <TouchableOpacity
+                className="flex-row items-center justify-center bg-primary-600 rounded-md"
+                style={{padding: S.space.md, gap: S.space.sm}}>
                 <Icon name="add-circle" size={20} color="#fff" />
-                <Text style={styles.actionButtonText}>Register New Salon</Text>
+                <Text className="font-semibold text-white" style={{fontSize: S.fs.xs}}>Register New Salon</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.actionButton, styles.actionButtonSecondary]}
+                className="flex-row items-center justify-center bg-surface rounded-md border border-primary-600"
+                style={{padding: S.space.md, gap: S.space.sm}}
                 onPress={() => setShareModalVisible(true)}
               >
-                <Icon name="share-social" size={20} color="#7C5FED" />
-                <Text style={[styles.actionButtonText, styles.actionButtonTextSecondary]}>
+                <Icon name="share-social" size={20} color={theme.colors.primary[600]} />
+                <Text className="font-semibold text-primary-600" style={{fontSize: S.fs.xs}}>
                   Share Referral Link
                 </Text>
               </TouchableOpacity>
@@ -292,37 +308,40 @@ export default function SalesExecutiveDashboardScreen() {
         animationType="fade"
         onRequestClose={() => setShareModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Referral System</Text>
+        <View className="flex-1 bg-black/50 items-center justify-center" style={{padding: S.space.xl}}>
+          <View className="bg-surface rounded-2xl w-full" style={{padding: S.space.lg, gap: S.space.lg}}>
+            <View className="flex-row items-center justify-between">
+              <Text className="font-bold text-neutral-900" style={{fontSize: S.fs.md}}>Referral System</Text>
               <TouchableOpacity onPress={() => setShareModalVisible(false)}>
                 <Icon name="close" size={24} color="#333" />
               </TouchableOpacity>
             </View>
 
-            <View style={styles.modalBody}>
-              <Text style={styles.referralLinkLabel}>Your Unique Link</Text>
-              <View style={styles.referralLinkBox}>
-                <Text style={styles.referralLink} numberOfLines={1}>
+            <View style={{gap: S.space.md}}>
+              <Text className="font-semibold text-neutral-700" style={{fontSize: S.fs.xxs}}>Your Unique Link</Text>
+              <View className="flex-row items-center bg-neutral-50 rounded-md" style={{padding: S.space.md, gap: S.space.sm}}>
+                <Text className="flex-1 text-primary-600" style={{fontSize: S.fs.xxs}} numberOfLines={1}>
                   https://salonstartup.com/ref/{user?.roleDetails?.referralId}
                 </Text>
-                <TouchableOpacity style={styles.copyButton}>
-                  <Icon name="copy" size={18} color="#7C5FED" />
+                <TouchableOpacity>
+                  <Icon name="copy" size={18} color={theme.colors.primary[600]} />
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.shareMethodsLabel}>Quick Share</Text>
-              <View style={styles.shareMethodsGrid}>
+              <Text className="font-semibold text-neutral-700" style={{fontSize: S.fs.xxs}}>Quick Share</Text>
+              <View className="flex-row justify-around" style={{paddingVertical: S.space.sm}}>
                 <ShareIcon name="logo-whatsapp" color="#25D366" label="WhatsApp" />
                 <ShareIcon name="mail" color="#EA4335" label="Email" />
                 <ShareIcon name="chatbubbles" color="#007AFF" label="SMS" />
               </View>
             </View>
 
-            <View style={styles.modalFooter}>
-              <TouchableOpacity style={styles.closeButton} onPress={() => setShareModalVisible(false)}>
-                <Text style={styles.closeButtonText}>Done</Text>
+            <View>
+              <TouchableOpacity
+                className="bg-primary-600 rounded-md items-center"
+                style={{padding: S.space.md}}
+                onPress={() => setShareModalVisible(false)}>
+                <Text className="text-white font-bold">Done</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -333,74 +352,8 @@ export default function SalesExecutiveDashboardScreen() {
 }
 
 const ShareIcon = ({ name, color, label }) => (
-  <TouchableOpacity style={styles.shareMethod}>
+  <TouchableOpacity style={{alignItems: 'center', gap: S.space.xs}}>
     <Icon name={name} size={32} color={color} />
-    <Text style={styles.shareMethodText}>{label}</Text>
+    <Text className="text-neutral-500" style={{fontSize: S.fs.tiny}}>{label}</Text>
   </TouchableOpacity>
 );
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  profileSection: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  profilePhoto: { width: 45, height: 45, borderRadius: 25, backgroundColor: '#7C5FED20', justifyContent: 'center', alignItems: 'center' },
-  profilePhotoText: { fontSize: 24 },
-  profileName: { fontSize: 16, fontWeight: '700', color: '#333' },
-  referralLabel: { fontSize: 11, color: '#999' },
-  referralIdBadge: { backgroundColor: '#7C5FED', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6 },
-  referralIdText: { fontSize: 12, fontWeight: '700', color: '#fff' },
-  scrollContent: { padding: 16, paddingBottom: 30 },
-  metricsGrid: { flexDirection: 'row', gap: 10, marginBottom: 20 },
-  metricCard: { flex: 1, backgroundColor: '#fff', borderRadius: 10, padding: 10, alignItems: 'center', elevation: 1 },
-  metricIcon: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
-  metricLabel: { fontSize: 9, color: '#999', textAlign: 'center', marginBottom: 4 },
-  metricValue: { fontSize: 14, fontWeight: '700' },
-  section: { marginBottom: 20 },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#333', marginBottom: 12 },
-  tableContainer: { backgroundColor: '#fff', borderRadius: 10, overflow: 'hidden', elevation: 1 },
-  tableHeader: { flexDirection: 'row', padding: 10, backgroundColor: '#f9f9f9' },
-  tableHeaderCell: { fontSize: 10, fontWeight: '700', color: '#666' },
-  tableRow: { flexDirection: 'row', padding: 10, borderTopWidth: 1, borderTopColor: '#f0f0f0', alignItems: 'center' },
-  tableCell: { fontSize: 11, color: '#333' },
-  statusBadge: { paddingVertical: 4, borderRadius: 4, alignItems: 'center' },
-  statusBadgeText: { fontSize: 9, fontWeight: '700' },
-  chartContainer: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 10, padding: 16, height: 160, elevation: 1 },
-  chartYAxis: { justifyContent: 'space-between', marginRight: 10 },
-  chartLabel: { fontSize: 10, color: '#999', width: 15, textAlign: 'right' },
-  chartBars: { flex: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' },
-  barWrapper: { alignItems: 'center', width: 30 },
-  bar: { width: 15, borderRadius: 4 },
-  barLabel: { fontSize: 10, color: '#999', marginTop: 8 },
-  progressCard: { backgroundColor: '#fff', borderRadius: 10, padding: 16, elevation: 1 },
-  progressHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  progressLabel: { fontSize: 12, fontWeight: '600' },
-  progressValue: { fontSize: 12, fontWeight: '700', color: '#7C5FED' },
-  progressBarBg: { height: 8, backgroundColor: '#f0f0f0', borderRadius: 4, marginBottom: 8 },
-  progressBarFill: { height: '100%', backgroundColor: '#7C5FED', borderRadius: 4 },
-  progressPercentage: { fontSize: 10, color: '#999' },
-  actionsContainer: { gap: 10 },
-  actionButton: { flexDirection: 'row', backgroundColor: '#7C5FED', padding: 12, borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 8 },
-  actionButtonSecondary: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#7C5FED' },
-  actionButtonText: { fontSize: 13, fontWeight: '600', color: '#fff' },
-  actionButtonTextSecondary: { color: '#7C5FED' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-  modalContent: { backgroundColor: '#fff', borderRadius: 16, padding: 16 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  modalTitle: { fontSize: 16, fontWeight: '700' },
-  referralLinkLabel: { fontSize: 12, fontWeight: '600', marginBottom: 8 },
-  referralLinkBox: { flexDirection: 'row', backgroundColor: '#f5f5f5', padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 20 },
-  referralLink: { flex: 1, fontSize: 12, color: '#7C5FED' },
-  shareMethodsGrid: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10 },
-  shareMethod: { alignItems: 'center', gap: 4 },
-  shareMethodText: { fontSize: 10, color: '#666' },
-  closeButton: { backgroundColor: '#7C5FED', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 10 },
-  closeButtonText: { color: '#fff', fontWeight: '700' },
-});

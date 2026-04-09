@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import {S, theme} from '../../theme';
 
 // Redux Actions
 import { logout } from '../../redux/slices/authSlice';
@@ -83,8 +84,8 @@ export default function SalesExecutiveProfileScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#156778' }}>
-      <StatusBar backgroundColor="#156778" barStyle="light-content" />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.colors.primary[700] }}>
+      <StatusBar backgroundColor={theme.colors.primary[700]} barStyle="light-content" />
       
       <View style={styles.container}>
         {/* Header */}
@@ -227,7 +228,7 @@ export default function SalesExecutiveProfileScreen() {
 }
 
 // Sub-components for cleaner code
-const DetailItem = ({ icon, text, iconColor = "#7C5FED" }) => (
+const DetailItem = ({ icon, text, iconColor = theme.colors.primary[600] }) => (
   <View style={styles.detailItem}>
     <Icon name={icon} size={16} color={iconColor} />
     <Text style={styles.detailText}>{text || 'N/A'}</Text>
@@ -252,33 +253,33 @@ const SettingToggle = ({ icon, color, title, value, onToggle }) => (
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, backgroundColor: theme.colors.neutral[50] },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#333' },
-  editButton: { width: 36, height: 36, borderRadius: 8, backgroundColor: '#7C5FED', justifyContent: 'center', alignItems: 'center' },
-  scrollContent: { padding: 16, paddingBottom: 40 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.neutral[800] },
+  editButton: { width: 36, height: 36, borderRadius: 8, backgroundColor: theme.colors.primary[600], justifyContent: 'center', alignItems: 'center' },
+  scrollContent: { padding: S.space.lg, paddingBottom: S.space['5xl'] },
   profileCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
     marginBottom: 20,
     elevation: 2,
   },
-  avatarContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#7C5FED20', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+  avatarContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: `${theme.colors.primary[600]}20`, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
   avatarText: { fontSize: 40 },
   profileInfo: { alignItems: 'center', width: '100%' },
-  profileName: { fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 8 },
-  referralBadge: { backgroundColor: '#7C5FED', paddingVertical: 4, paddingHorizontal: 12, borderRadius: 6, marginBottom: 16 },
+  profileName: { fontSize: 18, fontWeight: '700', color: theme.colors.neutral[800], marginBottom: 8 },
+  referralBadge: { backgroundColor: theme.colors.primary[600], paddingVertical: 4, paddingHorizontal: 12, borderRadius: 6, marginBottom: 16 },
   referralBadgeText: { fontSize: 12, fontWeight: '700', color: '#fff' },
   profileDetails: { width: '100%', gap: 12 },
   detailItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
@@ -292,17 +293,17 @@ const styles = StyleSheet.create({
   saveButton: { flex: 1, backgroundColor: '#7C5FED', padding: 12, borderRadius: 8, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6 },
   saveButtonText: { fontWeight: '600', color: '#fff' },
   statsSection: { marginBottom: 20 },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#333', marginBottom: 12 },
+  sectionTitle: { fontSize: 14, fontWeight: '700', color: theme.colors.neutral[800], marginBottom: 12 },
   statsGrid: { flexDirection: 'row', gap: 10 },
-  statCard: { flex: 1, backgroundColor: '#fff', borderRadius: 10, padding: 12, alignItems: 'center', elevation: 1 },
+  statCard: { flex: 1, backgroundColor: theme.colors.surface, borderRadius: 10, padding: 12, alignItems: 'center', elevation: 1 },
   statIcon: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   statLabel: { fontSize: 10, color: '#999', marginBottom: 2 },
   statValue: { fontSize: 13, fontWeight: '700' },
   section: { marginBottom: 20 },
-  settingCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 8 },
+  settingCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.colors.surface, borderRadius: 10, padding: 12, marginBottom: 8 },
   settingContent: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   settingIcon: { width: 32, height: 32, borderRadius: 6, justifyContent: 'center', alignItems: 'center' },
   settingTitle: { fontSize: 13, fontWeight: '600' },
-  logoutButton: { flexDirection: 'row', backgroundColor: '#F44336', padding: 14, borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 10 },
+  logoutButton: { flexDirection: 'row', backgroundColor: theme.colors.error[500], padding: 14, borderRadius: 8, justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 10 },
   logoutButtonText: { fontSize: 15, fontWeight: '700', color: '#fff' },
 });
